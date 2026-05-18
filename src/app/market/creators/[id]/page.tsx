@@ -406,7 +406,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                 </div>
               )}
 
-              {/* Hours + rate row */}
+              {/* Active hours row */}
               <div className="flex items-center gap-3 mt-4 pt-4 border-t border-border text-xs text-muted-foreground flex-wrap">
                 {editingField === "hours" ? (
                   <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -418,20 +418,6 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                   <span className="flex items-center">
                     {t.creatorProfile.activeLabel} {creator.activeHours}
                     <EditIcon field="hours" />
-                  </span>
-                )}
-                <span className="text-muted-foreground/50">·</span>
-                {editingField === "rate" ? (
-                  <div className="flex items-center gap-2">
-                    <span>{t.creators.fromLabel} ¥</span>
-                    <Input type="number" value={draftRate} onChange={(e) => setDraftRate(e.target.value)} className="h-7 text-xs w-24" autoFocus />
-                    <span>{t.creatorProfile.fromPerProject}</span>
-                    <FieldActions />
-                  </div>
-                ) : (
-                  <span className="flex items-center">
-                    {t.creators.fromLabel} ¥{creator.rateCard.from.toLocaleString()} {t.creatorProfile.fromPerProject}
-                    <EditIcon field="rate" />
                   </span>
                 )}
               </div>
@@ -494,10 +480,24 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
           {/* Sidebar */}
           <div className="space-y-4">
             <div className="bg-white border border-border rounded-xl p-5 sticky top-20">
-              <div className="text-center mb-4">
-                <p className="text-2xl font-bold text-foreground">¥{creator.rateCard.from.toLocaleString()}+</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{t.creatorProfile.startingRate}</p>
-              </div>
+              {editingField === "rate" ? (
+                <div className="mb-4 space-y-2">
+                  <p className="text-xs text-muted-foreground text-center">{t.creatorProfile.startingRate}</p>
+                  <div className="flex items-center gap-2 justify-center">
+                    <span className="text-lg font-bold text-foreground">¥</span>
+                    <Input type="number" value={draftRate} onChange={(e) => setDraftRate(e.target.value)} className="h-9 text-base font-semibold w-28 text-center" autoFocus />
+                  </div>
+                  <div className="flex justify-center"><FieldActions /></div>
+                </div>
+              ) : (
+                <div className="text-center mb-4">
+                  <p className="text-2xl font-bold text-foreground inline-flex items-center justify-center">
+                    ¥{creator.rateCard.from.toLocaleString()}+
+                    <EditIcon field="rate" />
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{t.creatorProfile.startingRate}</p>
+                </div>
+              )}
 
               {activeRole === "backer" && (
                 <div className="space-y-2">
@@ -521,21 +521,6 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                   <Check className="w-4 h-4" /> {t.creatorProfile.editDone}
                 </Button>
               )}
-
-              <div className="mt-4 pt-4 border-t border-border space-y-2">
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">{t.creatorProfile.projectsCount}</span>
-                  <span className="font-medium">{creator.orders}</span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">{t.creatorProfile.completion}</span>
-                  <span className="font-medium">{creator.completion}%</span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">{t.creatorProfile.punctuality}</span>
-                  <span className="font-medium">{creator.punctuality}%</span>
-                </div>
-              </div>
             </div>
           </div>
         </div>
