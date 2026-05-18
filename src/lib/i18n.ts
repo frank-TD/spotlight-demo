@@ -411,6 +411,9 @@ const en = {
     spotlightBrand: "Spotlight",
     roleBacker: "Backer",
     roleCreator: "Creator",
+    viewFullProfile: "View full profile",
+    closeProfile: "Close",
+    backerCompany: "NeoVision AI · Creative Director",
   },
   profile: {
     title: "Profile",
@@ -852,6 +855,9 @@ const zhCN: typeof en = {
     spotlightBrand: "Spotlight",
     roleBacker: "Backer",
     roleCreator: "Creator",
+    viewFullProfile: "查看完整名片",
+    closeProfile: "关闭",
+    backerCompany: "NeoVision AI · 创意总监",
   },
   profile: {
     title: "个人资料",
@@ -1293,6 +1299,9 @@ const zhTW: typeof en = {
     spotlightBrand: "Spotlight",
     roleBacker: "Backer",
     roleCreator: "Creator",
+    viewFullProfile: "查看完整名片",
+    closeProfile: "關閉",
+    backerCompany: "NeoVision AI · 創意總監",
   },
   profile: {
     title: "個人資料",

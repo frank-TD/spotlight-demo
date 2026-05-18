@@ -1,20 +1,27 @@
 "use client";
 import { use, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import AppShell from "@/components/layout/AppShell";
-import { ORDER_ACTIVE } from "@/lib/mock-data";
+import { ORDER_ACTIVE, CREATORS } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Send, Paperclip } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { ArrowLeft, Send, Paperclip, Star, ArrowUpRight } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useT } from "@/hooks/useT";
 
+const ARIA = CREATORS[0]; // u_creator_01
+
 export default function SessionPage({ params }: { params: Promise<{ id: string }> }) {
   use(params);
-  const { activeRole } = useStore();
+  const { activeRole, creatorEdits } = useStore();
+  const router = useRouter();
   const t = useT();
   const [input, setInput] = useState("");
   const [extraMsgs, setExtraMsgs] = useState<Array<{ id: string; senderId: string; senderName: string; senderRole: string; text: string; ts: string }>>([]);
+  const [counterpartOpen, setCounterpartOpen] = useState(false);
 
   const sendMsg = () => {
     const trimmed = input.trim();
@@ -30,6 +37,32 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
     setInput("");
   };
 
+  // Counterpart resolved from active role
+  const counterpartIsCreator = activeRole === "backer";
+  const counterpart = counterpartIsCreator
+    ? {
+        name: creatorEdits.nickname ?? ARIA.nickname,
+        avatar: ARIA.avatar,
+        avatarUrl: creatorEdits.avatarUrl,
+        avatarColor: ARIA.avatarColor,
+        role: t.chat.roleCreator,
+        bio: creatorEdits.bio ?? ARIA.bio,
+        specialties: creatorEdits.specialties ?? ARIA.specialties,
+        rating: ARIA.rating,
+        orders: ARIA.orders,
+      }
+    : {
+        name: "Lucas Chen",
+        avatar: "LC",
+        avatarUrl: undefined as string | undefined,
+        avatarColor: "bg-accent text-primary",
+        role: t.chat.roleBacker,
+        bio: t.profile.bioBackerDefault,
+        specialties: [] as string[],
+        rating: undefined as number | undefined,
+        orders: undefined as number | undefined,
+      };
+
   const allMsgs = [...ORDER_ACTIVE.messages, ...extraMsgs];
 
   return (
@@ -40,17 +73,25 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
           <Link href="/market" className="text-muted-foreground hover:text-foreground">
             <ArrowLeft className="w-4 h-4" />
           </Link>
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center text-sm font-semibold text-primary">
-              {activeRole === "backer" ? "AS" : "LC"}
-            </div>
+          <button
+            type="button"
+            onClick={() => setCounterpartOpen(true)}
+            className="flex items-center gap-2.5 rounded-lg px-2 py-1 -mx-2 hover:bg-accent transition-colors text-left"
+            aria-label="view counterpart profile"
+          >
+            {counterpart.avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={counterpart.avatarUrl} alt={counterpart.name} className="w-8 h-8 rounded-full object-cover" />
+            ) : (
+              <div className={cn("w-8 h-8 rounded-full flex items-center justify-center text-sm font-semibold", counterpart.avatarColor)}>
+                {counterpart.avatar}
+              </div>
+            )}
             <div>
-              <p className="text-sm font-semibold text-foreground">
-                {activeRole === "backer" ? "Aria Song" : "Lucas Chen"}
-              </p>
+              <p className="text-sm font-semibold text-foreground">{counterpart.name}</p>
               <p className="text-xs text-muted-foreground">{t.chat.sessionSubject}</p>
             </div>
-          </div>
+          </button>
           <div className="ml-auto">
             <Link href="/orders/ord_001">
               <Button variant="outline" size="sm" className="text-xs">{t.chat.viewOrder}</Button>
@@ -76,9 +117,19 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
             return (
               <div key={msg.id} className={cn("flex gap-2", isMe ? "flex-row-reverse" : "flex-row")}>
                 {!isMe && (
-                  <div className="w-7 h-7 rounded-full bg-accent flex items-center justify-center text-xs font-semibold text-primary shrink-0">
-                    {msg.senderName.split(" ").map((n: string) => n[0]).join("")}
-                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setCounterpartOpen(true)}
+                    className="w-7 h-7 rounded-full bg-accent flex items-center justify-center text-xs font-semibold text-primary shrink-0 hover:ring-2 hover:ring-primary/30 transition-all overflow-hidden"
+                    aria-label="view counterpart profile"
+                  >
+                    {counterpart.avatarUrl && counterpart.name.includes(msg.senderName) ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={counterpart.avatarUrl} alt={msg.senderName} className="w-7 h-7 object-cover" />
+                    ) : (
+                      msg.senderName.split(" ").map((n: string) => n[0]).join("")
+                    )}
+                  </button>
                 )}
                 <div className={cn("flex flex-col gap-0.5 max-w-[70%]", isMe ? "items-end" : "items-start")}>
                   {!isMe && (
@@ -116,6 +167,64 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
           </Button>
         </div>
       </div>
+
+      {/* Counterpart profile dialog */}
+      <Dialog open={counterpartOpen} onOpenChange={setCounterpartOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-base">{counterpart.name}</DialogTitle>
+          </DialogHeader>
+          <div className="py-2 space-y-4">
+            <div className="flex items-center gap-3">
+              {counterpart.avatarUrl ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={counterpart.avatarUrl} alt={counterpart.name} className="w-14 h-14 rounded-full object-cover shrink-0" />
+              ) : (
+                <div className={cn("w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold shrink-0", counterpart.avatarColor)}>
+                  {counterpart.avatar}
+                </div>
+              )}
+              <div className="min-w-0">
+                <p className="text-sm font-semibold text-foreground">{counterpart.name}</p>
+                <Badge variant="secondary" className="text-[10px] mt-1">{counterpart.role}</Badge>
+                {counterpartIsCreator && counterpart.rating !== undefined && (
+                  <div className="flex items-center gap-1 mt-1.5">
+                    <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                    <span className="text-xs text-muted-foreground">{counterpart.rating} · {counterpart.orders} {t.creators.projectsLabel}</span>
+                  </div>
+                )}
+                {!counterpartIsCreator && (
+                  <p className="text-xs text-muted-foreground mt-1.5">{t.chat.backerCompany}</p>
+                )}
+              </div>
+            </div>
+
+            {counterpart.specialties.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {counterpart.specialties.map((s) => (
+                  <span key={s} className="text-xs bg-accent text-primary px-2.5 py-0.5 rounded-full">{s}</span>
+                ))}
+              </div>
+            )}
+
+            <p className="text-xs text-muted-foreground leading-relaxed">{counterpart.bio}</p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCounterpartOpen(false)}>{t.chat.closeProfile}</Button>
+            {counterpartIsCreator && (
+              <Button
+                className="gap-1.5"
+                onClick={() => {
+                  setCounterpartOpen(false);
+                  router.push("/market/creators/u_creator_01");
+                }}
+              >
+                {t.chat.viewFullProfile} <ArrowUpRight className="w-3.5 h-3.5" />
+              </Button>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppShell>
   );
 }
