@@ -133,22 +133,59 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
   const removeItem = (i: number) => {
     setFormShowcase((prev) => prev.filter((_, idx) => idx !== i));
   };
-  const onLocalFilePick = (i: number, e: React.ChangeEvent<HTMLInputElement>) => {
+  const formatDuration = (seconds: number) => {
+    if (!Number.isFinite(seconds) || seconds <= 0) return "";
+    const s = Math.round(seconds);
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const ss = s % 60;
+    const pad = (n: number) => String(n).padStart(2, "0");
+    return h > 0 ? `${h}:${pad(m)}:${pad(ss)}` : `${m}:${pad(ss)}`;
+  };
+
+  const detectVideoDuration = (file: File): Promise<string> =>
+    new Promise((resolve) => {
+      if (!file.type.startsWith("video/")) return resolve("");
+      const url = URL.createObjectURL(file);
+      const video = document.createElement("video");
+      video.preload = "metadata";
+      const cleanup = () => URL.revokeObjectURL(url);
+      video.onloadedmetadata = () => {
+        const d = formatDuration(video.duration);
+        cleanup();
+        resolve(d);
+      };
+      video.onerror = () => {
+        cleanup();
+        resolve("");
+      };
+      video.src = url;
+    });
+
+  const onLocalFilePick = async (i: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    e.target.value = "";
+    // Set file metadata immediately
     setFormShowcase((prev) =>
       prev.map((s, idx) =>
-        idx === i ? { ...s, fileSource: "local", fileName: file.name, assetId: undefined, title: s.title || file.name.replace(/\.[^.]+$/, "") } : s
+        idx === i
+          ? { ...s, fileSource: "local", fileName: file.name, assetId: undefined, title: s.title || file.name.replace(/\.[^.]+$/, ""), duration: "" }
+          : s
       )
     );
-    e.target.value = "";
+    // Then detect duration asynchronously
+    const dur = await detectVideoDuration(file);
+    if (dur) {
+      setFormShowcase((prev) => prev.map((s, idx) => (idx === i ? { ...s, duration: dur } : s)));
+    }
   };
   const pickAsset = (asset: typeof MY_ASSETS_CREATED[number]) => {
     if (assetPickerForIdx === null) return;
     setFormShowcase((prev) =>
       prev.map((s, idx) =>
         idx === assetPickerForIdx
-          ? { ...s, fileSource: "asset", assetId: asset.id, fileName: asset.title, title: s.title || asset.title }
+          ? { ...s, fileSource: "asset", assetId: asset.id, fileName: asset.title, title: s.title || asset.title, duration: asset.duration ?? "" }
           : s
       )
     );
@@ -595,8 +632,17 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                           <Input value={work.title} onChange={(e) => updateField(i, "title", e.target.value)} className="mt-1 h-8 text-xs" />
                         </div>
                         <div>
-                          <Label className="text-[10px] text-muted-foreground">{t.creatorProfile.workDuration}</Label>
-                          <Input value={work.duration} onChange={(e) => updateField(i, "duration", e.target.value)} placeholder={t.creatorProfile.workDurationPlaceholder} className="mt-1 h-8 text-xs" />
+                          <Label className="text-[10px] text-muted-foreground flex items-center gap-1">
+                            {t.creatorProfile.workDuration}
+                            <span className="text-[9px] text-primary/70 font-normal">· {t.creatorProfile.workDurationAutoHint}</span>
+                          </Label>
+                          <Input
+                            value={work.duration}
+                            readOnly
+                            tabIndex={-1}
+                            placeholder={t.creatorProfile.workDurationPlaceholder}
+                            className="mt-1 h-8 text-xs bg-muted/60 cursor-default focus-visible:ring-0 focus-visible:border-input"
+                          />
                         </div>
                         <div>
                           <Label className="text-[10px] text-muted-foreground">{t.creatorProfile.workDescription}</Label>

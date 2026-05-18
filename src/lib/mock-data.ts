@@ -347,9 +347,9 @@ export const ORDER_COMPLETED = {
 // ── Assets ────────────────────────────────────────────────────────────────────
 
 export const MY_ASSETS_CREATED = [
-  { id: "asset_001", title: "NeoVision Draft Cut v1", type: "video", size: "312 MB", orderId: "ord_001", orderTitle: "Cinematic Brand Film — NeoVision AI", createdAt: "2026-05-17", showcased: false },
-  { id: "asset_002", title: "Product Launch — Final Export", type: "video", size: "890 MB", orderId: "ord_002", orderTitle: "Product Launch Video — Smart Home Device", createdAt: "2026-05-10", showcased: true },
-  { id: "asset_003", title: "Stellar Bloom MV — Director's Cut", type: "video", size: "1.2 GB", orderId: null, orderTitle: null, createdAt: "2026-04-22", showcased: true },
+  { id: "asset_001", title: "NeoVision Draft Cut v1", type: "video", size: "312 MB", duration: "1:32", orderId: "ord_001", orderTitle: "Cinematic Brand Film — NeoVision AI", createdAt: "2026-05-17", showcased: false },
+  { id: "asset_002", title: "Product Launch — Final Export", type: "video", size: "890 MB", duration: "0:45", orderId: "ord_002", orderTitle: "Product Launch Video — Smart Home Device", createdAt: "2026-05-10", showcased: true },
+  { id: "asset_003", title: "Stellar Bloom MV — Director's Cut", type: "video", size: "1.2 GB", duration: "3:44", orderId: null, orderTitle: null, createdAt: "2026-04-22", showcased: true },
 ];
 
 export const MY_ASSETS_PURCHASED = [
