@@ -2,13 +2,13 @@
 import { use } from "react";
 import { useStore } from "@/lib/store";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import AppShell from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { NEEDS, BIDS_NEED_001, CREATORS } from "@/lib/mock-data";
 import Link from "next/link";
-import { ArrowLeft, Clock, DollarSign, Film, Star, Check, X, ChevronRight } from "lucide-react";
+import { ArrowLeft, Clock, DollarSign, Film, Star, Check, X, ChevronRight, Paperclip, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -25,6 +25,42 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
   const [bidOpen, setBidOpen] = useState(false);
   const [manageOpen, setManageOpen] = useState(false);
   const [acceptedBid, setAcceptedBid] = useState<string | null>(null);
+  const [attachments, setAttachments] = useState<Array<{ id: string; name: string; size: string; note: string }>>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const formatSize = (bytes: number) => {
+    if (bytes < 1024) return `${bytes} B`;
+    if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
+    return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
+  };
+
+  const handleFilePick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files ?? []);
+    const remaining = 5 - attachments.length;
+    if (files.length > remaining) {
+      toast.error(t.needDetail.attachmentLimitToast);
+    }
+    const next = files.slice(0, remaining).map((f) => ({
+      id: `att_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
+      name: f.name,
+      size: formatSize(f.size),
+      note: "",
+    }));
+    setAttachments((prev) => [...prev, ...next]);
+    e.target.value = "";
+  };
+
+  const updateAttachmentNote = (id: string, note: string) => {
+    setAttachments((prev) => prev.map((a) => (a.id === id ? { ...a, note } : a)));
+  };
+
+  const removeAttachment = (id: string) => {
+    setAttachments((prev) => prev.filter((a) => a.id !== id));
+  };
+
+  const resetBidForm = () => {
+    setAttachments([]);
+  };
 
   useEffect(() => {
     if (!isLoggedIn) router.push("/login");
@@ -231,8 +267,8 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
       </Dialog>
 
       {/* Bid dialog */}
-      <Dialog open={bidOpen} onOpenChange={setBidOpen}>
-        <DialogContent className="max-w-md">
+      <Dialog open={bidOpen} onOpenChange={(open) => { setBidOpen(open); if (!open) resetBidForm(); }}>
+        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-base">{t.needDetail.bidDialogTitle}</DialogTitle>
           </DialogHeader>
@@ -245,10 +281,68 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
               <Label className="text-sm">{t.needDetail.proposal}</Label>
               <Textarea className="mt-1.5 resize-none text-sm" rows={4} defaultValue={t.needDetail.proposalDefault} />
             </div>
+
+            {/* Attachments */}
+            <div>
+              <div className="flex items-center justify-between">
+                <Label className="text-sm">{t.needDetail.attachments}</Label>
+                <span className="text-xs text-muted-foreground">{attachments.length}/5</span>
+              </div>
+              <p className="text-xs text-muted-foreground mt-1">{t.needDetail.attachmentsHint}</p>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                className="hidden"
+                onChange={handleFilePick}
+              />
+
+              {attachments.length > 0 && (
+                <div className="mt-3 space-y-2">
+                  {attachments.map((a) => (
+                    <div key={a.id} className="border border-border rounded-lg p-3 bg-muted/40">
+                      <div className="flex items-start gap-2">
+                        <Paperclip className="w-3.5 h-3.5 text-muted-foreground shrink-0 mt-0.5" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-foreground truncate">{a.name}</p>
+                          <p className="text-[10px] text-muted-foreground mt-0.5">{a.size}</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => removeAttachment(a.id)}
+                          className="text-muted-foreground hover:text-destructive shrink-0"
+                          aria-label="remove"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                      <Input
+                        value={a.note}
+                        onChange={(e) => updateAttachmentNote(a.id, e.target.value)}
+                        placeholder={t.needDetail.attachmentNotePlaceholder}
+                        className="mt-2 h-8 text-xs"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="mt-3 w-full gap-1.5 text-xs"
+                disabled={attachments.length >= 5}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <Paperclip className="w-3.5 h-3.5" /> {t.needDetail.addAttachment}
+              </Button>
+            </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setBidOpen(false)}>{t.common.cancel}</Button>
-            <Button onClick={() => { submitBid(); setBidOpen(false); toast.success(t.needDetail.applicationSubmittedToast); }}>
+            <Button variant="outline" onClick={() => { setBidOpen(false); resetBidForm(); }}>{t.common.cancel}</Button>
+            <Button onClick={() => { submitBid(); setBidOpen(false); resetBidForm(); toast.success(t.needDetail.applicationSubmittedToast); }}>
               {t.needDetail.submitApplication}
             </Button>
           </DialogFooter>
