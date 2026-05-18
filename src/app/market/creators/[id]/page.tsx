@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Star, Clock, CheckCircle2, AlertCircle, Film, Send, Pencil, X, Plus, GripVertical, Trash2, Camera, Check, Upload, FolderOpen, FileVideo } from "lucide-react";
+import { ArrowLeft, Star, Send, Pencil, X, Plus, GripVertical, Trash2, Camera, Check, Upload, FolderOpen, FileVideo } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
@@ -219,15 +219,9 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
     toast.success(t.creatorProfile.showcaseSavedToast);
   };
 
-  const metrics = [
-    { label: t.creatorProfile.completionRate, value: `${creator.completion}%`, icon: CheckCircle2, color: "text-emerald-600" },
-    { label: t.creatorProfile.onTimeDelivery, value: `${creator.punctuality}%`, icon: Clock, color: "text-primary" },
-    { label: t.creatorProfile.disputeRate, value: t.creatorProfile.disputes(creator.disputes), icon: AlertCircle, color: creator.disputes === 0 ? "text-emerald-600" : "text-amber-600" },
-    { label: t.creatorProfile.copyrightIssues, value: creator.copyrightViolations === 0 ? t.creatorProfile.cleanRecord : t.creatorProfile.violations(creator.copyrightViolations), icon: Film, color: creator.copyrightViolations === 0 ? "text-emerald-600" : "text-red-600" },
-  ];
-
-  // Edit icon — visible only in edit mode
-  const EditIcon = ({ field }: { field: EditField }) => (
+  // Helpers that return JSX — declared as functions to avoid creating React
+  // components inside render (lint rule react-hooks/static-components).
+  const editIcon = (field: EditField) =>
     isOwnProfile && isEditing && editingField !== field ? (
       <button
         type="button"
@@ -237,10 +231,9 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
       >
         <Pencil className="w-3 h-3" />
       </button>
-    ) : null
-  );
+    ) : null;
 
-  const FieldActions = () => (
+  const fieldActions = () => (
     <div className="flex items-center gap-1">
       <button
         type="button"
@@ -263,7 +256,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
 
   return (
     <AppShell>
-      <div className="max-w-5xl mx-auto px-6 py-8">
+      <div className="max-w-3xl mx-auto px-6 py-8">
         <Link href="/market/creators" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6">
           <ArrowLeft className="w-4 h-4" /> {t.creatorProfile.backToCreators}
         </Link>
@@ -280,9 +273,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left: profile */}
-          <div className="lg:col-span-2 space-y-5">
+        <div className="space-y-5">
             {/* Header card */}
             <div className="bg-white border border-border rounded-xl p-6">
               <div className="flex items-start gap-4">
@@ -327,18 +318,32 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                     {editingField === "nickname" ? (
                       <div className="flex items-center gap-2 flex-1">
                         <Input value={draftNickname} onChange={(e) => setDraftNickname(e.target.value)} className="h-8 text-base font-bold" autoFocus />
-                        <FieldActions />
+                        {fieldActions()}
                       </div>
                     ) : (
                       <h1 className="text-lg font-bold text-foreground flex items-center">
                         {creator.nickname}
-                        <EditIcon field="nickname" />
+                        {editIcon("nickname")}
                       </h1>
                     )}
                     {isOwnProfile && !isEditing && (
                       <Button size="sm" variant="outline" className="gap-1.5 text-xs h-7 shrink-0" onClick={() => setIsEditing(true)}>
                         <Pencil className="w-3 h-3" /> {t.creatorProfile.editProfile}
                       </Button>
+                    )}
+                    {isOwnProfile && isEditing && (
+                      <Button size="sm" className="gap-1.5 text-xs h-7 shrink-0" onClick={() => { setIsEditing(false); setEditingField(null); }}>
+                        <Check className="w-3 h-3" /> {t.creatorProfile.editDone}
+                      </Button>
+                    )}
+                    {activeRole === "backer" && (
+                      invitationSent ? (
+                        <Badge className="bg-accent text-primary border-0 text-xs h-7 px-3 shrink-0 flex items-center">{t.creatorProfile.invitationSent}</Badge>
+                      ) : (
+                        <Button size="sm" className="gap-1.5 text-xs h-7 shrink-0" onClick={() => setInviteOpen(true)}>
+                          <Send className="w-3 h-3" /> {t.creatorProfile.sendInvitation}
+                        </Button>
+                      )
                     )}
                   </div>
 
@@ -380,14 +385,14 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                         <Input value={draftCustomTag} onChange={(e) => setDraftCustomTag(e.target.value)} onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addCustomTag(); } }} placeholder={t.creatorProfile.tagCustomPlaceholder} className="text-sm h-8" />
                         <Button type="button" size="sm" variant="outline" className="h-8 shrink-0" onClick={addCustomTag} disabled={!draftCustomTag.trim()}>{t.creatorProfile.tagAddBtn}</Button>
                       </div>
-                      <div className="flex justify-end"><FieldActions /></div>
+                      <div className="flex justify-end">{fieldActions()}</div>
                     </div>
                   ) : (
                     <div className="flex flex-wrap gap-1.5 mt-2 items-center">
                       {creator.specialties.map(s => (
                         <span key={s} className="text-xs bg-accent text-primary px-2.5 py-0.5 rounded-full">{s}</span>
                       ))}
-                      <EditIcon field="tags" />
+                      {editIcon("tags")}
                     </div>
                   )}
                 </div>
@@ -397,45 +402,43 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
               {editingField === "bio" ? (
                 <div className="mt-4 flex items-start gap-2">
                   <Textarea value={draftBio} onChange={(e) => setDraftBio(e.target.value)} rows={3} className="text-sm resize-none flex-1" autoFocus />
-                  <div className="pt-1"><FieldActions /></div>
+                  <div className="pt-1">{fieldActions()}</div>
                 </div>
               ) : (
                 <div className="mt-4 flex items-start gap-1">
                   <p className="text-sm text-muted-foreground leading-relaxed flex-1">{creator.bio}</p>
-                  <EditIcon field="bio" />
+                  {editIcon("bio")}
                 </div>
               )}
 
-              {/* Active hours row */}
+              {/* Active hours + rate row */}
               <div className="flex items-center gap-3 mt-4 pt-4 border-t border-border text-xs text-muted-foreground flex-wrap">
                 {editingField === "hours" ? (
                   <div className="flex items-center gap-2 flex-1 min-w-0">
                     <span>{t.creatorProfile.activeLabel}</span>
                     <Input value={draftHours} onChange={(e) => setDraftHours(e.target.value)} className="h-7 text-xs" autoFocus placeholder={t.creatorProfile.activeHoursPlaceholder} />
-                    <FieldActions />
+                    {fieldActions()}
                   </div>
                 ) : (
                   <span className="flex items-center">
                     {t.creatorProfile.activeLabel} {creator.activeHours}
-                    <EditIcon field="hours" />
+                    {editIcon("hours")}
                   </span>
                 )}
-              </div>
-            </div>
-
-            {/* Metrics */}
-            <div className="bg-white border border-border rounded-xl p-6">
-              <h2 className="text-sm font-semibold text-foreground mb-4">{t.creatorProfile.performance}</h2>
-              <div className="grid grid-cols-2 gap-3">
-                {metrics.map(m => (
-                  <div key={m.label} className="bg-muted rounded-lg px-4 py-3 flex items-center gap-3">
-                    <m.icon className={cn("w-4 h-4 shrink-0", m.color)} />
-                    <div>
-                      <p className="text-xs text-muted-foreground">{m.label}</p>
-                      <p className={cn("text-sm font-semibold mt-0.5", m.color)}>{m.value}</p>
-                    </div>
+                <span className="text-muted-foreground/50">·</span>
+                {editingField === "rate" ? (
+                  <div className="flex items-center gap-2">
+                    <span>{t.creators.fromLabel} ¥</span>
+                    <Input type="number" value={draftRate} onChange={(e) => setDraftRate(e.target.value)} className="h-7 text-xs w-24" autoFocus />
+                    <span>{t.creatorProfile.fromPerProject}</span>
+                    {fieldActions()}
                   </div>
-                ))}
+                ) : (
+                  <span className="flex items-center">
+                    {t.creators.fromLabel} <span className="font-semibold text-foreground mx-1">¥{creator.rateCard.from.toLocaleString()}+</span> {t.creatorProfile.fromPerProject}
+                    {editIcon("rate")}
+                  </span>
+                )}
               </div>
             </div>
 
@@ -475,54 +478,6 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                 </div>
               )}
             </div>
-          </div>
-
-          {/* Sidebar */}
-          <div className="space-y-4">
-            <div className="bg-white border border-border rounded-xl p-5 sticky top-20">
-              {editingField === "rate" ? (
-                <div className="mb-4 space-y-2">
-                  <p className="text-xs text-muted-foreground text-center">{t.creatorProfile.startingRate}</p>
-                  <div className="flex items-center gap-2 justify-center">
-                    <span className="text-lg font-bold text-foreground">¥</span>
-                    <Input type="number" value={draftRate} onChange={(e) => setDraftRate(e.target.value)} className="h-9 text-base font-semibold w-28 text-center" autoFocus />
-                  </div>
-                  <div className="flex justify-center"><FieldActions /></div>
-                </div>
-              ) : (
-                <div className="text-center mb-4">
-                  <p className="text-2xl font-bold text-foreground inline-flex items-center justify-center">
-                    ¥{creator.rateCard.from.toLocaleString()}+
-                    <EditIcon field="rate" />
-                  </p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{t.creatorProfile.startingRate}</p>
-                </div>
-              )}
-
-              {activeRole === "backer" && (
-                <div className="space-y-2">
-                  {invitationSent ? (
-                    <Badge className="w-full justify-center bg-accent text-primary border-0 py-2">{t.creatorProfile.invitationSent}</Badge>
-                  ) : (
-                    <Button className="w-full gap-2" onClick={() => setInviteOpen(true)}>
-                      <Send className="w-4 h-4" /> {t.creatorProfile.sendInvitation}
-                    </Button>
-                  )}
-                </div>
-              )}
-
-              {isOwnProfile && !isEditing && (
-                <Button className="w-full gap-2" onClick={() => setIsEditing(true)}>
-                  <Pencil className="w-4 h-4" /> {t.creatorProfile.editProfile}
-                </Button>
-              )}
-              {isOwnProfile && isEditing && (
-                <Button className="w-full gap-2" variant="outline" onClick={() => { setIsEditing(false); setEditingField(null); }}>
-                  <Check className="w-4 h-4" /> {t.creatorProfile.editDone}
-                </Button>
-              )}
-            </div>
-          </div>
         </div>
       </div>
 
