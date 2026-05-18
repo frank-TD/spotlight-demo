@@ -23,6 +23,7 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
   const router = useRouter();
   const t = useT();
   const [bidOpen, setBidOpen] = useState(false);
+  const [manageOpen, setManageOpen] = useState(false);
   const [acceptedBid, setAcceptedBid] = useState<string | null>(null);
 
   useEffect(() => {
@@ -34,6 +35,7 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
 
   const handleAccept = (bidId: string) => {
     setAcceptedBid(bidId);
+    setManageOpen(false);
     toast.success(t.needDetail.collaborationConfirmedToast);
     setTimeout(() => router.push("/orders/ord_001/contract"), 800);
   };
@@ -113,56 +115,6 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
               </div>
             </div>
 
-            {/* Bids — Backer view */}
-            {activeRole === "backer" && bids.length > 0 && (
-              <div className="bg-white border border-border rounded-xl p-6">
-                <h2 className="text-sm font-semibold text-foreground mb-4">{t.needDetail.applicationsTitle(bids.length)}</h2>
-                <div className="space-y-4">
-                  {bids.map((bid) => (
-                    <div key={bid.id} className="border border-border rounded-lg p-4">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex items-center gap-3">
-                          <div className={cn("w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold", bid.creator.avatarColor)}>
-                            {bid.creator.avatar}
-                          </div>
-                          <div>
-                            <p className="text-sm font-semibold text-foreground">{bid.creator.nickname}</p>
-                            <div className="flex items-center gap-1 mt-0.5">
-                              <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                              <span className="text-xs text-muted-foreground">{bid.creator.rating} · {bid.creator.orders} {t.common.projects}</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-sm font-bold text-foreground">¥{bid.quote.toLocaleString()}</p>
-                          <p className="text-xs text-muted-foreground">{bid.submittedAt}</p>
-                        </div>
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-3 leading-relaxed">{bid.note}</p>
-                      <div className="flex gap-2 mt-3">
-                        {acceptedBid === bid.id ? (
-                          <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs">{t.needDetail.accepted}</Badge>
-                        ) : (
-                          <>
-                            <Button size="sm" className="text-xs h-7" onClick={() => handleAccept(bid.id)}>
-                              <Check className="w-3 h-3 mr-1" /> {t.needDetail.confirmBtn}
-                            </Button>
-                            <Button size="sm" variant="outline" className="text-xs h-7 text-muted-foreground">
-                              <X className="w-3 h-3 mr-1" /> {t.needDetail.declineBtn}
-                            </Button>
-                            <Link href={`/market/creators/${bid.creatorId}`}>
-                              <Button size="sm" variant="ghost" className="text-xs h-7 text-primary">
-                                {t.needDetail.viewProfile} <ChevronRight className="w-3 h-3" />
-                              </Button>
-                            </Link>
-                          </>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Sidebar */}
@@ -188,9 +140,13 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
               )}
 
               {activeRole === "backer" && (
-                <Link href={`/market/needs/${id}`} className="block">
-                  <Button className="w-full">{t.needDetail.manageBids(bids.length)}</Button>
-                </Link>
+                <Button
+                  className="w-full"
+                  disabled={bids.length === 0}
+                  onClick={() => setManageOpen(true)}
+                >
+                  {t.needDetail.manageBids(bids.length)}
+                </Button>
               )}
 
               <div className="mt-4 pt-4 border-t border-border space-y-2">
@@ -211,6 +167,68 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
           </div>
         </div>
       </div>
+
+      {/* Manage bids dialog — Backer view */}
+      <Dialog open={manageOpen} onOpenChange={setManageOpen}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-base">{t.needDetail.applicationsTitle(bids.length)}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            {bids.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-8">
+                {t.needDetail.waitingDecision}
+              </p>
+            ) : (
+              bids.map((bid) => (
+                <div key={bid.id} className="border border-border rounded-lg p-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className={cn("w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold", bid.creator.avatarColor)}>
+                        {bid.creator.avatar}
+                      </div>
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">{bid.creator.nickname}</p>
+                        <div className="flex items-center gap-1 mt-0.5">
+                          <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
+                          <span className="text-xs text-muted-foreground">{bid.creator.rating} · {bid.creator.orders} {t.common.projects}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm font-bold text-foreground">¥{bid.quote.toLocaleString()}</p>
+                      <p className="text-xs text-muted-foreground">{bid.submittedAt}</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-3 leading-relaxed">{bid.note}</p>
+                  <div className="flex gap-2 mt-3">
+                    {acceptedBid === bid.id ? (
+                      <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs">{t.needDetail.accepted}</Badge>
+                    ) : (
+                      <>
+                        <Button size="sm" className="text-xs h-7" onClick={() => handleAccept(bid.id)}>
+                          <Check className="w-3 h-3 mr-1" /> {t.needDetail.confirmBtn}
+                        </Button>
+                        <Button size="sm" variant="outline" className="text-xs h-7 text-muted-foreground">
+                          <X className="w-3 h-3 mr-1" /> {t.needDetail.declineBtn}
+                        </Button>
+                        <Link href={`/market/creators/${bid.creatorId}`}>
+                          <Button size="sm" variant="ghost" className="text-xs h-7 text-primary">
+                            {t.needDetail.viewProfile} <ChevronRight className="w-3 h-3" />
+                          </Button>
+                        </Link>
+                      </>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setManageOpen(false)}>{t.common.cancel}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Bid dialog */}
       <Dialog open={bidOpen} onOpenChange={setBidOpen}>
