@@ -45,6 +45,10 @@ interface AppState {
   // Creator profile edits (overlays the mock CREATORS[0] for u_creator_01)
   creatorEdits: { bio?: string; specialties?: string[]; rateFrom?: number; activeHours?: string };
   updateCreatorEdits: (edits: Partial<{ bio: string; specialties: string[]; rateFrom: number; activeHours: string }>) => void;
+
+  // Showcase edits (overlays CREATORS[0].showcase when defined)
+  showcaseEdits?: Array<{ id: string; title: string; thumbnail: string; duration: string; description?: string }>;
+  setShowcaseEdits: (items: Array<{ id: string; title: string; thumbnail: string; duration: string; description?: string }>) => void;
 }
 
 export const useStore = create<AppState>()(
@@ -107,6 +111,9 @@ export const useStore = create<AppState>()(
       creatorEdits: {},
       updateCreatorEdits: (edits) =>
         set((s) => ({ creatorEdits: { ...s.creatorEdits, ...edits } })),
+
+      showcaseEdits: undefined,
+      setShowcaseEdits: (items) => set({ showcaseEdits: items }),
     }),
     {
       name: "spotlight-demo-store",
@@ -115,6 +122,7 @@ export const useStore = create<AppState>()(
         activeRole: state.activeRole,
         locale: state.locale,
         creatorEdits: state.creatorEdits,
+        showcaseEdits: state.showcaseEdits,
       }),
     }
   )

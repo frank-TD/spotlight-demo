@@ -383,3 +383,12 @@ export const BACKER_WALLET_TRANSACTIONS = [
   { id: "btx_02", date: "2026-05-13", type: "Recharge", currency: "diamond", amount: +5000, balance: 12400, note: "Stripe — ¥5,000" },
   { id: "btx_03", date: "2026-05-01", type: "Recharge", currency: "diamond", amount: +10000, balance: 7400, note: "Stripe — ¥10,000" },
 ];
+
+export const PRESET_SPECIALTY_TAGS = [
+  "Cinematic", "Commercial", "Brand Film", "Narrative Short Film", "Music Video",
+  "Documentary", "Anime Style", "Character Animation", "Product Visualization",
+  "Sci-Fi", "Surreal", "Minimal", "Abstract", "Tech", "Social Content", "Journalism",
+];
+
+export const SHOWCASE_THUMBNAIL_OPTIONS = ["🎬", "🎞️", "📽️", "🎥", "🎨", "✨", "🌌", "🪐", "🎭", "🌸"];
+
