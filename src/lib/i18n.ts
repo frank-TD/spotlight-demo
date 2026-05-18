@@ -3,6 +3,7 @@ export type Locale = "en" | "zh-CN" | "zh-TW";
 const en = {
   nav: {
     marketplace: "Marketplace",
+    studio: "AIGC Studio",
     myProjects: "My Projects",
     assets: "Assets",
     messages: "Messages",
@@ -352,6 +353,13 @@ const en = {
     nonTransferable: "Non-transferable",
     sourceOrder: "Source order",
   },
+  studio: {
+    title: "AIGC Studio",
+    subtitle: "Generate, iterate, and refine creative assets with AI",
+    comingSoon: "Coming Soon",
+    comingSoonDesc: "We're building a powerful AI workspace for storyboarding, shot generation, and rapid iteration. Stay tuned.",
+    notifyMe: "Notify me at launch",
+  },
   chat: {
     viewOrder: "View Order",
     messagePlaceholder: "Type a message...",
@@ -392,6 +400,7 @@ const en = {
 const zhCN: typeof en = {
   nav: {
     marketplace: "市场",
+    studio: "AIGC 创作台",
     myProjects: "我的项目",
     assets: "资产",
     messages: "消息",
@@ -741,6 +750,13 @@ const zhCN: typeof en = {
     nonTransferable: "不可转让",
     sourceOrder: "来源订单",
   },
+  studio: {
+    title: "AIGC 创作台",
+    subtitle: "用 AI 生成、迭代并精修你的创意素材",
+    comingSoon: "敬请期待",
+    comingSoonDesc: "我们正在打造功能强大的 AI 创作空间，支持分镜生成、镜头创作与快速迭代。敬请关注。",
+    notifyMe: "上线时通知我",
+  },
   chat: {
     viewOrder: "查看订单",
     messagePlaceholder: "输入消息...",
@@ -781,6 +797,7 @@ const zhCN: typeof en = {
 const zhTW: typeof en = {
   nav: {
     marketplace: "市場",
+    studio: "AIGC 創作台",
     myProjects: "我的項目",
     assets: "資產",
     messages: "訊息",
@@ -1129,6 +1146,13 @@ const zhTW: typeof en = {
     byAuthor: "作者",
     nonTransferable: "不可轉讓",
     sourceOrder: "來源訂單",
+  },
+  studio: {
+    title: "AIGC 創作台",
+    subtitle: "用 AI 生成、迭代並精修你的創意素材",
+    comingSoon: "敬請期待",
+    comingSoonDesc: "我們正在打造功能強大的 AI 創作空間，支援分鏡生成、鏡頭創作與快速迭代。敬請關注。",
+    notifyMe: "上線時通知我",
   },
   chat: {
     viewOrder: "查看訂單",

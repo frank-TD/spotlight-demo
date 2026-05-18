@@ -29,6 +29,7 @@ export default function TopNav() {
 
   const NAV_ITEMS = [
     { label: t.nav.marketplace, href: "/market" },
+    { label: t.nav.studio, href: "/studio" },
     { label: t.nav.myProjects, href: "/projects" },
     { label: t.nav.assets, href: "/assets" },
     { label: t.nav.messages, href: "/messages/sessions/sess_001" },
