@@ -43,12 +43,12 @@ interface AppState {
   sendInvitation: () => void;
 
   // Creator profile edits (overlays the mock CREATORS[0] for u_creator_01)
-  creatorEdits: { bio?: string; specialties?: string[]; rateFrom?: number; activeHours?: string };
-  updateCreatorEdits: (edits: Partial<{ bio: string; specialties: string[]; rateFrom: number; activeHours: string }>) => void;
+  creatorEdits: { nickname?: string; bio?: string; specialties?: string[]; rateFrom?: number; activeHours?: string; avatarUrl?: string };
+  updateCreatorEdits: (edits: Partial<{ nickname: string; bio: string; specialties: string[]; rateFrom: number; activeHours: string; avatarUrl: string }>) => void;
 
   // Showcase edits (overlays CREATORS[0].showcase when defined)
-  showcaseEdits?: Array<{ id: string; title: string; thumbnail: string; duration: string; description?: string }>;
-  setShowcaseEdits: (items: Array<{ id: string; title: string; thumbnail: string; duration: string; description?: string }>) => void;
+  showcaseEdits?: Array<{ id: string; title: string; duration: string; description?: string; fileSource?: "local" | "asset"; fileName?: string; assetId?: string }>;
+  setShowcaseEdits: (items: Array<{ id: string; title: string; duration: string; description?: string; fileSource?: "local" | "asset"; fileName?: string; assetId?: string }>) => void;
 }
 
 export const useStore = create<AppState>()(
