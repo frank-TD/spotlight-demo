@@ -5,21 +5,61 @@ import AppShell from "@/components/layout/AppShell";
 import { CREATORS } from "@/lib/mock-data";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Star, Clock, CheckCircle2, AlertCircle, Film, Send } from "lucide-react";
+import { ArrowLeft, Star, Clock, CheckCircle2, AlertCircle, Film, Send, Pencil } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
 import { useT } from "@/hooks/useT";
 
+const OWN_CREATOR_ID = "u_creator_01";
+
 export default function CreatorProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const { activeRole, invitationSent, sendInvitation } = useStore();
+  const { activeRole, invitationSent, sendInvitation, creatorEdits, updateCreatorEdits } = useStore();
   const t = useT();
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
-  const creator = CREATORS.find(c => c.id === id) ?? CREATORS[0];
+  const baseCreator = CREATORS.find(c => c.id === id) ?? CREATORS[0];
+  const isOwnProfile = activeRole === "creator" && id === OWN_CREATOR_ID;
+  const creator = isOwnProfile
+    ? {
+        ...baseCreator,
+        bio: creatorEdits.bio ?? baseCreator.bio,
+        specialties: creatorEdits.specialties ?? baseCreator.specialties,
+        rateCard: { ...baseCreator.rateCard, from: creatorEdits.rateFrom ?? baseCreator.rateCard.from },
+        activeHours: creatorEdits.activeHours ?? baseCreator.activeHours,
+      }
+    : baseCreator;
+
+  // Local form state mirrors the dialog inputs; initialized when opening
+  const [formBio, setFormBio] = useState(creator.bio);
+  const [formSpecialties, setFormSpecialties] = useState(creator.specialties.join(", "));
+  const [formRate, setFormRate] = useState(String(creator.rateCard.from));
+  const [formActiveHours, setFormActiveHours] = useState(creator.activeHours);
+
+  const openEdit = () => {
+    setFormBio(creator.bio);
+    setFormSpecialties(creator.specialties.join(", "));
+    setFormRate(String(creator.rateCard.from));
+    setFormActiveHours(creator.activeHours);
+    setEditOpen(true);
+  };
+
+  const saveEdit = () => {
+    updateCreatorEdits({
+      bio: formBio.trim(),
+      specialties: formSpecialties.split(",").map((s) => s.trim()).filter(Boolean),
+      rateFrom: Number(formRate) || baseCreator.rateCard.from,
+      activeHours: formActiveHours.trim(),
+    });
+    setEditOpen(false);
+    toast.success(t.creatorProfile.savedToast);
+  };
 
   const metrics = [
     { label: t.creatorProfile.completionRate, value: `${creator.completion}%`, icon: CheckCircle2, color: "text-emerald-600" },
@@ -45,7 +85,14 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                   {creator.avatar}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <h1 className="text-lg font-bold text-foreground">{creator.nickname}</h1>
+                  <div className="flex items-start justify-between gap-3">
+                    <h1 className="text-lg font-bold text-foreground">{creator.nickname}</h1>
+                    {isOwnProfile && (
+                      <Button size="sm" variant="outline" className="gap-1.5 text-xs h-7 shrink-0" onClick={openEdit}>
+                        <Pencil className="w-3 h-3" /> {t.creatorProfile.editProfile}
+                      </Button>
+                    )}
+                  </div>
                   <div className="flex items-center gap-2 mt-1 flex-wrap">
                     <div className="flex items-center gap-1">
                       <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
@@ -124,6 +171,12 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                 </div>
               )}
 
+              {isOwnProfile && (
+                <Button className="w-full gap-2" onClick={openEdit}>
+                  <Pencil className="w-4 h-4" /> {t.creatorProfile.editProfile}
+                </Button>
+              )}
+
               <div className="mt-4 pt-4 border-t border-border space-y-2">
                 <div className="flex justify-between text-xs">
                   <span className="text-muted-foreground">{t.creatorProfile.projectsCount}</span>
@@ -142,6 +195,57 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
           </div>
         </div>
       </div>
+
+      {/* Edit dialog — Own profile only */}
+      <Dialog open={editOpen} onOpenChange={setEditOpen}>
+        <DialogContent className="max-w-md max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-base">{t.creatorProfile.editDialogTitle}</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div>
+              <Label className="text-sm">{t.creatorProfile.bioLabel}</Label>
+              <Textarea
+                className="mt-1.5 resize-none text-sm"
+                rows={4}
+                value={formBio}
+                onChange={(e) => setFormBio(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label className="text-sm">{t.creatorProfile.specialtiesLabel}</Label>
+              <Input
+                className="mt-1.5"
+                value={formSpecialties}
+                onChange={(e) => setFormSpecialties(e.target.value)}
+              />
+              <p className="text-xs text-muted-foreground mt-1">{t.creatorProfile.specialtiesHint}</p>
+            </div>
+            <div>
+              <Label className="text-sm">{t.creatorProfile.rateLabel}</Label>
+              <Input
+                className="mt-1.5"
+                type="number"
+                value={formRate}
+                onChange={(e) => setFormRate(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label className="text-sm">{t.creatorProfile.activeHoursLabel}</Label>
+              <Input
+                className="mt-1.5"
+                value={formActiveHours}
+                onChange={(e) => setFormActiveHours(e.target.value)}
+                placeholder={t.creatorProfile.activeHoursPlaceholder}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setEditOpen(false)}>{t.common.cancel}</Button>
+            <Button onClick={saveEdit}>{t.common.save}</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Invite dialog */}
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
