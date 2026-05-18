@@ -6,9 +6,11 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import { ArrowRight } from "lucide-react";
+import { useT } from "@/hooks/useT";
 
 export default function ProjectsPage() {
   const { activeRole, orderStages } = useStore();
+  const t = useT();
 
   const completedCount = orderStages.filter(s => s.status === "accepted" || s.status === "auto_accepted").length;
 
@@ -23,17 +25,17 @@ export default function ProjectsPage() {
       ];
 
   const STATUS_CONFIG = {
-    in_progress: { label: "In Progress", cls: "bg-blue-50 text-blue-700 border-blue-200" },
-    completed: { label: "Completed", cls: "bg-emerald-50 text-emerald-700 border-emerald-200" },
-    cancelled: { label: "Cancelled", cls: "bg-muted text-muted-foreground border-border" },
+    in_progress: { label: t.projects.statusInProgress, cls: "bg-blue-50 text-blue-700 border-blue-200" },
+    completed: { label: t.projects.statusCompleted, cls: "bg-emerald-50 text-emerald-700 border-emerald-200" },
+    cancelled: { label: t.projects.statusCancelled, cls: "bg-muted text-muted-foreground border-border" },
   };
 
   return (
     <AppShell>
       <div className="max-w-4xl mx-auto px-6 py-8">
-        <h1 className="text-xl font-bold text-foreground mb-1">My Projects</h1>
+        <h1 className="text-xl font-bold text-foreground mb-1">{t.projects.title}</h1>
         <p className="text-sm text-muted-foreground mb-6">
-          {activeRole === "backer" ? "Projects you have commissioned" : "Projects you are working on"}
+          {activeRole === "backer" ? t.projects.backerDesc : t.projects.creatorDesc}
         </p>
 
         <div className="space-y-3">
@@ -47,12 +49,12 @@ export default function ProjectsPage() {
                       <div className="flex items-center gap-2 mb-1">
                         <Badge className={cn("text-xs", sc.cls)}>{sc.label}</Badge>
                         {order.status === "in_progress" && (
-                          <span className="text-xs text-amber-600 font-medium">Stage 3 pending review</span>
+                          <span className="text-xs text-amber-600 font-medium">{t.projects.stagePendingReview}</span>
                         )}
                       </div>
                       <p className="text-sm font-semibold text-foreground">{order.title}</p>
                       <p className="text-xs text-muted-foreground mt-0.5">
-                        {activeRole === "backer" ? "Creator" : "Backer"}: {order.counterpart} · ¥{order.totalFiat.toLocaleString()}
+                        {activeRole === "backer" ? t.projects.counterpartCreator : t.projects.counterpartBacker}: {order.counterpart} · ¥{order.totalFiat.toLocaleString()}
                       </p>
                     </div>
                     <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0 group-hover:translate-x-0.5 transition-transform" />
@@ -73,7 +75,7 @@ export default function ProjectsPage() {
                       ))}
                     </div>
                     <p className="text-xs text-muted-foreground mt-1.5">
-                      {order.completedCount} / {order.total} stages complete
+                      {t.projects.stagesComplete(order.completedCount, order.total)}
                     </p>
                   </div>
                 </div>

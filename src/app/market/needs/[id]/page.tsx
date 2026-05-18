@@ -225,7 +225,7 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
             </div>
             <div>
               <Label className="text-sm">{t.needDetail.proposal}</Label>
-              <Textarea className="mt-1.5 resize-none text-sm" rows={4} defaultValue="I specialize in minimal-cinematic narratives. My approach: cold open with a single visual metaphor, build through rhythm, close on the product reveal. Happy to share references." />
+              <Textarea className="mt-1.5 resize-none text-sm" rows={4} defaultValue={t.needDetail.proposalDefault} />
             </div>
           </div>
           <DialogFooter>

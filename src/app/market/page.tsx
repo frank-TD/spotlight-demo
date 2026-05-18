@@ -45,7 +45,7 @@ export default function MarketPage() {
                     : "text-muted-foreground hover:text-foreground"
                 )}
               >
-                {r === "backer" ? "Backer" : "Creator"}
+                {r === "backer" ? t.market.roleBacker : t.market.roleCreator}
               </button>
             ))}
           </div>
@@ -103,7 +103,7 @@ function BackerView() {
             </div>
             <div className="mt-4">
               <div className="flex gap-1.5">
-                {["Deposit", "Moodboard", "Draft Cut", "Revised Cut", "Final"].map((s, i) => (
+                {t.market.stageNames.map((s, i) => (
                   <div key={s} className="flex-1">
                     <div className={cn("h-1.5 rounded-full", i < 2 ? "bg-primary" : i === 2 ? "bg-primary/40" : "bg-border")} />
                     <p className="text-[9px] text-muted-foreground mt-1 truncate">{s}</p>

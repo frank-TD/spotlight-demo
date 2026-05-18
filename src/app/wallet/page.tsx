@@ -5,16 +5,17 @@ import AppShell from "@/components/layout/AppShell";
 import { WALLET_TRANSACTIONS, BACKER_WALLET_TRANSACTIONS } from "@/lib/mock-data";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { ArrowUpRight, ArrowDownLeft, Plus, Minus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useT } from "@/hooks/useT";
 
 const AMOUNTS = [1000, 3000, 5000, 10000];
 
 export default function WalletPage() {
   const { activeRole, backerDiamond, creatorShell, recharge, withdraw } = useStore();
+  const t = useT();
   const [rechargeOpen, setRechargeOpen] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [amount, setAmount] = useState(3000);
@@ -28,7 +29,7 @@ export default function WalletPage() {
     recharge(amount);
     setRechargeOpen(false);
     setProcessing(false);
-    toast.success(`¥${amount.toLocaleString()} Diamond recharged successfully`);
+    toast.success(t.wallet.rechargedToast(amount));
   };
 
   const handleWithdraw = async () => {
@@ -37,48 +38,48 @@ export default function WalletPage() {
     withdraw(amount);
     setWithdrawOpen(false);
     setProcessing(false);
-    toast.success(`Withdrawal of ¥${amount.toLocaleString()} submitted · 1–3 business days`);
+    toast.success(t.wallet.withdrawnToast(amount));
   };
 
   return (
     <AppShell>
       <div className="max-w-3xl mx-auto px-6 py-8">
-        <h1 className="text-xl font-bold text-foreground mb-6">Wallet</h1>
+        <h1 className="text-xl font-bold text-foreground mb-6">{t.wallet.title}</h1>
 
         {/* Balance cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
           {activeRole === "backer" ? (
             <>
               <div className="bg-primary rounded-xl p-6 text-white">
-                <p className="text-white/70 text-xs font-medium uppercase tracking-wider mb-1">Diamond Balance</p>
+                <p className="text-white/70 text-xs font-medium uppercase tracking-wider mb-1">{t.wallet.diamondBalance}</p>
                 <p className="text-3xl font-bold">◆ {backerDiamond.toLocaleString()}</p>
                 <p className="text-white/60 text-xs mt-1">≈ ¥{backerDiamond.toLocaleString()}</p>
-                <p className="text-white/50 text-xs mt-3">Used for project payments · Non-withdrawable</p>
+                <p className="text-white/50 text-xs mt-3">{t.wallet.diamondNote}</p>
                 <Button className="mt-4 bg-white text-primary hover:bg-white/90 h-8 text-xs" onClick={() => { setAmount(3000); setRechargeOpen(true); }}>
-                  <Plus className="w-3 h-3 mr-1" /> Recharge
+                  <Plus className="w-3 h-3 mr-1" /> {t.wallet.recharge}
                 </Button>
               </div>
               <div className="bg-white border border-border rounded-xl p-6">
-                <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider mb-1">Shell Balance</p>
+                <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider mb-1">{t.wallet.shellBalance}</p>
                 <p className="text-3xl font-bold text-muted-foreground">◉ 0</p>
-                <p className="text-muted-foreground text-xs mt-1">—</p>
-                <p className="text-muted-foreground text-xs mt-3">Backers do not earn Shell</p>
+                <p className="text-muted-foreground text-xs mt-1">{t.wallet.emptyDash}</p>
+                <p className="text-muted-foreground text-xs mt-3">{t.wallet.backersNoShell}</p>
               </div>
             </>
           ) : (
             <>
               <div className="bg-white border border-border rounded-xl p-6">
-                <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider mb-1">Diamond Balance</p>
+                <p className="text-muted-foreground text-xs font-medium uppercase tracking-wider mb-1">{t.wallet.diamondBalance}</p>
                 <p className="text-3xl font-bold text-muted-foreground">◆ 0</p>
-                <p className="text-muted-foreground text-xs mt-3">Creators earn in Shell, not Diamond</p>
+                <p className="text-muted-foreground text-xs mt-3">{t.wallet.creatorsEarnShell}</p>
               </div>
               <div className="bg-primary rounded-xl p-6 text-white">
-                <p className="text-white/70 text-xs font-medium uppercase tracking-wider mb-1">Shell Balance</p>
+                <p className="text-white/70 text-xs font-medium uppercase tracking-wider mb-1">{t.wallet.shellBalance}</p>
                 <p className="text-3xl font-bold">◉ {creatorShell.toLocaleString()}</p>
                 <p className="text-white/60 text-xs mt-1">≈ ¥{creatorShell.toLocaleString()}</p>
-                <p className="text-white/50 text-xs mt-3">Earned from completed stages · Withdrawable</p>
+                <p className="text-white/50 text-xs mt-3">{t.wallet.shellNote}</p>
                 <Button className="mt-4 bg-white text-primary hover:bg-white/90 h-8 text-xs" onClick={() => { setAmount(3000); setWithdrawOpen(true); }}>
-                  <Minus className="w-3 h-3 mr-1" /> Withdraw
+                  <Minus className="w-3 h-3 mr-1" /> {t.wallet.withdraw}
                 </Button>
               </div>
             </>
@@ -88,7 +89,7 @@ export default function WalletPage() {
         {/* Transactions */}
         <div className="bg-white border border-border rounded-xl">
           <div className="px-5 py-4 border-b border-border">
-            <h2 className="text-sm font-semibold text-foreground">Transaction History</h2>
+            <h2 className="text-sm font-semibold text-foreground">{t.wallet.transactionHistory}</h2>
           </div>
           <div className="divide-y divide-border">
             {txs.map(tx => (
@@ -109,7 +110,7 @@ export default function WalletPage() {
                   <p className={cn("text-sm font-semibold", tx.amount > 0 ? "text-emerald-600" : "text-foreground")}>
                     {tx.amount > 0 ? "+" : ""}¥{Math.abs(tx.amount).toLocaleString()}
                   </p>
-                  <p className="text-xs text-muted-foreground">Bal: {tx.balance.toLocaleString()}</p>
+                  <p className="text-xs text-muted-foreground">{t.wallet.balLabel} {tx.balance.toLocaleString()}</p>
                 </div>
               </div>
             ))}
@@ -120,7 +121,7 @@ export default function WalletPage() {
       {/* Recharge dialog */}
       <Dialog open={rechargeOpen} onOpenChange={setRechargeOpen}>
         <DialogContent className="max-w-sm">
-          <DialogHeader><DialogTitle className="text-base">Recharge Diamond</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="text-base">{t.wallet.rechargeDialog}</DialogTitle></DialogHeader>
           <div className="py-2 space-y-4">
             <div className="grid grid-cols-4 gap-2">
               {AMOUNTS.map(a => (
@@ -132,12 +133,12 @@ export default function WalletPage() {
             </div>
             <Input type="number" value={amount} onChange={e => setAmount(Number(e.target.value))} className="text-sm" />
             <div className="bg-muted rounded-lg p-3 text-xs text-muted-foreground">
-              Payment via Stripe · Secure PCI-DSS compliant
+              {t.wallet.paymentNote}
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRechargeOpen(false)}>Cancel</Button>
-            <Button onClick={handleRecharge} disabled={processing}>{processing ? "Processing..." : `Pay ¥${amount.toLocaleString()}`}</Button>
+            <Button variant="outline" onClick={() => setRechargeOpen(false)}>{t.common.cancel}</Button>
+            <Button onClick={handleRecharge} disabled={processing}>{processing ? t.wallet.processing : t.wallet.pay(amount)}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -145,10 +146,10 @@ export default function WalletPage() {
       {/* Withdraw dialog */}
       <Dialog open={withdrawOpen} onOpenChange={setWithdrawOpen}>
         <DialogContent className="max-w-sm">
-          <DialogHeader><DialogTitle className="text-base">Withdraw Shell</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="text-base">{t.wallet.withdrawDialog}</DialogTitle></DialogHeader>
           <div className="py-2 space-y-4">
             <div className="bg-muted rounded-lg p-3 flex justify-between text-sm">
-              <span className="text-muted-foreground">Available</span>
+              <span className="text-muted-foreground">{t.wallet.available}</span>
               <span className="font-semibold">◉ {creatorShell.toLocaleString()}</span>
             </div>
             <div className="grid grid-cols-4 gap-2">
@@ -161,13 +162,13 @@ export default function WalletPage() {
             </div>
             <Input type="number" value={amount} onChange={e => setAmount(Math.min(Number(e.target.value), creatorShell))} className="text-sm" />
             <div className="space-y-1 text-xs text-muted-foreground">
-              <div className="flex justify-between"><span>Bank</span><span className="font-medium text-foreground">ICBC *8821</span></div>
-              <div className="flex justify-between"><span>ETA</span><span>1–3 business days</span></div>
+              <div className="flex justify-between"><span>{t.wallet.bank}</span><span className="font-medium text-foreground">{t.wallet.bankAccount}</span></div>
+              <div className="flex justify-between"><span>{t.wallet.eta}</span><span>{t.wallet.businessDays}</span></div>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setWithdrawOpen(false)}>Cancel</Button>
-            <Button onClick={handleWithdraw} disabled={processing || amount > creatorShell}>{processing ? "Processing..." : `Withdraw ¥${amount.toLocaleString()}`}</Button>
+            <Button variant="outline" onClick={() => setWithdrawOpen(false)}>{t.common.cancel}</Button>
+            <Button onClick={handleWithdraw} disabled={processing || amount > creatorShell}>{processing ? t.wallet.processing : t.wallet.withdrawBtn(amount)}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

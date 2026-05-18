@@ -22,7 +22,7 @@ export default function LoginPage() {
     setLoading(true);
     await new Promise((r) => setTimeout(r, 600));
     login(role);
-    toast.success(`Signed in as ${role === "backer" ? "Lucas Chen" : "Aria Song"}`);
+    toast.success(t.login.signedInAs(role === "backer" ? "Lucas Chen" : "Aria Song"));
     router.push("/market");
   };
 
@@ -72,13 +72,13 @@ export default function LoginPage() {
                 onClick={() => setRole("backer")}
                 className={`flex-1 text-xs py-1.5 rounded-md font-medium transition-colors ${role === "backer" ? "bg-primary text-white" : "bg-white border border-border text-muted-foreground hover:text-foreground"}`}
               >
-                Lucas Chen · Backer
+                {t.login.backerOption}
               </button>
               <button
                 onClick={() => setRole("creator")}
                 className={`flex-1 text-xs py-1.5 rounded-md font-medium transition-colors ${role === "creator" ? "bg-primary text-white" : "bg-white border border-border text-muted-foreground hover:text-foreground"}`}
               >
-                Aria Song · Creator
+                {t.login.creatorOption}
               </button>
             </div>
           </div>

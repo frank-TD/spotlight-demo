@@ -11,26 +11,28 @@ import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "sonner";
+import { useT } from "@/hooks/useT";
 
 export default function CreatorProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { activeRole, invitationSent, sendInvitation } = useStore();
+  const t = useT();
   const [inviteOpen, setInviteOpen] = useState(false);
 
   const creator = CREATORS.find(c => c.id === id) ?? CREATORS[0];
 
   const metrics = [
-    { label: "Completion Rate", value: `${creator.completion}%`, icon: CheckCircle2, color: "text-emerald-600" },
-    { label: "On-time Delivery", value: `${creator.punctuality}%`, icon: Clock, color: "text-primary" },
-    { label: "Dispute Rate", value: creator.disputes === 0 ? "0 disputes" : `${creator.disputes} disputes`, icon: AlertCircle, color: creator.disputes === 0 ? "text-emerald-600" : "text-amber-600" },
-    { label: "Copyright Issues", value: creator.copyrightViolations === 0 ? "Clean record" : `${creator.copyrightViolations} violations`, icon: Film, color: creator.copyrightViolations === 0 ? "text-emerald-600" : "text-red-600" },
+    { label: t.creatorProfile.completionRate, value: `${creator.completion}%`, icon: CheckCircle2, color: "text-emerald-600" },
+    { label: t.creatorProfile.onTimeDelivery, value: `${creator.punctuality}%`, icon: Clock, color: "text-primary" },
+    { label: t.creatorProfile.disputeRate, value: t.creatorProfile.disputes(creator.disputes), icon: AlertCircle, color: creator.disputes === 0 ? "text-emerald-600" : "text-amber-600" },
+    { label: t.creatorProfile.copyrightIssues, value: creator.copyrightViolations === 0 ? t.creatorProfile.cleanRecord : t.creatorProfile.violations(creator.copyrightViolations), icon: Film, color: creator.copyrightViolations === 0 ? "text-emerald-600" : "text-red-600" },
   ];
 
   return (
     <AppShell>
       <div className="max-w-5xl mx-auto px-6 py-8">
         <Link href="/market/creators" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6">
-          <ArrowLeft className="w-4 h-4" /> Back to Creators
+          <ArrowLeft className="w-4 h-4" /> {t.creatorProfile.backToCreators}
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -50,7 +52,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                       <span className="text-sm font-medium">{creator.rating}</span>
                     </div>
                     <span className="text-muted-foreground text-sm">·</span>
-                    <span className="text-sm text-muted-foreground">{creator.orders} projects completed</span>
+                    <span className="text-sm text-muted-foreground">{creator.orders} {t.creatorProfile.projectsCompleted}</span>
                   </div>
                   <div className="flex flex-wrap gap-1.5 mt-2">
                     {creator.specialties.map(s => (
@@ -61,15 +63,15 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
               </div>
               <p className="text-sm text-muted-foreground mt-4 leading-relaxed">{creator.bio}</p>
               <div className="flex items-center gap-3 mt-4 pt-4 border-t border-border text-xs text-muted-foreground">
-                <span>Active: {creator.activeHours}</span>
+                <span>{t.creatorProfile.activeLabel} {creator.activeHours}</span>
                 <span>·</span>
-                <span>From ¥{creator.rateCard.from.toLocaleString()} / project</span>
+                <span>{t.creators.fromLabel} ¥{creator.rateCard.from.toLocaleString()} {t.creatorProfile.fromPerProject}</span>
               </div>
             </div>
 
             {/* Metrics */}
             <div className="bg-white border border-border rounded-xl p-6">
-              <h2 className="text-sm font-semibold text-foreground mb-4">Performance</h2>
+              <h2 className="text-sm font-semibold text-foreground mb-4">{t.creatorProfile.performance}</h2>
               <div className="grid grid-cols-2 gap-3">
                 {metrics.map(m => (
                   <div key={m.label} className="bg-muted rounded-lg px-4 py-3 flex items-center gap-3">
@@ -85,7 +87,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
 
             {/* Showcase */}
             <div className="bg-white border border-border rounded-xl p-6">
-              <h2 className="text-sm font-semibold text-foreground mb-4">Work Showcase</h2>
+              <h2 className="text-sm font-semibold text-foreground mb-4">{t.creatorProfile.showcase}</h2>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                 {creator.showcase.map(work => (
                   <div key={work.id} className="rounded-lg border border-border overflow-hidden bg-muted">
@@ -107,16 +109,16 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
             <div className="bg-white border border-border rounded-xl p-5 sticky top-20">
               <div className="text-center mb-4">
                 <p className="text-2xl font-bold text-foreground">¥{creator.rateCard.from.toLocaleString()}+</p>
-                <p className="text-xs text-muted-foreground mt-0.5">Starting rate / project</p>
+                <p className="text-xs text-muted-foreground mt-0.5">{t.creatorProfile.startingRate}</p>
               </div>
 
               {activeRole === "backer" && (
                 <div className="space-y-2">
                   {invitationSent ? (
-                    <Badge className="w-full justify-center bg-accent text-primary border-0 py-2">Invitation sent</Badge>
+                    <Badge className="w-full justify-center bg-accent text-primary border-0 py-2">{t.creatorProfile.invitationSent}</Badge>
                   ) : (
                     <Button className="w-full gap-2" onClick={() => setInviteOpen(true)}>
-                      <Send className="w-4 h-4" /> Send Invitation
+                      <Send className="w-4 h-4" /> {t.creatorProfile.sendInvitation}
                     </Button>
                   )}
                 </div>
@@ -124,15 +126,15 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
 
               <div className="mt-4 pt-4 border-t border-border space-y-2">
                 <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Projects</span>
+                  <span className="text-muted-foreground">{t.creatorProfile.projectsCount}</span>
                   <span className="font-medium">{creator.orders}</span>
                 </div>
                 <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Completion</span>
+                  <span className="text-muted-foreground">{t.creatorProfile.completion}</span>
                   <span className="font-medium">{creator.completion}%</span>
                 </div>
                 <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">Punctuality</span>
+                  <span className="text-muted-foreground">{t.creatorProfile.punctuality}</span>
                   <span className="font-medium">{creator.punctuality}%</span>
                 </div>
               </div>
@@ -145,25 +147,25 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle className="text-base">Invite {creator.nickname}</DialogTitle>
+            <DialogTitle className="text-base">{t.creatorProfile.inviteDialogTitle(creator.nickname)}</DialogTitle>
           </DialogHeader>
           <div className="py-2 space-y-4">
             <div>
-              <p className="text-sm font-medium text-foreground mb-1">Project</p>
+              <p className="text-sm font-medium text-foreground mb-1">{t.creatorProfile.project}</p>
               <select className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-                <option>Cinematic Brand Film for AI Startup (posted)</option>
-                <option>+ Create a new need</option>
+                <option>{t.creatorProfile.inviteProjectOption("Cinematic Brand Film for AI Startup")}</option>
+                <option>{t.creatorProfile.createNewNeed}</option>
               </select>
             </div>
             <div>
-              <p className="text-sm font-medium text-foreground mb-1">Note</p>
-              <Textarea rows={3} className="resize-none text-sm" defaultValue={`Hi ${creator.nickname}, I came across your work and think you'd be a great fit for my project. Would love to discuss!`} />
+              <p className="text-sm font-medium text-foreground mb-1">{t.creatorProfile.note}</p>
+              <Textarea rows={3} className="resize-none text-sm" defaultValue={t.creatorProfile.inviteNoteDefault(creator.nickname)} />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setInviteOpen(false)}>Cancel</Button>
-            <Button onClick={() => { sendInvitation(); setInviteOpen(false); toast.success("Invitation sent!"); }}>
-              Send Invitation
+            <Button variant="outline" onClick={() => setInviteOpen(false)}>{t.common.cancel}</Button>
+            <Button onClick={() => { sendInvitation(); setInviteOpen(false); toast.success(t.creatorProfile.invitedToast); }}>
+              {t.creatorProfile.sendInvitation}
             </Button>
           </DialogFooter>
         </DialogContent>

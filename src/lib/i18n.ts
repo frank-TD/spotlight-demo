@@ -92,6 +92,9 @@ const en = {
     testimonial: "\"Spotlight gave me access to briefs I'd never find elsewhere — and the escrow system means I get paid every single milestone.\"",
     testimonialRole: "AIGC Director · 47 projects completed",
     copyright: "© 2026 Spotlight Technologies",
+    backerOption: "Lucas Chen · Backer",
+    creatorOption: "Aria Song · Creator",
+    signedInAs: (name: string) => `Signed in as ${name}`,
   },
   register: {
     title: "Create your account",
@@ -128,6 +131,9 @@ const en = {
     aiMatch: "AI Match",
     stageOf: (n: number, total: number) => `Stage ${n} of ${total}`,
     creatorActiveProjects: "1 active · stage 3 pending review",
+    roleBacker: "Backer",
+    roleCreator: "Creator",
+    stageNames: ["Deposit", "Moodboard", "Draft Cut", "Revised Cut", "Final"],
   },
   needDetail: {
     backToMarket: "Back to Marketplace",
@@ -166,6 +172,7 @@ const en = {
     submitApplication: "Submit Application",
     applicationSubmittedToast: "Application submitted!",
     collaborationConfirmedToast: "Collaboration confirmed! Contract page is ready.",
+    proposalDefault: "I specialize in minimal-cinematic narratives. My approach: cold open with a single visual metaphor, build through rhythm, close on the product reveal. Happy to share references.",
   },
   postNeed: {
     title: "Post a Need",
@@ -204,6 +211,7 @@ const en = {
     filterAll: "All",
     fromLabel: "From",
     projectsLabel: "projects",
+    styleFilters: { All: "All", Cinematic: "Cinematic", Commercial: "Commercial", Anime: "Anime", Documentary: "Documentary" } as Record<string, string>,
   },
   creatorProfile: {
     backToCreators: "Back to Creators",
@@ -230,6 +238,8 @@ const en = {
     createNewNeed: "+ Create a new need",
     note: "Note",
     invitedToast: "Invitation sent!",
+    inviteProjectOption: (title: string) => `${title} (posted)`,
+    inviteNoteDefault: (name: string) => `Hi ${name}, I came across your work and think you'd be a great fit for my project. Would love to discuss!`,
   },
   orderDetail: {
     backToProjects: "My Projects",
@@ -326,6 +336,8 @@ const en = {
     withdrawBtn: (amount: number) => `Withdraw ¥${amount.toLocaleString()}`,
     rechargedToast: (amount: number) => `¥${amount.toLocaleString()} Diamond recharged successfully`,
     withdrawnToast: (amount: number) => `Withdrawal of ¥${amount.toLocaleString()} submitted · 1–3 business days`,
+    bankAccount: "ICBC *8821",
+    emptyDash: "—",
   },
   assets: {
     title: "Asset Library",
@@ -343,6 +355,10 @@ const en = {
   chat: {
     viewOrder: "View Order",
     messagePlaceholder: "Type a message...",
+    sessionSubject: "Cinematic Brand Film — NeoVision AI",
+    spotlightBrand: "Spotlight",
+    roleBacker: "Backer",
+    roleCreator: "Creator",
   },
   profile: {
     title: "Profile",
@@ -354,6 +370,8 @@ const en = {
     identityVerification: "Identity Verification",
     verificationDesc: "Required for withdrawals",
     verified: "Verified",
+    bioCreatorDefault: "Award-winning AIGC filmmaker. Previously: Sundance Lab, NVIDIA AI Lab.",
+    bioBackerDefault: "Creative director and founder of NeoVision. Obsessed with where AI meets storytelling.",
   },
   agent: {
     headerTitle: "AI Assistant",
@@ -463,6 +481,9 @@ const zhCN: typeof en = {
     testimonial: "「Spotlight 让我接触到过去难以找到的需求，托管机制确保我每个阶段都能按时收款。」",
     testimonialRole: "AIGC 导演 · 47 个项目已完成",
     copyright: "© 2026 Spotlight Technologies",
+    backerOption: "Lucas Chen · Backer",
+    creatorOption: "Aria Song · Creator",
+    signedInAs: (name: string) => `已以 ${name} 身份登录`,
   },
   register: {
     title: "创建账户",
@@ -499,6 +520,9 @@ const zhCN: typeof en = {
     aiMatch: "AI 匹配",
     stageOf: (n: number, total: number) => `第 ${n}/${total} 阶段`,
     creatorActiveProjects: "1 个进行中 · 第 3 阶段待审核",
+    roleBacker: "Backer",
+    roleCreator: "Creator",
+    stageNames: ["定金", "氛围板", "初稿", "修订版", "终版"],
   },
   needDetail: {
     backToMarket: "返回市场",
@@ -537,6 +561,7 @@ const zhCN: typeof en = {
     submitApplication: "提交申请",
     applicationSubmittedToast: "申请已提交！",
     collaborationConfirmedToast: "合作已确认！合同页面已就绪。",
+    proposalDefault: "我擅长极简电影感叙事。我的方案：以一个视觉隐喻开场，通过节奏推进，最后以产品揭示收尾。可分享参考案例。",
   },
   postNeed: {
     title: "发布需求",
@@ -575,6 +600,7 @@ const zhCN: typeof en = {
     filterAll: "全部",
     fromLabel: "起价",
     projectsLabel: "个项目",
+    styleFilters: { All: "全部", Cinematic: "电影感", Commercial: "商业", Anime: "动漫", Documentary: "纪录片" } as Record<string, string>,
   },
   creatorProfile: {
     backToCreators: "返回创作者列表",
@@ -601,6 +627,8 @@ const zhCN: typeof en = {
     createNewNeed: "+ 创建新需求",
     note: "备注",
     invitedToast: "邀约已发送！",
+    inviteProjectOption: (title: string) => `${title}（已发布）`,
+    inviteNoteDefault: (name: string) => `你好 ${name}，我看到了你的作品，觉得非常适合我的项目，希望能聊聊！`,
   },
   orderDetail: {
     backToProjects: "我的项目",
@@ -697,6 +725,8 @@ const zhCN: typeof en = {
     withdrawBtn: (amount: number) => `提现 ¥${amount.toLocaleString()}`,
     rechargedToast: (amount: number) => `¥${amount.toLocaleString()} Diamond 充值成功`,
     withdrawnToast: (amount: number) => `¥${amount.toLocaleString()} 提现已申请 · 1–3 个工作日到账`,
+    bankAccount: "工商银行 *8821",
+    emptyDash: "—",
   },
   assets: {
     title: "资产库",
@@ -714,6 +744,10 @@ const zhCN: typeof en = {
   chat: {
     viewOrder: "查看订单",
     messagePlaceholder: "输入消息...",
+    sessionSubject: "电影感品牌片 — NeoVision AI",
+    spotlightBrand: "Spotlight",
+    roleBacker: "Backer",
+    roleCreator: "Creator",
   },
   profile: {
     title: "个人资料",
@@ -725,6 +759,8 @@ const zhCN: typeof en = {
     identityVerification: "身份认证",
     verificationDesc: "提现前需完成认证",
     verified: "已认证",
+    bioCreatorDefault: "屡获殊荣的 AIGC 影像创作者。曾任职于 Sundance Lab、NVIDIA AI Lab。",
+    bioBackerDefault: "创意总监兼 NeoVision 创始人，专注于 AI 与故事的交汇点。",
   },
   agent: {
     headerTitle: "AI 助手",
@@ -834,6 +870,9 @@ const zhTW: typeof en = {
     testimonial: "「Spotlight 讓我接觸到過去難以找到的需求，託管機制確保我每個階段都能按時收款。」",
     testimonialRole: "AIGC 導演 · 47 個項目已完成",
     copyright: "© 2026 Spotlight Technologies",
+    backerOption: "Lucas Chen · Backer",
+    creatorOption: "Aria Song · Creator",
+    signedInAs: (name: string) => `已以 ${name} 身份登入`,
   },
   register: {
     title: "建立帳戶",
@@ -870,6 +909,9 @@ const zhTW: typeof en = {
     aiMatch: "AI 配對",
     stageOf: (n: number, total: number) => `第 ${n}/${total} 階段`,
     creatorActiveProjects: "1 個進行中 · 第 3 階段待審核",
+    roleBacker: "Backer",
+    roleCreator: "Creator",
+    stageNames: ["訂金", "氛圍板", "初稿", "修訂版", "終版"],
   },
   needDetail: {
     backToMarket: "返回市場",
@@ -908,6 +950,7 @@ const zhTW: typeof en = {
     submitApplication: "提交申請",
     applicationSubmittedToast: "申請已提交！",
     collaborationConfirmedToast: "合作已確認！合約頁面已就緒。",
+    proposalDefault: "我擅長極簡電影感敘事。我的方案：以一個視覺隱喻開場，通過節奏推進，最後以產品揭示收尾。可分享參考案例。",
   },
   postNeed: {
     title: "發布需求",
@@ -946,6 +989,7 @@ const zhTW: typeof en = {
     filterAll: "全部",
     fromLabel: "起價",
     projectsLabel: "個項目",
+    styleFilters: { All: "全部", Cinematic: "電影感", Commercial: "商業", Anime: "動漫", Documentary: "紀錄片" } as Record<string, string>,
   },
   creatorProfile: {
     backToCreators: "返回創作者列表",
@@ -972,6 +1016,8 @@ const zhTW: typeof en = {
     createNewNeed: "+ 建立新需求",
     note: "備註",
     invitedToast: "邀約已發送！",
+    inviteProjectOption: (title: string) => `${title}（已發布）`,
+    inviteNoteDefault: (name: string) => `你好 ${name}，我看到了你的作品，覺得非常適合我的項目，希望能聊聊！`,
   },
   orderDetail: {
     backToProjects: "我的項目",
@@ -1068,6 +1114,8 @@ const zhTW: typeof en = {
     withdrawBtn: (amount: number) => `提現 ¥${amount.toLocaleString()}`,
     rechargedToast: (amount: number) => `¥${amount.toLocaleString()} Diamond 充值成功`,
     withdrawnToast: (amount: number) => `¥${amount.toLocaleString()} 提現已申請 · 1–3 個工作日到賬`,
+    bankAccount: "中國工商銀行 *8821",
+    emptyDash: "—",
   },
   assets: {
     title: "資產庫",
@@ -1085,6 +1133,10 @@ const zhTW: typeof en = {
   chat: {
     viewOrder: "查看訂單",
     messagePlaceholder: "輸入訊息...",
+    sessionSubject: "電影感品牌片 — NeoVision AI",
+    spotlightBrand: "Spotlight",
+    roleBacker: "Backer",
+    roleCreator: "Creator",
   },
   profile: {
     title: "個人資料",
@@ -1096,6 +1148,8 @@ const zhTW: typeof en = {
     identityVerification: "身份驗證",
     verificationDesc: "提現前需完成驗證",
     verified: "已驗證",
+    bioCreatorDefault: "屢獲殊榮的 AIGC 影像創作者。曾任職於 Sundance Lab、NVIDIA AI Lab。",
+    bioBackerDefault: "創意總監兼 NeoVision 創辦人，專注於 AI 與故事的交匯點。",
   },
   agent: {
     headerTitle: "AI 助理",

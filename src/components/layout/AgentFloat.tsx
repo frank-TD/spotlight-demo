@@ -1,56 +1,36 @@
 "use client";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
-import { Button } from "@/components/ui/button";
 import { Sparkles, X, Send, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useT } from "@/hooks/useT";
 
-const CANNED = [
-  {
-    q: ["order", "progress", "status"],
-    a: "Your active order **ord_001** is in Stage 3 (Draft Cut). Aria has submitted the draft — you have 7 days to review before auto-acceptance on May 24.",
-    link: { label: "View order", href: "/orders/ord_001" },
-  },
-  {
-    q: ["wallet", "balance", "diamond", "shell"],
-    a: "Your wallet: **◆ 12,400 Diamond** available · **◆ 420** currently escrowed in ord_001.",
-    link: { label: "Go to wallet", href: "/wallet" },
-  },
-  {
-    q: ["withdraw", "payout", "cash"],
-    a: "You can withdraw your Shell balance anytime. Current withdrawable balance: **◉ 8,650**. Processing time is 1–3 business days via Airwallex.",
-    link: { label: "Withdraw now", href: "/wallet" },
-  },
-  {
-    q: ["recommend", "creator", "find"],
-    a: "Based on your project history, I recommend **Aria Song** (98% completion) and **Marco Reyes** (brand film specialist) for your next commercial project.",
-    link: { label: "Browse creators", href: "/market/creators" },
-  },
-  {
-    q: ["kyc", "verify", "identity"],
-    a: "Your identity verification is **complete** (KYC passed). You have full access to all platform features including withdrawal.",
-    link: null,
-  },
+const KEYWORDS = [
+  ["order", "progress", "status", "订单", "进度", "狀態", "進度", "訂單"],
+  ["wallet", "balance", "diamond", "shell", "钱包", "余额", "錢包", "餘額"],
+  ["withdraw", "payout", "cash", "提现", "提現"],
+  ["recommend", "creator", "find", "推荐", "創作者", "推薦", "创作者"],
+  ["kyc", "verify", "identity", "认证", "身份", "認證"],
 ];
-
-const FALLBACK = "I can help with order status, wallet balance, creator recommendations, and platform features. Try asking something like 'What's the status of my order?' or 'How do I withdraw?'";
-
-function getResponse(input: string) {
-  const lower = input.toLowerCase();
-  const match = CANNED.find((c) => c.q.some((kw) => lower.includes(kw)));
-  return match ?? { a: FALLBACK, link: null };
-}
 
 type Msg = { role: "user" | "agent"; text: string; link?: { label: string; href: string } | null };
 
 export default function AgentFloat() {
   const { agentOpen, toggleAgent, isLoggedIn } = useStore();
+  const t = useT();
   const [input, setInput] = useState("");
   const [msgs, setMsgs] = useState<Msg[]>([
-    { role: "agent", text: "Hi! I'm your Spotlight AI assistant. Ask me about order status, wallet, or creator recommendations." },
+    { role: "agent", text: t.agent.greeting },
   ]);
 
   if (!isLoggedIn) return null;
+
+  const getResponse = (q: string) => {
+    const lower = q.toLowerCase();
+    const idx = KEYWORDS.findIndex((kws) => kws.some((kw) => lower.includes(kw.toLowerCase())));
+    if (idx === -1) return { a: t.agent.fallback, link: null as { label: string; href: string } | null };
+    return t.agent.canned[idx];
+  };
 
   const send = () => {
     const q = input.trim();
@@ -86,8 +66,8 @@ export default function AgentFloat() {
                 <Sparkles className="w-3.5 h-3.5 text-white" />
               </div>
               <div>
-                <p className="text-sm font-medium">AI Assistant</p>
-                <p className="text-[10px] text-muted-foreground">Powered by Spotlight Agent</p>
+                <p className="text-sm font-medium">{t.agent.headerTitle}</p>
+                <p className="text-[10px] text-muted-foreground">{t.agent.headerSubtitle}</p>
               </div>
             </div>
             <button onClick={toggleAgent} className="text-muted-foreground hover:text-foreground">
@@ -125,7 +105,7 @@ export default function AgentFloat() {
           <div className="p-3 border-t border-border flex gap-2">
             <input
               className="flex-1 text-xs rounded-lg border border-input px-3 py-2 bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
-              placeholder="Ask anything..."
+              placeholder={t.agent.placeholder}
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && send()}

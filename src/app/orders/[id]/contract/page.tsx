@@ -8,13 +8,14 @@ import { ORDER_ACTIVE } from "@/lib/mock-data";
 import { ArrowLeft, Check, Shield, FileText } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
-import { cn } from "@/lib/utils";
+import { useT } from "@/hooks/useT";
 
 export default function ContractPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
+  const t = useT();
   const [backerSigned, setBackerSigned] = useState(false);
-  const [creatorSigned, setCreatorSigned] = useState(true); // pre-signed in demo
+  const [creatorSigned] = useState(true); // pre-signed in demo
   const [confirming, setConfirming] = useState(false);
 
   const order = ORDER_ACTIVE;
@@ -23,7 +24,7 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
     setConfirming(true);
     setBackerSigned(true);
     await new Promise(r => setTimeout(r, 800));
-    toast.success("Contract confirmed! Deposit payment is now required.");
+    toast.success(t.contract.confirmedToast);
     setTimeout(() => router.push(`/orders/${id}`), 600);
   };
 
@@ -31,7 +32,7 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
     <AppShell>
       <div className="max-w-3xl mx-auto px-6 py-8">
         <Link href={`/orders/${id}`} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6">
-          <ArrowLeft className="w-4 h-4" /> Back to Order
+          <ArrowLeft className="w-4 h-4" /> {t.contract.backToOrder}
         </Link>
 
         <div className="flex items-center gap-3 mb-6">
@@ -39,18 +40,18 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
             <FileText className="w-4.5 h-4.5 text-primary" />
           </div>
           <div>
-            <h1 className="text-lg font-bold text-foreground">Contract Confirmation</h1>
-            <p className="text-sm text-muted-foreground">Both parties must confirm before the project begins</p>
+            <h1 className="text-lg font-bold text-foreground">{t.contract.title}</h1>
+            <p className="text-sm text-muted-foreground">{t.contract.subtitle}</p>
           </div>
         </div>
 
         {/* Parties */}
         <div className="bg-white border border-border rounded-xl p-5 mb-5">
-          <h2 className="text-sm font-semibold text-foreground mb-4">Parties</h2>
+          <h2 className="text-sm font-semibold text-foreground mb-4">{t.contract.parties}</h2>
           <div className="grid grid-cols-2 gap-4">
             {[
-              { label: "Backer", name: order.backer.nickname, avatar: order.backer.avatar, signed: backerSigned },
-              { label: "Creator", name: order.creator.nickname, avatar: order.creator.avatar, signed: creatorSigned },
+              { label: t.projects.counterpartBacker, name: order.backer.nickname, avatar: order.backer.avatar, signed: backerSigned },
+              { label: t.projects.counterpartCreator, name: order.creator.nickname, avatar: order.creator.avatar, signed: creatorSigned },
             ].map(p => (
               <div key={p.label} className="flex items-center gap-3 p-3 rounded-lg bg-muted">
                 <div className="w-9 h-9 rounded-full bg-accent flex items-center justify-center text-sm font-semibold text-primary">{p.avatar}</div>
@@ -60,10 +61,10 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
                 </div>
                 {p.signed ? (
                   <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs gap-1 shrink-0">
-                    <Check className="w-2.5 h-2.5" /> Signed
+                    <Check className="w-2.5 h-2.5" /> {t.contract.signed}
                   </Badge>
                 ) : (
-                  <Badge variant="outline" className="text-xs text-muted-foreground shrink-0">Pending</Badge>
+                  <Badge variant="outline" className="text-xs text-muted-foreground shrink-0">{t.contract.pendingSign}</Badge>
                 )}
               </div>
             ))}
@@ -72,14 +73,14 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
 
         {/* Order summary */}
         <div className="bg-white border border-border rounded-xl p-5 mb-5">
-          <h2 className="text-sm font-semibold text-foreground mb-4">Project Summary</h2>
+          <h2 className="text-sm font-semibold text-foreground mb-4">{t.contract.projectSummary}</h2>
           <div className="space-y-2 text-sm">
             {[
-              ["Project", order.title],
-              ["Total Amount", `¥${order.totalFiat.toLocaleString()}`],
-              ["Copyright", order.copyright],
-              ["Revision Limit", "3 rounds per stage"],
-              ["Auto-acceptance", "7 days after submission"],
+              [t.contract.projectLabel, order.title],
+              [t.contract.totalAmount, `¥${order.totalFiat.toLocaleString()}`],
+              [t.contract.copyrightLabel, order.copyright],
+              [t.contract.revisionLimit, t.contract.revisionLimitValue],
+              [t.contract.autoAcceptance, t.contract.autoAcceptanceValue],
             ].map(([k, v]) => (
               <div key={k} className="flex justify-between">
                 <span className="text-muted-foreground">{k}</span>
@@ -91,19 +92,19 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
 
         {/* Payment stages */}
         <div className="bg-white border border-border rounded-xl p-5 mb-5">
-          <h2 className="text-sm font-semibold text-foreground mb-4">Payment Schedule</h2>
+          <h2 className="text-sm font-semibold text-foreground mb-4">{t.contract.paymentSchedule}</h2>
           <div className="space-y-2">
             {order.stages.map((stage) => (
               <div key={stage.id} className="flex items-center justify-between py-2 border-b border-border last:border-0">
                 <div>
                   <p className="text-sm font-medium text-foreground">{stage.name}</p>
-                  <p className="text-xs text-muted-foreground">{Math.round(stage.ratio * 100)}% of total</p>
+                  <p className="text-xs text-muted-foreground">{Math.round(stage.ratio * 100)}{t.contract.ofTotal}</p>
                 </div>
                 <p className="text-sm font-semibold text-foreground">¥{stage.amountFiat.toLocaleString()}</p>
               </div>
             ))}
             <div className="flex justify-between pt-2">
-              <span className="text-sm font-semibold text-foreground">Total</span>
+              <span className="text-sm font-semibold text-foreground">{t.contract.total}</span>
               <span className="text-sm font-bold text-primary">¥{order.totalFiat.toLocaleString()}</span>
             </div>
           </div>
@@ -113,8 +114,7 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
         <div className="bg-accent border border-primary/20 rounded-xl p-4 mb-6 flex gap-3">
           <Shield className="w-4 h-4 text-primary shrink-0 mt-0.5" />
           <p className="text-xs text-foreground/80 leading-relaxed">
-            Funds are held in escrow by Spotlight and released to the creator only upon your approval at each stage.
-            The platform may mediate disputes. By confirming, both parties agree to the Spotlight Creator Agreement.
+            {t.contract.escrowNotice}
           </p>
         </div>
 
@@ -124,7 +124,7 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
           disabled={backerSigned || confirming}
           onClick={handleConfirm}
         >
-          {backerSigned ? "Contract confirmed ✓" : confirming ? "Confirming..." : "Confirm & Sign Contract"}
+          {backerSigned ? t.contract.confirmed : confirming ? t.contract.confirming : t.contract.confirmBtn}
         </Button>
       </div>
     </AppShell>

@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { useT } from "@/hooks/useT";
 
 const STATUS_COLORS: Record<string, string> = {
   accepted: "bg-emerald-50 text-emerald-700 border-emerald-200",
@@ -21,18 +22,10 @@ const STATUS_COLORS: Record<string, string> = {
   auto_accepted: "bg-emerald-50 text-emerald-700 border-emerald-200",
 };
 
-const STATUS_LABELS: Record<string, string> = {
-  accepted: "Approved",
-  submitted: "Awaiting Review",
-  pending: "Pending",
-  in_progress: "In Progress",
-  rejected: "Revision Requested",
-  auto_accepted: "Auto-approved",
-};
-
 export default function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const { activeRole, orderStages, acceptStage, rejectStage, submitStage } = useStore();
+  const t = useT();
   const [rejectOpen, setRejectOpen] = useState(false);
   const [rejectTarget, setRejectTarget] = useState<string | null>(null);
   const [submitOpen, setSubmitOpen] = useState(false);
@@ -48,7 +41,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
     <AppShell>
       <div className="max-w-5xl mx-auto px-6 py-8">
         <Link href="/projects" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6">
-          <ArrowLeft className="w-4 h-4" /> My Projects
+          <ArrowLeft className="w-4 h-4" /> {t.orderDetail.backToProjects}
         </Link>
 
         {/* Header */}
@@ -57,14 +50,14 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
             <div>
               <h1 className="text-lg font-bold text-foreground leading-snug">{order.title}</h1>
               <p className="text-sm text-muted-foreground mt-1">
-                {activeRole === "backer" ? `with ${order.creator.nickname}` : `for ${order.backer.nickname}`} · ¥{order.totalFiat.toLocaleString()}
+                {activeRole === "backer" ? t.orderDetail.withCounterpart(order.creator.nickname) : t.orderDetail.forCounterpart(order.backer.nickname)} · ¥{order.totalFiat.toLocaleString()}
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-xs">In Progress</Badge>
+              <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-xs">{t.common.inProgress}</Badge>
               <Link href={`/orders/${id}/contract`}>
                 <Button variant="ghost" size="sm" className="text-xs gap-1 text-muted-foreground">
-                  <FileText className="w-3.5 h-3.5" /> Contract
+                  <FileText className="w-3.5 h-3.5" /> {t.orderDetail.contract}
                 </Button>
               </Link>
             </div>
@@ -73,7 +66,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
           {/* Progress bar */}
           <div className="space-y-1.5">
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>{completedCount} of {stages.length} stages complete</span>
+              <span>{t.orderDetail.stagesComplete(completedCount, stages.length)}</span>
               <span>{Math.round((completedCount / stages.length) * 100)}%</span>
             </div>
             <div className="h-1.5 bg-muted rounded-full overflow-hidden">
@@ -109,7 +102,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                 activeTab === tab ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
               )}
             >
-              {tab === "stages" ? "Stages & Deliverables" : tab === "messages" ? "Conversation" : "Payments"}
+              {tab === "stages" ? t.orderDetail.tabStages : tab === "messages" ? t.orderDetail.tabConversation : t.orderDetail.tabPayments}
             </button>
           ))}
         </div>
@@ -144,7 +137,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                       </div>
                     </div>
                     <Badge className={cn("text-xs", STATUS_COLORS[stage.status])}>
-                      {STATUS_LABELS[stage.status]}
+                      {t.orderDetail.statusLabels[stage.status as keyof typeof t.orderDetail.statusLabels]}
                     </Badge>
                   </div>
 
@@ -152,7 +145,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                   {stage.status === "submitted" && activeRole === "backer" && (
                     <div className="flex items-center gap-1.5 text-xs text-amber-600 mb-3 bg-amber-50 rounded-lg px-3 py-2">
                       <Clock className="w-3.5 h-3.5" />
-                      Auto-accepted on May 24 if no action taken
+                      {t.orderDetail.autoAcceptNotice}
                     </div>
                   )}
 
@@ -181,19 +174,19 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                     {/* Backer actions */}
                     {activeRole === "backer" && stage.status === "submitted" && (
                       <>
-                        <Button size="sm" className="text-xs h-8 gap-1.5" onClick={() => { acceptStage(stage.id); toast.success(`Stage approved! ¥${stage.amountFiat.toLocaleString()} released to Aria Song.`); }}>
-                          <Check className="w-3 h-3" /> Approve & Release
+                        <Button size="sm" className="text-xs h-8 gap-1.5" onClick={() => { acceptStage(stage.id); toast.success(t.orderDetail.approvedToast(stage.amountFiat)); }}>
+                          <Check className="w-3 h-3" /> {t.orderDetail.approveRelease}
                         </Button>
                         <Button size="sm" variant="outline" className="text-xs h-8 gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/5"
                           onClick={() => { setRejectTarget(stage.id); setRejectOpen(true); }}>
-                          <X className="w-3 h-3" /> Request Revision
+                          <X className="w-3 h-3" /> {t.orderDetail.requestRevision}
                         </Button>
                       </>
                     )}
                     {/* Creator actions */}
                     {activeRole === "creator" && stage.status === "in_progress" && (
                       <Button size="sm" className="text-xs h-8 gap-1.5" onClick={() => { setSubmitTarget(stage.id); setSubmitOpen(true); }}>
-                        <Upload className="w-3 h-3" /> Submit Deliverable
+                        <Upload className="w-3 h-3" /> {t.orderDetail.submitDeliverable}
                       </Button>
                     )}
                   </div>
@@ -241,8 +234,8 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
               })}
             </div>
             <div className="border-t border-border p-3 flex gap-2">
-              <input className="flex-1 text-sm rounded-lg border border-input px-3 py-2 bg-background focus:outline-none focus:ring-1 focus:ring-ring" placeholder="Type a message..." />
-              <Button size="sm">Send</Button>
+              <input className="flex-1 text-sm rounded-lg border border-input px-3 py-2 bg-background focus:outline-none focus:ring-1 focus:ring-ring" placeholder={t.orderDetail.messagePlaceholder} />
+              <Button size="sm">{t.orderDetail.sendBtn}</Button>
             </div>
           </div>
         )}
@@ -263,7 +256,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                 </div>
               ))}
               <div className="flex justify-between pt-2">
-                <span className="text-sm text-muted-foreground">Total released</span>
+                <span className="text-sm text-muted-foreground">{t.orderDetail.totalReleased}</span>
                 <span className="text-sm font-bold text-primary">
                   ¥{order.ledger.filter(e => e.type === "Release").reduce((a, b) => a + b.amount, 0).toLocaleString()}
                   <span className="text-muted-foreground font-normal"> / ¥{order.totalFiat.toLocaleString()}</span>
@@ -277,15 +270,15 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       {/* Reject dialog */}
       <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
         <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle className="text-base">Request Revision</DialogTitle></DialogHeader>
-          <Textarea className="resize-none text-sm" rows={3} placeholder="Describe what needs to change..." />
+          <DialogHeader><DialogTitle className="text-base">{t.orderDetail.rejectDialogTitle}</DialogTitle></DialogHeader>
+          <Textarea className="resize-none text-sm" rows={3} placeholder={t.orderDetail.rejectPlaceholder} />
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRejectOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setRejectOpen(false)}>{t.common.cancel}</Button>
             <Button variant="destructive" onClick={() => {
               if (rejectTarget) rejectStage(rejectTarget);
               setRejectOpen(false);
-              toast.info("Revision requested. Creator has been notified.");
-            }}>Send Feedback</Button>
+              toast.info(t.orderDetail.revisionRequestedToast);
+            }}>{t.orderDetail.sendFeedback}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -293,29 +286,29 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       {/* Submit dialog */}
       <Dialog open={submitOpen} onOpenChange={setSubmitOpen}>
         <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle className="text-base">Submit Deliverable</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="text-base">{t.orderDetail.submitDialogTitle}</DialogTitle></DialogHeader>
           <div className="py-2 space-y-3">
             <div className="border-2 border-dashed border-border rounded-xl p-8 text-center">
               <Upload className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">Drop files here or click to upload</p>
-              <p className="text-xs text-muted-foreground mt-1">Video, PDF, ZIP · up to 10 GB</p>
+              <p className="text-sm text-muted-foreground">{t.orderDetail.dropFiles}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t.orderDetail.fileTypes}</p>
             </div>
             <div className="bg-muted rounded-lg px-3 py-2.5 flex items-center gap-2">
               <span className="text-sm">🎬</span>
               <div className="flex-1">
                 <p className="text-xs font-medium">final_cut_v2.mp4</p>
-                <p className="text-[10px] text-muted-foreground">890 MB · Ready to submit</p>
+                <p className="text-[10px] text-muted-foreground">890 MB · {t.orderDetail.readyToSubmit}</p>
               </div>
               <Check className="w-4 h-4 text-emerald-600" />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setSubmitOpen(false)}>Cancel</Button>
+            <Button variant="outline" onClick={() => setSubmitOpen(false)}>{t.common.cancel}</Button>
             <Button onClick={() => {
               if (submitTarget) submitStage(submitTarget);
               setSubmitOpen(false);
-              toast.success("Deliverable submitted! Backer has been notified.");
-            }}>Submit</Button>
+              toast.success(t.orderDetail.submittedToast);
+            }}>{t.common.submit}</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -7,22 +7,24 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Send, Paperclip } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
+import { useT } from "@/hooks/useT";
 
 export default function SessionPage({ params }: { params: Promise<{ id: string }> }) {
-  const { id } = use(params);
+  use(params);
   const { activeRole } = useStore();
+  const t = useT();
   const [input, setInput] = useState("");
   const [extraMsgs, setExtraMsgs] = useState<Array<{ id: string; senderId: string; senderName: string; senderRole: string; text: string; ts: string }>>([]);
 
   const sendMsg = () => {
-    const t = input.trim();
-    if (!t) return;
+    const trimmed = input.trim();
+    if (!trimmed) return;
     setExtraMsgs(prev => [...prev, {
       id: `em_${Date.now()}`,
       senderId: activeRole === "backer" ? "u_backer_01" : "u_creator_01",
       senderName: activeRole === "backer" ? "Lucas Chen" : "Aria Song",
-      senderRole: activeRole === "backer" ? "Backer" : "Creator",
-      text: t,
+      senderRole: activeRole === "backer" ? t.chat.roleBacker : t.chat.roleCreator,
+      text: trimmed,
       ts: new Date().toLocaleTimeString("en", { hour: "2-digit", minute: "2-digit" }),
     }]);
     setInput("");
@@ -46,12 +48,12 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
               <p className="text-sm font-semibold text-foreground">
                 {activeRole === "backer" ? "Aria Song" : "Lucas Chen"}
               </p>
-              <p className="text-xs text-muted-foreground">Cinematic Brand Film — NeoVision AI</p>
+              <p className="text-xs text-muted-foreground">{t.chat.sessionSubject}</p>
             </div>
           </div>
           <div className="ml-auto">
             <Link href="/orders/ord_001">
-              <Button variant="outline" size="sm" className="text-xs">View Order</Button>
+              <Button variant="outline" size="sm" className="text-xs">{t.chat.viewOrder}</Button>
             </Link>
           </div>
         </div>
@@ -59,11 +61,11 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
         {/* Messages */}
         <div className="flex-1 overflow-y-auto bg-white border border-border rounded-xl p-4 space-y-3 mb-3">
           {allMsgs.map(msg => {
-            if ((msg as any).isCard) {
+            if ((msg as { isCard?: boolean }).isCard) {
               return (
                 <div key={msg.id} className="flex justify-center">
                   <div className="bg-accent border border-primary/20 rounded-lg px-4 py-2.5 text-xs text-foreground/80 text-center max-w-sm">
-                    <span className="font-medium text-primary">Spotlight · </span>
+                    <span className="font-medium text-primary">{t.chat.spotlightBrand} · </span>
                     {msg.text}
                   </div>
                 </div>
@@ -104,7 +106,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
           </button>
           <input
             className="flex-1 text-sm rounded-xl border border-input px-4 py-2.5 bg-white focus:outline-none focus:ring-1 focus:ring-ring"
-            placeholder="Type a message..."
+            placeholder={t.chat.messagePlaceholder}
             value={input}
             onChange={e => setInput(e.target.value)}
             onKeyDown={e => e.key === "Enter" && sendMsg()}
