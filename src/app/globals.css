@@ -229,6 +229,46 @@
   vertical-align: middle;
 }
 
+/* ─── Animations + decorative backgrounds ───────────────────────────────── */
+@keyframes hero-reveal {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-hero-reveal {
+  opacity: 0;
+  animation: hero-reveal 1.2s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+@keyframes subtle-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+.animate-subtle-float {
+  animation: subtle-float 6s ease-in-out infinite;
+}
+
+.bg-mesh {
+  background-color: var(--md-surface);
+  background-image:
+    radial-gradient(at 0% 0%, hsla(20, 40%, 90%, 1) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(30, 30%, 92%, 1) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, hsla(10, 20%, 94%, 1) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, hsla(40, 25%, 91%, 1) 0px, transparent 50%);
+}
+
+.glow-hover { transition: box-shadow 0.3s ease, transform 0.3s ease; }
+.glow-hover:hover { box-shadow: 0 0 24px rgba(110, 91, 71, 0.3); }
+
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.scroll-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--md-outline-variant); border-radius: 3px; }
