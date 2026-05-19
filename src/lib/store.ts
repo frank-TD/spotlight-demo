@@ -49,6 +49,41 @@ interface AppState {
   // Showcase edits (overlays CREATORS[0].showcase when defined)
   showcaseEdits?: Array<{ id: string; title: string; duration: string; description?: string; fileSource?: "local" | "asset"; fileName?: string; assetId?: string }>;
   setShowcaseEdits: (items: Array<{ id: string; title: string; duration: string; description?: string; fileSource?: "local" | "asset"; fileName?: string; assetId?: string }>) => void;
+
+  // Distribution
+  distributionByAsset: Record<string, Distribution>;
+  updateDistribution: (assetId: string, dist: Partial<Distribution>) => void;
+  clearDistribution: (assetId: string) => void;
+}
+
+export type DistStatus =
+  | "metadata"
+  | "platforms"
+  | "payment"
+  | "neowow_review"
+  | "platform_review"
+  | "queue"
+  | "live"
+  | "takedown";
+
+export interface DistMetadata {
+  title: string;
+  description: string;
+  type: string;
+  tags: string[];
+  language: string;
+  subtitles: string[];
+  regions: string[];
+  price: number;
+  copyright: string;
+}
+
+export interface Distribution {
+  status: DistStatus;
+  metadata?: DistMetadata;
+  platforms?: string[];
+  paidAt?: number;
+  takedownAt?: number;
 }
 
 export const useStore = create<AppState>()(
@@ -114,6 +149,21 @@ export const useStore = create<AppState>()(
 
       showcaseEdits: undefined,
       setShowcaseEdits: (items) => set({ showcaseEdits: items }),
+
+      distributionByAsset: {},
+      updateDistribution: (assetId, dist) =>
+        set((s) => ({
+          distributionByAsset: {
+            ...s.distributionByAsset,
+            [assetId]: { ...(s.distributionByAsset[assetId] ?? { status: "metadata" }), ...dist },
+          },
+        })),
+      clearDistribution: (assetId) =>
+        set((s) => {
+          const next = { ...s.distributionByAsset };
+          delete next[assetId];
+          return { distributionByAsset: next };
+        }),
     }),
     {
       name: "spotlight-demo-store",
@@ -123,6 +173,7 @@ export const useStore = create<AppState>()(
         locale: state.locale,
         creatorEdits: state.creatorEdits,
         showcaseEdits: state.showcaseEdits,
+        distributionByAsset: state.distributionByAsset,
       }),
     }
   )

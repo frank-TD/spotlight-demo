@@ -392,3 +392,40 @@ export const PRESET_SPECIALTY_TAGS = [
 
 export const SHOWCASE_THUMBNAIL_OPTIONS = ["🎬", "🎞️", "📽️", "🎥", "🎨", "✨", "🌌", "🪐", "🎭", "🌸"];
 
+
+// ── Distribution ─────────────────────────────────────────────────────────────
+
+export const DISTRIBUTION_PLATFORMS = [
+  { id: "bilibili", name: "Bilibili", region: "CN" },
+  { id: "youtube", name: "YouTube", region: "Global" },
+  { id: "tiktok", name: "TikTok", region: "Global" },
+  { id: "vimeo", name: "Vimeo", region: "Global" },
+  { id: "netflix", name: "Netflix", region: "Global" },
+  { id: "xiaohongshu", name: "小红书", region: "CN" },
+  { id: "weibo", name: "Weibo Video", region: "CN" },
+  { id: "instagram", name: "Instagram Reels", region: "Global" },
+];
+
+export const DISTRIBUTION_LANGUAGES = [
+  { id: "zh-CN", name: "简体中文" },
+  { id: "zh-TW", name: "繁體中文" },
+  { id: "en-US", name: "English (US)" },
+  { id: "ja-JP", name: "日本語" },
+  { id: "ko-KR", name: "한국어" },
+  { id: "es-ES", name: "Español" },
+];
+
+export const DISTRIBUTION_REGIONS = [
+  { id: "global", name: "Worldwide" },
+  { id: "cn", name: "China" },
+  { id: "us", name: "United States" },
+  { id: "jp", name: "Japan" },
+  { id: "kr", name: "Korea" },
+  { id: "eu", name: "European Union" },
+];
+
+export const DISTRIBUTION_TYPES = ["Brand Film", "Music Video", "Documentary", "Commercial", "Short Film", "Animation", "Series"];
+
+export const COPYRIGHT_OPTIONS = ["All Rights Reserved", "CC BY 4.0", "CC BY-NC 4.0", "CC BY-SA 4.0", "Public Domain"];
+
+export const DISTRIBUTION_COST_SHELL = 200;
