@@ -512,6 +512,18 @@ export const SESSIONS: Session[] = [
       { id: "ms4_2", senderId: "u_creator_01", senderName: "Aria Song", senderRole: "Creator", text: "Hi Priya, character-driven sci-fi anime is exactly my space. Let's set up a 30-min sync to review the IP bible.", ts: "2026-05-15 14:00" },
     ],
   },
+  {
+    id: "sess_005",
+    backerId: "u_backer_01",
+    creatorId: "u_creator_04",
+    subject: "Documentary project",
+    orderId: null,
+    invitationSent: false,
+    lastUpdated: "2026-05-19 15:00",
+    messages: [
+      { id: "ms5_1", senderId: "u_backer_01", senderName: "Lucas Chen", senderRole: "Backer", text: "Hi Sofia — looking at your Invisible Cities doc, I'd love to discuss a short-form social storytelling project.", ts: "2026-05-19 15:00" },
+    ],
+  },
 ];
 
 // Map a counterpart user id to its session for the current Backer (Lucas) or Creator (Aria)
