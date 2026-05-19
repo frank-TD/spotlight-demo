@@ -38,7 +38,10 @@ export default function MessagesLayout({ children }: { children: React.ReactNode
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 pt-6 pb-10 h-[calc(100vh-80px)]">
         <div className="grid grid-cols-1 md:grid-cols-[320px_1fr] gap-6 h-full">
           {/* Sidebar */}
-          <aside className="hidden md:flex flex-col bg-surface-container-lowest border border-outline-variant/30 rounded-2xl overflow-hidden">
+          <aside
+            className="animate-fade-up hidden md:flex flex-col bg-surface-container-lowest border border-outline-variant/30 rounded-2xl overflow-hidden"
+            style={{ animationDelay: "0ms" }}
+          >
             <div className="px-5 pt-5 pb-3 border-b border-outline-variant/30">
               <h2 className="font-headline text-[22px] text-on-surface mb-3">{t.chat.listTitle}</h2>
               <div className="relative">
@@ -114,7 +117,10 @@ export default function MessagesLayout({ children }: { children: React.ReactNode
           </aside>
 
           {/* Right pane */}
-          <section className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl overflow-hidden h-full">
+          <section
+            className="animate-fade-up bg-surface-container-lowest border border-outline-variant/30 rounded-2xl overflow-hidden h-full"
+            style={{ animationDelay: "120ms" }}
+          >
             {children}
           </section>
         </div>

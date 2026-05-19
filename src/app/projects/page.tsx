@@ -26,7 +26,7 @@ export default function ProjectsPage() {
   return (
     <AppShell>
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 pt-10 pb-16">
-        <div className="flex flex-col md:flex-row justify-between md:items-end gap-6 mb-12">
+        <div className="animate-fade-up flex flex-col md:flex-row justify-between md:items-end gap-6 mb-12" style={{ animationDelay: "0ms" }}>
           <div className="space-y-2">
             <h1 className="font-headline text-headline-lg text-on-surface">{t.projects.title}</h1>
             <p className="text-on-surface-variant font-body opacity-80">
@@ -54,7 +54,7 @@ export default function ProjectsPage() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 group">
+          <div className="animate-fade-up lg:col-span-2 group" style={{ animationDelay: "100ms" }}>
             <Link href={`/orders/${heroOrder.id}`} className="block">
               <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-500 h-full">
                 <div className="p-8 md:p-10">
@@ -136,7 +136,7 @@ export default function ProjectsPage() {
             </Link>
           </div>
 
-          <div className="flex flex-col gap-6">
+          <div className="animate-fade-up flex flex-col gap-6" style={{ animationDelay: "180ms" }}>
             <div className="bg-primary p-8 rounded-2xl text-on-primary">
               <h4 className="font-label text-label-md uppercase tracking-widest mb-6 opacity-80">
                 {t.creatorProfile.performance}
@@ -178,7 +178,7 @@ export default function ProjectsPage() {
             </div>
           </div>
 
-          <div className="lg:col-span-3 space-y-4">
+          <div className="animate-fade-up lg:col-span-3 space-y-4" style={{ animationDelay: "260ms" }}>
             <h4 className="font-label text-label-md uppercase tracking-[0.2em] text-outline mb-2">
               {t.creators.aiRanked}
             </h4>

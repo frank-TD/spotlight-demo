@@ -40,7 +40,7 @@ export default function MarketPage() {
   return (
     <AppShell>
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 pt-10 pb-16">
-        <header className="flex flex-col md:flex-row justify-between md:items-end gap-6 mb-12">
+        <header className="animate-fade-up flex flex-col md:flex-row justify-between md:items-end gap-6 mb-12" style={{ animationDelay: "0ms" }}>
           <div>
             <h1 className="font-headline text-headline-lg text-on-surface">{t.market.title}</h1>
             <p className="text-on-surface-variant mt-2 font-body opacity-80 italic">
@@ -85,6 +85,7 @@ function BackerView() {
           desc={t.market.postANeedDesc}
           variant="primary"
           decorIcon={Megaphone}
+          style={{ animationDelay: "100ms" }}
         />
         <QuickActionCard
           href="/market/creators"
@@ -92,6 +93,7 @@ function BackerView() {
           title={t.market.browseCreators}
           desc={t.market.browseCreatorsDesc}
           variant="tertiary"
+          style={{ animationDelay: "180ms" }}
         />
         <QuickActionCard
           href="/projects"
@@ -99,12 +101,15 @@ function BackerView() {
           title={t.nav.myProjects}
           desc={t.market.myProjectsDesc}
           variant="secondary"
+          style={{ animationDelay: "260ms" }}
         />
       </section>
 
-      <ActiveOrderSection />
+      <div className="animate-fade-up" style={{ animationDelay: "340ms" }}>
+        <ActiveOrderSection />
+      </div>
 
-      <section>
+      <section className="animate-fade-up" style={{ animationDelay: "420ms" }}>
         <div className="flex items-center justify-between mb-8">
           <h2 className="font-label text-label-md uppercase tracking-[0.2em] text-on-surface-variant">
             {t.market.myPostedNeeds}
@@ -151,6 +156,7 @@ function CreatorView() {
           desc={t.market.creatorActiveProjects}
           variant="primary"
           decorIcon={Film}
+          style={{ animationDelay: "100ms" }}
         />
         <QuickActionCard
           href="/market/creators/u_creator_01"
@@ -158,6 +164,7 @@ function CreatorView() {
           title={t.market.myProfileCard}
           desc={t.market.myProfileCardDesc}
           variant="tertiary"
+          style={{ animationDelay: "180ms" }}
         />
         <QuickActionCard
           href="/assets"
@@ -165,10 +172,11 @@ function CreatorView() {
           title={t.market.assetLibrary}
           desc={t.market.assetLibraryDesc}
           variant="secondary"
+          style={{ animationDelay: "260ms" }}
         />
       </section>
 
-      <section>
+      <section className="animate-fade-up" style={{ animationDelay: "340ms" }}>
         <div className="flex items-center gap-3 mb-8">
           <h2 className="font-label text-label-md uppercase tracking-[0.2em] text-on-surface-variant">
             {t.market.recommendedForYou}
@@ -209,6 +217,7 @@ function QuickActionCard({
   desc,
   variant,
   decorIcon: Decor,
+  style,
 }: {
   href: string;
   icon: LucideIcon;
@@ -216,6 +225,7 @@ function QuickActionCard({
   desc: string;
   variant: "primary" | "secondary" | "tertiary";
   decorIcon?: LucideIcon;
+  style?: React.CSSProperties;
 }) {
   const styles = {
     primary: {
@@ -241,8 +251,9 @@ function QuickActionCard({
   return (
     <Link
       href={href}
+      style={style}
       className={cn(
-        "group relative overflow-hidden rounded-xl border p-8 cursor-pointer active:scale-[0.98] transition-all duration-300",
+        "animate-fade-up group relative overflow-hidden rounded-xl border p-8 cursor-pointer active:scale-[0.98] transition-all duration-300",
         styles.cls
       )}
     >

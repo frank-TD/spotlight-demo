@@ -10,12 +10,15 @@ export default function StudioPage() {
   return (
     <AppShell>
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 pt-10 pb-16">
-        <div className="mb-12 text-center md:text-left">
+        <div className="animate-fade-up mb-12 text-center md:text-left" style={{ animationDelay: "0ms" }}>
           <h1 className="font-headline text-headline-lg text-on-surface">{t.studio.title}</h1>
           <p className="text-on-surface-variant mt-2 font-body opacity-80 italic">{t.studio.subtitle}</p>
         </div>
 
-        <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl px-6 py-24 flex flex-col items-center text-center">
+        <div
+          className="animate-fade-up bg-surface-container-lowest border border-outline-variant/30 rounded-2xl px-6 py-24 flex flex-col items-center text-center"
+          style={{ animationDelay: "120ms" }}
+        >
           <div className="w-16 h-16 rounded-2xl bg-primary-container flex items-center justify-center mb-6">
             <Wand2 className="w-7 h-7 text-on-primary-container" />
           </div>

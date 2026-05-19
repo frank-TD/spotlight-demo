@@ -42,7 +42,7 @@ export default function AssetsPage() {
   return (
     <AppShell>
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 pt-10 pb-16">
-        <div className="flex items-end justify-between mb-12">
+        <div className="animate-fade-up flex items-end justify-between mb-12" style={{ animationDelay: "0ms" }}>
           <div>
             <h1 className="font-headline text-headline-lg text-on-surface">{t.assets.title}</h1>
             <p className="text-on-surface-variant mt-2 font-body opacity-80 italic">{t.assets.subtitle}</p>
@@ -58,7 +58,7 @@ export default function AssetsPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-outline-variant/30 mb-8 gap-2">
+        <div className="animate-fade-up flex border-b border-outline-variant/30 mb-8 gap-2" style={{ animationDelay: "100ms" }}>
           {(["created", "purchased"] as const).map((tabKey) => (
             <button
               key={tabKey}
@@ -89,7 +89,8 @@ export default function AssetsPage() {
               return (
                 <div
                   key={asset.id}
-                  className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl overflow-hidden group hover:shadow-md transition-shadow flex flex-col"
+                  className="animate-fade-up bg-surface-container-lowest border border-outline-variant/30 rounded-2xl overflow-hidden group hover:shadow-md transition-shadow flex flex-col"
+                  style={{ animationDelay: `${180 + i * 80}ms` }}
                 >
                   <div
                     className={cn(
@@ -224,7 +225,8 @@ export default function AssetsPage() {
               return (
                 <div
                   key={asset.id}
-                  className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl overflow-hidden group hover:shadow-md transition-shadow flex flex-col"
+                  className="animate-fade-up bg-surface-container-lowest border border-outline-variant/30 rounded-2xl overflow-hidden group hover:shadow-md transition-shadow flex flex-col"
+                  style={{ animationDelay: `${180 + i * 80}ms` }}
                 >
                   <div
                     className={cn(
