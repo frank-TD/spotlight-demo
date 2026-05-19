@@ -465,6 +465,7 @@ const en = {
     pricingSummary: "Pricing",
     free: "Free",
     titleRequired: "Title is required",
+    purchasedNotice: (copyright: string) => `Purchased asset · please respect the original ${copyright} license.`,
   },
   studio: {
     title: "AIGC Studio",
@@ -985,6 +986,7 @@ const zhCN: typeof en = {
     pricingSummary: "定价",
     free: "免费",
     titleRequired: "请填写标题",
+    purchasedNotice: (copyright: string) => `购买作品 · 请遵守原版权约定（${copyright}）`,
   },
   studio: {
     title: "AIGC 创作台",
@@ -1505,6 +1507,7 @@ const zhTW: typeof en = {
     pricingSummary: "定價",
     free: "免費",
     titleRequired: "請填寫標題",
+    purchasedNotice: (copyright: string) => `購買作品 · 請遵守原版權約定（${copyright}）`,
   },
   studio: {
     title: "AIGC 創作台",

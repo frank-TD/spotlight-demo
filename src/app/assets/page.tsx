@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useStore, DistStatus } from "@/lib/store";
 import AppShell from "@/components/layout/AppShell";
 import { MY_ASSETS_CREATED, MY_ASSETS_PURCHASED } from "@/lib/mock-data";
-import { Upload, Download, Trash2, Star, ExternalLink, Film, Send, Eye } from "lucide-react";
+import { Upload, Download, Star, ExternalLink, Film, Send, Eye, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -214,48 +214,133 @@ export default function AssetsPage() {
 
         {tab === "purchased" && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {MY_ASSETS_PURCHASED.map((asset, i) => (
-              <div
-                key={asset.id}
-                className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl overflow-hidden group hover:shadow-md transition-shadow"
-              >
+            {MY_ASSETS_PURCHASED.map((asset, i) => {
+              const dist = distributionByAsset[asset.id];
+              const stageIdx = dist ? STAGES.indexOf(dist.status) : -1;
+              const isLive = dist?.status === "live";
+              const isInReview = dist && ["neowow_review", "platform_review", "queue"].includes(dist.status);
+              const isTakedown = dist?.status === "takedown";
+              const hasDraft = dist && ["metadata", "platforms", "payment"].includes(dist.status);
+              return (
                 <div
-                  className={cn(
-                    "aspect-video bg-gradient-to-br flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-500",
-                    i % 3 === 0 && "from-primary-container via-primary-fixed to-tertiary-container",
-                    i % 3 === 1 && "from-tertiary-container via-tertiary-fixed to-primary-container",
-                    i % 3 === 2 && "from-secondary-container via-secondary-fixed to-primary-container"
-                  )}
+                  key={asset.id}
+                  className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl overflow-hidden group hover:shadow-md transition-shadow flex flex-col"
                 >
-                  <Film className="w-10 h-10 text-primary opacity-70" />
-                </div>
-                <div className="p-5">
-                  <p className="font-headline text-[18px] text-on-surface mb-1">{asset.title}</p>
-                  <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mb-3">
-                    {t.assets.byAuthor} {asset.creatorName} · {asset.size}
-                  </p>
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="font-label text-[10px] uppercase tracking-widest bg-primary-container text-on-primary-container px-2 py-1 rounded">
-                      {asset.copyright}
-                    </span>
-                    {!asset.subLicensable && (
-                      <span className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
-                        {t.assets.nonTransferable}
-                      </span>
+                  <div
+                    className={cn(
+                      "aspect-video bg-gradient-to-br flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-500",
+                      i % 3 === 0 && "from-primary-container via-primary-fixed to-tertiary-container",
+                      i % 3 === 1 && "from-tertiary-container via-tertiary-fixed to-primary-container",
+                      i % 3 === 2 && "from-secondary-container via-secondary-fixed to-primary-container"
                     )}
-                  </div>
-                  <Link
-                    href={`/orders/${asset.orderId}`}
-                    className="font-label text-[11px] tracking-wider text-primary hover:underline flex items-center gap-1 mb-4"
                   >
-                    {t.assets.sourceOrder} <ExternalLink className="w-3 h-3" />
-                  </Link>
-                  <button className="w-full flex items-center justify-center gap-1.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-4 py-2 rounded-lg hover:opacity-90 transition-opacity">
-                    <Download className="w-3.5 h-3.5" /> {t.assets.downloadBtn}
-                  </button>
+                    <Film className="w-10 h-10 text-primary opacity-70" />
+                  </div>
+                  <div className="p-5 flex-1 flex flex-col">
+                    <p className="font-headline text-[18px] text-on-surface mb-1">{asset.title}</p>
+                    <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mb-3">
+                      {t.assets.byAuthor} {asset.creatorName} · {asset.size}
+                    </p>
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="font-label text-[10px] uppercase tracking-widest bg-primary-container text-on-primary-container px-2 py-1 rounded">
+                        {asset.copyright}
+                      </span>
+                      {!asset.subLicensable && (
+                        <span className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
+                          {t.assets.nonTransferable}
+                        </span>
+                      )}
+                    </div>
+                    <Link
+                      href={`/orders/${asset.orderId}`}
+                      className="font-label text-[11px] tracking-wider text-primary hover:underline flex items-center gap-1"
+                    >
+                      {t.assets.sourceOrder} <ExternalLink className="w-3 h-3" />
+                    </Link>
+
+                    {/* Distribution status */}
+                    {dist && (
+                      <div className="mt-4 pt-4 border-t border-outline-variant/30">
+                        <div className="flex items-center justify-between mb-2">
+                          <span
+                            className={cn(
+                              "font-label text-[10px] uppercase tracking-widest px-2.5 py-1 rounded-full",
+                              STATUS_COLOR[dist.status]
+                            )}
+                          >
+                            {statusLabel(dist.status)}
+                          </span>
+                          {dist.platforms && dist.platforms.length > 0 && (
+                            <span className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant">
+                              {t.distribute.publishedTo(dist.platforms.length)}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex gap-1">
+                          {STAGES.map((s, idx) => (
+                            <div
+                              key={s}
+                              className={cn(
+                                "flex-1 h-1 rounded-full",
+                                idx <= stageIdx ? "bg-primary" : "bg-outline-variant/30"
+                              )}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    <div className="flex-1" />
+
+                    <div className="flex gap-2 mt-4">
+                      <button className="flex-1 flex items-center justify-center gap-1.5 border border-outline-variant rounded-lg px-3 py-2 font-label text-label-md uppercase tracking-wider hover:bg-surface-container-high transition-colors">
+                        <Download className="w-3.5 h-3.5" /> {t.assets.downloadBtn}
+                      </button>
+                      {!dist && (
+                        <Link
+                          href={`/assets/${asset.id}/distribute`}
+                          className="flex-1 flex items-center justify-center gap-1.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-3 py-2 rounded-lg hover:opacity-90"
+                        >
+                          <Send className="w-3.5 h-3.5" /> {t.distribute.actionStart}
+                        </Link>
+                      )}
+                      {hasDraft && (
+                        <Link
+                          href={`/assets/${asset.id}/distribute`}
+                          className="flex-1 flex items-center justify-center gap-1.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-3 py-2 rounded-lg hover:opacity-90"
+                        >
+                          <Send className="w-3.5 h-3.5" /> {t.distribute.actionStart}
+                        </Link>
+                      )}
+                      {isInReview && (
+                        <Link
+                          href={`/assets/${asset.id}/distribute`}
+                          className="flex-1 flex items-center justify-center gap-1.5 border border-outline-variant rounded-lg px-3 py-2 font-label text-label-md uppercase tracking-wider hover:bg-surface-container-high"
+                        >
+                          <Eye className="w-3.5 h-3.5" /> {t.distribute.actionView}
+                        </Link>
+                      )}
+                      {isLive && (
+                        <Link
+                          href={`/assets/${asset.id}/distribute`}
+                          className="flex-1 flex items-center justify-center gap-1.5 border border-outline-variant rounded-lg px-3 py-2 font-label text-label-md uppercase tracking-wider hover:bg-surface-container-high"
+                        >
+                          <Eye className="w-3.5 h-3.5" /> {t.distribute.actionManage}
+                        </Link>
+                      )}
+                      {isTakedown && (
+                        <Link
+                          href={`/assets/${asset.id}/distribute`}
+                          className="flex-1 flex items-center justify-center gap-1.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-3 py-2 rounded-lg hover:opacity-90"
+                        >
+                          <Send className="w-3.5 h-3.5" /> {t.distribute.actionResubmit}
+                        </Link>
+                      )}
+                    </div>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

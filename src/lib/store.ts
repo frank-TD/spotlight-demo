@@ -29,6 +29,7 @@ interface AppState {
   creatorShell: number;
   recharge: (amount: number) => void;
   withdraw: (amount: number) => void;
+  spendDiamond: (amount: number) => void;
 
   // Agent float
   agentOpen: boolean;
@@ -133,6 +134,7 @@ export const useStore = create<AppState>()(
 
       recharge: (amount) => set((s) => ({ backerDiamond: s.backerDiamond + amount })),
       withdraw: (amount) => set((s) => ({ creatorShell: s.creatorShell - amount })),
+      spendDiamond: (amount) => set((s) => ({ backerDiamond: s.backerDiamond - amount })),
 
       agentOpen: false,
       toggleAgent: () => set((s) => ({ agentOpen: !s.agentOpen })),

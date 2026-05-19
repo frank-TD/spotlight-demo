@@ -4,6 +4,7 @@ import { useStore, type DistMetadata, type DistStatus } from "@/lib/store";
 import AppShell from "@/components/layout/AppShell";
 import {
   MY_ASSETS_CREATED,
+  MY_ASSETS_PURCHASED,
   DISTRIBUTION_PLATFORMS,
   DISTRIBUTION_LANGUAGES,
   DISTRIBUTION_REGIONS,
@@ -28,6 +29,7 @@ import {
   Film,
   Plus,
   X,
+  Info,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -70,9 +72,21 @@ const DEFAULT_METADATA: DistMetadata = {
 export default function DistributePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const t = useT();
-  const { distributionByAsset, updateDistribution, creatorShell, withdraw } = useStore();
+  const { activeRole, distributionByAsset, updateDistribution, creatorShell, backerDiamond, withdraw, spendDiamond } = useStore();
 
-  const asset = MY_ASSETS_CREATED.find((a) => a.id === id);
+  const useShell = activeRole === "creator";
+  const balance = useShell ? creatorShell : backerDiamond;
+  const currencySymbol = useShell ? "◉" : "◆";
+
+  const createdAsset = MY_ASSETS_CREATED.find((a) => a.id === id);
+  const purchasedAsset = MY_ASSETS_PURCHASED.find((a) => a.id === id);
+  const asset = createdAsset
+    ? { id: createdAsset.id, title: createdAsset.title }
+    : purchasedAsset
+      ? { id: purchasedAsset.id, title: purchasedAsset.title }
+      : undefined;
+  const isPurchased = !createdAsset && !!purchasedAsset;
+  const purchasedCopyright = purchasedAsset?.copyright;
   const dist = distributionByAsset[id];
   const status: DistStatus = dist?.status ?? "metadata";
 
@@ -137,11 +151,12 @@ export default function DistributePage({ params }: { params: Promise<{ id: strin
   };
 
   const onPay = () => {
-    if (creatorShell < DISTRIBUTION_COST_SHELL) {
+    if (balance < DISTRIBUTION_COST_SHELL) {
       toast.error(t.distribute.insufficientShell);
       return;
     }
-    withdraw(DISTRIBUTION_COST_SHELL);
+    if (useShell) withdraw(DISTRIBUTION_COST_SHELL);
+    else spendDiamond(DISTRIBUTION_COST_SHELL);
     updateDistribution(id, { status: "neowow_review", paidAt: Date.now() });
     toast.success(t.distribute.submittedToast);
   };
@@ -170,7 +185,7 @@ export default function DistributePage({ params }: { params: Promise<{ id: strin
         </Link>
 
         {/* Header */}
-        <div className="flex items-start gap-4 mb-10">
+        <div className="flex items-start gap-4 mb-6">
           <div className="w-12 h-12 rounded-2xl bg-primary-container flex items-center justify-center shrink-0">
             <Sparkles className="w-5 h-5 text-on-primary-container" />
           </div>
@@ -181,6 +196,16 @@ export default function DistributePage({ params }: { params: Promise<{ id: strin
             <h1 className="font-headline text-headline-md text-on-surface mt-1">{asset.title}</h1>
           </div>
         </div>
+
+        {/* Purchased asset notice */}
+        {isPurchased && purchasedCopyright && (
+          <div className="bg-tertiary-container/60 border border-tertiary/30 rounded-xl px-4 py-3 flex items-center gap-3 mb-6">
+            <Info className="w-4 h-4 text-on-tertiary-container shrink-0" />
+            <p className="font-body text-sm text-on-tertiary-container">
+              {t.distribute.purchasedNotice(purchasedCopyright)}
+            </p>
+          </div>
+        )}
 
         {/* Stage tracker */}
         <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-8 mb-6">
@@ -214,7 +239,8 @@ export default function DistributePage({ params }: { params: Promise<{ id: strin
           <PaymentStep
             metadata={dist?.metadata ?? metadata}
             platforms={dist?.platforms ?? platforms}
-            balance={creatorShell}
+            balance={balance}
+            currencySymbol={currencySymbol}
             onBack={() => goTo("platforms")}
             onPay={onPay}
           />
@@ -608,12 +634,14 @@ function PaymentStep({
   metadata,
   platforms,
   balance,
+  currencySymbol,
   onBack,
   onPay,
 }: {
   metadata: DistMetadata;
   platforms: string[];
   balance: number;
+  currencySymbol: string;
   onBack: () => void;
   onPay: () => void;
 }) {
@@ -662,13 +690,15 @@ function PaymentStep({
         <div className="flex-1">
           <p className="font-label text-label-md uppercase tracking-wider opacity-80">{t.distribute.totalCost}</p>
           <p className="font-headline text-[28px] leading-none mt-1.5">
-            ◉ {DISTRIBUTION_COST_SHELL.toLocaleString()}
+            {currencySymbol} {DISTRIBUTION_COST_SHELL.toLocaleString()}
           </p>
           <p className="font-body text-xs opacity-70 mt-2">{t.distribute.totalCostNote}</p>
         </div>
         <div className="text-right">
           <p className="font-label text-label-md uppercase tracking-wider opacity-80">{t.wallet.balLabel}</p>
-          <p className="font-body font-bold mt-1.5">◉ {balance.toLocaleString()}</p>
+          <p className="font-body font-bold mt-1.5">
+            {currencySymbol} {balance.toLocaleString()}
+          </p>
         </div>
       </div>
 
@@ -684,7 +714,8 @@ function PaymentStep({
           disabled={balance < DISTRIBUTION_COST_SHELL}
           className="flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider px-5 py-2.5 bg-primary text-on-primary rounded-lg hover:opacity-90 disabled:opacity-50"
         >
-          <Coins className="w-4 h-4" /> {t.distribute.payAndSubmit(DISTRIBUTION_COST_SHELL)}
+          <Coins className="w-4 h-4" />{" "}
+          {`${currencySymbol === "◉" ? t.distribute.payAndSubmit(DISTRIBUTION_COST_SHELL) : t.distribute.payAndSubmit(DISTRIBUTION_COST_SHELL).replace("◉", "◆")}`}
         </button>
       </div>
     </div>
