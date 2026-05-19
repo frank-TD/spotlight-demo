@@ -39,9 +39,11 @@ interface AppState {
   myBidStatus: "none" | "pending" | "accepted" | "rejected";
   submitBid: () => void;
 
-  // Invitation
-  invitationSent: boolean;
-  sendInvitation: () => void;
+  // Per-session messaging
+  sessionExtraMessages: Record<string, Array<{ id: string; senderId: string; senderName: string; senderRole: string; text: string; ts: string; isCard?: boolean }>>;
+  appendSessionMessage: (sessionId: string, msg: { id: string; senderId: string; senderName: string; senderRole: string; text: string; ts: string; isCard?: boolean }) => void;
+  sessionInvitations: Record<string, { sentAt: number }>;
+  sendSessionInvitation: (sessionId: string) => void;
 
   // Creator profile edits (overlays the mock CREATORS[0] for u_creator_01)
   creatorEdits: { nickname?: string; bio?: string; specialties?: string[]; rateFrom?: number; activeHours?: string; avatarUrl?: string };
@@ -142,8 +144,19 @@ export const useStore = create<AppState>()(
       myBidStatus: "none",
       submitBid: () => set({ myBidStatus: "pending" }),
 
-      invitationSent: false,
-      sendInvitation: () => set({ invitationSent: true }),
+      sessionExtraMessages: {},
+      appendSessionMessage: (sessionId, msg) =>
+        set((s) => ({
+          sessionExtraMessages: {
+            ...s.sessionExtraMessages,
+            [sessionId]: [...(s.sessionExtraMessages[sessionId] ?? []), msg],
+          },
+        })),
+      sessionInvitations: {},
+      sendSessionInvitation: (sessionId) =>
+        set((s) => ({
+          sessionInvitations: { ...s.sessionInvitations, [sessionId]: { sentAt: Date.now() } },
+        })),
 
       creatorEdits: {},
       updateCreatorEdits: (edits) =>
@@ -176,6 +189,8 @@ export const useStore = create<AppState>()(
         creatorEdits: state.creatorEdits,
         showcaseEdits: state.showcaseEdits,
         distributionByAsset: state.distributionByAsset,
+        sessionExtraMessages: state.sessionExtraMessages,
+        sessionInvitations: state.sessionInvitations,
       }),
     }
   )

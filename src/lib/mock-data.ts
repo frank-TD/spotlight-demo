@@ -429,3 +429,98 @@ export const DISTRIBUTION_TYPES = ["Brand Film", "Music Video", "Documentary", "
 export const COPYRIGHT_OPTIONS = ["All Rights Reserved", "CC BY 4.0", "CC BY-NC 4.0", "CC BY-SA 4.0", "Public Domain"];
 
 export const DISTRIBUTION_COST_SHELL = 200;
+
+// ── Participants registry (for messages) ─────────────────────────────────────
+
+export const PARTICIPANTS: Record<string, {
+  id: string;
+  nickname: string;
+  avatar: string;
+  avatarColor: string;
+  role: "backer" | "creator";
+}> = {
+  u_backer_01: { id: "u_backer_01", nickname: "Lucas Chen", avatar: "LC", avatarColor: "bg-primary-container text-on-primary-container", role: "backer" },
+  u_backer_02: { id: "u_backer_02", nickname: "Priya Mehta", avatar: "PM", avatarColor: "bg-amber-100 text-amber-700", role: "backer" },
+  u_creator_01: { id: "u_creator_01", nickname: "Aria Song", avatar: "AS", avatarColor: "bg-rose-100 text-rose-700", role: "creator" },
+  u_creator_02: { id: "u_creator_02", nickname: "Marco Reyes", avatar: "MR", avatarColor: "bg-sky-100 text-sky-700", role: "creator" },
+  u_creator_03: { id: "u_creator_03", nickname: "Yuki Tanaka", avatar: "YT", avatarColor: "bg-emerald-100 text-emerald-700", role: "creator" },
+  u_creator_04: { id: "u_creator_04", nickname: "Sofia Okonkwo", avatar: "SO", avatarColor: "bg-amber-100 text-amber-700", role: "creator" },
+};
+
+// ── Sessions ─────────────────────────────────────────────────────────────────
+
+type ExtraMsg = { id: string; senderId: string; senderName: string; senderRole: string; text: string; ts: string; isCard?: boolean };
+
+export interface Session {
+  id: string;
+  backerId: string;
+  creatorId: string;
+  subject: string;
+  orderId: string | null;
+  invitationSent: boolean;
+  lastUpdated: string;
+  messages: ExtraMsg[];
+}
+
+export const SESSIONS: Session[] = [
+  {
+    id: "sess_001",
+    backerId: "u_backer_01",
+    creatorId: "u_creator_01",
+    subject: "Cinematic Brand Film — NeoVision AI",
+    orderId: "ord_001",
+    invitationSent: true,
+    lastUpdated: "2026-05-17 19:43",
+    messages: [],
+  },
+  {
+    id: "sess_002",
+    backerId: "u_backer_01",
+    creatorId: "u_creator_03",
+    subject: "Anime opener inquiry",
+    orderId: null,
+    invitationSent: false,
+    lastUpdated: "2026-05-18 11:20",
+    messages: [
+      { id: "ms2_1", senderId: "u_backer_01", senderName: "Lucas Chen", senderRole: "Backer", text: "Hi Yuki, your character animation reel is stunning. We're planning a 30s anime opener for a product launch.", ts: "2026-05-18 10:45" },
+      { id: "ms2_2", senderId: "u_creator_03", senderName: "Yuki Tanaka", senderRole: "Creator", text: "Thanks Lucas! Happy to discuss. Could you share more about the product, tone references, and timeline?", ts: "2026-05-18 11:20" },
+    ],
+  },
+  {
+    id: "sess_003",
+    backerId: "u_backer_01",
+    creatorId: "u_creator_02",
+    subject: "Smart-home product launch film",
+    orderId: null,
+    invitationSent: false,
+    lastUpdated: "2026-05-19 09:15",
+    messages: [
+      { id: "ms3_1", senderId: "u_backer_01", senderName: "Lucas Chen", senderRole: "Backer", text: "Hi Marco — planning a smart-home product launch, your commercial work fits the brief perfectly.", ts: "2026-05-19 09:00" },
+      { id: "ms3_2", senderId: "u_creator_02", senderName: "Marco Reyes", senderRole: "Creator", text: "Hi Lucas, sounds great. Send me the brief and I'll come back with treatment ideas tomorrow.", ts: "2026-05-19 09:15" },
+    ],
+  },
+  {
+    id: "sess_004",
+    backerId: "u_backer_02",
+    creatorId: "u_creator_01",
+    subject: "3-episode anime short",
+    orderId: null,
+    invitationSent: false,
+    lastUpdated: "2026-05-15 14:00",
+    messages: [
+      { id: "ms4_1", senderId: "u_backer_02", senderName: "Priya Mehta", senderRole: "Backer", text: "Hi Aria — I'm scoping a 3-episode anime short for an original IP. Your storytelling resonates with what we're after.", ts: "2026-05-15 13:30" },
+      { id: "ms4_2", senderId: "u_creator_01", senderName: "Aria Song", senderRole: "Creator", text: "Hi Priya, character-driven sci-fi anime is exactly my space. Let's set up a 30-min sync to review the IP bible.", ts: "2026-05-15 14:00" },
+    ],
+  },
+];
+
+// Map a counterpart user id to its session for the current Backer (Lucas) or Creator (Aria)
+export function findSessionForCounterpart(viewerRole: "backer" | "creator", counterpartId: string): string | null {
+  if (viewerRole === "backer") {
+    const s = SESSIONS.find((s) => s.backerId === "u_backer_01" && s.creatorId === counterpartId);
+    return s?.id ?? null;
+  } else {
+    const s = SESSIONS.find((s) => s.creatorId === "u_creator_01" && s.backerId === counterpartId);
+    return s?.id ?? null;
+  }
+}

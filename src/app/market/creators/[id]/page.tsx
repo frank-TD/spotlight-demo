@@ -1,10 +1,11 @@
 "use client";
 import { use, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import AppShell from "@/components/layout/AppShell";
-import { CREATORS, PRESET_SPECIALTY_TAGS, MY_ASSETS_CREATED } from "@/lib/mock-data";
+import { CREATORS, PRESET_SPECIALTY_TAGS, MY_ASSETS_CREATED, findSessionForCounterpart } from "@/lib/mock-data";
 import Link from "next/link";
-import { ArrowLeft, Star, Send, Pencil, X, Plus, GripVertical, Trash2, Camera, Check, Upload, FolderOpen, FileVideo } from "lucide-react";
+import { ArrowLeft, Star, MessageCircle, Pencil, X, Plus, GripVertical, Trash2, Camera, Check, Upload, FolderOpen, FileVideo } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
@@ -26,12 +27,17 @@ type EditField = "nickname" | "bio" | "tags" | "rate" | "hours" | null;
 
 export default function CreatorProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const { activeRole, invitationSent, sendInvitation, creatorEdits, updateCreatorEdits, showcaseEdits, setShowcaseEdits } = useStore();
+  const { activeRole, creatorEdits, updateCreatorEdits, showcaseEdits, setShowcaseEdits } = useStore();
+  const router = useRouter();
   const t = useT();
-  const [inviteOpen, setInviteOpen] = useState(false);
   const [showcaseOpen, setShowcaseOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [editingField, setEditingField] = useState<EditField>(null);
+
+  const startConversation = () => {
+    const sid = findSessionForCounterpart("backer", id);
+    router.push(sid ? `/messages/sessions/${sid}` : "/messages");
+  };
 
   const baseCreator = CREATORS.find((c) => c.id === id) ?? CREATORS[0];
   const isOwnProfile = activeRole === "creator" && id === OWN_CREATOR_ID;
@@ -356,19 +362,14 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                         <Check className="w-3.5 h-3.5" /> {t.creatorProfile.editDone}
                       </button>
                     )}
-                    {activeRole === "backer" &&
-                      (invitationSent ? (
-                        <span className="font-label text-[11px] uppercase tracking-widest bg-tertiary-container text-on-tertiary-container px-3 py-1.5 rounded-full">
-                          {t.creatorProfile.invitationSent}
-                        </span>
-                      ) : (
-                        <button
-                          onClick={() => setInviteOpen(true)}
-                          className="flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider bg-primary text-on-primary px-3 py-1.5 rounded-lg hover:opacity-90"
-                        >
-                          <Send className="w-3.5 h-3.5" /> {t.creatorProfile.sendInvitation}
-                        </button>
-                      ))}
+                    {activeRole === "backer" && (
+                      <button
+                        onClick={startConversation}
+                        className="flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider bg-primary text-on-primary px-3 py-1.5 rounded-lg hover:opacity-90"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5" /> {t.chat.startConversation}
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -788,55 +789,6 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
         </DialogContent>
       </Dialog>
 
-      {/* Invite dialog */}
-      <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="font-headline text-[20px]">
-              {t.creatorProfile.inviteDialogTitle(creator.nickname)}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="py-2 space-y-4">
-            <div>
-              <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-1.5">
-                {t.creatorProfile.project}
-              </label>
-              <select className="w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm">
-                <option>{t.creatorProfile.inviteProjectOption("Cinematic Brand Film for AI Startup")}</option>
-                <option>{t.creatorProfile.createNewNeed}</option>
-              </select>
-            </div>
-            <div>
-              <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-1.5">
-                {t.creatorProfile.note}
-              </label>
-              <textarea
-                rows={3}
-                className="w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm resize-none"
-                defaultValue={t.creatorProfile.inviteNoteDefault(creator.nickname)}
-              />
-            </div>
-          </div>
-          <DialogFooter>
-            <button
-              onClick={() => setInviteOpen(false)}
-              className="font-label text-label-md uppercase tracking-wider px-4 py-2 border border-outline-variant rounded-lg hover:bg-surface-container-high"
-            >
-              {t.common.cancel}
-            </button>
-            <button
-              onClick={() => {
-                sendInvitation();
-                setInviteOpen(false);
-                toast.success(t.creatorProfile.invitedToast);
-              }}
-              className="font-label text-label-md uppercase tracking-wider px-4 py-2 bg-primary text-on-primary rounded-lg hover:opacity-90"
-            >
-              {t.creatorProfile.sendInvitation}
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </AppShell>
   );
 }

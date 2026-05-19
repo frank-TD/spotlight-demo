@@ -32,7 +32,7 @@ export default function TopNav() {
     { label: t.nav.studio, href: "/studio" },
     { label: t.nav.myProjects, href: "/projects" },
     { label: t.nav.assets, href: "/assets" },
-    { label: t.nav.messages, href: "/messages/sessions/sess_001" },
+    { label: t.nav.messages, href: "/messages" },
   ];
 
   const handleLogout = () => {
