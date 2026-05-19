@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Sparkles, ChevronDown, LogOut, User, Wallet, FolderOpen, Globe } from "lucide-react";
+import { Globe, Sparkles, Wallet, ChevronDown, User, FolderOpen, LogOut } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Locale } from "@/lib/i18n";
 
@@ -41,50 +41,47 @@ export default function TopNav() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-white/90 backdrop-blur-sm">
-      <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between gap-6">
-        {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 shrink-0">
-          <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center">
-            <Sparkles className="w-4 h-4 text-white" />
-          </div>
-          <span className="font-semibold text-[15px] tracking-tight text-foreground">Spotlight</span>
-        </Link>
+    <header className="fixed top-0 left-0 right-0 h-[80px] z-50 bg-surface/60 backdrop-blur-[30px] border-b border-outline-variant/10 shadow-[0_4px_30px_rgba(0,0,0,0.06)]">
+      <div className="flex justify-between items-center px-6 md:px-12 w-full max-w-[1280px] mx-auto h-full">
+        <div className="flex items-center gap-12">
+          <Link href="/" className="font-headline text-[28px] md:text-[32px] text-on-surface italic font-bold leading-none">
+            Spotlight
+          </Link>
+          {isLoggedIn && (
+            <nav className="hidden md:flex gap-8">
+              {NAV_ITEMS.map((item) => {
+                const active = pathname.startsWith(item.href.split("/").slice(0, 3).join("/"));
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "font-label text-label-md uppercase tracking-[0.2em] transition-colors duration-300",
+                      active
+                        ? "text-primary relative after:content-[''] after:absolute after:-bottom-2 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-primary after:rounded-full"
+                        : "text-on-surface-variant hover:text-on-surface"
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          )}
+        </div>
 
-        {/* Nav links */}
-        {isLoggedIn && (
-          <nav className="flex items-center gap-1">
-            {NAV_ITEMS.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  "px-3 py-1.5 rounded-md text-sm font-medium transition-colors",
-                  pathname.startsWith(item.href)
-                    ? "bg-accent text-primary"
-                    : "text-muted-foreground hover:text-foreground hover:bg-muted"
-                )}
-              >
-                {item.label}
-              </Link>
-            ))}
-          </nav>
-        )}
-
-        {/* Right side */}
-        <div className="flex items-center gap-1.5 ml-auto">
-          {/* Language switcher */}
+        <div className="flex items-center gap-3 md:gap-5">
           <DropdownMenu>
-            <DropdownMenuTrigger className="flex items-center gap-1 text-xs px-2 py-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted transition-colors">
-              <Globe className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">{LOCALES.find(l => l.value === locale)?.short ?? "EN"}</span>
+            <DropdownMenuTrigger className="flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider px-2 py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface transition-colors">
+              <Globe className="w-4 h-4" />
+              <span className="hidden sm:inline">{LOCALES.find((l) => l.value === locale)?.short ?? "EN"}</span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-36">
               {LOCALES.map((l) => (
                 <DropdownMenuItem
                   key={l.value}
                   onClick={() => setLocale(l.value)}
-                  className={cn("cursor-pointer text-sm", locale === l.value && "text-primary font-medium")}
+                  className={cn("cursor-pointer", locale === l.value && "text-primary font-medium")}
                 >
                   {l.label}
                 </DropdownMenuItem>
@@ -94,39 +91,37 @@ export default function TopNav() {
 
           {isLoggedIn ? (
             <>
-              {/* Agent button */}
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-muted-foreground hover:text-primary gap-1.5 text-sm"
+              <button
                 onClick={toggleAgent}
+                className="hidden md:flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors px-2 py-1.5"
               >
                 <Sparkles className="w-4 h-4" />
-                <span className="hidden sm:inline">{t.nav.aiAssistant}</span>
-              </Button>
+                <span>{t.nav.aiAssistant}</span>
+              </button>
 
-              {/* Wallet */}
-              <Link href="/wallet">
-                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground text-sm gap-1.5">
-                  <Wallet className="w-4 h-4" />
-                  <span className="hidden sm:inline font-mono">
-                    {activeRole === "backer" ? `◆ ${backerDiamond.toLocaleString()}` : `◉ ${creatorShell.toLocaleString()}`}
-                  </span>
-                </Button>
+              <Link
+                href="/wallet"
+                className="hidden md:flex items-center gap-1.5 text-on-surface-variant hover:text-on-surface px-2 py-1.5"
+              >
+                <Wallet className="w-4 h-4" />
+                <span className="font-mono text-sm">
+                  {activeRole === "backer" ? `◆ ${backerDiamond.toLocaleString()}` : `◉ ${creatorShell.toLocaleString()}`}
+                </span>
               </Link>
 
-              {/* User menu */}
               <DropdownMenu>
-                <DropdownMenuTrigger className="flex items-center gap-1.5 text-sm px-2 py-1.5 rounded-md hover:bg-muted transition-colors">
-                  <div className="w-7 h-7 rounded-full bg-accent flex items-center justify-center text-xs font-semibold text-primary">
+                <DropdownMenuTrigger className="flex items-center gap-1.5 px-1.5 py-1 rounded-full hover:bg-surface-container transition-colors">
+                  <div className="w-9 h-9 rounded-full bg-primary-container flex items-center justify-center text-xs font-bold text-on-primary-container">
                     {activeRole === "backer" ? "LC" : "AS"}
                   </div>
-                  <ChevronDown className="w-3.5 h-3.5 text-muted-foreground" />
+                  <ChevronDown className="w-4 h-4 text-on-surface-variant" />
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent align="end" className="w-52">
                   <div className="px-2 py-1.5">
-                    <p className="text-sm font-medium">{activeRole === "backer" ? "Lucas Chen" : "Aria Song"}</p>
-                    <p className="text-xs text-muted-foreground capitalize">{activeRole}</p>
+                    <p className="text-sm font-bold text-on-surface">{activeRole === "backer" ? "Lucas Chen" : "Aria Song"}</p>
+                    <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-0.5">
+                      {activeRole === "backer" ? t.market.roleBacker : t.market.roleCreator}
+                    </p>
                   </div>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => router.push("/account/profile")} className="gap-2 cursor-pointer">
@@ -139,19 +134,24 @@ export default function TopNav() {
                     <FolderOpen className="w-4 h-4" /> {t.nav.myProjects}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="text-destructive gap-2 cursor-pointer">
+                  <DropdownMenuItem onClick={handleLogout} className="text-error gap-2 cursor-pointer">
                     <LogOut className="w-4 h-4" /> {t.nav.signOut}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             </>
           ) : (
-            <div className="flex items-center gap-2">
-              <Link href="/login">
-                <Button variant="ghost" size="sm" className="text-sm">{t.nav.signIn}</Button>
+            <div className="flex items-center gap-3">
+              <Link
+                href="/login"
+                className="font-label text-label-md uppercase tracking-wider text-on-surface-variant hover:text-on-surface px-2 py-1.5"
+              >
+                {t.nav.signIn}
               </Link>
               <Link href="/register">
-                <Button size="sm" className="text-sm">{t.nav.getStarted}</Button>
+                <Button className="font-label text-label-md uppercase tracking-wider px-5 py-2.5 bg-primary text-on-primary rounded-lg hover:opacity-90 active:scale-95 transition-all">
+                  {t.nav.getStarted}
+                </Button>
               </Link>
             </div>
           )}

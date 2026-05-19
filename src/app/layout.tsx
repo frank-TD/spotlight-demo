@@ -1,16 +1,28 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Arimo, Bebas_Neue, Bodoni_Moda } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const bodoni = Bodoni_Moda({
+  variable: "--font-headline",
   subsets: ["latin"],
+  style: ["normal", "italic"],
+  weight: ["400", "600", "700"],
+  display: "swap",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const arimo = Arimo({
+  variable: "--font-body",
   subsets: ["latin"],
+  weight: ["400", "700"],
+  display: "swap",
+});
+
+const bebas = Bebas_Neue({
+  variable: "--font-label",
+  subsets: ["latin"],
+  weight: "400",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -24,8 +36,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${geistMono.variable} h-full`}>
-      <body className="min-h-full flex flex-col bg-background text-foreground antialiased">
+    <html lang="en" className={`${bodoni.variable} ${arimo.variable} ${bebas.variable} h-full`}>
+      <body className="min-h-full flex flex-col bg-background text-on-surface font-body antialiased">
         {children}
         <Toaster position="top-center" />
       </body>

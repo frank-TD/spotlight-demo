@@ -135,6 +135,8 @@ const en = {
     roleBacker: "Backer",
     roleCreator: "Creator",
     stageNames: ["Deposit", "Moodboard", "Draft Cut", "Revised Cut", "Final"],
+    activeOrderTitle: "Cinematic Brand Film — NeoVision AI",
+    activeOrderWith: "with Aria Song · ¥4,200 total",
   },
   needDetail: {
     backToMarket: "Back to Marketplace",
@@ -579,6 +581,8 @@ const zhCN: typeof en = {
     roleBacker: "Backer",
     roleCreator: "Creator",
     stageNames: ["定金", "氛围板", "初稿", "修订版", "终版"],
+    activeOrderTitle: "电影感品牌片 — NeoVision AI",
+    activeOrderWith: "与 Aria Song 合作 · 总金额 ¥4,200",
   },
   needDetail: {
     backToMarket: "返回市场",
@@ -1023,6 +1027,8 @@ const zhTW: typeof en = {
     roleBacker: "Backer",
     roleCreator: "Creator",
     stageNames: ["訂金", "氛圍板", "初稿", "修訂版", "終版"],
+    activeOrderTitle: "電影感品牌片 — NeoVision AI",
+    activeOrderWith: "與 Aria Song 合作 · 總金額 ¥4,200",
   },
   needDetail: {
     backToMarket: "返回市場",
