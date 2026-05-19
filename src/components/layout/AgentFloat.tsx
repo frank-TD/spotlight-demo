@@ -19,9 +19,7 @@ export default function AgentFloat() {
   const { agentOpen, toggleAgent, isLoggedIn } = useStore();
   const t = useT();
   const [input, setInput] = useState("");
-  const [msgs, setMsgs] = useState<Msg[]>([
-    { role: "agent", text: t.agent.greeting },
-  ]);
+  const [msgs, setMsgs] = useState<Msg[]>([{ role: "agent", text: t.agent.greeting }]);
 
   if (!isLoggedIn) return null;
 
@@ -36,62 +34,58 @@ export default function AgentFloat() {
     const q = input.trim();
     if (!q) return;
     const resp = getResponse(q);
-    setMsgs((prev) => [
-      ...prev,
-      { role: "user", text: q },
-      { role: "agent", text: resp.a, link: resp.link },
-    ]);
+    setMsgs((prev) => [...prev, { role: "user", text: q }, { role: "agent", text: resp.a, link: resp.link }]);
     setInput("");
   };
 
   return (
     <>
-      {/* Float button */}
       {!agentOpen && (
         <button
           onClick={toggleAgent}
-          className="fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full bg-primary text-white shadow-lg flex items-center justify-center hover:bg-primary/90 transition-all hover:scale-105"
+          className="fixed bottom-8 right-8 z-50 w-14 h-14 rounded-full bg-primary text-on-primary shadow-[0_8px_30px_rgba(110,91,71,0.35)] flex items-center justify-center hover:scale-105 active:scale-95 transition-all"
         >
           <Sparkles className="w-5 h-5" />
         </button>
       )}
 
-      {/* Panel */}
       {agentOpen && (
-        <div className="fixed bottom-6 right-6 z-50 w-80 h-[440px] bg-white border border-border rounded-xl shadow-xl flex flex-col overflow-hidden">
+        <div className="fixed bottom-8 right-8 z-50 w-96 h-[480px] bg-surface-container-lowest border border-outline-variant/30 rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.12)] flex flex-col overflow-hidden">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-accent/50">
-            <div className="flex items-center gap-2">
-              <div className="w-7 h-7 rounded-full bg-primary flex items-center justify-center">
-                <Sparkles className="w-3.5 h-3.5 text-white" />
+          <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant/30 bg-primary-container/50">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
+                <Sparkles className="w-4 h-4 text-on-primary" />
               </div>
               <div>
-                <p className="text-sm font-medium">{t.agent.headerTitle}</p>
-                <p className="text-[10px] text-muted-foreground">{t.agent.headerSubtitle}</p>
+                <p className="font-headline text-[16px] text-on-surface leading-none">{t.agent.headerTitle}</p>
+                <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-1">
+                  {t.agent.headerSubtitle}
+                </p>
               </div>
             </div>
-            <button onClick={toggleAgent} className="text-muted-foreground hover:text-foreground">
+            <button onClick={toggleAgent} className="text-on-surface-variant hover:text-on-surface">
               <X className="w-4 h-4" />
             </button>
           </div>
 
           {/* Messages */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-3">
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {msgs.map((m, i) => (
               <div key={i} className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}>
                 <div
                   className={cn(
-                    "max-w-[85%] rounded-xl px-3 py-2 text-xs leading-relaxed",
+                    "max-w-[85%] rounded-2xl px-3.5 py-2.5 font-body text-xs leading-relaxed",
                     m.role === "user"
-                      ? "bg-primary text-white rounded-br-sm"
-                      : "bg-muted text-foreground rounded-bl-sm"
+                      ? "bg-primary text-on-primary rounded-br-sm"
+                      : "bg-surface-container text-on-surface rounded-bl-sm"
                   )}
                 >
                   <span dangerouslySetInnerHTML={{ __html: m.text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>") }} />
                   {m.link && (
                     <a
                       href={m.link.href}
-                      className="mt-1.5 flex items-center gap-1 text-primary font-medium hover:underline"
+                      className="mt-2 flex items-center gap-1 text-primary font-bold hover:underline"
                     >
                       {m.link.label} <ArrowUpRight className="w-3 h-3" />
                     </a>
@@ -102,9 +96,9 @@ export default function AgentFloat() {
           </div>
 
           {/* Input */}
-          <div className="p-3 border-t border-border flex gap-2">
+          <div className="p-3 border-t border-outline-variant/30 flex gap-2">
             <input
-              className="flex-1 text-xs rounded-lg border border-input px-3 py-2 bg-background placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-ring"
+              className="flex-1 font-body text-xs rounded-xl border border-outline-variant px-3 py-2 bg-surface-container-low focus:border-primary focus:outline-none placeholder:text-on-surface-variant/60"
               placeholder={t.agent.placeholder}
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -112,7 +106,7 @@ export default function AgentFloat() {
             />
             <button
               onClick={send}
-              className="w-8 h-8 rounded-lg bg-primary text-white flex items-center justify-center hover:bg-primary/90"
+              className="w-9 h-9 rounded-xl bg-primary text-on-primary flex items-center justify-center hover:opacity-90"
             >
               <Send className="w-3.5 h-3.5" />
             </button>

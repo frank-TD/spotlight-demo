@@ -4,17 +4,12 @@ import { useStore } from "@/lib/store";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import AppShell from "@/components/layout/AppShell";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { NEEDS, BIDS_NEED_001, CREATORS } from "@/lib/mock-data";
+import { NEEDS, BIDS_NEED_001 } from "@/lib/mock-data";
 import Link from "next/link";
 import { ArrowLeft, Clock, DollarSign, Film, Star, Check, X, ChevronRight, Paperclip, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useT } from "@/hooks/useT";
 
 export default function NeedDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -28,6 +23,20 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
   const [attachments, setAttachments] = useState<Array<{ id: string; name: string; size: string; note: string }>>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  useEffect(() => {
+    if (!isLoggedIn) router.push("/login");
+  }, [isLoggedIn, router]);
+
+  const need = NEEDS.find((n) => n.id === id) ?? NEEDS[0];
+  const bids = id === "need_001" ? BIDS_NEED_001 : [];
+
+  const handleAccept = (bidId: string) => {
+    setAcceptedBid(bidId);
+    setManageOpen(false);
+    toast.success(t.needDetail.collaborationConfirmedToast);
+    setTimeout(() => router.push("/orders/ord_001/contract"), 800);
+  };
+
   const formatSize = (bytes: number) => {
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(1)} KB`;
@@ -37,9 +46,7 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
   const handleFilePick = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files ?? []);
     const remaining = 5 - attachments.length;
-    if (files.length > remaining) {
-      toast.error(t.needDetail.attachmentLimitToast);
-    }
+    if (files.length > remaining) toast.error(t.needDetail.attachmentLimitToast);
     const next = files.slice(0, remaining).map((f) => ({
       id: `att_${Date.now()}_${Math.random().toString(36).slice(2, 7)}`,
       name: f.name,
@@ -50,61 +57,52 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
     e.target.value = "";
   };
 
-  const updateAttachmentNote = (id: string, note: string) => {
+  const updateAttachmentNote = (id: string, note: string) =>
     setAttachments((prev) => prev.map((a) => (a.id === id ? { ...a, note } : a)));
-  };
-
-  const removeAttachment = (id: string) => {
-    setAttachments((prev) => prev.filter((a) => a.id !== id));
-  };
-
-  const resetBidForm = () => {
-    setAttachments([]);
-  };
-
-  useEffect(() => {
-    if (!isLoggedIn) router.push("/login");
-  }, [isLoggedIn, router]);
-
-  const need = NEEDS.find(n => n.id === id) ?? NEEDS[0];
-  const bids = id === "need_001" ? BIDS_NEED_001 : [];
-
-  const handleAccept = (bidId: string) => {
-    setAcceptedBid(bidId);
-    setManageOpen(false);
-    toast.success(t.needDetail.collaborationConfirmedToast);
-    setTimeout(() => router.push("/orders/ord_001/contract"), 800);
-  };
+  const removeAttachment = (id: string) => setAttachments((prev) => prev.filter((a) => a.id !== id));
+  const resetBidForm = () => setAttachments([]);
 
   if (!isLoggedIn) return null;
 
+  const inputCls =
+    "w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm";
+
   return (
     <AppShell>
-      <div className="max-w-5xl mx-auto px-6 py-8">
-        {/* Back */}
-        <Link href="/market" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6">
+      <div className="max-w-[1280px] mx-auto px-6 md:px-12 pt-8 pb-16">
+        <Link
+          href="/market"
+          className="inline-flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider text-on-surface-variant hover:text-on-surface mb-8"
+        >
           <ArrowLeft className="w-4 h-4" /> {t.needDetail.backToMarket}
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main */}
-          <div className="lg:col-span-2 space-y-5">
+          <div className="lg:col-span-2 space-y-6">
             {/* Header */}
-            <div className="bg-white border border-border rounded-xl p-6">
-              <div className="flex items-start justify-between gap-3 mb-4">
-                <div>
-                  <Badge variant="secondary" className="text-xs mb-2">{need.contentType}</Badge>
-                  <h1 className="text-lg font-bold text-foreground leading-snug">{need.title}</h1>
-                  <p className="text-sm text-muted-foreground mt-1">
-                    {t.needDetail.postedBy} <span className="text-foreground font-medium">{need.backerNickname}</span> · {need.publishedAt}
+            <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-8">
+              <div className="flex items-start justify-between gap-4 mb-5">
+                <div className="min-w-0">
+                  <span className="font-label text-[10px] uppercase tracking-widest bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded">
+                    {need.contentType}
+                  </span>
+                  <h1 className="font-headline text-headline-md text-on-surface leading-snug mt-3">{need.title}</h1>
+                  <p className="font-body text-sm text-on-surface-variant mt-1 italic">
+                    {t.needDetail.postedBy} <span className="font-bold not-italic">{need.backerNickname}</span> · {need.publishedAt}
                   </p>
                 </div>
-                <Badge className={cn("shrink-0 text-xs", need.status === "open" ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-accent text-primary border-primary/20")}>
+                <span
+                  className={cn(
+                    "font-label text-[11px] uppercase tracking-widest px-3 py-1 rounded-full shrink-0",
+                    need.status === "open"
+                      ? "bg-tertiary-container text-on-tertiary-container"
+                      : "bg-primary-container text-on-primary-container"
+                  )}
+                >
                   {need.status === "open" ? t.needDetail.openForBids : t.common.inProgress}
-                </Badge>
+                </span>
               </div>
 
-              {/* Meta grid */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
                   { icon: DollarSign, label: t.needDetail.budget, value: `¥${need.budget.toLocaleString()}` },
@@ -112,29 +110,43 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
                   { icon: Film, label: t.needDetail.duration, value: `${need.durationSec}s` },
                   { icon: Film, label: t.needDetail.episodes, value: `${need.episodes} ep` },
                 ].map(({ icon: Icon, label, value }) => (
-                  <div key={label} className="bg-muted rounded-lg px-3 py-2.5">
-                    <p className="text-[10px] text-muted-foreground uppercase tracking-wide">{label}</p>
-                    <p className="text-sm font-semibold text-foreground mt-0.5">{value}</p>
+                  <div key={label} className="bg-surface-container rounded-xl px-4 py-3 flex items-center gap-3">
+                    <Icon className="w-4 h-4 text-on-surface-variant shrink-0" />
+                    <div>
+                      <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                        {label}
+                      </p>
+                      <p className="font-body font-bold text-on-surface mt-0.5 text-sm">{value}</p>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
 
             {/* Brief */}
-            <div className="bg-white border border-border rounded-xl p-6">
-              <h2 className="text-sm font-semibold text-foreground mb-3">{t.needDetail.projectBrief}</h2>
-              <p className="text-sm text-muted-foreground leading-relaxed">{need.brief}</p>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {need.styles.map(s => (
-                  <span key={s} className="text-xs bg-accent text-primary px-2.5 py-1 rounded-full">{s}</span>
+            <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-8">
+              <h2 className="font-label text-label-md uppercase tracking-[0.2em] text-on-surface-variant mb-4">
+                {t.needDetail.projectBrief}
+              </h2>
+              <p className="font-body text-sm text-on-surface-variant leading-relaxed">{need.brief}</p>
+              <div className="mt-5 flex flex-wrap gap-2">
+                {need.styles.map((s) => (
+                  <span
+                    key={s}
+                    className="font-label text-[11px] uppercase tracking-widest bg-primary-container text-on-primary-container px-2.5 py-1 rounded-full"
+                  >
+                    {s}
+                  </span>
                 ))}
               </div>
             </div>
 
-            {/* Contract terms */}
-            <div className="bg-white border border-border rounded-xl p-6">
-              <h2 className="text-sm font-semibold text-foreground mb-3">{t.needDetail.terms}</h2>
-              <div className="space-y-2 text-sm">
+            {/* Terms */}
+            <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-8">
+              <h2 className="font-label text-label-md uppercase tracking-[0.2em] text-on-surface-variant mb-4">
+                {t.needDetail.terms}
+              </h2>
+              <div className="space-y-3">
                 {[
                   [t.needDetail.copyright, need.copyright],
                   [t.needDetail.aiGeneration, need.allowAI ? t.needDetail.allowed : t.needDetail.notAllowed],
@@ -143,115 +155,130 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
                   [t.needDetail.aspectRatio, need.aspectRatio],
                   [t.needDetail.platforms, need.platforms.join(", ")],
                 ].map(([k, v]) => (
-                  <div key={k} className="flex justify-between">
-                    <span className="text-muted-foreground">{k}</span>
-                    <span className="font-medium text-foreground">{v}</span>
+                  <div key={k} className="flex justify-between font-body text-sm">
+                    <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">{k}</span>
+                    <span className="font-bold text-on-surface">{v}</span>
                   </div>
                 ))}
               </div>
             </div>
-
           </div>
 
           {/* Sidebar */}
           <div className="space-y-4">
-            {/* Action card */}
-            <div className="bg-white border border-border rounded-xl p-5 sticky top-20">
-              <div className="text-center mb-4">
-                <p className="text-2xl font-bold text-foreground">¥{need.budget.toLocaleString()}</p>
-                <p className="text-xs text-muted-foreground mt-0.5">{t.needDetail.projectBudget}</p>
+            <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-6 sticky top-24">
+              <div className="text-center mb-5">
+                <p className="font-headline text-[36px] text-on-surface leading-none">¥{need.budget.toLocaleString()}</p>
+                <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-2">
+                  {t.needDetail.projectBudget}
+                </p>
               </div>
 
               {activeRole === "creator" && need.status === "open" && (
                 <>
                   {myBidStatus === "none" ? (
-                    <Button className="w-full" onClick={() => setBidOpen(true)}>{t.needDetail.applyBtn}</Button>
+                    <button
+                      onClick={() => setBidOpen(true)}
+                      className="w-full bg-primary text-on-primary font-label text-label-md uppercase tracking-wider py-3 rounded-lg hover:opacity-90 active:scale-95 transition-all"
+                    >
+                      {t.needDetail.applyBtn}
+                    </button>
                   ) : (
                     <div className="text-center">
-                      <Badge className="bg-accent text-primary border-0 text-xs">{t.needDetail.applicationSubmitted}</Badge>
-                      <p className="text-xs text-muted-foreground mt-2">{t.needDetail.waitingDecision}</p>
+                      <span className="font-label text-[11px] uppercase tracking-widest bg-primary-container text-on-primary-container px-3 py-1 rounded-full inline-block">
+                        {t.needDetail.applicationSubmitted}
+                      </span>
+                      <p className="font-body text-xs text-on-surface-variant mt-2">{t.needDetail.waitingDecision}</p>
                     </div>
                   )}
                 </>
               )}
 
               {activeRole === "backer" && (
-                <Button
-                  className="w-full"
+                <button
                   disabled={bids.length === 0}
                   onClick={() => setManageOpen(true)}
+                  className="w-full bg-primary text-on-primary font-label text-label-md uppercase tracking-wider py-3 rounded-lg hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
                 >
                   {t.needDetail.manageBids(bids.length)}
-                </Button>
+                </button>
               )}
 
-              <div className="mt-4 pt-4 border-t border-border space-y-2">
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">{t.common.applications}</span>
-                  <span className="font-medium">{need.bids}</span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">{t.common.posted}</span>
-                  <span className="font-medium">{need.publishedAt}</span>
-                </div>
-                <div className="flex justify-between text-xs">
-                  <span className="text-muted-foreground">{t.common.delivery}</span>
-                  <span className="font-medium">{need.deliveryDays} {t.common.days}</span>
-                </div>
+              <div className="mt-5 pt-5 border-t border-outline-variant/30 space-y-2.5">
+                {[
+                  [t.common.applications, need.bids],
+                  [t.common.posted, need.publishedAt],
+                  [t.common.delivery, `${need.deliveryDays} ${t.common.days}`],
+                ].map(([k, v]) => (
+                  <div key={k} className="flex justify-between">
+                    <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">{k}</span>
+                    <span className="font-body font-bold text-on-surface text-sm">{v}</span>
+                  </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Manage bids dialog — Backer view */}
+      {/* Manage bids */}
       <Dialog open={manageOpen} onOpenChange={setManageOpen}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-base">{t.needDetail.applicationsTitle(bids.length)}</DialogTitle>
+            <DialogTitle className="font-headline text-[22px]">{t.needDetail.applicationsTitle(bids.length)}</DialogTitle>
           </DialogHeader>
           <div className="space-y-3 py-2">
             {bids.length === 0 ? (
-              <p className="text-sm text-muted-foreground text-center py-8">
+              <p className="font-body text-sm text-on-surface-variant text-center py-8">
                 {t.needDetail.waitingDecision}
               </p>
             ) : (
               bids.map((bid) => (
-                <div key={bid.id} className="border border-border rounded-lg p-4">
+                <div key={bid.id} className="border border-outline-variant/40 rounded-2xl p-5">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className={cn("w-9 h-9 rounded-full flex items-center justify-center text-sm font-semibold", bid.creator.avatarColor)}>
+                      <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold", bid.creator.avatarColor)}>
                         {bid.creator.avatar}
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-foreground">{bid.creator.nickname}</p>
-                        <div className="flex items-center gap-1 mt-0.5">
-                          <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                          <span className="text-xs text-muted-foreground">{bid.creator.rating} · {bid.creator.orders} {t.common.projects}</span>
+                        <p className="font-headline text-[16px] text-on-surface">{bid.creator.nickname}</p>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <Star className="w-3 h-3 fill-tertiary text-tertiary" />
+                          <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                            {bid.creator.rating} · {bid.creator.orders} {t.common.projects}
+                          </span>
                         </div>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-sm font-bold text-foreground">¥{bid.quote.toLocaleString()}</p>
-                      <p className="text-xs text-muted-foreground">{bid.submittedAt}</p>
+                      <p className="font-headline text-[18px] text-on-surface">¥{bid.quote.toLocaleString()}</p>
+                      <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-0.5">
+                        {bid.submittedAt}
+                      </p>
                     </div>
                   </div>
-                  <p className="text-xs text-muted-foreground mt-3 leading-relaxed">{bid.note}</p>
-                  <div className="flex gap-2 mt-3">
+                  <p className="font-body text-xs text-on-surface-variant mt-3 leading-relaxed">{bid.note}</p>
+                  <div className="flex gap-2 mt-4">
                     {acceptedBid === bid.id ? (
-                      <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-xs">{t.needDetail.accepted}</Badge>
+                      <span className="font-label text-[11px] uppercase tracking-widest bg-tertiary-container text-on-tertiary-container px-3 py-1.5 rounded-full">
+                        {t.needDetail.accepted}
+                      </span>
                     ) : (
                       <>
-                        <Button size="sm" className="text-xs h-7" onClick={() => handleAccept(bid.id)}>
-                          <Check className="w-3 h-3 mr-1" /> {t.needDetail.confirmBtn}
-                        </Button>
-                        <Button size="sm" variant="outline" className="text-xs h-7 text-muted-foreground">
-                          <X className="w-3 h-3 mr-1" /> {t.needDetail.declineBtn}
-                        </Button>
-                        <Link href={`/market/creators/${bid.creatorId}`}>
-                          <Button size="sm" variant="ghost" className="text-xs h-7 text-primary">
-                            {t.needDetail.viewProfile} <ChevronRight className="w-3 h-3" />
-                          </Button>
+                        <button
+                          onClick={() => handleAccept(bid.id)}
+                          className="flex items-center gap-1 font-label text-label-md uppercase tracking-wider px-4 py-2 bg-primary text-on-primary rounded-lg hover:opacity-90"
+                        >
+                          <Check className="w-3.5 h-3.5" /> {t.needDetail.confirmBtn}
+                        </button>
+                        <button className="flex items-center gap-1 font-label text-label-md uppercase tracking-wider px-4 py-2 border border-outline-variant rounded-lg hover:bg-surface-container-high text-on-surface-variant">
+                          <X className="w-3.5 h-3.5" /> {t.needDetail.declineBtn}
+                        </button>
+                        <Link
+                          href={`/market/creators/${bid.creatorId}`}
+                          className="flex items-center gap-1 font-label text-label-md uppercase tracking-wider px-4 py-2 text-primary hover:bg-primary-container/40 rounded-lg"
+                        >
+                          {t.needDetail.viewProfile} <ChevronRight className="w-3.5 h-3.5" />
                         </Link>
                       </>
                     )}
@@ -261,90 +288,118 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setManageOpen(false)}>{t.common.cancel}</Button>
+            <button
+              onClick={() => setManageOpen(false)}
+              className="font-label text-label-md uppercase tracking-wider px-4 py-2 border border-outline-variant rounded-lg hover:bg-surface-container-high"
+            >
+              {t.common.cancel}
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Bid dialog */}
-      <Dialog open={bidOpen} onOpenChange={(open) => { setBidOpen(open); if (!open) resetBidForm(); }}>
-        <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
+      <Dialog
+        open={bidOpen}
+        onOpenChange={(open) => {
+          setBidOpen(open);
+          if (!open) resetBidForm();
+        }}
+      >
+        <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="text-base">{t.needDetail.bidDialogTitle}</DialogTitle>
+            <DialogTitle className="font-headline text-[22px]">{t.needDetail.bidDialogTitle}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
-              <Label className="text-sm">{t.needDetail.yourQuote}</Label>
-              <Input className="mt-1.5" defaultValue="3800" />
+              <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2">
+                {t.needDetail.yourQuote}
+              </label>
+              <input className={inputCls} defaultValue="3800" />
             </div>
             <div>
-              <Label className="text-sm">{t.needDetail.proposal}</Label>
-              <Textarea className="mt-1.5 resize-none text-sm" rows={4} defaultValue={t.needDetail.proposalDefault} />
+              <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2">
+                {t.needDetail.proposal}
+              </label>
+              <textarea rows={4} className={cn(inputCls, "resize-none")} defaultValue={t.needDetail.proposalDefault} />
             </div>
 
-            {/* Attachments */}
             <div>
-              <div className="flex items-center justify-between">
-                <Label className="text-sm">{t.needDetail.attachments}</Label>
-                <span className="text-xs text-muted-foreground">{attachments.length}/5</span>
+              <div className="flex items-center justify-between mb-1">
+                <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                  {t.needDetail.attachments}
+                </label>
+                <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                  {attachments.length}/5
+                </span>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">{t.needDetail.attachmentsHint}</p>
+              <p className="font-body text-xs text-on-surface-variant mb-2">{t.needDetail.attachmentsHint}</p>
 
-              <input
-                ref={fileInputRef}
-                type="file"
-                multiple
-                className="hidden"
-                onChange={handleFilePick}
-              />
+              <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFilePick} />
 
               {attachments.length > 0 && (
                 <div className="mt-3 space-y-2">
                   {attachments.map((a) => (
-                    <div key={a.id} className="border border-border rounded-lg p-3 bg-muted/40">
+                    <div key={a.id} className="border border-outline-variant/40 rounded-xl p-3 bg-surface-container-low">
                       <div className="flex items-start gap-2">
-                        <Paperclip className="w-3.5 h-3.5 text-muted-foreground shrink-0 mt-0.5" />
+                        <Paperclip className="w-4 h-4 text-on-surface-variant shrink-0 mt-0.5" />
                         <div className="flex-1 min-w-0">
-                          <p className="text-xs font-medium text-foreground truncate">{a.name}</p>
-                          <p className="text-[10px] text-muted-foreground mt-0.5">{a.size}</p>
+                          <p className="font-body text-xs font-bold text-on-surface truncate">{a.name}</p>
+                          <p className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant mt-0.5">
+                            {a.size}
+                          </p>
                         </div>
                         <button
                           type="button"
                           onClick={() => removeAttachment(a.id)}
-                          className="text-muted-foreground hover:text-destructive shrink-0"
+                          className="text-on-surface-variant hover:text-error shrink-0"
                           aria-label="remove"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
-                      <Input
+                      <input
                         value={a.note}
                         onChange={(e) => updateAttachmentNote(a.id, e.target.value)}
                         placeholder={t.needDetail.attachmentNotePlaceholder}
-                        className="mt-2 h-8 text-xs"
+                        className="mt-2 w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg focus:border-primary focus:outline-none font-body text-xs"
                       />
                     </div>
                   ))}
                 </div>
               )}
 
-              <Button
+              <button
                 type="button"
-                variant="outline"
-                size="sm"
-                className="mt-3 w-full gap-1.5 text-xs"
                 disabled={attachments.length >= 5}
                 onClick={() => fileInputRef.current?.click()}
+                className="mt-3 w-full flex items-center justify-center gap-1.5 font-label text-label-md uppercase tracking-wider py-2.5 border border-outline-variant rounded-lg hover:bg-surface-container-high transition-colors disabled:opacity-50"
               >
-                <Paperclip className="w-3.5 h-3.5" /> {t.needDetail.addAttachment}
-              </Button>
+                <Paperclip className="w-4 h-4" /> {t.needDetail.addAttachment}
+              </button>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => { setBidOpen(false); resetBidForm(); }}>{t.common.cancel}</Button>
-            <Button onClick={() => { submitBid(); setBidOpen(false); resetBidForm(); toast.success(t.needDetail.applicationSubmittedToast); }}>
+            <button
+              onClick={() => {
+                setBidOpen(false);
+                resetBidForm();
+              }}
+              className="font-label text-label-md uppercase tracking-wider px-4 py-2 border border-outline-variant rounded-lg hover:bg-surface-container-high"
+            >
+              {t.common.cancel}
+            </button>
+            <button
+              onClick={() => {
+                submitBid();
+                setBidOpen(false);
+                resetBidForm();
+                toast.success(t.needDetail.applicationSubmittedToast);
+              }}
+              className="font-label text-label-md uppercase tracking-wider px-4 py-2 bg-primary text-on-primary rounded-lg hover:opacity-90"
+            >
               {t.needDetail.submitApplication}
-            </Button>
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

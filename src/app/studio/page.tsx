@@ -1,7 +1,5 @@
 "use client";
 import AppShell from "@/components/layout/AppShell";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Sparkles, Wand2 } from "lucide-react";
 import { useT } from "@/hooks/useT";
 import { toast } from "sonner";
@@ -11,25 +9,28 @@ export default function StudioPage() {
 
   return (
     <AppShell>
-      <div className="max-w-4xl mx-auto px-6 py-8">
-        <div className="mb-6">
-          <h1 className="text-xl font-bold text-foreground">{t.studio.title}</h1>
-          <p className="text-sm text-muted-foreground mt-0.5">{t.studio.subtitle}</p>
+      <div className="max-w-[1280px] mx-auto px-6 md:px-12 pt-10 pb-16">
+        <div className="mb-12 text-center md:text-left">
+          <h1 className="font-headline text-headline-lg text-on-surface">{t.studio.title}</h1>
+          <p className="text-on-surface-variant mt-2 font-body opacity-80 italic">{t.studio.subtitle}</p>
         </div>
 
-        <div className="bg-white border border-border rounded-2xl px-6 py-20 flex flex-col items-center text-center">
-          <div className="w-14 h-14 rounded-2xl bg-accent flex items-center justify-center mb-5">
-            <Wand2 className="w-6 h-6 text-primary" />
+        <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl px-6 py-24 flex flex-col items-center text-center">
+          <div className="w-16 h-16 rounded-2xl bg-primary-container flex items-center justify-center mb-6">
+            <Wand2 className="w-7 h-7 text-on-primary-container" />
           </div>
-          <Badge variant="outline" className="text-primary border-primary/30 bg-accent gap-1 text-xs mb-4">
+          <span className="flex items-center gap-1 bg-tertiary-container text-on-tertiary-container px-3 py-1 rounded-full font-label text-[11px] tracking-widest uppercase mb-6">
             <Sparkles className="w-3 h-3" /> {t.studio.comingSoon}
-          </Badge>
-          <p className="text-sm text-muted-foreground max-w-md leading-relaxed mb-6">
+          </span>
+          <p className="font-body text-on-surface-variant max-w-md leading-relaxed mb-8">
             {t.studio.comingSoonDesc}
           </p>
-          <Button variant="outline" size="sm" onClick={() => toast.success(t.studio.notifyMe)}>
+          <button
+            onClick={() => toast.success(t.studio.notifyMe)}
+            className="font-label text-label-md uppercase tracking-wider px-6 py-3 border border-outline-variant rounded-lg hover:bg-surface-container-high transition-colors"
+          >
             {t.studio.notifyMe}
-          </Button>
+          </button>
         </div>
       </div>
     </AppShell>

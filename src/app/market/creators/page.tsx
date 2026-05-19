@@ -3,9 +3,7 @@ import { useState } from "react";
 import AppShell from "@/components/layout/AppShell";
 import { CREATORS } from "@/lib/mock-data";
 import Link from "next/link";
-import { Star, Search, Sparkles } from "lucide-react";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
+import { Star, Search, Sparkles, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useT } from "@/hooks/useT";
 
@@ -16,44 +14,51 @@ export default function CreatorsPage() {
   const [query, setQuery] = useState("");
   const t = useT();
 
-  const filtered = CREATORS.filter(c => {
-    const matchStyle = filter === "All" || c.specialties.some(s => s.includes(filter));
-    const matchQuery = !query || c.nickname.toLowerCase().includes(query.toLowerCase()) || c.specialties.some(s => s.toLowerCase().includes(query.toLowerCase()));
+  const filtered = CREATORS.filter((c) => {
+    const matchStyle = filter === "All" || c.specialties.some((s) => s.includes(filter));
+    const matchQuery =
+      !query ||
+      c.nickname.toLowerCase().includes(query.toLowerCase()) ||
+      c.specialties.some((s) => s.toLowerCase().includes(query.toLowerCase()));
     return matchStyle && matchQuery;
   });
 
   return (
     <AppShell>
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="flex items-center justify-between mb-6">
+      <div className="max-w-[1280px] mx-auto px-6 md:px-12 pt-10 pb-16">
+        <div className="flex flex-col md:flex-row justify-between md:items-end gap-6 mb-10">
           <div>
-            <h1 className="text-xl font-bold text-foreground">{t.creators.title}</h1>
-            <p className="text-sm text-muted-foreground mt-0.5">{t.creators.available(CREATORS.length)}</p>
+            <h1 className="font-headline text-headline-lg text-on-surface">{t.creators.title}</h1>
+            <p className="text-on-surface-variant mt-2 font-body opacity-80 italic">
+              {t.creators.available(CREATORS.length)}
+            </p>
           </div>
-          <Badge variant="outline" className="text-primary border-primary/30 bg-accent gap-1 text-xs">
-            <Sparkles className="w-3 h-3" /> {t.creators.aiRanked}
-          </Badge>
+          <span className="flex items-center gap-1 bg-primary-container text-on-primary-container px-3 py-1.5 rounded-full font-label text-label-md uppercase tracking-widest self-start md:self-auto">
+            <Sparkles className="w-3.5 h-3.5" /> {t.creators.aiRanked}
+          </span>
         </div>
 
-        {/* Search + filter */}
-        <div className="flex items-center gap-3 mb-6">
-          <div className="relative flex-1 max-w-sm">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              className="pl-9 text-sm"
+        {/* Search + filters */}
+        <div className="flex flex-wrap items-center gap-3 mb-10">
+          <div className="relative flex-1 min-w-[280px] max-w-md">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-outline" />
+            <input
+              className="w-full pl-12 pr-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm"
               placeholder={t.creators.searchPlaceholder}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
           </div>
-          <div className="flex gap-1.5">
-            {STYLE_FILTER_KEYS.map(f => (
+          <div className="flex gap-2 flex-wrap">
+            {STYLE_FILTER_KEYS.map((f) => (
               <button
                 key={f}
                 onClick={() => setFilter(f)}
                 className={cn(
-                  "text-xs px-3 py-1.5 rounded-full border transition-colors",
-                  filter === f ? "bg-primary text-white border-primary" : "border-border text-muted-foreground hover:border-primary/50"
+                  "font-label text-label-md uppercase tracking-wider px-4 py-2 rounded-full border transition-colors",
+                  filter === f
+                    ? "bg-primary text-on-primary border-primary"
+                    : "border-outline-variant text-on-surface-variant hover:text-on-surface hover:border-primary/40"
                 )}
               >
                 {t.creators.styleFilters[f] ?? f}
@@ -63,35 +68,54 @@ export default function CreatorsPage() {
         </div>
 
         {/* Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {filtered.map(creator => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {filtered.map((creator) => (
             <Link key={creator.id} href={`/market/creators/${creator.id}`}>
-              <div className="bg-white border border-border rounded-xl p-5 hover:border-primary/40 transition-colors cursor-pointer group h-full flex flex-col">
-                {/* Avatar */}
-                <div className={cn("w-12 h-12 rounded-full flex items-center justify-center text-lg font-semibold mb-3", creator.avatarColor)}>
-                  {creator.avatar}
+              <div className="group bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-6 h-full flex flex-col hover:shadow-md hover:border-primary/40 transition-all">
+                <div className="flex items-start justify-between mb-4">
+                  <div
+                    className={cn(
+                      "w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold",
+                      creator.avatarColor
+                    )}
+                  >
+                    {creator.avatar}
+                  </div>
+                  <span className="w-9 h-9 flex items-center justify-center rounded-full border border-outline-variant text-on-surface-variant group-hover:bg-primary group-hover:text-on-primary group-hover:border-primary transition-all">
+                    <ArrowUpRight className="w-4 h-4" />
+                  </span>
                 </div>
 
-                {/* Info */}
-                <p className="text-sm font-semibold text-foreground">{creator.nickname}</p>
-                <div className="flex items-center gap-1 mt-0.5 mb-2">
-                  <Star className="w-3 h-3 fill-amber-400 text-amber-400" />
-                  <span className="text-xs text-muted-foreground">{creator.rating} · {creator.orders} {t.creators.projectsLabel}</span>
+                <p className="font-headline text-[20px] text-on-surface">{creator.nickname}</p>
+                <div className="flex items-center gap-1.5 mt-1 mb-3">
+                  <Star className="w-3 h-3 fill-tertiary text-tertiary" />
+                  <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                    {creator.rating} · {creator.orders} {t.creators.projectsLabel}
+                  </span>
                 </div>
 
-                <p className="text-xs text-muted-foreground leading-relaxed mb-3 flex-1 line-clamp-2">{creator.bio}</p>
+                <p className="font-body text-xs text-on-surface-variant leading-relaxed mb-4 flex-1 line-clamp-2">
+                  {creator.bio}
+                </p>
 
-                {/* Tags */}
-                <div className="flex flex-wrap gap-1 mb-3">
-                  {creator.specialties.slice(0, 2).map(s => (
-                    <span key={s} className="text-[10px] bg-accent text-primary px-2 py-0.5 rounded-full">{s}</span>
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  {creator.specialties.slice(0, 2).map((s) => (
+                    <span
+                      key={s}
+                      className="font-label text-[10px] uppercase tracking-widest bg-primary-container text-on-primary-container px-2.5 py-0.5 rounded-full"
+                    >
+                      {s}
+                    </span>
                   ))}
                 </div>
 
-                {/* Rate */}
-                <div className="flex items-center justify-between pt-3 border-t border-border">
-                  <span className="text-xs text-muted-foreground">{t.creators.fromLabel}</span>
-                  <span className="text-sm font-semibold text-foreground">¥{creator.rateCard.from.toLocaleString()}</span>
+                <div className="flex items-center justify-between pt-4 border-t border-outline-variant/30">
+                  <span className="font-label text-label-md uppercase tracking-widest text-on-surface-variant">
+                    {t.creators.fromLabel}
+                  </span>
+                  <span className="font-headline text-[16px] text-on-surface">
+                    ¥{creator.rateCard.from.toLocaleString()}
+                  </span>
                 </div>
               </div>
             </Link>

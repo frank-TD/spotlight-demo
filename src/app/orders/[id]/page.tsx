@@ -4,22 +4,19 @@ import { useStore } from "@/lib/store";
 import AppShell from "@/components/layout/AppShell";
 import { ORDER_ACTIVE } from "@/lib/mock-data";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Upload, Check, X, Download, MessageSquare, FileText, Clock, ChevronRight } from "lucide-react";
+import { ArrowLeft, Upload, Check, X, Download, FileText, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
 import { useT } from "@/hooks/useT";
 
-const STATUS_COLORS: Record<string, string> = {
-  accepted: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  submitted: "bg-amber-50 text-amber-700 border-amber-200",
-  pending: "bg-muted text-muted-foreground border-border",
-  in_progress: "bg-blue-50 text-blue-700 border-blue-200",
-  rejected: "bg-red-50 text-red-700 border-red-200",
-  auto_accepted: "bg-emerald-50 text-emerald-700 border-emerald-200",
+const STATUS_PILL: Record<string, string> = {
+  accepted: "bg-tertiary-container text-on-tertiary-container",
+  submitted: "bg-primary-container text-on-primary-container",
+  pending: "bg-surface-container text-on-surface-variant",
+  in_progress: "bg-primary-container text-on-primary-container",
+  rejected: "bg-error-container text-on-error-container",
+  auto_accepted: "bg-tertiary-container text-on-tertiary-container",
 };
 
 export default function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -34,57 +31,76 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
 
   const order = ORDER_ACTIVE;
   const stages = orderStages;
+  const completedCount = stages.filter((s) => s.status === "accepted" || s.status === "auto_accepted").length;
 
-  const completedCount = stages.filter(s => s.status === "accepted" || s.status === "auto_accepted").length;
+  const inputCls =
+    "w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm";
 
   return (
     <AppShell>
-      <div className="max-w-5xl mx-auto px-6 py-8">
-        <Link href="/projects" className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground mb-6">
+      <div className="max-w-5xl mx-auto px-6 md:px-12 pt-8 pb-16">
+        <Link
+          href="/projects"
+          className="inline-flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider text-on-surface-variant hover:text-on-surface mb-8"
+        >
           <ArrowLeft className="w-4 h-4" /> {t.orderDetail.backToProjects}
         </Link>
 
         {/* Header */}
-        <div className="bg-white border border-border rounded-xl p-6 mb-5">
-          <div className="flex items-start justify-between mb-4">
-            <div>
-              <h1 className="text-lg font-bold text-foreground leading-snug">{order.title}</h1>
-              <p className="text-sm text-muted-foreground mt-1">
-                {activeRole === "backer" ? t.orderDetail.withCounterpart(order.creator.nickname) : t.orderDetail.forCounterpart(order.backer.nickname)} · ¥{order.totalFiat.toLocaleString()}
+        <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-8 mb-6">
+          <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
+            <div className="min-w-0">
+              <h1 className="font-headline text-headline-md text-on-surface leading-snug">{order.title}</h1>
+              <p className="font-body text-sm text-on-surface-variant italic mt-1.5">
+                {activeRole === "backer"
+                  ? t.orderDetail.withCounterpart(order.creator.nickname)
+                  : t.orderDetail.forCounterpart(order.backer.nickname)}{" "}
+                · ¥{order.totalFiat.toLocaleString()}
               </p>
             </div>
-            <div className="flex items-center gap-2">
-              <Badge className="bg-blue-50 text-blue-700 border-blue-200 text-xs">{t.common.inProgress}</Badge>
-              <Link href={`/orders/${id}/contract`}>
-                <Button variant="ghost" size="sm" className="text-xs gap-1 text-muted-foreground">
-                  <FileText className="w-3.5 h-3.5" /> {t.orderDetail.contract}
-                </Button>
+            <div className="flex items-center gap-3">
+              <span className="font-label text-[11px] uppercase tracking-widest bg-primary-container text-on-primary-container px-3 py-1 rounded-full">
+                {t.common.inProgress}
+              </span>
+              <Link
+                href={`/orders/${id}/contract`}
+                className="flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider px-3 py-1.5 border border-outline-variant rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors"
+              >
+                <FileText className="w-3.5 h-3.5" /> {t.orderDetail.contract}
               </Link>
             </div>
           </div>
 
-          {/* Progress bar */}
-          <div className="space-y-1.5">
-            <div className="flex justify-between text-xs text-muted-foreground">
+          {/* Progress */}
+          <div className="space-y-2">
+            <div className="flex justify-between font-label text-label-md uppercase tracking-wider text-on-surface-variant">
               <span>{t.orderDetail.stagesComplete(completedCount, stages.length)}</span>
               <span>{Math.round((completedCount / stages.length) * 100)}%</span>
             </div>
-            <div className="h-1.5 bg-muted rounded-full overflow-hidden">
+            <div className="h-1.5 bg-outline-variant/30 rounded-full overflow-hidden">
               <div
-                className="h-full bg-primary rounded-full transition-all duration-500"
+                className="h-full bg-primary transition-all duration-500"
                 style={{ width: `${(completedCount / stages.length) * 100}%` }}
               />
             </div>
-            <div className="flex gap-1 mt-2">
+            <div className="flex gap-1 mt-3">
               {stages.map((s) => (
                 <div key={s.id} className="flex-1 flex flex-col items-center gap-1">
-                  <div className={cn(
-                    "w-full h-1 rounded-full",
-                    s.status === "accepted" || s.status === "auto_accepted" ? "bg-primary" :
-                    s.status === "submitted" ? "bg-amber-400" :
-                    s.status === "in_progress" ? "bg-primary/30" : "bg-border"
-                  )} />
-                  <span className="text-[9px] text-muted-foreground text-center leading-tight">{s.name}</span>
+                  <div
+                    className={cn(
+                      "w-full h-1 rounded-full",
+                      s.status === "accepted" || s.status === "auto_accepted"
+                        ? "bg-primary"
+                        : s.status === "submitted"
+                        ? "bg-tertiary"
+                        : s.status === "in_progress"
+                        ? "bg-primary/40"
+                        : "bg-outline-variant/30"
+                    )}
+                  />
+                  <span className="font-label text-[9px] uppercase tracking-wider text-on-surface-variant text-center leading-tight">
+                    {s.name}
+                  </span>
                 </div>
               ))}
             </div>
@@ -92,14 +108,16 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
         </div>
 
         {/* Tabs */}
-        <div className="flex border-b border-border mb-5 gap-0">
-          {(["stages", "messages", "ledger"] as const).map(tab => (
+        <div className="flex border-b border-outline-variant/30 mb-6">
+          {(["stages", "messages", "ledger"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
               className={cn(
-                "px-4 py-2.5 text-sm font-medium capitalize transition-colors border-b-2 -mb-px",
-                activeTab === tab ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"
+                "px-5 py-3 font-label text-label-md uppercase tracking-wider transition-colors border-b-2 -mb-px",
+                activeTab === tab
+                  ? "border-primary text-primary"
+                  : "border-transparent text-on-surface-variant hover:text-on-surface"
               )}
             >
               {tab === "stages" ? t.orderDetail.tabStages : tab === "messages" ? t.orderDetail.tabConversation : t.orderDetail.tabPayments}
@@ -107,7 +125,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
           ))}
         </div>
 
-        {/* Stages tab */}
+        {/* Stages */}
         {activeTab === "stages" && (
           <div className="space-y-4">
             {stages.map((stage, idx) => {
@@ -117,77 +135,107 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                 <div
                   key={stage.id}
                   className={cn(
-                    "bg-white border rounded-xl p-5 transition-all",
-                    isActive ? "border-primary/40 shadow-sm" : "border-border"
+                    "bg-surface-container-lowest border rounded-2xl p-6 transition-all",
+                    isActive ? "border-primary/40 shadow-sm" : "border-outline-variant/30"
                   )}
                 >
                   <div className="flex items-center justify-between mb-3">
-                    <div className="flex items-center gap-3">
-                      <div className={cn(
-                        "w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold",
-                        stage.status === "accepted" || stage.status === "auto_accepted" ? "bg-emerald-100 text-emerald-700" :
-                        stage.status === "submitted" ? "bg-amber-100 text-amber-700" :
-                        stage.status === "in_progress" ? "bg-blue-100 text-blue-700" : "bg-muted text-muted-foreground"
-                      )}>
-                        {stage.status === "accepted" || stage.status === "auto_accepted" ? <Check className="w-3.5 h-3.5" /> : idx + 1}
+                    <div className="flex items-center gap-4">
+                      <div
+                        className={cn(
+                          "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold",
+                          stage.status === "accepted" || stage.status === "auto_accepted"
+                            ? "bg-tertiary-container text-on-tertiary-container"
+                            : stage.status === "submitted"
+                            ? "bg-primary-container text-on-primary-container"
+                            : stage.status === "in_progress"
+                            ? "bg-primary text-on-primary"
+                            : "bg-surface-container text-on-surface-variant"
+                        )}
+                      >
+                        {stage.status === "accepted" || stage.status === "auto_accepted" ? <Check className="w-4 h-4" /> : idx + 1}
                       </div>
                       <div>
-                        <p className="text-sm font-semibold text-foreground">{stage.name}</p>
-                        <p className="text-xs text-muted-foreground">¥{stage.amountFiat.toLocaleString()} · {Math.round(stage.ratio * 100)}%</p>
+                        <p className="font-headline text-[18px] text-on-surface">{stage.name}</p>
+                        <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-1">
+                          ¥{stage.amountFiat.toLocaleString()} · {Math.round(stage.ratio * 100)}%
+                        </p>
                       </div>
                     </div>
-                    <Badge className={cn("text-xs", STATUS_COLORS[stage.status])}>
+                    <span
+                      className={cn(
+                        "font-label text-[11px] uppercase tracking-widest px-3 py-1 rounded-full",
+                        STATUS_PILL[stage.status]
+                      )}
+                    >
                       {t.orderDetail.statusLabels[stage.status as keyof typeof t.orderDetail.statusLabels]}
-                    </Badge>
+                    </span>
                   </div>
 
-                  {/* Auto-accept countdown */}
                   {stage.status === "submitted" && activeRole === "backer" && (
-                    <div className="flex items-center gap-1.5 text-xs text-amber-600 mb-3 bg-amber-50 rounded-lg px-3 py-2">
-                      <Clock className="w-3.5 h-3.5" />
-                      {t.orderDetail.autoAcceptNotice}
+                    <div className="flex items-center gap-2 bg-primary-container/40 border-l-4 border-primary rounded-r-lg px-3 py-2 mt-3">
+                      <Clock className="w-4 h-4 text-primary" />
+                      <span className="font-body text-xs text-on-primary-container">{t.orderDetail.autoAcceptNotice}</span>
                     </div>
                   )}
 
-                  {/* Deliverables */}
                   {deliverables.length > 0 && (
-                    <div className="mb-3 space-y-2">
-                      {deliverables.map(d => (
-                        <div key={d.id} className="flex items-center justify-between bg-muted rounded-lg px-3 py-2">
-                          <div className="flex items-center gap-2">
-                            <span className="text-xs">{d.type === "video" ? "🎬" : d.type === "pdf" ? "📄" : "📦"}</span>
+                    <div className="mt-4 space-y-2">
+                      {deliverables.map((d) => (
+                        <div
+                          key={d.id}
+                          className="flex items-center justify-between bg-surface-container rounded-xl px-4 py-2.5"
+                        >
+                          <div className="flex items-center gap-3">
+                            <span className="text-base">{d.type === "video" ? "🎬" : d.type === "pdf" ? "📄" : "📦"}</span>
                             <div>
-                              <p className="text-xs font-medium text-foreground">{d.name}</p>
-                              <p className="text-[10px] text-muted-foreground">{d.size} · {d.uploadedAt}</p>
+                              <p className="font-body text-sm font-bold text-on-surface">{d.name}</p>
+                              <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                                {d.size} · {d.uploadedAt}
+                              </p>
                             </div>
                           </div>
-                          <button className="text-muted-foreground hover:text-primary">
-                            <Download className="w-3.5 h-3.5" />
+                          <button className="text-on-surface-variant hover:text-primary">
+                            <Download className="w-4 h-4" />
                           </button>
                         </div>
                       ))}
                     </div>
                   )}
 
-                  {/* Actions */}
-                  <div className="flex gap-2 mt-1">
-                    {/* Backer actions */}
+                  <div className="flex gap-2 mt-4">
                     {activeRole === "backer" && stage.status === "submitted" && (
                       <>
-                        <Button size="sm" className="text-xs h-8 gap-1.5" onClick={() => { acceptStage(stage.id); toast.success(t.orderDetail.approvedToast(stage.amountFiat)); }}>
-                          <Check className="w-3 h-3" /> {t.orderDetail.approveRelease}
-                        </Button>
-                        <Button size="sm" variant="outline" className="text-xs h-8 gap-1.5 text-destructive border-destructive/30 hover:bg-destructive/5"
-                          onClick={() => { setRejectTarget(stage.id); setRejectOpen(true); }}>
-                          <X className="w-3 h-3" /> {t.orderDetail.requestRevision}
-                        </Button>
+                        <button
+                          onClick={() => {
+                            acceptStage(stage.id);
+                            toast.success(t.orderDetail.approvedToast(stage.amountFiat));
+                          }}
+                          className="flex items-center gap-1.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-4 py-2 rounded-lg hover:opacity-90"
+                        >
+                          <Check className="w-3.5 h-3.5" /> {t.orderDetail.approveRelease}
+                        </button>
+                        <button
+                          onClick={() => {
+                            setRejectTarget(stage.id);
+                            setRejectOpen(true);
+                          }}
+                          className="flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider px-4 py-2 border border-error/40 text-error rounded-lg hover:bg-error-container/40"
+                        >
+                          <X className="w-3.5 h-3.5" /> {t.orderDetail.requestRevision}
+                        </button>
                       </>
                     )}
-                    {/* Creator actions */}
                     {activeRole === "creator" && stage.status === "in_progress" && (
-                      <Button size="sm" className="text-xs h-8 gap-1.5" onClick={() => { setSubmitTarget(stage.id); setSubmitOpen(true); }}>
-                        <Upload className="w-3 h-3" /> {t.orderDetail.submitDeliverable}
-                      </Button>
+                      <button
+                        onClick={() => {
+                          setSubmitTarget(stage.id);
+                          setSubmitOpen(true);
+                        }}
+                        className="flex items-center gap-1.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-4 py-2 rounded-lg hover:opacity-90"
+                      >
+                        <Upload className="w-3.5 h-3.5" /> {t.orderDetail.submitDeliverable}
+                      </button>
                     )}
                   </div>
                 </div>
@@ -196,70 +244,96 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
           </div>
         )}
 
-        {/* Messages tab */}
+        {/* Messages */}
         {activeTab === "messages" && (
-          <div className="bg-white border border-border rounded-xl overflow-hidden">
-            <div className="h-[460px] overflow-y-auto p-4 space-y-3">
-              {order.messages.map(msg => {
+          <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl overflow-hidden">
+            <div className="h-[480px] overflow-y-auto p-5 space-y-3">
+              {order.messages.map((msg) => {
                 if (msg.isCard) {
                   return (
                     <div key={msg.id} className="flex justify-center">
-                      <div className="bg-accent border border-primary/20 rounded-lg px-4 py-2 text-xs text-foreground/80 text-center max-w-xs">
+                      <div className="bg-primary-container/40 border border-primary/20 rounded-lg px-4 py-2 font-body text-xs text-on-primary-container text-center max-w-xs">
                         {msg.text}
                       </div>
                     </div>
                   );
                 }
-                const isMe = (activeRole === "backer" && msg.senderId === "u_backer_01") ||
-                             (activeRole === "creator" && msg.senderId === "u_creator_01");
+                const isMe =
+                  (activeRole === "backer" && msg.senderId === "u_backer_01") ||
+                  (activeRole === "creator" && msg.senderId === "u_creator_01");
                 return (
                   <div key={msg.id} className={cn("flex", isMe ? "justify-end" : "justify-start")}>
                     {!isMe && (
-                      <div className="w-7 h-7 rounded-full bg-accent flex items-center justify-center text-xs font-semibold text-primary mr-2 shrink-0 mt-0.5">
-                        {msg.senderName.split(" ").map(n => n[0]).join("")}
+                      <div className="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center text-xs font-bold mr-2 shrink-0">
+                        {msg.senderName.split(" ").map((n) => n[0]).join("")}
                       </div>
                     )}
-                    <div className={cn("max-w-[70%]", isMe ? "items-end" : "items-start", "flex flex-col gap-0.5")}>
-                      {!isMe && <span className="text-[10px] text-muted-foreground px-1">{msg.senderName} · {msg.senderRole}</span>}
-                      <div className={cn(
-                        "rounded-xl px-3.5 py-2.5 text-sm leading-relaxed",
-                        isMe ? "bg-primary text-white rounded-br-sm" : "bg-muted text-foreground rounded-bl-sm"
-                      )}>
+                    <div className={cn("max-w-[70%] flex flex-col gap-0.5", isMe ? "items-end" : "items-start")}>
+                      {!isMe && (
+                        <span className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant px-1">
+                          {msg.senderName} · {msg.senderRole}
+                        </span>
+                      )}
+                      <div
+                        className={cn(
+                          "rounded-2xl px-3.5 py-2.5 font-body text-sm leading-relaxed",
+                          isMe ? "bg-primary text-on-primary rounded-br-sm" : "bg-surface-container text-on-surface rounded-bl-sm"
+                        )}
+                      >
                         {msg.text}
                       </div>
-                      <span className="text-[9px] text-muted-foreground px-1">{msg.ts}</span>
+                      <span className="font-label text-[9px] uppercase tracking-wider text-on-surface-variant/70 px-1">
+                        {msg.ts}
+                      </span>
                     </div>
                   </div>
                 );
               })}
             </div>
-            <div className="border-t border-border p-3 flex gap-2">
-              <input className="flex-1 text-sm rounded-lg border border-input px-3 py-2 bg-background focus:outline-none focus:ring-1 focus:ring-ring" placeholder={t.orderDetail.messagePlaceholder} />
-              <Button size="sm">{t.orderDetail.sendBtn}</Button>
+            <div className="border-t border-outline-variant/30 p-3 flex gap-2">
+              <input
+                className="flex-1 font-body text-sm rounded-xl border border-outline-variant px-4 py-2.5 bg-surface-container-low focus:border-primary focus:outline-none"
+                placeholder={t.orderDetail.messagePlaceholder}
+              />
+              <button className="bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-4 py-2.5 rounded-lg hover:opacity-90">
+                {t.orderDetail.sendBtn}
+              </button>
             </div>
           </div>
         )}
 
-        {/* Ledger tab */}
+        {/* Ledger */}
         {activeTab === "ledger" && (
-          <div className="bg-white border border-border rounded-xl p-5">
+          <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-6">
             <div className="space-y-3">
               {order.ledger.map((entry, i) => (
-                <div key={i} className="flex items-center justify-between py-2 border-b border-border last:border-0">
+                <div
+                  key={i}
+                  className="flex items-center justify-between py-3 border-b border-outline-variant/30 last:border-0"
+                >
                   <div>
-                    <p className="text-sm font-medium text-foreground">{entry.note}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{entry.date}</p>
+                    <p className="font-body font-bold text-on-surface text-sm">{entry.note}</p>
+                    <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-0.5">
+                      {entry.date}
+                    </p>
                   </div>
-                  <div className={cn("text-sm font-semibold", entry.type === "Release" ? "text-emerald-600" : "text-foreground")}>
+                  <div
+                    className={cn(
+                      "font-headline text-[18px]",
+                      entry.type === "Release" ? "text-tertiary" : "text-on-surface"
+                    )}
+                  >
                     {entry.type === "Release" ? "+" : "-"}¥{entry.amount.toLocaleString()}
                   </div>
                 </div>
               ))}
-              <div className="flex justify-between pt-2">
-                <span className="text-sm text-muted-foreground">{t.orderDetail.totalReleased}</span>
-                <span className="text-sm font-bold text-primary">
-                  ¥{order.ledger.filter(e => e.type === "Release").reduce((a, b) => a + b.amount, 0).toLocaleString()}
-                  <span className="text-muted-foreground font-normal"> / ¥{order.totalFiat.toLocaleString()}</span>
+              <div className="flex justify-between pt-3">
+                <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                  {t.orderDetail.totalReleased}
+                </span>
+                <span className="font-headline text-[20px] text-primary">
+                  ¥{order.ledger.filter((e) => e.type === "Release").reduce((a, b) => a + b.amount, 0).toLocaleString()}
+                  <span className="font-body text-sm text-on-surface-variant font-normal"> / ¥{order.totalFiat.toLocaleString()}</span>
                 </span>
               </div>
             </div>
@@ -269,46 +343,74 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
 
       {/* Reject dialog */}
       <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle className="text-base">{t.orderDetail.rejectDialogTitle}</DialogTitle></DialogHeader>
-          <Textarea className="resize-none text-sm" rows={3} placeholder={t.orderDetail.rejectPlaceholder} />
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-headline text-[20px]">{t.orderDetail.rejectDialogTitle}</DialogTitle>
+          </DialogHeader>
+          <textarea rows={3} className={cn(inputCls, "resize-none")} placeholder={t.orderDetail.rejectPlaceholder} />
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRejectOpen(false)}>{t.common.cancel}</Button>
-            <Button variant="destructive" onClick={() => {
-              if (rejectTarget) rejectStage(rejectTarget);
-              setRejectOpen(false);
-              toast.info(t.orderDetail.revisionRequestedToast);
-            }}>{t.orderDetail.sendFeedback}</Button>
+            <button
+              onClick={() => setRejectOpen(false)}
+              className="font-label text-label-md uppercase tracking-wider px-4 py-2 border border-outline-variant rounded-lg hover:bg-surface-container-high"
+            >
+              {t.common.cancel}
+            </button>
+            <button
+              onClick={() => {
+                if (rejectTarget) rejectStage(rejectTarget);
+                setRejectOpen(false);
+                toast.info(t.orderDetail.revisionRequestedToast);
+              }}
+              className="font-label text-label-md uppercase tracking-wider px-4 py-2 bg-error text-on-error rounded-lg hover:opacity-90"
+            >
+              {t.orderDetail.sendFeedback}
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Submit dialog */}
       <Dialog open={submitOpen} onOpenChange={setSubmitOpen}>
-        <DialogContent className="max-w-md">
-          <DialogHeader><DialogTitle className="text-base">{t.orderDetail.submitDialogTitle}</DialogTitle></DialogHeader>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="font-headline text-[20px]">{t.orderDetail.submitDialogTitle}</DialogTitle>
+          </DialogHeader>
           <div className="py-2 space-y-3">
-            <div className="border-2 border-dashed border-border rounded-xl p-8 text-center">
-              <Upload className="w-6 h-6 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm text-muted-foreground">{t.orderDetail.dropFiles}</p>
-              <p className="text-xs text-muted-foreground mt-1">{t.orderDetail.fileTypes}</p>
+            <div className="border-2 border-dashed border-outline-variant rounded-2xl p-8 text-center">
+              <Upload className="w-7 h-7 text-on-surface-variant mx-auto mb-2" />
+              <p className="font-body text-sm text-on-surface-variant">{t.orderDetail.dropFiles}</p>
+              <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant/80 mt-1">
+                {t.orderDetail.fileTypes}
+              </p>
             </div>
-            <div className="bg-muted rounded-lg px-3 py-2.5 flex items-center gap-2">
-              <span className="text-sm">🎬</span>
+            <div className="bg-surface-container rounded-xl px-4 py-3 flex items-center gap-2">
+              <span className="text-base">🎬</span>
               <div className="flex-1">
-                <p className="text-xs font-medium">final_cut_v2.mp4</p>
-                <p className="text-[10px] text-muted-foreground">890 MB · {t.orderDetail.readyToSubmit}</p>
+                <p className="font-body text-xs font-bold text-on-surface">final_cut_v2.mp4</p>
+                <p className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant">
+                  890 MB · {t.orderDetail.readyToSubmit}
+                </p>
               </div>
-              <Check className="w-4 h-4 text-emerald-600" />
+              <Check className="w-4 h-4 text-tertiary" />
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setSubmitOpen(false)}>{t.common.cancel}</Button>
-            <Button onClick={() => {
-              if (submitTarget) submitStage(submitTarget);
-              setSubmitOpen(false);
-              toast.success(t.orderDetail.submittedToast);
-            }}>{t.common.submit}</Button>
+            <button
+              onClick={() => setSubmitOpen(false)}
+              className="font-label text-label-md uppercase tracking-wider px-4 py-2 border border-outline-variant rounded-lg hover:bg-surface-container-high"
+            >
+              {t.common.cancel}
+            </button>
+            <button
+              onClick={() => {
+                if (submitTarget) submitStage(submitTarget);
+                setSubmitOpen(false);
+                toast.success(t.orderDetail.submittedToast);
+              }}
+              className="font-label text-label-md uppercase tracking-wider px-4 py-2 bg-primary text-on-primary rounded-lg hover:opacity-90"
+            >
+              {t.common.submit}
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

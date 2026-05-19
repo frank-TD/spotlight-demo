@@ -3,10 +3,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Sparkles } from "lucide-react";
 import { toast } from "sonner";
 import { useT } from "@/hooks/useT";
 
@@ -27,56 +23,64 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
-      {/* Left panel */}
-      <div className="hidden lg:flex lg:w-1/2 bg-primary flex-col justify-between p-12">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-white/20 flex items-center justify-center">
-            <Sparkles className="w-4 h-4 text-white" />
-          </div>
-          <span className="text-white font-semibold text-lg">Spotlight</span>
-        </div>
-        <div>
-          <blockquote className="text-white/90 text-xl font-medium leading-relaxed mb-4">
+    <div className="min-h-screen bg-surface flex">
+      {/* Left brand panel */}
+      <div className="hidden lg:flex lg:w-1/2 bg-primary text-on-primary flex-col justify-between p-12 relative overflow-hidden">
+        <Link href="/" className="font-headline text-[32px] italic font-bold leading-none">
+          Spotlight
+        </Link>
+        <div className="relative z-10">
+          <blockquote className="font-headline text-[28px] leading-snug italic mb-6">
             {t.login.testimonial}
           </blockquote>
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center text-white text-sm font-semibold">AS</div>
+            <div className="w-12 h-12 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center text-sm font-bold">
+              AS
+            </div>
             <div>
-              <p className="text-white text-sm font-medium">Aria Song</p>
-              <p className="text-white/60 text-xs">{t.login.testimonialRole}</p>
+              <p className="font-body font-bold">Aria Song</p>
+              <p className="font-label text-label-md uppercase tracking-wider opacity-70 mt-1">
+                {t.login.testimonialRole}
+              </p>
             </div>
           </div>
         </div>
-        <p className="text-white/40 text-xs">{t.login.copyright}</p>
+        <p className="font-label text-label-md uppercase tracking-wider opacity-60">{t.login.copyright}</p>
       </div>
 
-      {/* Right panel */}
+      {/* Right form panel */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-sm">
-          <div className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="w-7 h-7 rounded-md bg-primary flex items-center justify-center">
-              <Sparkles className="w-3.5 h-3.5 text-white" />
-            </div>
-            <span className="font-semibold text-foreground">Spotlight</span>
-          </div>
+          <Link href="/" className="lg:hidden font-headline text-[28px] italic font-bold text-on-surface block mb-10">
+            Spotlight
+          </Link>
 
-          <h1 className="text-2xl font-bold text-foreground mb-1">{t.login.welcomeBack}</h1>
-          <p className="text-sm text-muted-foreground mb-6">{t.login.subtitle}</p>
+          <h1 className="font-headline text-[40px] text-on-surface mb-2 leading-tight">{t.login.welcomeBack}</h1>
+          <p className="text-on-surface-variant font-body italic mb-8">{t.login.subtitle}</p>
 
-          {/* Role selector — demo only */}
-          <div className="mb-5 p-3 bg-accent rounded-lg border border-border">
-            <p className="text-xs font-medium text-foreground mb-2">{t.login.demoLabel}</p>
+          {/* Demo role selector */}
+          <div className="bg-primary-container/40 border border-outline-variant/30 rounded-xl p-4 mb-6">
+            <p className="font-label text-label-md uppercase tracking-wider text-on-primary-container mb-3">
+              {t.login.demoLabel}
+            </p>
             <div className="flex gap-2">
               <button
                 onClick={() => setRole("backer")}
-                className={`flex-1 text-xs py-1.5 rounded-md font-medium transition-colors ${role === "backer" ? "bg-primary text-white" : "bg-white border border-border text-muted-foreground hover:text-foreground"}`}
+                className={`flex-1 font-label text-[11px] uppercase tracking-wider py-2 rounded-lg transition-colors ${
+                  role === "backer"
+                    ? "bg-primary text-on-primary"
+                    : "bg-surface-container-lowest border border-outline-variant/30 text-on-surface-variant hover:text-on-surface"
+                }`}
               >
                 {t.login.backerOption}
               </button>
               <button
                 onClick={() => setRole("creator")}
-                className={`flex-1 text-xs py-1.5 rounded-md font-medium transition-colors ${role === "creator" ? "bg-primary text-white" : "bg-white border border-border text-muted-foreground hover:text-foreground"}`}
+                className={`flex-1 font-label text-[11px] uppercase tracking-wider py-2 rounded-lg transition-colors ${
+                  role === "creator"
+                    ? "bg-primary text-on-primary"
+                    : "bg-surface-container-lowest border border-outline-variant/30 text-on-surface-variant hover:text-on-surface"
+                }`}
               >
                 {t.login.creatorOption}
               </button>
@@ -85,27 +89,41 @@ export default function LoginPage() {
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <Label htmlFor="email" className="text-sm">{t.login.email}</Label>
-              <Input
-                id="email"
+              <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2">
+                {t.login.email}
+              </label>
+              <input
                 type="email"
                 defaultValue={role === "backer" ? "lucas@neovision.co" : "aria@studio.me"}
-                className="mt-1.5"
                 readOnly
+                className="w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm"
               />
             </div>
             <div>
-              <Label htmlFor="password" className="text-sm">{t.login.password}</Label>
-              <Input id="password" type="password" defaultValue="••••••••" className="mt-1.5" readOnly />
+              <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2">
+                {t.login.password}
+              </label>
+              <input
+                type="password"
+                defaultValue="••••••••"
+                readOnly
+                className="w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm"
+              />
             </div>
-            <Button type="submit" className="w-full" disabled={loading}>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-primary text-on-primary font-label text-label-md uppercase tracking-wider py-3 rounded-lg hover:opacity-90 active:scale-95 transition-all disabled:opacity-60"
+            >
               {loading ? t.login.signingIn : t.login.signIn}
-            </Button>
+            </button>
           </form>
 
-          <p className="text-center text-xs text-muted-foreground mt-5">
+          <p className="text-center text-sm text-on-surface-variant mt-6">
             {t.login.noAccount}{" "}
-            <Link href="/register" className="text-primary hover:underline font-medium">{t.login.signUp}</Link>
+            <Link href="/register" className="text-primary hover:underline font-medium">
+              {t.login.signUp}
+            </Link>
           </p>
         </div>
       </div>
