@@ -238,17 +238,15 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
             >
               {t.chat.closeProfile}
             </button>
-            {counterpartIsCreator && (
-              <button
-                onClick={() => {
-                  setCounterpartOpen(false);
-                  router.push("/market/creators/u_creator_01");
-                }}
-                className="flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider px-4 py-2 bg-primary text-on-primary rounded-lg hover:opacity-90 transition-opacity"
-              >
-                {t.chat.viewFullProfile} <ArrowUpRight className="w-3.5 h-3.5" />
-              </button>
-            )}
+            <button
+              onClick={() => {
+                setCounterpartOpen(false);
+                router.push(counterpartIsCreator ? "/market/creators/u_creator_01" : "/market/backers/u_backer_01");
+              }}
+              className="flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider px-4 py-2 bg-primary text-on-primary rounded-lg hover:opacity-90 transition-opacity"
+            >
+              {t.chat.viewFullProfile} <ArrowUpRight className="w-3.5 h-3.5" />
+            </button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
