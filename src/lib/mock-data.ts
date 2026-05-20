@@ -347,9 +347,9 @@ export const ORDER_COMPLETED = {
 // ── Assets ────────────────────────────────────────────────────────────────────
 
 export const MY_ASSETS_CREATED = [
-  { id: "asset_001", title: "NeoVision Draft Cut v1", type: "video", size: "312 MB", orderId: "ord_001", orderTitle: "Cinematic Brand Film — NeoVision AI", createdAt: "2026-05-17", showcased: false },
-  { id: "asset_002", title: "Product Launch — Final Export", type: "video", size: "890 MB", orderId: "ord_002", orderTitle: "Product Launch Video — Smart Home Device", createdAt: "2026-05-10", showcased: true },
-  { id: "asset_003", title: "Stellar Bloom MV — Director's Cut", type: "video", size: "1.2 GB", orderId: null, orderTitle: null, createdAt: "2026-04-22", showcased: true },
+  { id: "asset_001", title: "NeoVision Draft Cut v1", type: "video", size: "312 MB", duration: "1:32", orderId: "ord_001", orderTitle: "Cinematic Brand Film — NeoVision AI", createdAt: "2026-05-17", showcased: false },
+  { id: "asset_002", title: "Product Launch — Final Export", type: "video", size: "890 MB", duration: "0:45", orderId: "ord_002", orderTitle: "Product Launch Video — Smart Home Device", createdAt: "2026-05-10", showcased: true },
+  { id: "asset_003", title: "Stellar Bloom MV — Director's Cut", type: "video", size: "1.2 GB", duration: "3:44", orderId: null, orderTitle: null, createdAt: "2026-04-22", showcased: true },
 ];
 
 export const MY_ASSETS_PURCHASED = [
@@ -383,3 +383,156 @@ export const BACKER_WALLET_TRANSACTIONS = [
   { id: "btx_02", date: "2026-05-13", type: "Recharge", currency: "diamond", amount: +5000, balance: 12400, note: "Stripe — ¥5,000" },
   { id: "btx_03", date: "2026-05-01", type: "Recharge", currency: "diamond", amount: +10000, balance: 7400, note: "Stripe — ¥10,000" },
 ];
+
+export const PRESET_SPECIALTY_TAGS = [
+  "Cinematic", "Commercial", "Brand Film", "Narrative Short Film", "Music Video",
+  "Documentary", "Anime Style", "Character Animation", "Product Visualization",
+  "Sci-Fi", "Surreal", "Minimal", "Abstract", "Tech", "Social Content", "Journalism",
+];
+
+export const SHOWCASE_THUMBNAIL_OPTIONS = ["🎬", "🎞️", "📽️", "🎥", "🎨", "✨", "🌌", "🪐", "🎭", "🌸"];
+
+
+// ── Distribution ─────────────────────────────────────────────────────────────
+
+export const DISTRIBUTION_PLATFORMS = [
+  { id: "bilibili", name: "Bilibili", region: "CN" },
+  { id: "youtube", name: "YouTube", region: "Global" },
+  { id: "tiktok", name: "TikTok", region: "Global" },
+  { id: "vimeo", name: "Vimeo", region: "Global" },
+  { id: "netflix", name: "Netflix", region: "Global" },
+  { id: "xiaohongshu", name: "小红书", region: "CN" },
+  { id: "weibo", name: "Weibo Video", region: "CN" },
+  { id: "instagram", name: "Instagram Reels", region: "Global" },
+];
+
+export const DISTRIBUTION_LANGUAGES = [
+  { id: "zh-CN", name: "简体中文" },
+  { id: "zh-TW", name: "繁體中文" },
+  { id: "en-US", name: "English (US)" },
+  { id: "ja-JP", name: "日本語" },
+  { id: "ko-KR", name: "한국어" },
+  { id: "es-ES", name: "Español" },
+];
+
+export const DISTRIBUTION_REGIONS = [
+  { id: "global", name: "Worldwide" },
+  { id: "cn", name: "China" },
+  { id: "us", name: "United States" },
+  { id: "jp", name: "Japan" },
+  { id: "kr", name: "Korea" },
+  { id: "eu", name: "European Union" },
+];
+
+export const DISTRIBUTION_TYPES = ["Brand Film", "Music Video", "Documentary", "Commercial", "Short Film", "Animation", "Series"];
+
+export const COPYRIGHT_OPTIONS = ["All Rights Reserved", "CC BY 4.0", "CC BY-NC 4.0", "CC BY-SA 4.0", "Public Domain"];
+
+export const DISTRIBUTION_COST_SHELL = 200;
+
+// ── Participants registry (for messages) ─────────────────────────────────────
+
+export const PARTICIPANTS: Record<string, {
+  id: string;
+  nickname: string;
+  avatar: string;
+  avatarColor: string;
+  role: "backer" | "creator";
+}> = {
+  u_backer_01: { id: "u_backer_01", nickname: "Lucas Chen", avatar: "LC", avatarColor: "bg-primary-container text-on-primary-container", role: "backer" },
+  u_backer_02: { id: "u_backer_02", nickname: "Priya Mehta", avatar: "PM", avatarColor: "bg-amber-100 text-amber-700", role: "backer" },
+  u_creator_01: { id: "u_creator_01", nickname: "Aria Song", avatar: "AS", avatarColor: "bg-rose-100 text-rose-700", role: "creator" },
+  u_creator_02: { id: "u_creator_02", nickname: "Marco Reyes", avatar: "MR", avatarColor: "bg-sky-100 text-sky-700", role: "creator" },
+  u_creator_03: { id: "u_creator_03", nickname: "Yuki Tanaka", avatar: "YT", avatarColor: "bg-emerald-100 text-emerald-700", role: "creator" },
+  u_creator_04: { id: "u_creator_04", nickname: "Sofia Okonkwo", avatar: "SO", avatarColor: "bg-amber-100 text-amber-700", role: "creator" },
+};
+
+// ── Sessions ─────────────────────────────────────────────────────────────────
+
+type ExtraMsg = { id: string; senderId: string; senderName: string; senderRole: string; text: string; ts: string; isCard?: boolean };
+
+export interface Session {
+  id: string;
+  backerId: string;
+  creatorId: string;
+  subject: string;
+  orderId: string | null;
+  invitationSent: boolean;
+  lastUpdated: string;
+  messages: ExtraMsg[];
+}
+
+export const SESSIONS: Session[] = [
+  {
+    id: "sess_001",
+    backerId: "u_backer_01",
+    creatorId: "u_creator_01",
+    subject: "Cinematic Brand Film — NeoVision AI",
+    orderId: "ord_001",
+    invitationSent: true,
+    lastUpdated: "2026-05-17 19:43",
+    messages: [],
+  },
+  {
+    id: "sess_002",
+    backerId: "u_backer_01",
+    creatorId: "u_creator_03",
+    subject: "Anime opener inquiry",
+    orderId: null,
+    invitationSent: false,
+    lastUpdated: "2026-05-18 11:20",
+    messages: [
+      { id: "ms2_1", senderId: "u_backer_01", senderName: "Lucas Chen", senderRole: "Backer", text: "Hi Yuki, your character animation reel is stunning. We're planning a 30s anime opener for a product launch.", ts: "2026-05-18 10:45" },
+      { id: "ms2_2", senderId: "u_creator_03", senderName: "Yuki Tanaka", senderRole: "Creator", text: "Thanks Lucas! Happy to discuss. Could you share more about the product, tone references, and timeline?", ts: "2026-05-18 11:20" },
+    ],
+  },
+  {
+    id: "sess_003",
+    backerId: "u_backer_01",
+    creatorId: "u_creator_02",
+    subject: "Smart-home product launch film",
+    orderId: null,
+    invitationSent: false,
+    lastUpdated: "2026-05-19 09:15",
+    messages: [
+      { id: "ms3_1", senderId: "u_backer_01", senderName: "Lucas Chen", senderRole: "Backer", text: "Hi Marco — planning a smart-home product launch, your commercial work fits the brief perfectly.", ts: "2026-05-19 09:00" },
+      { id: "ms3_2", senderId: "u_creator_02", senderName: "Marco Reyes", senderRole: "Creator", text: "Hi Lucas, sounds great. Send me the brief and I'll come back with treatment ideas tomorrow.", ts: "2026-05-19 09:15" },
+    ],
+  },
+  {
+    id: "sess_004",
+    backerId: "u_backer_02",
+    creatorId: "u_creator_01",
+    subject: "3-episode anime short",
+    orderId: null,
+    invitationSent: false,
+    lastUpdated: "2026-05-15 14:00",
+    messages: [
+      { id: "ms4_1", senderId: "u_backer_02", senderName: "Priya Mehta", senderRole: "Backer", text: "Hi Aria — I'm scoping a 3-episode anime short for an original IP. Your storytelling resonates with what we're after.", ts: "2026-05-15 13:30" },
+      { id: "ms4_2", senderId: "u_creator_01", senderName: "Aria Song", senderRole: "Creator", text: "Hi Priya, character-driven sci-fi anime is exactly my space. Let's set up a 30-min sync to review the IP bible.", ts: "2026-05-15 14:00" },
+    ],
+  },
+  {
+    id: "sess_005",
+    backerId: "u_backer_01",
+    creatorId: "u_creator_04",
+    subject: "Documentary project",
+    orderId: null,
+    invitationSent: false,
+    lastUpdated: "2026-05-19 15:00",
+    messages: [
+      { id: "ms5_1", senderId: "u_backer_01", senderName: "Lucas Chen", senderRole: "Backer", text: "Hi Sofia — looking at your Invisible Cities doc, I'd love to discuss a short-form social storytelling project.", ts: "2026-05-19 15:00" },
+    ],
+  },
+];
+
+// Map a counterpart user id to its session for the current Backer (Lucas) or Creator (Aria)
+export function findSessionForCounterpart(viewerRole: "backer" | "creator", counterpartId: string): string | null {
+  if (viewerRole === "backer") {
+    const s = SESSIONS.find((s) => s.backerId === "u_backer_01" && s.creatorId === counterpartId);
+    return s?.id ?? null;
+  } else {
+    const s = SESSIONS.find((s) => s.creatorId === "u_creator_01" && s.backerId === counterpartId);
+    return s?.id ?? null;
+  }
+}
