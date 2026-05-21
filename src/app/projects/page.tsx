@@ -1,5 +1,5 @@
 "use client";
-import { useStore } from "@/lib/store";
+import { useStore, flowToStages } from "@/lib/store";
 import AppShell from "@/components/layout/AppShell";
 import { ORDER_ACTIVE, ORDER_COMPLETED } from "@/lib/mock-data";
 import Link from "next/link";
@@ -8,10 +8,11 @@ import { useT } from "@/hooks/useT";
 import { Search, SlidersHorizontal, ArrowUpDown, ArrowUpRight, MoreVertical, Film } from "lucide-react";
 
 export default function ProjectsPage() {
-  const { activeRole, orderStages } = useStore();
+  const { activeRole, sessionFlows } = useStore();
   const t = useT();
 
-  const completedCount = orderStages.filter((s) => s.status === "accepted" || s.status === "auto_accepted").length;
+  const orderStages = flowToStages(sessionFlows["sess_001"]);
+  const completedCount = orderStages.filter((s) => s.status === "accepted").length;
   const totalStages = orderStages.length;
   const heroProgressPct = Math.round((completedCount / totalStages) * 100);
 
@@ -116,7 +117,7 @@ export default function ProjectsPage() {
                         const active = i === completedCount && s.status !== "pending";
                         return (
                           <div
-                            key={s.id}
+                            key={s.idx}
                             className={cn(
                               "flex-1 h-1 rounded-full",
                               done && "bg-primary",

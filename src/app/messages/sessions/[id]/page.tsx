@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Send, Paperclip, Star, Film, FileVideo, Bot, Sparkles, Plus, Check } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import FlowActionCard from "@/components/messages/FlowActionCard";
 import { cn } from "@/lib/utils";
 import { useT } from "@/hooks/useT";
 
@@ -29,8 +30,8 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
     showcaseEdits,
     sessionExtraMessages,
     appendSessionMessage,
-    sessionInvitations,
-    sendSessionInvitation,
+    sessionFlows,
+    startInvitation,
   } = useStore();
   const t = useT();
   const [input, setInput] = useState("");
@@ -56,9 +57,10 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
   const counterpartIsCreator = cp?.role === "creator";
   const counterpartIsAria = counterpartId === "u_creator_01";
 
-  const invitationSentLocal = !!sessionInvitations[session.id];
-  const invitationActive = session.invitationSent || invitationSentLocal;
-  const hasOrder = !!session.orderId;
+  const flow = sessionFlows[session.id];
+  const invitationActive = !!flow; // a flow exists once an invitation has been sent
+  const inCollab = !!flow && flow.phase !== "invitation" && flow.phase !== "rejected";
+  const hasOrder = inCollab && !!session.orderId;
 
   // 4-party group: backer, creator, Marlow (backer's agent), Wren (creator's agent)
   const groupMemberIds = [session.backerId, session.creatorId, "agent_marlow", "agent_wren"];
@@ -93,17 +95,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
   const handleSendInvitation = () => {
     const need = myNeeds.find((n) => n.id === selectedNeedId);
     if (!need) return;
-    sendSessionInvitation(session.id);
-    const now = new Date();
-    appendSessionMessage(session.id, {
-      id: `inv_${now.getTime()}`,
-      senderId: "system",
-      senderName: t.chat.spotlightBrand,
-      senderRole: "system",
-      text: t.chat.invitationCard(myParticipant.nickname, need.title),
-      ts: now.toLocaleTimeString("en", { hour: "2-digit", minute: "2-digit" }),
-      isCard: true,
-    });
+    startInvitation(session.id, need.title, need.budget);
     setInviteOpen(false);
     setSelectedNeedId(null);
     toast.success(t.chat.invitationToast);
@@ -197,6 +189,10 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
             >
               {t.chat.viewOrder}
             </Link>
+          ) : inCollab ? (
+            <span className="font-label text-[11px] uppercase tracking-widest bg-tertiary-container text-on-tertiary-container px-3 py-1.5 rounded-full">
+              {t.chat.listInCollab}
+            </span>
           ) : invitationActive ? (
             <span className="font-label text-[11px] uppercase tracking-widest bg-primary-container text-on-primary-container px-3 py-1.5 rounded-full">
               {t.chat.invitationSentBadge}
@@ -211,6 +207,9 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
           ) : null}
         </div>
       </div>
+
+      {/* Pinned lifecycle action card — stays at top until resolved */}
+      {flow && <FlowActionCard sessionId={session.id} viewerRole={activeRole} flow={flow} />}
 
       {/* Messages scroll area */}
       <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4">

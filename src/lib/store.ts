@@ -1,10 +1,69 @@
 "use client";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { ORDER_ACTIVE, Stage, StageStatus } from "./mock-data";
-import { Locale } from "./i18n";
+import { SESSIONS, PARTICIPANTS, type StageStatus } from "./mock-data";
+import { Locale, translations } from "./i18n";
 
 type Role = "backer" | "creator";
+
+/* ── Session lifecycle flow (invitation → deposit → stages → done) ───────── */
+
+export type FlowPhase = "invitation" | "rejected" | "deposit" | "submit" | "review" | "completed";
+
+export interface SessionFlow {
+  phase: FlowPhase;
+  stageIndex: number; // 0 = Deposit, 1 = Moodboard, 2 = Draft Cut, 3 = Revised Cut, 4 = Final Delivery
+  total: number; // order total in ¥
+  needTitle: string;
+  revisions: number;
+}
+
+export const STAGE_META = [
+  { name: "Deposit", ratio: 0.1 },
+  { name: "Moodboard", ratio: 0.25 },
+  { name: "Draft Cut", ratio: 0.25 },
+  { name: "Revised Cut", ratio: 0.2 },
+  { name: "Final Delivery", ratio: 0.2 },
+] as const;
+
+export type StageView = {
+  idx: number;
+  name: string;
+  ratio: number;
+  amountFiat: number;
+  status: StageStatus;
+};
+
+export const stageAmount = (total: number, idx: number) => Math.round(total * STAGE_META[idx].ratio);
+
+export function flowToStages(flow: SessionFlow | undefined): StageView[] {
+  const total = flow?.total ?? 4200;
+  return STAGE_META.map((m, idx) => {
+    let status: StageStatus = "pending";
+    if (flow && flow.phase !== "invitation" && flow.phase !== "rejected") {
+      if (flow.phase === "completed" || idx < flow.stageIndex) status = "accepted";
+      else if (idx === flow.stageIndex) status = flow.phase === "review" ? "submitted" : "in_progress";
+    }
+    return { idx, name: m.name, ratio: m.ratio, amountFiat: stageAmount(total, idx), status };
+  });
+}
+
+// Which role must act next for a given flow (drives the pinned card + sidebar highlight).
+export function flowActor(flow: SessionFlow | undefined): Role | null {
+  if (!flow) return null;
+  switch (flow.phase) {
+    case "invitation":
+      return "creator";
+    case "deposit":
+      return "backer";
+    case "submit":
+      return "creator";
+    case "review":
+      return "backer";
+    default:
+      return null;
+  }
+}
 
 interface AppState {
   // Auth
@@ -18,11 +77,15 @@ interface AppState {
   logout: () => void;
   switchRole: (role: Role) => void;
 
-  // Order simulation
-  orderStages: Stage[];
-  acceptStage: (stageId: string) => void;
-  rejectStage: (stageId: string) => void;
-  submitStage: (stageId: string) => void;
+  // Session lifecycle flow (shared by messages + order detail)
+  sessionFlows: Record<string, SessionFlow>;
+  startInvitation: (sessionId: string, needTitle: string, total: number) => void;
+  acceptInvitation: (sessionId: string) => void;
+  declineInvitation: (sessionId: string) => void;
+  payDeposit: (sessionId: string) => void;
+  submitDelivery: (sessionId: string) => void;
+  approveDelivery: (sessionId: string) => void;
+  requestRevision: (sessionId: string) => void;
 
   // Wallet simulation
   backerDiamond: number;
@@ -45,8 +108,6 @@ interface AppState {
   // Per-session messaging
   sessionExtraMessages: Record<string, Array<{ id: string; senderId: string; senderName: string; senderRole: string; text: string; ts: string; isCard?: boolean }>>;
   appendSessionMessage: (sessionId: string, msg: { id: string; senderId: string; senderName: string; senderRole: string; text: string; ts: string; isCard?: boolean }) => void;
-  sessionInvitations: Record<string, { sentAt: number }>;
-  sendSessionInvitation: (sessionId: string) => void;
 
   // Creator profile edits (overlays the mock CREATORS[0] for u_creator_01)
   creatorEdits: { nickname?: string; bio?: string; specialties?: string[]; rateFrom?: number; activeHours?: string; avatarUrl?: string };
@@ -92,6 +153,36 @@ export interface Distribution {
   takedownAt?: number;
 }
 
+// Build a system "card" message in the current locale and append it to a session.
+function appendCard(
+  state: { sessionExtraMessages: AppState["sessionExtraMessages"]; locale: Locale },
+  sessionId: string,
+  text: string
+): AppState["sessionExtraMessages"] {
+  const ts = new Date().toISOString().slice(0, 16).replace("T", " ");
+  const msg = {
+    id: `flw_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+    senderId: "system",
+    senderName: "Spotlight",
+    senderRole: "system",
+    text,
+    ts,
+    isCard: true,
+  };
+  return {
+    ...state.sessionExtraMessages,
+    [sessionId]: [...(state.sessionExtraMessages[sessionId] ?? []), msg],
+  };
+}
+
+function partyNames(sessionId: string) {
+  const s = SESSIONS.find((x) => x.id === sessionId);
+  return {
+    backer: (s && PARTICIPANTS[s.backerId]?.nickname) || "Backer",
+    creator: (s && PARTICIPANTS[s.creatorId]?.nickname) || "Creator",
+  };
+}
+
 export const useStore = create<AppState>()(
   persist(
     (set) => ({
@@ -104,35 +195,115 @@ export const useStore = create<AppState>()(
       logout: () => set({ isLoggedIn: false }),
       switchRole: (role) => set({ activeRole: role }),
 
-      orderStages: ORDER_ACTIVE.stages as Stage[],
+      // Seeded so the flagship NeoVision conversation (sess_001) starts at the
+      // invitation step and shares its lifecycle state with the order page.
+      sessionFlows: {
+        sess_001: {
+          phase: "invitation",
+          stageIndex: 0,
+          total: 4200,
+          needTitle: "Cinematic Brand Film for AI Startup — 90s Hero Video",
+          revisions: 0,
+        },
+      },
 
-      acceptStage: (stageId) =>
+      startInvitation: (sessionId, needTitle, total) =>
         set((s) => {
-          const stages = s.orderStages.map((st) => {
-            if (st.id === stageId) return { ...st, status: "accepted" as StageStatus, decidedAt: new Date().toISOString() };
-            return st;
-          });
-          const acceptedIdx = stages.findIndex((st) => st.id === stageId);
-          if (stages[acceptedIdx + 1]?.status === "pending") {
-            stages[acceptedIdx + 1] = { ...stages[acceptedIdx + 1], status: "in_progress" as StageStatus };
-          }
-          const released = stages.find((st) => st.id === stageId)?.amountFiat ?? 0;
-          return { orderStages: stages, creatorShell: s.creatorShell + released };
+          const f = translations[s.locale].flow;
+          const { backer } = partyNames(sessionId);
+          return {
+            sessionFlows: {
+              ...s.sessionFlows,
+              [sessionId]: { phase: "invitation", stageIndex: 0, total, needTitle, revisions: 0 },
+            },
+            sessionExtraMessages: appendCard(s, sessionId, f.sysInvited(backer, needTitle)),
+          };
         }),
 
-      rejectStage: (stageId) =>
-        set((s) => ({
-          orderStages: s.orderStages.map((st) =>
-            st.id === stageId ? { ...st, status: "rejected" as StageStatus } : st
-          ),
-        })),
+      acceptInvitation: (sessionId) =>
+        set((s) => {
+          const flow = s.sessionFlows[sessionId];
+          if (!flow) return {};
+          const f = translations[s.locale].flow;
+          const { creator } = partyNames(sessionId);
+          return {
+            sessionFlows: { ...s.sessionFlows, [sessionId]: { ...flow, phase: "deposit" } },
+            sessionExtraMessages: appendCard(s, sessionId, f.sysAccepted(creator)),
+          };
+        }),
 
-      submitStage: (stageId) =>
-        set((s) => ({
-          orderStages: s.orderStages.map((st) =>
-            st.id === stageId ? { ...st, status: "submitted" as StageStatus, submittedAt: new Date().toISOString() } : st
-          ),
-        })),
+      declineInvitation: (sessionId) =>
+        set((s) => {
+          const flow = s.sessionFlows[sessionId];
+          if (!flow) return {};
+          const f = translations[s.locale].flow;
+          const { creator } = partyNames(sessionId);
+          return {
+            sessionFlows: { ...s.sessionFlows, [sessionId]: { ...flow, phase: "rejected" } },
+            sessionExtraMessages: appendCard(s, sessionId, f.sysDeclined(creator)),
+          };
+        }),
+
+      payDeposit: (sessionId) =>
+        set((s) => {
+          const flow = s.sessionFlows[sessionId];
+          if (!flow || flow.phase !== "deposit") return {};
+          const f = translations[s.locale].flow;
+          const amount = stageAmount(flow.total, 0);
+          return {
+            sessionFlows: { ...s.sessionFlows, [sessionId]: { ...flow, phase: "submit", stageIndex: 1 } },
+            backerDiamond: Math.max(0, s.backerDiamond - amount),
+            sessionExtraMessages: appendCard(s, sessionId, f.sysDeposit(amount)),
+          };
+        }),
+
+      submitDelivery: (sessionId) =>
+        set((s) => {
+          const flow = s.sessionFlows[sessionId];
+          if (!flow || flow.phase !== "submit") return {};
+          const f = translations[s.locale].flow;
+          const { creator } = partyNames(sessionId);
+          const stageName = f.stageNames[flow.stageIndex];
+          return {
+            sessionFlows: { ...s.sessionFlows, [sessionId]: { ...flow, phase: "review" } },
+            sessionExtraMessages: appendCard(s, sessionId, f.sysSubmitted(creator, stageName)),
+          };
+        }),
+
+      approveDelivery: (sessionId) =>
+        set((s) => {
+          const flow = s.sessionFlows[sessionId];
+          if (!flow || flow.phase !== "review") return {};
+          const f = translations[s.locale].flow;
+          const amount = stageAmount(flow.total, flow.stageIndex);
+          const stageName = f.stageNames[flow.stageIndex];
+          const isLast = flow.stageIndex >= STAGE_META.length - 1;
+          const next: SessionFlow = isLast
+            ? { ...flow, phase: "completed" }
+            : { ...flow, phase: "submit", stageIndex: flow.stageIndex + 1, revisions: 0 };
+          let extra = appendCard(s, sessionId, f.sysApproved(stageName, amount));
+          if (isLast) extra = appendCard({ sessionExtraMessages: extra, locale: s.locale }, sessionId, f.sysCompleted);
+          return {
+            sessionFlows: { ...s.sessionFlows, [sessionId]: next },
+            creatorShell: s.creatorShell + amount,
+            sessionExtraMessages: extra,
+          };
+        }),
+
+      requestRevision: (sessionId) =>
+        set((s) => {
+          const flow = s.sessionFlows[sessionId];
+          if (!flow || flow.phase !== "review") return {};
+          const f = translations[s.locale].flow;
+          const stageName = f.stageNames[flow.stageIndex];
+          return {
+            sessionFlows: {
+              ...s.sessionFlows,
+              [sessionId]: { ...flow, phase: "submit", revisions: flow.revisions + 1 },
+            },
+            sessionExtraMessages: appendCard(s, sessionId, f.sysRevision(stageName)),
+          };
+        }),
 
       backerDiamond: 12400,
       creatorShell: 8650,
@@ -157,11 +328,6 @@ export const useStore = create<AppState>()(
             ...s.sessionExtraMessages,
             [sessionId]: [...(s.sessionExtraMessages[sessionId] ?? []), msg],
           },
-        })),
-      sessionInvitations: {},
-      sendSessionInvitation: (sessionId) =>
-        set((s) => ({
-          sessionInvitations: { ...s.sessionInvitations, [sessionId]: { sentAt: Date.now() } },
         })),
 
       creatorEdits: {},
@@ -196,7 +362,7 @@ export const useStore = create<AppState>()(
         showcaseEdits: state.showcaseEdits,
         distributionByAsset: state.distributionByAsset,
         sessionExtraMessages: state.sessionExtraMessages,
-        sessionInvitations: state.sessionInvitations,
+        sessionFlows: state.sessionFlows,
         agentMessages: state.agentMessages,
       }),
     }
