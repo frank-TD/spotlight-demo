@@ -9,7 +9,7 @@ import {
   PARTICIPANTS,
 } from "@/lib/mock-data";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Send, Paperclip, Star, Film, FileVideo } from "lucide-react";
+import { Send, Paperclip, Star, Film, FileVideo, Bot, Sparkles } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useT } from "@/hooks/useT";
@@ -18,7 +18,6 @@ const ARIA = CREATORS[0];
 const INDUSTRIES = ["AI Tech", "Brand Film", "Product Launch"];
 
 type ShowcaseItem = { id: string; title: string; duration: string; description?: string; fileName?: string };
-type ExtraMsg = { id: string; senderId: string; senderName: string; senderRole: string; text: string; ts: string; isCard?: boolean };
 
 export default function SessionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -34,6 +33,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
   const t = useT();
   const [input, setInput] = useState("");
   const [counterpartOpen, setCounterpartOpen] = useState(false);
+  const [participantsOpen, setParticipantsOpen] = useState(false);
 
   const session = SESSIONS.find((s) => s.id === id);
   if (!session) {
@@ -56,7 +56,16 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
   const invitationActive = session.invitationSent || invitationSentLocal;
   const hasOrder = !!session.orderId;
 
-  const baseMessages = (session.id === "sess_001" ? (ORDER_ACTIVE.messages as ExtraMsg[]) : session.messages) ?? [];
+  // 4-party group: backer, creator, Marlow (backer's agent), Wren (creator's agent)
+  const groupMemberIds = [session.backerId, session.creatorId, "agent_marlow", "agent_wren"];
+  const groupMembers = groupMemberIds.map((mid) => PARTICIPANTS[mid]).filter(Boolean);
+
+  const roleLabel = (p: (typeof PARTICIPANTS)[string]) => {
+    if (p.isAgent) return p.represents === "backer" ? t.chat.agentRoleBacker : t.chat.agentRoleCreator;
+    return p.role === "backer" ? t.chat.roleBacker : t.chat.roleCreator;
+  };
+
+  const baseMessages = session.messages ?? [];
   const extras = sessionExtraMessages[session.id] ?? [];
   const allMsgs = [...baseMessages, ...extras];
 
@@ -128,22 +137,42 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
       <div className="flex items-center gap-3 px-5 py-4 border-b border-outline-variant/30 shrink-0">
         <button
           type="button"
-          onClick={() => setCounterpartOpen(true)}
+          onClick={() => setParticipantsOpen(true)}
           className="flex items-center gap-3 rounded-xl px-2 py-1 -mx-2 hover:bg-surface-container transition-colors text-left"
-          aria-label="view counterpart profile"
+          aria-label="view group members"
         >
-          {ariaProfile.avatarUrl && counterpartIsAria ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={ariaProfile.avatarUrl} alt={ariaProfile.name} className="w-10 h-10 rounded-full object-cover" />
-          ) : (
-            <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold", cp?.avatarColor)}>
-              {cp?.avatar}
-            </div>
-          )}
+          {/* Stacked group avatars */}
+          <div className="flex -space-x-2.5 shrink-0">
+            {groupMembers.map((m) => {
+              const showImg = m.id === "u_creator_01" && ariaProfile.avatarUrl;
+              return showImg ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img
+                  key={m.id}
+                  src={ariaProfile.avatarUrl}
+                  alt={m.nickname}
+                  className="w-8 h-8 rounded-full object-cover border-2 border-surface-container-lowest"
+                />
+              ) : (
+                <div
+                  key={m.id}
+                  className={cn(
+                    "w-8 h-8 rounded-full flex items-center justify-center text-[10px] font-bold border-2 border-surface-container-lowest",
+                    m.avatarColor
+                  )}
+                >
+                  {m.avatar}
+                </div>
+              );
+            })}
+          </div>
           <div>
-            <p className="font-headline text-[18px] text-on-surface leading-tight">{cp?.nickname}</p>
-            <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-0.5">
-              {session.subject}
+            <p className="font-headline text-[18px] text-on-surface leading-tight">{session.subject}</p>
+            <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-0.5 flex items-center gap-1.5">
+              {t.chat.groupChat} · {t.chat.participants(groupMembers.length)}
+              <span className="inline-flex items-center gap-0.5 text-primary">
+                <Sparkles className="w-3 h-3" /> Marlow · Wren
+              </span>
             </p>
           </div>
         </button>
@@ -186,33 +215,66 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
             );
           }
           const isMe = msg.senderId === myId;
+          const sender = PARTICIPANTS[msg.senderId];
+          const isAgent = !!sender?.isAgent;
+          const isAriaSender = msg.senderId === "u_creator_01";
+          const onAvatarClick = () => {
+            if (isAgent) setParticipantsOpen(true);
+            else setCounterpartOpen(true);
+          };
           return (
             <div key={msg.id} className={cn("flex gap-2", isMe ? "flex-row-reverse" : "flex-row")}>
               {!isMe && (
                 <button
                   type="button"
-                  onClick={() => setCounterpartOpen(true)}
-                  className="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center text-xs font-bold shrink-0 hover:ring-2 hover:ring-primary/30 transition-all overflow-hidden"
-                  aria-label="view counterpart profile"
+                  onClick={onAvatarClick}
+                  className={cn(
+                    "w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold shrink-0 hover:ring-2 hover:ring-primary/30 transition-all overflow-hidden",
+                    sender?.avatarColor ?? "bg-primary-container text-on-primary-container"
+                  )}
+                  aria-label="view member"
                 >
-                  {ariaProfile.avatarUrl && counterpartIsAria ? (
+                  {isAriaSender && ariaProfile.avatarUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={ariaProfile.avatarUrl} alt={msg.senderName} className="w-8 h-8 object-cover" />
+                  ) : isAgent ? (
+                    <Bot className="w-4 h-4" />
                   ) : (
                     msg.senderName.split(" ").map((n: string) => n[0]).join("")
                   )}
                 </button>
               )}
-              <div className={cn("flex flex-col gap-1 max-w-[70%]", isMe ? "items-end" : "items-start")}>
+              <div className={cn("flex flex-col gap-1 max-w-[72%]", isMe ? "items-end" : "items-start")}>
                 {!isMe && (
-                  <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant px-1">
-                    {msg.senderName} · {msg.senderRole}
+                  <span className="font-label text-label-md uppercase tracking-wider px-1 flex items-center gap-1.5">
+                    <span className="text-on-surface-variant">{msg.senderName}</span>
+                    {isAgent ? (
+                      <span
+                        className={cn(
+                          "inline-flex items-center gap-0.5 text-[9px] px-1.5 py-0.5 rounded-full",
+                          sender?.represents === "backer"
+                            ? "bg-secondary-container text-on-secondary-container"
+                            : "bg-tertiary-container text-on-tertiary-container"
+                        )}
+                      >
+                        <Bot className="w-2.5 h-2.5" /> {roleLabel(sender)}
+                      </span>
+                    ) : (
+                      <span className="text-on-surface-variant/70">· {msg.senderRole}</span>
+                    )}
                   </span>
                 )}
                 <div
                   className={cn(
                     "rounded-2xl px-4 py-2.5 font-body text-sm leading-relaxed",
-                    isMe ? "bg-primary text-on-primary rounded-br-sm" : "bg-surface-container text-on-surface rounded-bl-sm"
+                    isMe
+                      ? "bg-primary text-on-primary rounded-br-sm"
+                      : isAgent
+                        ? cn(
+                            "bg-surface-container-high text-on-surface rounded-bl-sm border-l-2",
+                            sender?.represents === "backer" ? "border-secondary" : "border-tertiary"
+                          )
+                        : "bg-surface-container text-on-surface rounded-bl-sm"
                   )}
                 >
                   {msg.text}
@@ -245,6 +307,82 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
           <Send className="w-4 h-4" />
         </button>
       </div>
+
+      {/* Group members dialog */}
+      <Dialog open={participantsOpen} onOpenChange={setParticipantsOpen}>
+        <DialogContent className="sm:max-w-md max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="font-headline text-[20px]">
+              {t.chat.participantsTitle} · {t.chat.participants(groupMembers.length)}
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-2 space-y-2">
+            {groupMembers.map((m) => {
+              const isHumanCounterpart = !m.isAgent && m.id === counterpartId;
+              const showImg = m.id === "u_creator_01" && ariaProfile.avatarUrl;
+              return (
+                <div
+                  key={m.id}
+                  className="flex items-start gap-3 p-3 rounded-xl border border-outline-variant/30 bg-surface-container-low"
+                >
+                  {showImg ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={ariaProfile.avatarUrl} alt={m.nickname} className="w-10 h-10 rounded-full object-cover shrink-0" />
+                  ) : (
+                    <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0", m.avatarColor)}>
+                      {m.isAgent ? <Bot className="w-4 h-4" /> : m.avatar}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-body font-bold text-on-surface text-sm">{m.nickname}</p>
+                      <span
+                        className={cn(
+                          "font-label text-[10px] uppercase tracking-widest px-2 py-0.5 rounded",
+                          m.isAgent
+                            ? m.represents === "backer"
+                              ? "bg-secondary-container text-on-secondary-container"
+                              : "bg-tertiary-container text-on-tertiary-container"
+                            : "bg-primary-container text-on-primary-container"
+                        )}
+                      >
+                        {roleLabel(m)}
+                      </span>
+                      {m.id === myId && (
+                        <span className="font-label text-[10px] uppercase tracking-widest text-primary">· YOU</span>
+                      )}
+                    </div>
+                    {m.isAgent && (
+                      <p className="font-body text-xs text-on-surface-variant mt-1 leading-relaxed">
+                        {m.nickname === "Marlow" ? t.chat.marlowFunction : t.chat.wrenFunction}
+                      </p>
+                    )}
+                    {isHumanCounterpart && (
+                      <button
+                        onClick={() => {
+                          setParticipantsOpen(false);
+                          setCounterpartOpen(true);
+                        }}
+                        className="mt-2 font-label text-label-md uppercase tracking-wider text-primary hover:underline"
+                      >
+                        {t.chat.viewFullProfile}
+                      </button>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <DialogFooter>
+            <button
+              onClick={() => setParticipantsOpen(false)}
+              className="font-label text-label-md uppercase tracking-wider px-5 py-2.5 bg-primary text-on-primary rounded-lg hover:opacity-90 transition-opacity"
+            >
+              {t.chat.closeProfile}
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Counterpart profile dialog */}
       <Dialog open={counterpartOpen} onOpenChange={setCounterpartOpen}>

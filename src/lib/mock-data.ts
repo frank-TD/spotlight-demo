@@ -438,6 +438,8 @@ export const PARTICIPANTS: Record<string, {
   avatar: string;
   avatarColor: string;
   role: "backer" | "creator";
+  isAgent?: boolean;
+  represents?: string;
 }> = {
   u_backer_01: { id: "u_backer_01", nickname: "Lucas Chen", avatar: "LC", avatarColor: "bg-primary-container text-on-primary-container", role: "backer" },
   u_backer_02: { id: "u_backer_02", nickname: "Priya Mehta", avatar: "PM", avatarColor: "bg-amber-100 text-amber-700", role: "backer" },
@@ -445,6 +447,8 @@ export const PARTICIPANTS: Record<string, {
   u_creator_02: { id: "u_creator_02", nickname: "Marco Reyes", avatar: "MR", avatarColor: "bg-sky-100 text-sky-700", role: "creator" },
   u_creator_03: { id: "u_creator_03", nickname: "Yuki Tanaka", avatar: "YT", avatarColor: "bg-emerald-100 text-emerald-700", role: "creator" },
   u_creator_04: { id: "u_creator_04", nickname: "Sofia Okonkwo", avatar: "SO", avatarColor: "bg-amber-100 text-amber-700", role: "creator" },
+  agent_marlow: { id: "agent_marlow", nickname: "Marlow", avatar: "ML", avatarColor: "bg-secondary text-on-secondary", role: "backer", isAgent: true, represents: "backer" },
+  agent_wren: { id: "agent_wren", nickname: "Wren", avatar: "WR", avatarColor: "bg-tertiary text-on-tertiary", role: "creator", isAgent: true, represents: "creator" },
 };
 
 // ── Sessions ─────────────────────────────────────────────────────────────────
@@ -462,6 +466,10 @@ export interface Session {
   messages: ExtraMsg[];
 }
 
+// Every session is a 4-party group: backer, creator, Marlow (backer's agent), Wren (creator's agent)
+const M = (id: string, ts: string, text: string): ExtraMsg => ({ id, senderId: "agent_marlow", senderName: "Marlow", senderRole: "Backer's Agent", text, ts });
+const W = (id: string, ts: string, text: string): ExtraMsg => ({ id, senderId: "agent_wren", senderName: "Wren", senderRole: "Creator's Agent", text, ts });
+
 export const SESSIONS: Session[] = [
   {
     id: "sess_001",
@@ -471,7 +479,16 @@ export const SESSIONS: Session[] = [
     orderId: "ord_001",
     invitationSent: true,
     lastUpdated: "2026-05-17 19:43",
-    messages: [],
+    messages: [
+      M("ms1_1", "2026-05-13 09:10", "Ran the NeoVision brief against Lucas's mandate. Aria is a clean fit — 98% completion, 47 projects, cinematic-narrative specialty. Comparable deals settled ¥3,600–4,200. I'd open at ¥3,800, 21-day delivery."),
+      W("ms1_2", "2026-05-13 10:02", "Appreciate the read, Marlow. Aria's cinematic work is premium-tier — floor is ¥4,000. Hard walk-aways: milestone escrow, 3 revision rounds per stage, and no AI-only final delivery (hybrid pipeline)."),
+      M("ms1_3", "2026-05-13 11:20", "Lucas can meet ¥4,200 across 5 milestones with per-stage escrow and 3 revisions. Copyright buyout for launch markets; Aria retains portfolio rights. Sending terms to both principals."),
+      W("ms1_4", "2026-05-13 11:45", "Accepted on Aria's behalf — ¥4,200, 5 milestones, escrow, 3 revisions, hybrid pipeline, portfolio rights retained. Over to you both to sign."),
+      { id: "ms1_5", senderId: "u_backer_01", senderName: "Lucas Chen", senderRole: "Backer", text: "Terms look great. Confirmed — let's start.", ts: "2026-05-14 09:30" },
+      { id: "ms1_6", senderId: "u_creator_01", senderName: "Aria Song", senderRole: "Creator", text: "Excited to work on this! I've reviewed the brief — cold open on a single cursor blink, building into a workflow montage. That should hit the tone perfectly.", ts: "2026-05-14 15:30" },
+      { id: "ms1_7", senderId: "system", senderName: "Spotlight", senderRole: "system", text: "Stage 1 (Deposit) has been paid. Project officially started.", ts: "2026-05-14 16:00", isCard: true },
+      { id: "ms1_8", senderId: "u_creator_01", senderName: "Aria Song", senderRole: "Creator", text: "Moodboard and reference pack uploaded. Palette near-monochrome with a single warm amber accent, music direction ambient electronic.", ts: "2026-05-16 14:24" },
+    ],
   },
   {
     id: "sess_002",
@@ -480,10 +497,15 @@ export const SESSIONS: Session[] = [
     subject: "Anime opener inquiry",
     orderId: null,
     invitationSent: false,
-    lastUpdated: "2026-05-18 11:20",
+    lastUpdated: "2026-05-18 11:40",
     messages: [
       { id: "ms2_1", senderId: "u_backer_01", senderName: "Lucas Chen", senderRole: "Backer", text: "Hi Yuki, your character animation reel is stunning. We're planning a 30s anime opener for a product launch.", ts: "2026-05-18 10:45" },
-      { id: "ms2_2", senderId: "u_creator_03", senderName: "Yuki Tanaka", senderRole: "Creator", text: "Thanks Lucas! Happy to discuss. Could you share more about the product, tone references, and timeline?", ts: "2026-05-18 11:20" },
+      { id: "ms2_2", senderId: "u_creator_03", senderName: "Yuki Tanaka", senderRole: "Creator", text: "Thanks Lucas! Happy to discuss. Could you share more about the product, tone references, and timeline?", ts: "2026-05-18 11:00" },
+      M("ms2_3", "2026-05-18 11:12", "I've matched the brief: Yuki is 100% completion, 97% on-time across 31 projects — a strong fit. 30s animated comparables landed ¥2,200–2,600. Opening at ¥2,300, 18-day delivery."),
+      W("ms2_4", "2026-05-18 11:20", "Numbers noted, Marlow. Yuki's original character animation carries a premium — floor ¥2,800. One hard walk-away: hybrid pipeline only (no AI-only output), revisions capped at 2 rounds."),
+      M("ms2_5", "2026-05-18 11:28", "Lucas can move to ¥2,600 with a 3-day timeline buffer; hybrid pipeline and 2-round cap accepted. Buyout limited to launch markets — Yuki keeps portfolio rights."),
+      W("ms2_6", "2026-05-18 11:34", "That works: ¥2,600, 21-day delivery, hybrid pipeline, 2 revisions, launch-market buyout, portfolio rights retained. Forwarding to both principals for sign-off."),
+      { id: "ms2_7", senderId: "u_creator_03", senderName: "Yuki Tanaka", senderRole: "Creator", text: "Terms look great on my end — excited to start!", ts: "2026-05-18 11:40" },
     ],
   },
   {
@@ -493,10 +515,12 @@ export const SESSIONS: Session[] = [
     subject: "Smart-home product launch film",
     orderId: null,
     invitationSent: false,
-    lastUpdated: "2026-05-19 09:15",
+    lastUpdated: "2026-05-19 09:30",
     messages: [
       { id: "ms3_1", senderId: "u_backer_01", senderName: "Lucas Chen", senderRole: "Backer", text: "Hi Marco — planning a smart-home product launch, your commercial work fits the brief perfectly.", ts: "2026-05-19 09:00" },
-      { id: "ms3_2", senderId: "u_creator_02", senderName: "Marco Reyes", senderRole: "Creator", text: "Hi Lucas, sounds great. Send me the brief and I'll come back with treatment ideas tomorrow.", ts: "2026-05-19 09:15" },
+      M("ms3_2", "2026-05-19 09:08", "Marco's portfolio median is ¥3,500; this 60s commercial sits right at it. I'd open at ¥3,200 to leave room, 14-day delivery."),
+      W("ms3_3", "2026-05-19 09:18", "Marco holds at ¥3,500 for branded commercial work. Walk-away: usage rights are paid media only — organic social is included, but broadcast TV is a separate license."),
+      { id: "ms3_4", senderId: "u_creator_02", senderName: "Marco Reyes", senderRole: "Creator", text: "Send me the brief and I'll come back with treatment ideas tomorrow.", ts: "2026-05-19 09:30" },
     ],
   },
   {
@@ -506,10 +530,12 @@ export const SESSIONS: Session[] = [
     subject: "3-episode anime short",
     orderId: null,
     invitationSent: false,
-    lastUpdated: "2026-05-15 14:00",
+    lastUpdated: "2026-05-15 14:10",
     messages: [
       { id: "ms4_1", senderId: "u_backer_02", senderName: "Priya Mehta", senderRole: "Backer", text: "Hi Aria — I'm scoping a 3-episode anime short for an original IP. Your storytelling resonates with what we're after.", ts: "2026-05-15 13:30" },
-      { id: "ms4_2", senderId: "u_creator_01", senderName: "Aria Song", senderRole: "Creator", text: "Hi Priya, character-driven sci-fi anime is exactly my space. Let's set up a 30-min sync to review the IP bible.", ts: "2026-05-15 14:00" },
+      { id: "ms4_2", senderId: "u_creator_01", senderName: "Aria Song", senderRole: "Creator", text: "Hi Priya, character-driven sci-fi anime is exactly my space. Let's set up a 30-min sync to review the IP bible.", ts: "2026-05-15 13:50" },
+      M("ms4_3", "2026-05-15 14:00", "Three 8-min episodes is a larger commitment — Priya's mandate caps episodic at ¥9,800. I'd structure this as 3 milestones, ¥3,200/episode."),
+      W("ms4_4", "2026-05-15 14:10", "Aria can do ¥9,800 total, but the IP walk-away stands: original character designs remain Aria's IP unless a separate buyout is agreed. NDA fine."),
     ],
   },
   {
@@ -519,9 +545,10 @@ export const SESSIONS: Session[] = [
     subject: "Documentary project",
     orderId: null,
     invitationSent: false,
-    lastUpdated: "2026-05-19 15:00",
+    lastUpdated: "2026-05-19 15:10",
     messages: [
       { id: "ms5_1", senderId: "u_backer_01", senderName: "Lucas Chen", senderRole: "Backer", text: "Hi Sofia — looking at your Invisible Cities doc, I'd love to discuss a short-form social storytelling project.", ts: "2026-05-19 15:00" },
+      M("ms5_2", "2026-05-19 15:10", "Sofia's documentary rate starts at ¥1,800/project — well within budget. I'll wait for your brief before proposing terms to Wren."),
     ],
   },
 ];
