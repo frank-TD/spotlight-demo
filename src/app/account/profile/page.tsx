@@ -1,15 +1,23 @@
 "use client";
 import { useStore } from "@/lib/store";
+import { useRouter } from "next/navigation";
 import AppShell from "@/components/layout/AppShell";
 import { CURRENT_USER_BACKER, CURRENT_USER_CREATOR } from "@/lib/mock-data";
-import { CheckCircle2 } from "lucide-react";
+import { CheckCircle2, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { useT } from "@/hooks/useT";
 
 export default function ProfilePage() {
-  const { activeRole } = useStore();
+  const { activeRole, logout } = useStore();
+  const router = useRouter();
   const t = useT();
   const user = activeRole === "backer" ? CURRENT_USER_BACKER : CURRENT_USER_CREATOR;
+
+  const handleLogout = () => {
+    logout();
+    toast.success(t.profile.loggedOutToast);
+    router.push("/login");
+  };
 
   return (
     <AppShell>
@@ -84,6 +92,22 @@ export default function ProfilePage() {
             <span className="flex items-center gap-1 font-label text-[10px] uppercase tracking-widest bg-tertiary-container text-on-tertiary-container px-3 py-1.5 rounded-full">
               <CheckCircle2 className="w-3 h-3" /> {t.profile.verified}
             </span>
+          </div>
+
+          {/* Account / logout */}
+          <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-6">
+            <h2 className="font-label text-label-md uppercase tracking-[0.2em] text-on-surface-variant mb-4">
+              {t.profile.accountSection}
+            </h2>
+            <div className="flex items-center justify-between gap-4">
+              <p className="font-body text-sm text-on-surface-variant">{t.profile.logoutDesc}</p>
+              <button
+                onClick={handleLogout}
+                className="flex items-center gap-2 font-label text-label-md uppercase tracking-wider text-error border border-error/40 px-5 py-2.5 rounded-lg hover:bg-error-container/40 transition-colors shrink-0"
+              >
+                <LogOut className="w-4 h-4" /> {t.nav.signOut}
+              </button>
+            </div>
           </div>
         </div>
       </div>
