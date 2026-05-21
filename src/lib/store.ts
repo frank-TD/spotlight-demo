@@ -48,6 +48,15 @@ export function flowToStages(flow: SessionFlow | undefined): StageView[] {
   });
 }
 
+export interface BankCard {
+  id: string;
+  bankCode: string; // resolves to a localized bank name
+  network: string; // "UnionPay" | "Visa" | "Mastercard"
+  last4: string;
+  holder: string;
+  isDefault: boolean;
+}
+
 // Which role must act next for a given flow (drives the pinned card + sidebar highlight).
 export function flowActor(flow: SessionFlow | undefined): Role | null {
   if (!flow) return null;
@@ -93,6 +102,12 @@ interface AppState {
   recharge: (amount: number) => void;
   withdraw: (amount: number) => void;
   spendDiamond: (amount: number) => void;
+
+  // Bank cards
+  bankCards: BankCard[];
+  addBankCard: (card: Omit<BankCard, "id" | "isDefault">) => void;
+  removeBankCard: (id: string) => void;
+  setDefaultBankCard: (id: string) => void;
 
   // Agent float
   agentOpen: boolean;
@@ -312,6 +327,19 @@ export const useStore = create<AppState>()(
       withdraw: (amount) => set((s) => ({ creatorShell: s.creatorShell - amount })),
       spendDiamond: (amount) => set((s) => ({ backerDiamond: s.backerDiamond - amount })),
 
+      bankCards: [
+        { id: "bc_1", bankCode: "cmb", network: "UnionPay", last4: "8829", holder: "Lucas Chen", isDefault: true },
+        { id: "bc_2", bankCode: "icbc", network: "Visa", last4: "4012", holder: "Lucas Chen", isDefault: false },
+      ],
+      addBankCard: (card) =>
+        set((s) => {
+          const isFirst = s.bankCards.length === 0;
+          return { bankCards: [...s.bankCards, { ...card, id: `bc_${Date.now()}`, isDefault: isFirst }] };
+        }),
+      removeBankCard: (id) => set((s) => ({ bankCards: s.bankCards.filter((c) => c.id !== id) })),
+      setDefaultBankCard: (id) =>
+        set((s) => ({ bankCards: s.bankCards.map((c) => ({ ...c, isDefault: c.id === id })) })),
+
       agentOpen: false,
       toggleAgent: () => set((s) => ({ agentOpen: !s.agentOpen })),
       agentMessages: [],
@@ -363,6 +391,7 @@ export const useStore = create<AppState>()(
         distributionByAsset: state.distributionByAsset,
         sessionExtraMessages: state.sessionExtraMessages,
         sessionFlows: state.sessionFlows,
+        bankCards: state.bankCards,
         agentMessages: state.agentMessages,
       }),
     }

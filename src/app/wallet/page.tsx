@@ -3,23 +3,27 @@ import { useState } from "react";
 import { useStore } from "@/lib/store";
 import AppShell from "@/components/layout/AppShell";
 import { WALLET_TRANSACTIONS, BACKER_WALLET_TRANSACTIONS } from "@/lib/mock-data";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { ArrowUpRight, ArrowDownLeft, Plus, Minus } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { ArrowUpRight, ArrowDownLeft, Plus, Minus, CreditCard, Star, Trash2, AlertTriangle } from "lucide-react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useT } from "@/hooks/useT";
+import type { BankCard } from "@/lib/store";
 
 const AMOUNTS = [1000, 3000, 5000, 10000];
 
 export default function WalletPage() {
-  const { activeRole, backerDiamond, creatorShell, recharge, withdraw } = useStore();
+  const { activeRole, backerDiamond, creatorShell, recharge, withdraw, bankCards, removeBankCard, setDefaultBankCard } = useStore();
   const t = useT();
   const [rechargeOpen, setRechargeOpen] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
   const [amount, setAmount] = useState(3000);
   const [processing, setProcessing] = useState(false);
+  const [unbindTarget, setUnbindTarget] = useState<BankCard | null>(null);
 
   const txs = activeRole === "backer" ? BACKER_WALLET_TRANSACTIONS : WALLET_TRANSACTIONS;
+  const bankName = (code: string) => t.wallet.bankNames[code] ?? t.wallet.bankNames.generic;
 
   const handleRecharge = async () => {
     setProcessing(true);
@@ -109,6 +113,74 @@ export default function WalletPage() {
                 </button>
               </div>
             </>
+          )}
+        </div>
+
+        {/* Bank card management */}
+        <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl overflow-hidden mb-10">
+          <div className="px-6 py-5 border-b border-outline-variant/30 flex items-center justify-between gap-3">
+            <div>
+              <h2 className="font-label text-label-md uppercase tracking-[0.2em] text-on-surface-variant flex items-center gap-2">
+                <CreditCard className="w-4 h-4" /> {t.wallet.bankCardsTitle}
+              </h2>
+              <p className="font-body text-xs text-on-surface-variant/70 mt-1">{t.wallet.bankCardsManage}</p>
+            </div>
+            <Link
+              href="/wallet/bank-cards/new"
+              className="flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider px-4 py-2 bg-primary text-on-primary rounded-lg hover:opacity-90 transition-opacity shrink-0"
+            >
+              <Plus className="w-3.5 h-3.5" /> {t.wallet.addCard}
+            </Link>
+          </div>
+          {bankCards.length === 0 ? (
+            <p className="font-body text-sm text-on-surface-variant text-center py-10">{t.wallet.noCards}</p>
+          ) : (
+            <div className="divide-y divide-outline-variant/30">
+              {bankCards.map((card) => (
+                <div key={card.id} className="flex items-center gap-4 px-6 py-4">
+                  <div className="w-11 h-11 rounded-xl bg-primary-container text-on-primary-container flex items-center justify-center shrink-0">
+                    <CreditCard className="w-5 h-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <p className="font-body font-bold text-on-surface text-sm">{bankName(card.bankCode)}</p>
+                      <span className="font-label text-[10px] uppercase tracking-widest bg-surface-container text-on-surface-variant px-2 py-0.5 rounded">
+                        {card.network}
+                      </span>
+                      {card.isDefault && (
+                        <span className="flex items-center gap-1 font-label text-[10px] uppercase tracking-widest bg-tertiary-container text-on-tertiary-container px-2 py-0.5 rounded">
+                          <Star className="w-2.5 h-2.5 fill-current" /> {t.wallet.defaultBadge}
+                        </span>
+                      )}
+                    </div>
+                    <p className="font-body text-xs text-on-surface-variant mt-0.5 tracking-wider">
+                      •••• •••• •••• {card.last4} · {card.holder}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    {!card.isDefault && (
+                      <button
+                        onClick={() => {
+                          setDefaultBankCard(card.id);
+                          toast.success(t.wallet.cardDefaultSetToast);
+                        }}
+                        className="font-label text-label-md uppercase tracking-wider px-3 py-1.5 border border-outline-variant rounded-lg text-on-surface-variant hover:border-primary/40 hover:text-on-surface transition-colors"
+                      >
+                        {t.wallet.setDefault}
+                      </button>
+                    )}
+                    <button
+                      onClick={() => setUnbindTarget(card)}
+                      className="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant text-on-surface-variant hover:border-error/40 hover:text-error transition-colors"
+                      aria-label={t.wallet.unbind}
+                      title={t.wallet.unbind}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
           )}
         </div>
 
@@ -268,6 +340,59 @@ export default function WalletPage() {
               {processing ? t.wallet.processing : t.wallet.withdrawBtn(amount)}
             </button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Unbind bank card dialog */}
+      <Dialog open={!!unbindTarget} onOpenChange={(o) => !o && setUnbindTarget(null)}>
+        <DialogContent className="sm:max-w-md">
+          {unbindTarget?.isDefault ? (
+            <>
+              <DialogHeader>
+                <DialogTitle className="font-headline text-[20px] flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-error" /> {t.wallet.unbindDefaultTitle}
+                </DialogTitle>
+                <DialogDescription className="font-body text-sm text-on-surface-variant">
+                  {t.wallet.unbindDefaultMsg}
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <button
+                  onClick={() => setUnbindTarget(null)}
+                  className="font-label text-label-md uppercase tracking-wider px-5 py-2.5 bg-primary text-on-primary rounded-lg hover:opacity-90 transition-opacity"
+                >
+                  {t.common.cancel}
+                </button>
+              </DialogFooter>
+            </>
+          ) : (
+            <>
+              <DialogHeader>
+                <DialogTitle className="font-headline text-[20px]">{t.wallet.unbindTitle}</DialogTitle>
+                <DialogDescription className="font-body text-sm text-on-surface-variant">
+                  {unbindTarget && t.wallet.unbindMsg(bankName(unbindTarget.bankCode), unbindTarget.last4)}
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <button
+                  onClick={() => setUnbindTarget(null)}
+                  className="font-label text-label-md uppercase tracking-wider px-4 py-2 border border-outline-variant rounded-lg hover:bg-surface-container-high transition-colors"
+                >
+                  {t.common.cancel}
+                </button>
+                <button
+                  onClick={() => {
+                    if (unbindTarget) removeBankCard(unbindTarget.id);
+                    setUnbindTarget(null);
+                    toast.success(t.wallet.cardRemovedToast);
+                  }}
+                  className="font-label text-label-md uppercase tracking-wider px-4 py-2 bg-error text-on-error rounded-lg hover:opacity-90 transition-opacity"
+                >
+                  {t.wallet.unbindBtn}
+                </button>
+              </DialogFooter>
+            </>
+          )}
         </DialogContent>
       </Dialog>
     </AppShell>
