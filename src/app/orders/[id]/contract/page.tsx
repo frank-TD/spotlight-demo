@@ -2,38 +2,76 @@
 import { use, useState } from "react";
 import { useRouter } from "next/navigation";
 import AppShell from "@/components/layout/AppShell";
-import { ORDER_ACTIVE } from "@/lib/mock-data";
+import { ORDER_ACTIVE, SESSIONS } from "@/lib/mock-data";
+import { useStore, STAGE_META, stageAmount } from "@/lib/store";
 import { ArrowLeft, Check, Shield, FileText } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
 import { useT } from "@/hooks/useT";
 
+const COPYRIGHT_CHOICES = ["Buyout", "Sub-licensable", "Licensed"];
+
 export default function ContractPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const router = useRouter();
   const t = useT();
-  const [backerSigned, setBackerSigned] = useState(false);
-  const [creatorSigned] = useState(true);
-  const [confirming, setConfirming] = useState(false);
+  const { sessionFlows, submitContract, confirmContract } = useStore();
 
   const order = ORDER_ACTIVE;
+  const sessionId = SESSIONS.find((s) => s.orderId === id)?.id ?? "sess_001";
+  const flow = sessionFlows[sessionId];
+
+  const isDraft = flow?.phase === "contract_draft";
+  const isConfirm = flow?.phase === "contract_confirm";
+
+  // Editable terms (draft mode); otherwise reflect what the flow has stored.
+  const [total, setTotal] = useState(flow?.total ?? order.totalFiat);
+  const [copyright, setCopyright] = useState(flow?.terms?.copyright ?? order.copyright);
+  const [revisionLimit, setRevisionLimit] = useState(flow?.terms?.revisionLimit ?? 3);
+  const [autoAcceptDays, setAutoAcceptDays] = useState(flow?.terms?.autoAcceptDays ?? 7);
+  const [busy, setBusy] = useState(false);
+
+  // Display values: draft uses live edits, others use stored flow terms.
+  const dTotal = isDraft ? total : flow?.total ?? order.totalFiat;
+  const dCopyright = isDraft ? copyright : flow?.terms?.copyright ?? order.copyright;
+  const dRevisions = isDraft ? revisionLimit : flow?.terms?.revisionLimit ?? 3;
+  const dDays = isDraft ? autoAcceptDays : flow?.terms?.autoAcceptDays ?? 7;
+
+  const backerSigned = !isDraft; // backer signs by submitting the draft
+  const creatorSigned = !isDraft && !isConfirm; // creator signs by confirming
+
+  const handleSubmitDraft = async () => {
+    setBusy(true);
+    await new Promise((r) => setTimeout(r, 500));
+    submitContract(sessionId, { total, copyright, revisionLimit, autoAcceptDays });
+    toast.success(t.contract.submittedToast);
+    router.push(`/messages/sessions/${sessionId}`);
+  };
 
   const handleConfirm = async () => {
-    setConfirming(true);
-    setBackerSigned(true);
-    await new Promise((r) => setTimeout(r, 800));
-    toast.success(t.contract.confirmedToast);
-    setTimeout(() => router.push(`/orders/${id}`), 600);
+    setBusy(true);
+    await new Promise((r) => setTimeout(r, 500));
+    confirmContract(sessionId);
+    toast.success(t.flow.toastContractConfirmed);
+    router.push(`/messages/sessions/${sessionId}`);
   };
+
+  const headerTitle = isDraft ? t.contract.draftTitle : isConfirm ? t.contract.confirmTitle : t.contract.title;
+  const headerSub = isDraft ? t.contract.draftSubtitle : isConfirm ? t.contract.confirmSubtitle : t.contract.subtitle;
+  const backHref = isDraft || isConfirm ? `/messages/sessions/${sessionId}` : `/orders/${id}`;
+  const backLabel = isDraft || isConfirm ? t.contract.backToConversation : t.contract.backToOrder;
+
+  const fieldCls =
+    "px-3 py-1.5 bg-surface-container-low border border-outline-variant rounded-lg focus:border-primary focus:outline-none font-body text-sm text-right w-36";
 
   return (
     <AppShell>
       <div className="max-w-3xl mx-auto px-6 md:px-12 pt-8 pb-16">
         <Link
-          href={`/orders/${id}`}
+          href={backHref}
           className="inline-flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider text-on-surface-variant hover:text-on-surface mb-8"
         >
-          <ArrowLeft className="w-4 h-4" /> {t.contract.backToOrder}
+          <ArrowLeft className="w-4 h-4" /> {backLabel}
         </Link>
 
         <div className="flex items-center gap-4 mb-10">
@@ -41,8 +79,8 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
             <FileText className="w-5 h-5 text-on-primary-container" />
           </div>
           <div>
-            <h1 className="font-headline text-headline-md text-on-surface">{t.contract.title}</h1>
-            <p className="font-body text-sm text-on-surface-variant italic mt-1">{t.contract.subtitle}</p>
+            <h1 className="font-headline text-headline-md text-on-surface">{headerTitle}</h1>
+            <p className="font-body text-sm text-on-surface-variant italic mt-1">{headerSub}</p>
           </div>
         </div>
 
@@ -78,24 +116,58 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
           </div>
         </div>
 
-        {/* Project summary */}
+        {/* Terms — editable in draft mode */}
         <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-6 mb-5">
           <h2 className="font-label text-label-md uppercase tracking-[0.2em] text-on-surface-variant mb-4">
-            {t.contract.projectSummary}
+            {isDraft ? t.contract.editTerms : t.contract.projectSummary}
           </h2>
           <div className="space-y-3 font-body text-sm">
-            {[
-              [t.contract.projectLabel, order.title],
-              [t.contract.totalAmount, `¥${order.totalFiat.toLocaleString()}`],
-              [t.contract.copyrightLabel, order.copyright],
-              [t.contract.revisionLimit, t.contract.revisionLimitValue],
-              [t.contract.autoAcceptance, t.contract.autoAcceptanceValue],
-            ].map(([k, v]) => (
-              <div key={k} className="flex justify-between">
-                <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">{k}</span>
-                <span className="font-bold text-on-surface text-right ml-4">{v}</span>
-              </div>
-            ))}
+            <div className="flex justify-between items-center">
+              <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">{t.contract.projectLabel}</span>
+              <span className="font-bold text-on-surface text-right ml-4">{order.title}</span>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">{t.contract.totalAmount}</span>
+              {isDraft ? (
+                <input type="number" value={total} onChange={(e) => setTotal(Math.max(0, Number(e.target.value)))} className={fieldCls} />
+              ) : (
+                <span className="font-bold text-on-surface">¥{dTotal.toLocaleString()}</span>
+              )}
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">{t.contract.copyrightLabel}</span>
+              {isDraft ? (
+                <select value={copyright} onChange={(e) => setCopyright(e.target.value)} className={fieldCls + " cursor-pointer"}>
+                  {COPYRIGHT_CHOICES.map((c) => (
+                    <option key={c} value={c}>{c}</option>
+                  ))}
+                </select>
+              ) : (
+                <span className="font-bold text-on-surface">{dCopyright}</span>
+              )}
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">{t.contract.revisionLimit}</span>
+              {isDraft ? (
+                <div className="flex items-center gap-2">
+                  <input type="number" value={revisionLimit} onChange={(e) => setRevisionLimit(Math.max(0, Number(e.target.value)))} className={fieldCls + " w-20"} />
+                  <span className="text-on-surface-variant text-xs">{t.contract.revisionsPerStage}</span>
+                </div>
+              ) : (
+                <span className="font-bold text-on-surface">{dRevisions} {t.contract.revisionsPerStage}</span>
+              )}
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">{t.contract.autoAcceptance}</span>
+              {isDraft ? (
+                <div className="flex items-center gap-2">
+                  <input type="number" value={autoAcceptDays} onChange={(e) => setAutoAcceptDays(Math.max(1, Number(e.target.value)))} className={fieldCls + " w-20"} />
+                  <span className="text-on-surface-variant text-xs">{t.contract.daysAfterSubmission}</span>
+                </div>
+              ) : (
+                <span className="font-bold text-on-surface">{dDays} {t.contract.daysAfterSubmission}</span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -105,23 +177,20 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
             {t.contract.paymentSchedule}
           </h2>
           <div className="space-y-2">
-            {order.stages.map((stage) => (
-              <div
-                key={stage.id}
-                className="flex items-center justify-between py-3 border-b border-outline-variant/30 last:border-0"
-              >
+            {STAGE_META.map((stage, i) => (
+              <div key={stage.name} className="flex items-center justify-between py-3 border-b border-outline-variant/30 last:border-0">
                 <div>
-                  <p className="font-body font-bold text-on-surface text-sm">{stage.name}</p>
+                  <p className="font-body font-bold text-on-surface text-sm">{t.flow.stageNames[i]}</p>
                   <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-0.5">
                     {Math.round(stage.ratio * 100)}{t.contract.ofTotal}
                   </p>
                 </div>
-                <p className="font-headline text-[18px] text-on-surface">¥{stage.amountFiat.toLocaleString()}</p>
+                <p className="font-headline text-[18px] text-on-surface">¥{stageAmount(dTotal, i).toLocaleString()}</p>
               </div>
             ))}
             <div className="flex justify-between pt-3">
               <span className="font-label text-label-md uppercase tracking-wider text-on-surface">{t.contract.total}</span>
-              <span className="font-headline text-[20px] text-primary">¥{order.totalFiat.toLocaleString()}</span>
+              <span className="font-headline text-[20px] text-primary">¥{dTotal.toLocaleString()}</span>
             </div>
           </div>
         </div>
@@ -132,13 +201,29 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
           <p className="font-body text-sm text-on-primary-container leading-relaxed">{t.contract.escrowNotice}</p>
         </div>
 
-        <button
-          disabled={backerSigned || confirming}
-          onClick={handleConfirm}
-          className="w-full bg-primary text-on-primary font-label text-label-md uppercase tracking-wider py-4 rounded-lg hover:opacity-90 active:scale-95 transition-all disabled:opacity-60 text-base"
-        >
-          {backerSigned ? t.contract.confirmed : confirming ? t.contract.confirming : t.contract.confirmBtn}
-        </button>
+        {isDraft && (
+          <button
+            disabled={busy}
+            onClick={handleSubmitDraft}
+            className="w-full bg-primary text-on-primary font-label text-label-md uppercase tracking-wider py-4 rounded-lg hover:opacity-90 active:scale-95 transition-all disabled:opacity-60 text-base"
+          >
+            {busy ? t.contract.confirming : t.contract.submitContractBtn}
+          </button>
+        )}
+        {isConfirm && (
+          <button
+            disabled={busy}
+            onClick={handleConfirm}
+            className="w-full bg-primary text-on-primary font-label text-label-md uppercase tracking-wider py-4 rounded-lg hover:opacity-90 active:scale-95 transition-all disabled:opacity-60 text-base"
+          >
+            {busy ? t.contract.confirming : t.contract.confirmContractBtn}
+          </button>
+        )}
+        {!isDraft && !isConfirm && (
+          <div className="w-full flex items-center justify-center gap-2 bg-tertiary-container text-on-tertiary-container font-label text-label-md uppercase tracking-wider py-4 rounded-lg text-base">
+            <Check className="w-4 h-4" /> {t.contract.confirmed}
+          </div>
+        )}
       </div>
     </AppShell>
   );

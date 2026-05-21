@@ -8,7 +8,21 @@ type Role = "backer" | "creator";
 
 /* ── Session lifecycle flow (invitation → deposit → stages → done) ───────── */
 
-export type FlowPhase = "invitation" | "rejected" | "deposit" | "submit" | "review" | "completed";
+export type FlowPhase =
+  | "invitation"
+  | "rejected"
+  | "contract_draft"
+  | "contract_confirm"
+  | "deposit"
+  | "submit"
+  | "review"
+  | "completed";
+
+export interface ContractTerms {
+  copyright: string;
+  revisionLimit: number;
+  autoAcceptDays: number;
+}
 
 export interface SessionFlow {
   phase: FlowPhase;
@@ -16,6 +30,7 @@ export interface SessionFlow {
   total: number; // order total in ¥
   needTitle: string;
   revisions: number;
+  terms?: ContractTerms;
 }
 
 export const STAGE_META = [
@@ -36,11 +51,13 @@ export type StageView = {
 
 export const stageAmount = (total: number, idx: number) => Math.round(total * STAGE_META[idx].ratio);
 
+const NOT_STARTED: FlowPhase[] = ["invitation", "rejected", "contract_draft", "contract_confirm"];
+
 export function flowToStages(flow: SessionFlow | undefined): StageView[] {
   const total = flow?.total ?? 4200;
   return STAGE_META.map((m, idx) => {
     let status: StageStatus = "pending";
-    if (flow && flow.phase !== "invitation" && flow.phase !== "rejected") {
+    if (flow && !NOT_STARTED.includes(flow.phase)) {
       if (flow.phase === "completed" || idx < flow.stageIndex) status = "accepted";
       else if (idx === flow.stageIndex) status = flow.phase === "review" ? "submitted" : "in_progress";
     }
@@ -62,6 +79,10 @@ export function flowActor(flow: SessionFlow | undefined): Role | null {
   if (!flow) return null;
   switch (flow.phase) {
     case "invitation":
+      return "creator";
+    case "contract_draft":
+      return "backer";
+    case "contract_confirm":
       return "creator";
     case "deposit":
       return "backer";
@@ -91,6 +112,8 @@ interface AppState {
   startInvitation: (sessionId: string, needTitle: string, total: number) => void;
   acceptInvitation: (sessionId: string) => void;
   declineInvitation: (sessionId: string) => void;
+  submitContract: (sessionId: string, terms: ContractTerms & { total: number }) => void;
+  confirmContract: (sessionId: string) => void;
   payDeposit: (sessionId: string) => void;
   submitDelivery: (sessionId: string) => void;
   approveDelivery: (sessionId: string) => void;
@@ -242,8 +265,40 @@ export const useStore = create<AppState>()(
           const f = translations[s.locale].flow;
           const { creator } = partyNames(sessionId);
           return {
-            sessionFlows: { ...s.sessionFlows, [sessionId]: { ...flow, phase: "deposit" } },
+            sessionFlows: { ...s.sessionFlows, [sessionId]: { ...flow, phase: "contract_draft" } },
             sessionExtraMessages: appendCard(s, sessionId, f.sysAccepted(creator)),
+          };
+        }),
+
+      submitContract: (sessionId, terms) =>
+        set((s) => {
+          const flow = s.sessionFlows[sessionId];
+          if (!flow || flow.phase !== "contract_draft") return {};
+          const f = translations[s.locale].flow;
+          const { backer } = partyNames(sessionId);
+          return {
+            sessionFlows: {
+              ...s.sessionFlows,
+              [sessionId]: {
+                ...flow,
+                phase: "contract_confirm",
+                total: terms.total,
+                terms: { copyright: terms.copyright, revisionLimit: terms.revisionLimit, autoAcceptDays: terms.autoAcceptDays },
+              },
+            },
+            sessionExtraMessages: appendCard(s, sessionId, f.sysContractSubmitted(backer)),
+          };
+        }),
+
+      confirmContract: (sessionId) =>
+        set((s) => {
+          const flow = s.sessionFlows[sessionId];
+          if (!flow || flow.phase !== "contract_confirm") return {};
+          const f = translations[s.locale].flow;
+          const { creator } = partyNames(sessionId);
+          return {
+            sessionFlows: { ...s.sessionFlows, [sessionId]: { ...flow, phase: "deposit" } },
+            sessionExtraMessages: appendCard(s, sessionId, f.sysContractConfirmed(creator)),
           };
         }),
 
