@@ -4,7 +4,7 @@ import { useStore } from "@/lib/store";
 import AppShell from "@/components/layout/AppShell";
 import { WALLET_TRANSACTIONS, BACKER_WALLET_TRANSACTIONS } from "@/lib/mock-data";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { ArrowUpRight, ArrowDownLeft, Plus, Minus, CreditCard, Star, Trash2, AlertTriangle } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, Plus, Minus, CreditCard, Star, Trash2, AlertTriangle, ChevronDown, Check } from "lucide-react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -21,9 +21,15 @@ export default function WalletPage() {
   const [amount, setAmount] = useState(3000);
   const [processing, setProcessing] = useState(false);
   const [unbindTarget, setUnbindTarget] = useState<BankCard | null>(null);
+  const [withdrawCardId, setWithdrawCardId] = useState<string | null>(null);
+  const [cardPickerOpen, setCardPickerOpen] = useState(false);
 
   const txs = activeRole === "backer" ? BACKER_WALLET_TRANSACTIONS : WALLET_TRANSACTIONS;
   const bankName = (code: string) => t.wallet.bankNames[code] ?? t.wallet.bankNames.generic;
+
+  // Withdraw target card: explicit selection, else the default card.
+  const defaultCard = bankCards.find((c) => c.isDefault) ?? bankCards[0];
+  const selectedCard = bankCards.find((c) => c.id === withdrawCardId) ?? defaultCard;
 
   const handleRecharge = async () => {
     setProcessing(true);
@@ -105,6 +111,8 @@ export default function WalletPage() {
                 <button
                   onClick={() => {
                     setAmount(3000);
+                    setWithdrawCardId(null);
+                    setCardPickerOpen(false);
                     setWithdrawOpen(true);
                   }}
                   className="mt-6 inline-flex items-center gap-1.5 bg-primary-container text-on-primary-container font-label text-label-md uppercase tracking-wider px-4 py-2 rounded-lg hover:brightness-110 transition-all"
@@ -311,11 +319,70 @@ export default function WalletPage() {
               className="w-full px-4 py-2 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm"
             />
             <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+              {/* Bank card selector — defaults to the default payout card */}
+              <div>
+                <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-1.5">
                   {t.wallet.bank}
                 </span>
-                <span className="font-body text-on-surface">{t.wallet.bankAccount}</span>
+                {bankCards.length === 0 ? (
+                  <Link
+                    href="/wallet/bank-cards/new"
+                    className="flex items-center justify-center gap-1.5 w-full px-3 py-2.5 border border-dashed border-outline-variant rounded-xl font-label text-label-md uppercase tracking-wider text-on-surface-variant hover:border-primary hover:text-primary transition-colors"
+                  >
+                    <Plus className="w-3.5 h-3.5" /> {t.wallet.addCard}
+                  </Link>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setCardPickerOpen((v) => !v)}
+                      className="w-full flex items-center gap-2 px-3 py-2.5 bg-surface-container-low border border-outline-variant rounded-xl hover:border-primary/40 transition-colors"
+                    >
+                      <CreditCard className="w-4 h-4 text-primary shrink-0" />
+                      <span className="font-body text-on-surface truncate">
+                        {bankName(selectedCard.bankCode)} ····{selectedCard.last4}
+                      </span>
+                      {selectedCard.isDefault && (
+                        <span className="font-label text-[9px] uppercase tracking-widest bg-tertiary-container text-on-tertiary-container px-1.5 py-0.5 rounded shrink-0">
+                          {t.wallet.defaultBadge}
+                        </span>
+                      )}
+                      <ChevronDown className={cn("w-4 h-4 text-on-surface-variant ml-auto shrink-0 transition-transform", cardPickerOpen && "rotate-180")} />
+                    </button>
+                    {cardPickerOpen && (
+                      <div className="mt-1.5 border border-outline-variant/60 rounded-xl overflow-hidden divide-y divide-outline-variant/30">
+                        {bankCards.map((card) => {
+                          const active = card.id === selectedCard.id;
+                          return (
+                            <button
+                              key={card.id}
+                              type="button"
+                              onClick={() => {
+                                setWithdrawCardId(card.id);
+                                setCardPickerOpen(false);
+                              }}
+                              className={cn(
+                                "w-full flex items-center gap-2 px-3 py-2.5 text-left transition-colors",
+                                active ? "bg-primary-container/40" : "hover:bg-surface-container"
+                              )}
+                            >
+                              <CreditCard className="w-4 h-4 text-on-surface-variant shrink-0" />
+                              <span className="font-body text-on-surface truncate">
+                                {bankName(card.bankCode)} ····{card.last4}
+                              </span>
+                              {card.isDefault && (
+                                <span className="font-label text-[9px] uppercase tracking-widest bg-tertiary-container text-on-tertiary-container px-1.5 py-0.5 rounded shrink-0">
+                                  {t.wallet.defaultBadge}
+                                </span>
+                              )}
+                              {active && <Check className="w-4 h-4 text-primary ml-auto shrink-0" />}
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </>
+                )}
               </div>
               <div className="flex justify-between">
                 <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
@@ -334,7 +401,7 @@ export default function WalletPage() {
             </button>
             <button
               onClick={handleWithdraw}
-              disabled={processing || amount > creatorShell}
+              disabled={processing || amount > creatorShell || !selectedCard}
               className="font-label text-label-md uppercase tracking-wider px-4 py-2 bg-primary text-on-primary rounded-lg hover:opacity-90 transition-opacity disabled:opacity-60"
             >
               {processing ? t.wallet.processing : t.wallet.withdrawBtn(amount)}
