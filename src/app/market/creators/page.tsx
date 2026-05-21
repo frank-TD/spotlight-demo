@@ -9,10 +9,20 @@ import { useT } from "@/hooks/useT";
 
 const STYLE_FILTER_KEYS = ["All", "Cinematic", "Commercial", "Anime", "Documentary"];
 
+type PriceTier = "all" | "low" | "mid" | "high";
+
 export default function CreatorsPage() {
   const [filter, setFilter] = useState("All");
   const [query, setQuery] = useState("");
+  const [priceTier, setPriceTier] = useState<PriceTier>("all");
   const t = useT();
+
+  const matchPrice = (from: number) => {
+    if (priceTier === "low") return from <= 2500;
+    if (priceTier === "mid") return from > 2500 && from < 3500;
+    if (priceTier === "high") return from >= 3500;
+    return true;
+  };
 
   const filtered = CREATORS.filter((c) => {
     const matchStyle = filter === "All" || c.specialties.some((s) => s.includes(filter));
@@ -20,7 +30,7 @@ export default function CreatorsPage() {
       !query ||
       c.nickname.toLowerCase().includes(query.toLowerCase()) ||
       c.specialties.some((s) => s.toLowerCase().includes(query.toLowerCase()));
-    return matchStyle && matchQuery;
+    return matchStyle && matchQuery && matchPrice(c.rateCard.from);
   });
 
   return (
@@ -49,7 +59,7 @@ export default function CreatorsPage() {
               onChange={(e) => setQuery(e.target.value)}
             />
           </div>
-          <div className="flex gap-2 flex-wrap">
+          <div className="flex gap-2 flex-wrap items-center">
             {STYLE_FILTER_KEYS.map((f) => (
               <button
                 key={f}
@@ -64,10 +74,29 @@ export default function CreatorsPage() {
                 {t.creators.styleFilters[f] ?? f}
               </button>
             ))}
+            {/* Rate filter */}
+            <select
+              value={priceTier}
+              onChange={(e) => setPriceTier(e.target.value as PriceTier)}
+              className={cn(
+                "font-label text-label-md uppercase tracking-wider px-4 py-2 rounded-full border bg-surface-container-low transition-colors cursor-pointer focus:outline-none focus:border-primary",
+                priceTier !== "all"
+                  ? "border-primary text-primary"
+                  : "border-outline-variant text-on-surface-variant hover:border-primary/40"
+              )}
+            >
+              <option value="all">{t.creators.priceAll}</option>
+              <option value="low">{t.creators.priceLow}</option>
+              <option value="mid">{t.creators.priceMid}</option>
+              <option value="high">{t.creators.priceHigh}</option>
+            </select>
           </div>
         </div>
 
         {/* Grid */}
+        {filtered.length === 0 ? (
+          <p className="font-body text-sm text-on-surface-variant text-center py-20">{t.creators.noResults}</p>
+        ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {filtered.map((creator) => (
             <Link key={creator.id} href={`/market/creators/${creator.id}`}>
@@ -121,6 +150,7 @@ export default function CreatorsPage() {
             </Link>
           ))}
         </div>
+        )}
       </div>
     </AppShell>
   );
