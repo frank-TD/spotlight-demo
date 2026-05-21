@@ -34,6 +34,9 @@ interface AppState {
   // Agent float
   agentOpen: boolean;
   toggleAgent: () => void;
+  agentMessages: Array<{ role: "user" | "agent"; text: string; link?: { label: string; href: string } | null }>;
+  appendAgentMessages: (msgs: Array<{ role: "user" | "agent"; text: string; link?: { label: string; href: string } | null }>) => void;
+  clearAgentMessages: () => void;
 
   // Bid state
   myBidStatus: "none" | "pending" | "accepted" | "rejected";
@@ -140,6 +143,9 @@ export const useStore = create<AppState>()(
 
       agentOpen: false,
       toggleAgent: () => set((s) => ({ agentOpen: !s.agentOpen })),
+      agentMessages: [],
+      appendAgentMessages: (msgs) => set((s) => ({ agentMessages: [...s.agentMessages, ...msgs] })),
+      clearAgentMessages: () => set({ agentMessages: [] }),
 
       myBidStatus: "none",
       submitBid: () => set({ myBidStatus: "pending" }),
@@ -191,6 +197,7 @@ export const useStore = create<AppState>()(
         distributionByAsset: state.distributionByAsset,
         sessionExtraMessages: state.sessionExtraMessages,
         sessionInvitations: state.sessionInvitations,
+        agentMessages: state.agentMessages,
       }),
     }
   )

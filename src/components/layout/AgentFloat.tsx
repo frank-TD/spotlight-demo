@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useStore } from "@/lib/store";
-import { Sparkles, X, Send, ArrowUpRight } from "lucide-react";
+import { Sparkles, X, Send, ArrowUpRight, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useT } from "@/hooks/useT";
 
@@ -13,13 +13,13 @@ const KEYWORDS = [
   ["kyc", "verify", "identity", "认证", "身份", "認證"],
 ];
 
-type Msg = { role: "user" | "agent"; text: string; link?: { label: string; href: string } | null };
-
 export default function AgentFloat() {
-  const { agentOpen, toggleAgent, isLoggedIn } = useStore();
+  const { agentOpen, toggleAgent, isLoggedIn, agentMessages, appendAgentMessages, clearAgentMessages } = useStore();
   const t = useT();
   const [input, setInput] = useState("");
-  const [msgs, setMsgs] = useState<Msg[]>([{ role: "agent", text: t.agent.greeting }]);
+
+  // Greeting is always rendered in the current language; persisted history follows.
+  const display = [{ role: "agent" as const, text: t.agent.greeting, link: null }, ...agentMessages];
 
   if (!isLoggedIn) return null;
 
@@ -34,7 +34,10 @@ export default function AgentFloat() {
     const q = input.trim();
     if (!q) return;
     const resp = getResponse(q);
-    setMsgs((prev) => [...prev, { role: "user", text: q }, { role: "agent", text: resp.a, link: resp.link }]);
+    appendAgentMessages([
+      { role: "user", text: q },
+      { role: "agent", text: resp.a, link: resp.link },
+    ]);
     setInput("");
   };
 
@@ -64,14 +67,26 @@ export default function AgentFloat() {
                 </p>
               </div>
             </div>
-            <button onClick={toggleAgent} className="text-on-surface-variant hover:text-on-surface">
-              <X className="w-4 h-4" />
-            </button>
+            <div className="flex items-center gap-1">
+              {agentMessages.length > 0 && (
+                <button
+                  onClick={clearAgentMessages}
+                  className="text-on-surface-variant hover:text-error p-1"
+                  aria-label="clear conversation"
+                  title="Clear"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              )}
+              <button onClick={toggleAgent} className="text-on-surface-variant hover:text-on-surface">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
           </div>
 
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
-            {msgs.map((m, i) => (
+            {display.map((m, i) => (
               <div key={i} className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}>
                 <div
                   className={cn(
