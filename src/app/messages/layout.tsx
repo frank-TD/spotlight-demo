@@ -1,7 +1,7 @@
 "use client";
 import AppShell from "@/components/layout/AppShell";
-import { useStore } from "@/lib/store";
-import { SESSIONS, PARTICIPANTS, ORDER_ACTIVE, type Session } from "@/lib/mock-data";
+import { useStore, flowActor } from "@/lib/store";
+import { SESSIONS, PARTICIPANTS, type Session } from "@/lib/mock-data";
 import { useT } from "@/hooks/useT";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -9,7 +9,7 @@ import { cn } from "@/lib/utils";
 import { Search } from "lucide-react";
 
 export default function MessagesLayout({ children }: { children: React.ReactNode }) {
-  const { activeRole, sessionExtraMessages, sessionInvitations, creatorEdits } = useStore();
+  const { activeRole, sessionExtraMessages, sessionFlows, creatorEdits } = useStore();
   const t = useT();
   const pathname = usePathname();
 
@@ -18,18 +18,16 @@ export default function MessagesLayout({ children }: { children: React.ReactNode
   );
 
   const sessionPreview = (s: Session) => {
-    const base = s.id === "sess_001" ? ORDER_ACTIVE.messages : s.messages;
     const extras = sessionExtraMessages[s.id] ?? [];
-    const all = [...base, ...extras];
+    const all = [...s.messages, ...extras];
     const last = all[all.length - 1];
     if (!last) return "";
     return (last as { isCard?: boolean }).isCard ? `· ${last.text}` : last.text;
   };
 
   const sessionTimestamp = (s: Session) => {
-    const base = s.id === "sess_001" ? ORDER_ACTIVE.messages : s.messages;
     const extras = sessionExtraMessages[s.id] ?? [];
-    const all = [...base, ...extras];
+    const all = [...s.messages, ...extras];
     return all[all.length - 1]?.ts ?? s.lastUpdated;
   };
 
@@ -61,8 +59,10 @@ export default function MessagesLayout({ children }: { children: React.ReactNode
                 const cp = PARTICIPANTS[counterpartId];
                 if (!cp) return null;
                 const isActive = pathname.includes(`/messages/sessions/${s.id}`);
-                const invited = s.invitationSent || !!sessionInvitations[s.id];
-                const inCollab = !!s.orderId;
+                const flow = sessionFlows[s.id];
+                const invited = !!flow && flow.phase === "invitation";
+                const inCollab = !!flow && flow.phase !== "invitation" && flow.phase !== "rejected";
+                const needsAction = flowActor(flow) === activeRole;
                 const isOwnCreator = counterpartId === "u_creator_01";
                 const avatarUrl = isOwnCreator ? creatorEdits.avatarUrl : undefined;
                 return (
@@ -70,12 +70,17 @@ export default function MessagesLayout({ children }: { children: React.ReactNode
                     key={s.id}
                     href={`/messages/sessions/${s.id}`}
                     className={cn(
-                      "flex items-center gap-3 px-4 py-3 mx-2 rounded-xl transition-colors",
+                      "flex items-center gap-3 px-4 py-3 mx-2 rounded-xl transition-colors relative",
                       isActive
                         ? "bg-primary-container/60"
+                        : needsAction
+                        ? "bg-primary-container/25 hover:bg-primary-container/40"
                         : "hover:bg-surface-container"
                     )}
                   >
+                    {needsAction && (
+                      <span className="absolute left-1 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full bg-primary" />
+                    )}
                     {avatarUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
                       <img src={avatarUrl} alt={cp.nickname} className="w-10 h-10 rounded-full object-cover shrink-0" />
@@ -86,13 +91,22 @@ export default function MessagesLayout({ children }: { children: React.ReactNode
                     )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-baseline justify-between gap-2">
-                        <p className="font-body font-bold text-on-surface text-sm truncate">{cp.nickname}</p>
+                        <p className={cn("text-on-surface text-sm truncate", needsAction ? "font-body font-bold" : "font-body font-bold")}>
+                          {cp.nickname}
+                        </p>
                         <span className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant/70 shrink-0">
                           {sessionTimestamp(s).slice(5, 10)}
                         </span>
                       </div>
-                      <p className="font-body text-xs text-on-surface-variant truncate mt-0.5">{sessionPreview(s)}</p>
+                      <p className={cn("text-xs truncate mt-0.5", needsAction ? "font-body text-on-surface" : "font-body text-on-surface-variant")}>
+                        {sessionPreview(s)}
+                      </p>
                       <div className="flex items-center gap-1.5 mt-1">
+                        {needsAction && (
+                          <span className="font-label text-[9px] uppercase tracking-widest bg-primary text-on-primary px-2 py-0.5 rounded">
+                            {t.flow.actionNeeded}
+                          </span>
+                        )}
                         {inCollab && (
                           <span className="font-label text-[9px] uppercase tracking-widest bg-tertiary-container text-on-tertiary-container px-2 py-0.5 rounded">
                             {t.chat.listInCollab}

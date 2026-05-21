@@ -1,6 +1,6 @@
 "use client";
 import { use, useState } from "react";
-import { useStore } from "@/lib/store";
+import { useStore, flowToStages } from "@/lib/store";
 import AppShell from "@/components/layout/AppShell";
 import { ORDER_ACTIVE } from "@/lib/mock-data";
 import Link from "next/link";
@@ -21,17 +21,22 @@ const STATUS_PILL: Record<string, string> = {
 
 export default function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const { activeRole, orderStages, acceptStage, rejectStage, submitStage } = useStore();
+  const { activeRole, sessionFlows, payDeposit, submitDelivery, approveDelivery, requestRevision } = useStore();
   const t = useT();
   const [rejectOpen, setRejectOpen] = useState(false);
-  const [rejectTarget, setRejectTarget] = useState<string | null>(null);
   const [submitOpen, setSubmitOpen] = useState(false);
-  const [submitTarget, setSubmitTarget] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"stages" | "messages" | "ledger">("stages");
 
+  const SESSION_ID = "sess_001";
+  const flow = sessionFlows[SESSION_ID];
   const order = ORDER_ACTIVE;
-  const stages = orderStages;
-  const completedCount = stages.filter((s) => s.status === "accepted" || s.status === "auto_accepted").length;
+  const stages = flowToStages(flow);
+  // Deliverables (static mock) mapped by stage index → only shown once delivered.
+  const deliverablesByIdx: Record<number, Array<{ id: string; name: string; size: string; type: string; uploadedAt: string }>> = {
+    1: order.deliverables.stg_002,
+    2: order.deliverables.stg_003,
+  };
+  const completedCount = stages.filter((s) => s.status === "accepted").length;
 
   const inputCls =
     "w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm";
@@ -85,11 +90,11 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
             </div>
             <div className="flex gap-1 mt-3">
               {stages.map((s) => (
-                <div key={s.id} className="flex-1 flex flex-col items-center gap-1">
+                <div key={s.idx} className="flex-1 flex flex-col items-center gap-1">
                   <div
                     className={cn(
                       "w-full h-1 rounded-full",
-                      s.status === "accepted" || s.status === "auto_accepted"
+                      s.status === "accepted"
                         ? "bg-primary"
                         : s.status === "submitted"
                         ? "bg-tertiary"
@@ -129,11 +134,12 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
         {activeTab === "stages" && (
           <div className="space-y-4">
             {stages.map((stage, idx) => {
-              const deliverables = (order.deliverables as Record<string, Array<{ id: string; name: string; size: string; type: string; uploadedAt: string }>>)[stage.id] ?? [];
+              const deliverables =
+                stage.status === "submitted" || stage.status === "accepted" ? deliverablesByIdx[stage.idx] ?? [] : [];
               const isActive = stage.status === "submitted" || stage.status === "in_progress";
               return (
                 <div
-                  key={stage.id}
+                  key={stage.idx}
                   className={cn(
                     "bg-surface-container-lowest border rounded-2xl p-6 transition-all",
                     isActive ? "border-primary/40 shadow-sm" : "border-outline-variant/30"
@@ -204,11 +210,24 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                   )}
 
                   <div className="flex gap-2 mt-4">
-                    {activeRole === "backer" && stage.status === "submitted" && (
+                    {/* Deposit (stage 0) — backer pays */}
+                    {activeRole === "backer" && stage.idx === 0 && stage.status === "in_progress" && (
+                      <button
+                        onClick={() => {
+                          payDeposit(SESSION_ID);
+                          toast.success(t.flow.toastDeposit);
+                        }}
+                        className="flex items-center gap-1.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-4 py-2 rounded-lg hover:opacity-90"
+                      >
+                        <Check className="w-3.5 h-3.5" /> {t.flow.payDeposit(stage.amountFiat)}
+                      </button>
+                    )}
+                    {/* Delivery stages — backer reviews */}
+                    {activeRole === "backer" && stage.idx >= 1 && stage.status === "submitted" && (
                       <>
                         <button
                           onClick={() => {
-                            acceptStage(stage.id);
+                            approveDelivery(SESSION_ID);
                             toast.success(t.orderDetail.approvedToast(stage.amountFiat));
                           }}
                           className="flex items-center gap-1.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-4 py-2 rounded-lg hover:opacity-90"
@@ -216,22 +235,17 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                           <Check className="w-3.5 h-3.5" /> {t.orderDetail.approveRelease}
                         </button>
                         <button
-                          onClick={() => {
-                            setRejectTarget(stage.id);
-                            setRejectOpen(true);
-                          }}
+                          onClick={() => setRejectOpen(true)}
                           className="flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider px-4 py-2 border border-error/40 text-error rounded-lg hover:bg-error-container/40"
                         >
                           <X className="w-3.5 h-3.5" /> {t.orderDetail.requestRevision}
                         </button>
                       </>
                     )}
-                    {activeRole === "creator" && stage.status === "in_progress" && (
+                    {/* Delivery stages — creator submits */}
+                    {activeRole === "creator" && stage.idx >= 1 && stage.status === "in_progress" && (
                       <button
-                        onClick={() => {
-                          setSubmitTarget(stage.id);
-                          setSubmitOpen(true);
-                        }}
+                        onClick={() => setSubmitOpen(true)}
                         className="flex items-center gap-1.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-4 py-2 rounded-lg hover:opacity-90"
                       >
                         <Upload className="w-3.5 h-3.5" /> {t.orderDetail.submitDeliverable}
@@ -357,7 +371,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
             </button>
             <button
               onClick={() => {
-                if (rejectTarget) rejectStage(rejectTarget);
+                requestRevision(SESSION_ID);
                 setRejectOpen(false);
                 toast.info(t.orderDetail.revisionRequestedToast);
               }}
@@ -403,7 +417,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
             </button>
             <button
               onClick={() => {
-                if (submitTarget) submitStage(submitTarget);
+                submitDelivery(SESSION_ID);
                 setSubmitOpen(false);
                 toast.success(t.orderDetail.submittedToast);
               }}

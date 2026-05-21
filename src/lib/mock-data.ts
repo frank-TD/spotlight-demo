@@ -484,10 +484,8 @@ export const SESSIONS: Session[] = [
       W("ms1_2", "2026-05-13 10:02", "Appreciate the read, Marlow. Aria's cinematic work is premium-tier — floor is ¥4,000. Hard walk-aways: milestone escrow, 3 revision rounds per stage, and no AI-only final delivery (hybrid pipeline)."),
       M("ms1_3", "2026-05-13 11:20", "Lucas can meet ¥4,200 across 5 milestones with per-stage escrow and 3 revisions. Copyright buyout for launch markets; Aria retains portfolio rights. Sending terms to both principals."),
       W("ms1_4", "2026-05-13 11:45", "Accepted on Aria's behalf — ¥4,200, 5 milestones, escrow, 3 revisions, hybrid pipeline, portfolio rights retained. Over to you both to sign."),
-      { id: "ms1_5", senderId: "u_backer_01", senderName: "Lucas Chen", senderRole: "Backer", text: "Terms look great. Confirmed — let's start.", ts: "2026-05-14 09:30" },
+      { id: "ms1_5", senderId: "u_backer_01", senderName: "Lucas Chen", senderRole: "Backer", text: "Terms look great. Confirmed — sending over a formal invitation now.", ts: "2026-05-14 09:30" },
       { id: "ms1_6", senderId: "u_creator_01", senderName: "Aria Song", senderRole: "Creator", text: "Excited to work on this! I've reviewed the brief — cold open on a single cursor blink, building into a workflow montage. That should hit the tone perfectly.", ts: "2026-05-14 15:30" },
-      { id: "ms1_7", senderId: "system", senderName: "Spotlight", senderRole: "system", text: "Stage 1 (Deposit) has been paid. Project officially started.", ts: "2026-05-14 16:00", isCard: true },
-      { id: "ms1_8", senderId: "u_creator_01", senderName: "Aria Song", senderRole: "Creator", text: "Moodboard and reference pack uploaded. Palette near-monochrome with a single warm amber accent, music direction ambient electronic.", ts: "2026-05-16 14:24" },
     ],
   },
   {
