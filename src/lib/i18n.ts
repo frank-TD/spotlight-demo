@@ -522,6 +522,9 @@ const en = {
     verified: "Verified",
     bioCreatorDefault: "Award-winning AIGC filmmaker. Previously: Sundance Lab, NVIDIA AI Lab.",
     bioBackerDefault: "Creative director and founder of NeoVision. Obsessed with where AI meets storytelling.",
+    accountSection: "Account",
+    logoutDesc: "Sign out of your account on this device",
+    loggedOutToast: "Signed out",
   },
   agent: {
     headerTitle: "AI Assistant",
@@ -1061,6 +1064,9 @@ const zhCN: typeof en = {
     verified: "已认证",
     bioCreatorDefault: "屡获殊荣的 AIGC 影像创作者。曾任职于 Sundance Lab、NVIDIA AI Lab。",
     bioBackerDefault: "创意总监兼 NeoVision 创始人，专注于 AI 与故事的交汇点。",
+    accountSection: "账户",
+    logoutDesc: "在当前设备退出登录",
+    loggedOutToast: "已退出登录",
   },
   agent: {
     headerTitle: "AI 助手",
@@ -1600,6 +1606,9 @@ const zhTW: typeof en = {
     verified: "已驗證",
     bioCreatorDefault: "屢獲殊榮的 AIGC 影像創作者。曾任職於 Sundance Lab、NVIDIA AI Lab。",
     bioBackerDefault: "創意總監兼 NeoVision 創辦人，專注於 AI 與故事的交匯點。",
+    accountSection: "帳戶",
+    logoutDesc: "在當前裝置退出登入",
+    loggedOutToast: "已退出登入",
   },
   agent: {
     headerTitle: "AI 助理",
