@@ -1,10 +1,23 @@
 "use client";
 import { useState } from "react";
-import { useStore, stageAmount, flowActor, type SessionFlow } from "@/lib/store";
+import Link from "next/link";
+import { useStore, flowActor, type SessionFlow } from "@/lib/store";
 import { useT } from "@/hooks/useT";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { ChevronDown, AlertCircle, Clock, CheckCircle2, Check, X, Send, Wallet, Upload } from "lucide-react";
+import {
+  ChevronDown,
+  AlertCircle,
+  Clock,
+  CheckCircle2,
+  Check,
+  X,
+  Send,
+  Wallet,
+  Upload,
+  FileText,
+  ArrowUpRight,
+} from "lucide-react";
 
 type Role = "backer" | "creator";
 
@@ -12,20 +25,15 @@ export default function FlowActionCard({
   sessionId,
   viewerRole,
   flow,
+  orderId,
 }: {
   sessionId: string;
   viewerRole: Role;
   flow: SessionFlow;
+  orderId: string;
 }) {
   const t = useT();
-  const {
-    acceptInvitation,
-    declineInvitation,
-    payDeposit,
-    submitDelivery,
-    approveDelivery,
-    requestRevision,
-  } = useStore();
+  const { acceptInvitation, declineInvitation } = useStore();
   const actor = flowActor(flow);
   const isActor = actor === viewerRole;
   // Pinned and collapsed by default; the acting party expands it to respond.
@@ -35,106 +43,60 @@ export default function FlowActionCard({
 
   const f = t.flow;
   const stageName = f.stageNames[flow.stageIndex] ?? "";
-  const depAmt = stageAmount(flow.total, 0);
-  const stageAmt = stageAmount(flow.total, flow.stageIndex);
+  const orderHref = `/orders/${orderId}`;
+  const contractHref = `/orders/${orderId}/contract`;
 
-  type Action = { label: string; onClick: () => void; tone: "primary" | "danger" };
   let title = "";
   let desc = "";
-  let actions: Action[] = [];
+  let nav: { label: string; href: string } | null = null;
+  let invitation = false;
   let done = false;
+  let Icon = Send;
 
   switch (flow.phase) {
     case "invitation":
       title = f.invTitle;
       desc = isActor ? f.invActor : f.invWait;
-      actions = isActor
-        ? [
-            {
-              label: f.accept,
-              tone: "primary",
-              onClick: () => {
-                acceptInvitation(sessionId);
-                toast.success(f.toastAccepted);
-              },
-            },
-            {
-              label: f.decline,
-              tone: "danger",
-              onClick: () => {
-                declineInvitation(sessionId);
-                toast.info(f.toastDeclined);
-              },
-            },
-          ]
-        : [];
+      invitation = true;
+      Icon = Send;
+      break;
+    case "contract_draft":
+      title = f.cdTitle;
+      desc = isActor ? f.cdActor : f.cdWait;
+      nav = { label: f.goDraftContract, href: contractHref };
+      Icon = FileText;
+      break;
+    case "contract_confirm":
+      title = f.ccTitle;
+      desc = isActor ? f.ccActor : f.ccWait;
+      nav = { label: f.goConfirmContract, href: contractHref };
+      Icon = FileText;
       break;
     case "deposit":
       title = f.depTitle;
       desc = isActor ? f.depActor : f.depWait;
-      actions = isActor
-        ? [
-            {
-              label: f.payDeposit(depAmt),
-              tone: "primary",
-              onClick: () => {
-                payDeposit(sessionId);
-                toast.success(f.toastDeposit);
-              },
-            },
-          ]
-        : [];
+      nav = { label: f.goPayDeposit, href: orderHref };
+      Icon = Wallet;
       break;
     case "submit":
       title = f.subTitle(stageName);
       desc = isActor ? f.subActor : f.subWait(stageName);
-      actions = isActor
-        ? [
-            {
-              label: f.submit,
-              tone: "primary",
-              onClick: () => {
-                submitDelivery(sessionId);
-                toast.success(f.toastSubmitted);
-              },
-            },
-          ]
-        : [];
+      nav = { label: f.goSubmit, href: orderHref };
+      Icon = Upload;
       break;
     case "review":
       title = f.revTitle(stageName);
       desc = isActor ? f.revActor : f.revWait(stageName);
-      actions = isActor
-        ? [
-            {
-              label: f.approve(stageAmt),
-              tone: "primary",
-              onClick: () => {
-                approveDelivery(sessionId);
-                toast.success(f.toastApproved);
-              },
-            },
-            {
-              label: f.requestChanges,
-              tone: "danger",
-              onClick: () => {
-                requestRevision(sessionId);
-                toast.info(f.toastRevision);
-              },
-            },
-          ]
-        : [];
+      nav = { label: f.goReview, href: orderHref };
+      Icon = Check;
       break;
     case "completed":
       title = f.doneTitle;
       desc = f.doneDesc;
       done = true;
+      Icon = CheckCircle2 as typeof Send;
       break;
   }
-
-  const phaseIcon =
-    flow.phase === "invitation" ? Send : flow.phase === "deposit" ? Wallet : flow.phase === "submit" ? Upload : Check;
-  const PhaseIcon = done ? CheckCircle2 : phaseIcon;
 
   return (
     <div
@@ -157,14 +119,10 @@ export default function FlowActionCard({
         <span
           className={cn(
             "w-8 h-8 rounded-full flex items-center justify-center shrink-0",
-            done
-              ? "bg-tertiary text-on-tertiary"
-              : isActor
-              ? "bg-primary text-on-primary"
-              : "bg-surface-container-high text-on-surface-variant"
+            done ? "bg-tertiary text-on-tertiary" : isActor ? "bg-primary text-on-primary" : "bg-surface-container-high text-on-surface-variant"
           )}
         >
-          <PhaseIcon className="w-4 h-4" />
+          <Icon className="w-4 h-4" />
         </span>
         <div className="min-w-0 flex-1">
           <p className="font-headline text-[15px] text-on-surface leading-tight truncate">{title}</p>
@@ -178,9 +136,7 @@ export default function FlowActionCard({
           <span
             className={cn(
               "font-label text-[10px] uppercase tracking-widest px-2.5 py-1 rounded-full shrink-0 flex items-center gap-1",
-              isActor
-                ? "bg-primary text-on-primary"
-                : "bg-surface-container-high text-on-surface-variant"
+              isActor ? "bg-primary text-on-primary" : "bg-surface-container-high text-on-surface-variant"
             )}
           >
             {isActor ? <AlertCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
@@ -194,24 +150,38 @@ export default function FlowActionCard({
       {open && (
         <div className="px-5 pb-4 pl-16">
           <p className="font-body text-sm text-on-surface-variant leading-relaxed">{desc}</p>
-          {actions.length > 0 && (
+
+          {/* Invitation is decided inline; every other action navigates to its page */}
+          {isActor && invitation && (
             <div className="flex flex-wrap gap-2 mt-3">
-              {actions.map((a) => (
-                <button
-                  key={a.label}
-                  onClick={a.onClick}
-                  className={cn(
-                    "flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider px-4 py-2 rounded-lg transition-all active:scale-95",
-                    a.tone === "primary"
-                      ? "bg-primary text-on-primary hover:opacity-90"
-                      : "border border-error/40 text-error hover:bg-error-container/40"
-                  )}
-                >
-                  {a.tone === "danger" ? <X className="w-3.5 h-3.5" /> : <Check className="w-3.5 h-3.5" />}
-                  {a.label}
-                </button>
-              ))}
+              <button
+                onClick={() => {
+                  acceptInvitation(sessionId);
+                  toast.success(f.toastAccepted);
+                }}
+                className="flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider px-4 py-2 rounded-lg bg-primary text-on-primary hover:opacity-90 transition-all active:scale-95"
+              >
+                <Check className="w-3.5 h-3.5" /> {f.accept}
+              </button>
+              <button
+                onClick={() => {
+                  declineInvitation(sessionId);
+                  toast.info(f.toastDeclined);
+                }}
+                className="flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider px-4 py-2 rounded-lg border border-error/40 text-error hover:bg-error-container/40 transition-all active:scale-95"
+              >
+                <X className="w-3.5 h-3.5" /> {f.decline}
+              </button>
             </div>
+          )}
+
+          {isActor && nav && (
+            <Link
+              href={nav.href}
+              className="inline-flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider px-4 py-2 mt-3 rounded-lg bg-primary text-on-primary hover:opacity-90 transition-all active:scale-95"
+            >
+              {nav.label} <ArrowUpRight className="w-3.5 h-3.5" />
+            </Link>
           )}
         </div>
       )}

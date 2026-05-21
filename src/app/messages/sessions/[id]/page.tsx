@@ -209,7 +209,14 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
       </div>
 
       {/* Pinned lifecycle action card — stays at top until resolved */}
-      {flow && <FlowActionCard sessionId={session.id} viewerRole={activeRole} flow={flow} />}
+      {flow && (
+        <FlowActionCard
+          sessionId={session.id}
+          viewerRole={activeRole}
+          flow={flow}
+          orderId={session.orderId ?? "ord_001"}
+        />
+      )}
 
       {/* Messages scroll area */}
       <div className="flex-1 overflow-y-auto px-5 py-5 space-y-4">
