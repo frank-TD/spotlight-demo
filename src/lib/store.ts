@@ -122,6 +122,10 @@ interface AppState {
   logout: () => void;
   switchRole: (role: Role) => void;
 
+  // True once persisted state has rehydrated on the client (avoids guard redirects on refresh)
+  hasHydrated: boolean;
+  setHasHydrated: (v: boolean) => void;
+
   // Session lifecycle flow (shared by messages + order detail)
   sessionFlows: Record<string, SessionFlow>;
   startInvitation: (sessionId: string, needTitle: string, total: number) => void;
@@ -258,6 +262,9 @@ export const useStore = create<AppState>()(
       login: (role = "backer") => set({ isLoggedIn: true, activeRole: role }),
       logout: () => set({ isLoggedIn: false }),
       switchRole: (role) => set({ activeRole: role }),
+
+      hasHydrated: false,
+      setHasHydrated: (v) => set({ hasHydrated: v }),
 
       // Seeded so the flagship NeoVision conversation (sess_001) starts at the
       // invitation step and shares its lifecycle state with the order page.
@@ -519,6 +526,9 @@ export const useStore = create<AppState>()(
         profileEdits: state.profileEdits,
         agentMessages: state.agentMessages,
       }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     }
   )
 );

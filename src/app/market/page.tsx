@@ -27,15 +27,15 @@ import {
 } from "lucide-react";
 
 export default function MarketPage() {
-  const { isLoggedIn, activeRole, switchRole } = useStore();
+  const { isLoggedIn, activeRole, switchRole, hasHydrated } = useStore();
   const router = useRouter();
   const t = useT();
 
   useEffect(() => {
-    if (!isLoggedIn) router.push("/login");
-  }, [isLoggedIn, router]);
+    if (hasHydrated && !isLoggedIn) router.push("/login");
+  }, [hasHydrated, isLoggedIn, router]);
 
-  if (!isLoggedIn) return null;
+  if (!hasHydrated || !isLoggedIn) return null;
 
   return (
     <AppShell>

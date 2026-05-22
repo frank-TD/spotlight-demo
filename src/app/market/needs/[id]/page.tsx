@@ -14,7 +14,7 @@ import { useT } from "@/hooks/useT";
 
 export default function NeedDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const { isLoggedIn, activeRole, appliedNeeds, submitBid, acceptBid } = useStore();
+  const { isLoggedIn, activeRole, appliedNeeds, submitBid, acceptBid, hasHydrated } = useStore();
   const router = useRouter();
   const t = useT();
   const [bidOpen, setBidOpen] = useState(false);
@@ -25,8 +25,8 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!isLoggedIn) router.push("/login");
-  }, [isLoggedIn, router]);
+    if (hasHydrated && !isLoggedIn) router.push("/login");
+  }, [hasHydrated, isLoggedIn, router]);
 
   const need = NEEDS.find((n) => n.id === id) ?? NEEDS[0];
   const bids = id === "need_001" ? BIDS_NEED_001 : [];
@@ -65,7 +65,7 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
   const removeAttachment = (id: string) => setAttachments((prev) => prev.filter((a) => a.id !== id));
   const resetBidForm = () => setAttachments([]);
 
-  if (!isLoggedIn) return null;
+  if (!hasHydrated || !isLoggedIn) return null;
 
   const inputCls =
     "w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm";
