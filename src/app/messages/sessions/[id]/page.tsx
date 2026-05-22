@@ -32,6 +32,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
     appendSessionMessage,
     sessionFlows,
     startInvitation,
+    postedNeeds,
   } = useStore();
   const t = useT();
   const [input, setInput] = useState("");
@@ -71,7 +72,10 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
     return p.role === "backer" ? t.chat.roleBacker : t.chat.roleCreator;
   };
 
-  const myNeeds = NEEDS.filter((n) => n.backerId === "u_backer_01");
+  const myNeeds = [
+    ...postedNeeds.filter((n) => n.backerId === "u_backer_01"),
+    ...NEEDS.filter((n) => n.backerId === "u_backer_01"),
+  ].map((n) => ({ id: n.id, title: n.title, status: n.status as string, budget: n.budget }));
 
   const baseMessages = session.messages ?? [];
   const extras = sessionExtraMessages[session.id] ?? [];

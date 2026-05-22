@@ -14,7 +14,7 @@ import { useT } from "@/hooks/useT";
 
 export default function NeedDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const { isLoggedIn, activeRole, myBidStatus, submitBid } = useStore();
+  const { isLoggedIn, activeRole, appliedNeeds, submitBid, acceptBid } = useStore();
   const router = useRouter();
   const t = useT();
   const [bidOpen, setBidOpen] = useState(false);
@@ -33,6 +33,8 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
   const handleAccept = (bidId: string) => {
     setAcceptedBid(bidId);
     setManageOpen(false);
+    // Accepting a bid kicks off the contract-drafting phase of the collaboration flow.
+    acceptBid("sess_001", need.title, need.budget);
     toast.success(t.needDetail.collaborationConfirmedToast);
     setTimeout(() => router.push("/orders/ord_001/contract"), 800);
   };
@@ -176,7 +178,7 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
 
               {activeRole === "creator" && need.status === "open" && (
                 <>
-                  {myBidStatus === "none" ? (
+                  {!appliedNeeds[id] ? (
                     <button
                       onClick={() => setBidOpen(true)}
                       className="w-full bg-primary text-on-primary font-label text-label-md uppercase tracking-wider py-3 rounded-lg hover:opacity-90 active:scale-95 transition-all"
@@ -391,7 +393,7 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
             </button>
             <button
               onClick={() => {
-                submitBid();
+                submitBid(id);
                 setBidOpen(false);
                 resetBidForm();
                 toast.success(t.needDetail.applicationSubmittedToast);

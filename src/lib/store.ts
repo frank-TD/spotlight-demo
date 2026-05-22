@@ -65,6 +65,21 @@ export function flowToStages(flow: SessionFlow | undefined): StageView[] {
   });
 }
 
+export interface PostedNeed {
+  id: string;
+  backerId: string;
+  title: string;
+  contentType: string;
+  styles: string[];
+  budget: number;
+  deliveryDays: number;
+  durationSec: number;
+  episodes: number;
+  status: "open";
+  publishedAt: string;
+  brief: string;
+}
+
 export interface BankCard {
   id: string;
   bankCode: string; // resolves to a localized bank name
@@ -114,6 +129,7 @@ interface AppState {
   declineInvitation: (sessionId: string) => void;
   submitContract: (sessionId: string, terms: ContractTerms & { total: number }) => void;
   confirmContract: (sessionId: string) => void;
+  acceptBid: (sessionId: string, needTitle: string, total: number) => void;
   payDeposit: (sessionId: string) => void;
   submitDelivery: (sessionId: string) => void;
   approveDelivery: (sessionId: string) => void;
@@ -139,9 +155,13 @@ interface AppState {
   appendAgentMessages: (msgs: Array<{ role: "user" | "agent"; text: string; link?: { label: string; href: string } | null }>) => void;
   clearAgentMessages: () => void;
 
-  // Bid state
-  myBidStatus: "none" | "pending" | "accepted" | "rejected";
-  submitBid: () => void;
+  // Bid state (tracked per need)
+  appliedNeeds: Record<string, boolean>;
+  submitBid: (needId: string) => void;
+
+  // Backer-posted needs (persisted, shown alongside the mock NEEDS)
+  postedNeeds: PostedNeed[];
+  addNeed: (need: PostedNeed) => void;
 
   // Per-session messaging
   sessionExtraMessages: Record<string, Array<{ id: string; senderId: string; senderName: string; senderRole: string; text: string; ts: string; isCard?: boolean }>>;
@@ -302,6 +322,19 @@ export const useStore = create<AppState>()(
           };
         }),
 
+      // Accepting a creator's bid skips the invitation and goes straight to contract drafting.
+      acceptBid: (sessionId, needTitle, total) =>
+        set((s) => {
+          const f = translations[s.locale].flow;
+          return {
+            sessionFlows: {
+              ...s.sessionFlows,
+              [sessionId]: { phase: "contract_draft", stageIndex: 0, total, needTitle, revisions: 0 },
+            },
+            sessionExtraMessages: appendCard(s, sessionId, f.sysBidAccepted),
+          };
+        }),
+
       declineInvitation: (sessionId) =>
         set((s) => {
           const flow = s.sessionFlows[sessionId];
@@ -401,8 +434,11 @@ export const useStore = create<AppState>()(
       appendAgentMessages: (msgs) => set((s) => ({ agentMessages: [...s.agentMessages, ...msgs] })),
       clearAgentMessages: () => set({ agentMessages: [] }),
 
-      myBidStatus: "none",
-      submitBid: () => set({ myBidStatus: "pending" }),
+      appliedNeeds: {},
+      submitBid: (needId) => set((s) => ({ appliedNeeds: { ...s.appliedNeeds, [needId]: true } })),
+
+      postedNeeds: [],
+      addNeed: (need) => set((s) => ({ postedNeeds: [need, ...s.postedNeeds] })),
 
       sessionExtraMessages: {},
       appendSessionMessage: (sessionId, msg) =>
@@ -447,6 +483,8 @@ export const useStore = create<AppState>()(
         sessionExtraMessages: state.sessionExtraMessages,
         sessionFlows: state.sessionFlows,
         bankCards: state.bankCards,
+        appliedNeeds: state.appliedNeeds,
+        postedNeeds: state.postedNeeds,
         agentMessages: state.agentMessages,
       }),
     }

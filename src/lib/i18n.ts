@@ -627,6 +627,7 @@ const en = {
     sysDeclined: (creator: string) => `${creator} declined the invitation.`,
     sysContractSubmitted: (backer: string) => `${backer} submitted the contract. Awaiting the creator's confirmation.`,
     sysContractConfirmed: (creator: string) => `${creator} confirmed the contract. Awaiting the deposit to start.`,
+    sysBidAccepted: "Bid accepted — the collaboration is confirmed. Awaiting the contract.",
     sysDeposit: (amt: number) => `Deposit of ¥${amt.toLocaleString()} paid. The project has officially started.`,
     sysSubmitted: (creator: string, stage: string) =>
       `${creator} submitted ${stage} deliverables. Awaiting review.`,
@@ -1299,6 +1300,7 @@ const zhCN: typeof en = {
     sysDeclined: (creator: string) => `${creator} 拒绝了邀约。`,
     sysContractSubmitted: (backer: string) => `${backer} 已提交合同，等待创作者确认。`,
     sysContractConfirmed: (creator: string) => `${creator} 已确认合同，等待支付定金以开始。`,
+    sysBidAccepted: "应标已接受，合作达成，等待制订合同。",
     sysDeposit: (amt: number) => `已支付定金 ¥${amt.toLocaleString()}，项目正式启动。`,
     sysSubmitted: (creator: string, stage: string) => `${creator} 已提交「${stage}」交付物，等待审核。`,
     sysApproved: (stage: string, amt: number) => `「${stage}」已通过，¥${amt.toLocaleString()} 已放款给创作者。`,
@@ -1969,6 +1971,7 @@ const zhTW: typeof en = {
     sysDeclined: (creator: string) => `${creator} 拒絕了邀約。`,
     sysContractSubmitted: (backer: string) => `${backer} 已提交合約，等待創作者確認。`,
     sysContractConfirmed: (creator: string) => `${creator} 已確認合約，等待支付訂金以開始。`,
+    sysBidAccepted: "應標已接受，合作達成，等待制訂合約。",
     sysDeposit: (amt: number) => `已支付訂金 ¥${amt.toLocaleString()}，專案正式啟動。`,
     sysSubmitted: (creator: string, stage: string) => `${creator} 已提交「${stage}」交付物，等待審核。`,
     sysApproved: (stage: string, amt: number) => `「${stage}」已通過，¥${amt.toLocaleString()} 已放款給創作者。`,
