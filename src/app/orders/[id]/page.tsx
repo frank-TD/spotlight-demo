@@ -30,6 +30,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   const SESSION_ID = "sess_001";
   const flow = sessionFlows[SESSION_ID];
   const order = ORDER_ACTIVE;
+  const orderTotal = flow?.total ?? order.totalFiat;
   const stages = flowToStages(flow);
   // Deliverables (static mock) mapped by stage index → only shown once delivered.
   const deliverablesByIdx: Record<number, Array<{ id: string; name: string; size: string; type: string; uploadedAt: string }>> = {
@@ -60,7 +61,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                 {activeRole === "backer"
                   ? t.orderDetail.withCounterpart(order.creator.nickname)
                   : t.orderDetail.forCounterpart(order.backer.nickname)}{" "}
-                · ¥{order.totalFiat.toLocaleString()}
+                · ¥{orderTotal.toLocaleString()}
               </p>
             </div>
             <div className="flex items-center gap-3">
@@ -295,7 +296,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                 </span>
                 <span className="font-headline text-[20px] text-primary">
                   ¥{order.ledger.filter((e) => e.type === "Release").reduce((a, b) => a + b.amount, 0).toLocaleString()}
-                  <span className="font-body text-sm text-on-surface-variant font-normal"> / ¥{order.totalFiat.toLocaleString()}</span>
+                  <span className="font-body text-sm text-on-surface-variant font-normal"> / ¥{orderTotal.toLocaleString()}</span>
                 </span>
               </div>
             </div>
