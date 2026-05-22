@@ -7,6 +7,7 @@ import { useStore, STAGE_META, stageAmount } from "@/lib/store";
 import { ArrowLeft, Check, Shield, FileText } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 import { useT } from "@/hooks/useT";
 
 const COPYRIGHT_CHOICES = ["Buyout", "Sub-licensable", "Licensed"];
@@ -34,6 +35,7 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
   const [revisionLimit, setRevisionLimit] = useState(flow?.terms?.revisionLimit ?? 3);
   const [autoAcceptDays, setAutoAcceptDays] = useState(flow?.terms?.autoAcceptDays ?? 7);
   const [busy, setBusy] = useState(false);
+  const [agreed, setAgreed] = useState(false);
 
   // Display values: draft uses live edits, others use stored flow terms.
   const dTotal = isDraft ? total : flow?.total ?? order.totalFiat;
@@ -211,20 +213,37 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
           <p className="font-body text-sm text-on-primary-container leading-relaxed">{t.contract.escrowNotice}</p>
         </div>
 
+        {(isDraft || isConfirm) && (
+          <button
+            type="button"
+            onClick={() => setAgreed((v) => !v)}
+            className="w-full flex items-start gap-3 mb-4 text-left"
+          >
+            <span
+              className={cn(
+                "mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-colors",
+                agreed ? "bg-primary border-primary text-on-primary" : "border-outline-variant"
+              )}
+            >
+              {agreed && <Check className="w-3.5 h-3.5" />}
+            </span>
+            <span className="font-body text-sm text-on-surface-variant leading-relaxed">{t.contract.agreeLabel}</span>
+          </button>
+        )}
         {isDraft && (
           <button
-            disabled={busy}
+            disabled={busy || !agreed}
             onClick={handleSubmitDraft}
-            className="w-full bg-primary text-on-primary font-label text-label-md uppercase tracking-wider py-4 rounded-lg hover:opacity-90 active:scale-95 transition-all disabled:opacity-60 text-base"
+            className="w-full bg-primary text-on-primary font-label text-label-md uppercase tracking-wider py-4 rounded-lg hover:opacity-90 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed text-base"
           >
             {busy ? t.contract.confirming : t.contract.submitContractBtn}
           </button>
         )}
         {isConfirm && (
           <button
-            disabled={busy}
+            disabled={busy || !agreed}
             onClick={handleConfirm}
-            className="w-full bg-primary text-on-primary font-label text-label-md uppercase tracking-wider py-4 rounded-lg hover:opacity-90 active:scale-95 transition-all disabled:opacity-60 text-base"
+            className="w-full bg-primary text-on-primary font-label text-label-md uppercase tracking-wider py-4 rounded-lg hover:opacity-90 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed text-base"
           >
             {busy ? t.contract.confirming : t.contract.confirmContractBtn}
           </button>

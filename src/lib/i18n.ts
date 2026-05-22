@@ -363,6 +363,7 @@ const en = {
     submittedToast: "Contract submitted — awaiting the creator's confirmation",
     backToConversation: "Back to conversation",
     notDrafted: "The contract has not been drafted yet.",
+    agreeLabel: "I have read and agree to the contract terms and the Spotlight Creator Agreement.",
   },
   projects: {
     title: "My Projects",
@@ -1037,6 +1038,7 @@ const zhCN: typeof en = {
     submittedToast: "合同已提交——等待创作者确认",
     backToConversation: "返回对话",
     notDrafted: "合同尚未制订。",
+    agreeLabel: "我已阅读并同意合同条款及 Spotlight 创作协议。",
   },
   projects: {
     title: "我的项目",
@@ -1706,6 +1708,7 @@ const zhTW: typeof en = {
     submittedToast: "合約已提交——等待創作者確認",
     backToConversation: "返回對話",
     notDrafted: "合約尚未制訂。",
+    agreeLabel: "我已閱讀並同意合約條款及 Spotlight 創作協議。",
   },
   projects: {
     title: "我的項目",
