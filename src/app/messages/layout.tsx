@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import AppShell from "@/components/layout/AppShell";
 import { useStore, flowActor } from "@/lib/store";
 import { SESSIONS, PARTICIPANTS, type Session } from "@/lib/mock-data";
@@ -12,10 +13,17 @@ export default function MessagesLayout({ children }: { children: React.ReactNode
   const { activeRole, sessionExtraMessages, sessionFlows, creatorEdits } = useStore();
   const t = useT();
   const pathname = usePathname();
+  const [query, setQuery] = useState("");
 
-  const visibleSessions = SESSIONS.filter((s) =>
-    activeRole === "backer" ? s.backerId === "u_backer_01" : s.creatorId === "u_creator_01"
-  );
+  const visibleSessions = SESSIONS.filter((s) => {
+    const owns = activeRole === "backer" ? s.backerId === "u_backer_01" : s.creatorId === "u_creator_01";
+    if (!owns) return false;
+    if (!query.trim()) return true;
+    const cpId = activeRole === "backer" ? s.creatorId : s.backerId;
+    const name = PARTICIPANTS[cpId]?.nickname ?? "";
+    const q = query.toLowerCase();
+    return name.toLowerCase().includes(q) || s.subject.toLowerCase().includes(q);
+  });
 
   const sessionPreview = (s: Session) => {
     const extras = sessionExtraMessages[s.id] ?? [];
@@ -47,6 +55,8 @@ export default function MessagesLayout({ children }: { children: React.ReactNode
                 <input
                   className="w-full pl-9 pr-3 py-2 bg-surface-container-low border border-outline-variant rounded-lg focus:border-primary focus:outline-none font-body text-sm"
                   placeholder={t.chat.listSearch}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
                 />
               </div>
             </div>

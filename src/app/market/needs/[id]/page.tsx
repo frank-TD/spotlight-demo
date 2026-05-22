@@ -20,6 +20,7 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
   const [bidOpen, setBidOpen] = useState(false);
   const [manageOpen, setManageOpen] = useState(false);
   const [acceptedBid, setAcceptedBid] = useState<string | null>(null);
+  const [declinedBids, setDeclinedBids] = useState<string[]>([]);
   const [attachments, setAttachments] = useState<Array<{ id: string; name: string; size: string; note: string }>>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -265,6 +266,10 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
                       <span className="font-label text-[11px] uppercase tracking-widest bg-tertiary-container text-on-tertiary-container px-3 py-1.5 rounded-full">
                         {t.needDetail.accepted}
                       </span>
+                    ) : declinedBids.includes(bid.id) ? (
+                      <span className="font-label text-[11px] uppercase tracking-widest bg-surface-container text-on-surface-variant px-3 py-1.5 rounded-full">
+                        {t.needDetail.declined}
+                      </span>
                     ) : (
                       <>
                         <button
@@ -273,7 +278,13 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
                         >
                           <Check className="w-3.5 h-3.5" /> {t.needDetail.confirmBtn}
                         </button>
-                        <button className="flex items-center gap-1 font-label text-label-md uppercase tracking-wider px-4 py-2 border border-outline-variant rounded-lg hover:bg-surface-container-high text-on-surface-variant">
+                        <button
+                          onClick={() => {
+                            setDeclinedBids((prev) => [...prev, bid.id]);
+                            toast.info(t.needDetail.declinedToast);
+                          }}
+                          className="flex items-center gap-1 font-label text-label-md uppercase tracking-wider px-4 py-2 border border-outline-variant rounded-lg hover:bg-surface-container-high text-on-surface-variant"
+                        >
                           <X className="w-3.5 h-3.5" /> {t.needDetail.declineBtn}
                         </button>
                         <Link

@@ -208,7 +208,10 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                               </p>
                             </div>
                           </div>
-                          <button className="text-on-surface-variant hover:text-primary">
+                          <button
+                            onClick={() => toast.success(t.orderDetail.downloadToast)}
+                            className="text-on-surface-variant hover:text-primary"
+                          >
                             <Download className="w-4 h-4" />
                           </button>
                         </div>

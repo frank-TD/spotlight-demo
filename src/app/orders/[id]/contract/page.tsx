@@ -16,7 +16,7 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
   const { id } = use(params);
   const router = useRouter();
   const t = useT();
-  const { sessionFlows, submitContract, confirmContract } = useStore();
+  const { sessionFlows, submitContract, confirmContract, rejectContract } = useStore();
 
   const order = ORDER_ACTIVE;
   const sessionId = SESSIONS.find((s) => s.orderId === id)?.id ?? "sess_001";
@@ -59,6 +59,12 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
     await new Promise((r) => setTimeout(r, 500));
     confirmContract(sessionId);
     toast.success(t.flow.toastContractConfirmed);
+    router.push(`/messages/sessions/${sessionId}`);
+  };
+
+  const handleRequestChanges = () => {
+    rejectContract(sessionId);
+    toast.info(t.contract.changesRequestedToast);
     router.push(`/messages/sessions/${sessionId}`);
   };
 
@@ -240,13 +246,22 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
           </button>
         )}
         {isConfirm && (
-          <button
-            disabled={busy || !agreed}
-            onClick={handleConfirm}
-            className="w-full bg-primary text-on-primary font-label text-label-md uppercase tracking-wider py-4 rounded-lg hover:opacity-90 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed text-base"
-          >
-            {busy ? t.contract.confirming : t.contract.confirmContractBtn}
-          </button>
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              disabled={busy}
+              onClick={handleRequestChanges}
+              className="sm:flex-1 font-label text-label-md uppercase tracking-wider py-4 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors disabled:opacity-50 text-base"
+            >
+              {t.contract.requestChangesBtn}
+            </button>
+            <button
+              disabled={busy || !agreed}
+              onClick={handleConfirm}
+              className="sm:flex-1 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider py-4 rounded-lg hover:opacity-90 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed text-base"
+            >
+              {busy ? t.contract.confirming : t.contract.confirmContractBtn}
+            </button>
+          </div>
         )}
         {contractDone && (
           <div className="w-full flex items-center justify-center gap-2 bg-tertiary-container text-on-tertiary-container font-label text-label-md uppercase tracking-wider py-4 rounded-lg text-base">

@@ -129,11 +129,17 @@ interface AppState {
   declineInvitation: (sessionId: string) => void;
   submitContract: (sessionId: string, terms: ContractTerms & { total: number }) => void;
   confirmContract: (sessionId: string) => void;
+  rejectContract: (sessionId: string) => void;
   acceptBid: (sessionId: string, needTitle: string, total: number) => void;
   payDeposit: (sessionId: string) => void;
   submitDelivery: (sessionId: string) => void;
   approveDelivery: (sessionId: string) => void;
   requestRevision: (sessionId: string) => void;
+  resetFlow: (sessionId: string) => void;
+
+  // Account profile edits (persisted, per role)
+  profileEdits: Partial<Record<Role, { nickname?: string; email?: string; bio?: string }>>;
+  updateProfile: (role: Role, edits: { nickname?: string; email?: string; bio?: string }) => void;
 
   // Wallet simulation
   backerDiamond: number;
@@ -322,6 +328,27 @@ export const useStore = create<AppState>()(
           };
         }),
 
+      // Creator sends the contract back to the backer to revise.
+      rejectContract: (sessionId) =>
+        set((s) => {
+          const flow = s.sessionFlows[sessionId];
+          if (!flow || flow.phase !== "contract_confirm") return {};
+          const f = translations[s.locale].flow;
+          const { creator } = partyNames(sessionId);
+          return {
+            sessionFlows: { ...s.sessionFlows, [sessionId]: { ...flow, phase: "contract_draft" } },
+            sessionExtraMessages: appendCard(s, sessionId, f.sysContractChanges(creator)),
+          };
+        }),
+
+      // Clear a session's flow (e.g. after a declined invitation, to allow re-inviting).
+      resetFlow: (sessionId) =>
+        set((s) => {
+          const next = { ...s.sessionFlows };
+          delete next[sessionId];
+          return { sessionFlows: next };
+        }),
+
       // Accepting a creator's bid skips the invitation and goes straight to contract drafting.
       acceptBid: (sessionId, needTitle, total) =>
         set((s) => {
@@ -440,6 +467,10 @@ export const useStore = create<AppState>()(
       postedNeeds: [],
       addNeed: (need) => set((s) => ({ postedNeeds: [need, ...s.postedNeeds] })),
 
+      profileEdits: {},
+      updateProfile: (role, edits) =>
+        set((s) => ({ profileEdits: { ...s.profileEdits, [role]: { ...s.profileEdits[role], ...edits } } })),
+
       sessionExtraMessages: {},
       appendSessionMessage: (sessionId, msg) =>
         set((s) => ({
@@ -485,6 +516,7 @@ export const useStore = create<AppState>()(
         bankCards: state.bankCards,
         appliedNeeds: state.appliedNeeds,
         postedNeeds: state.postedNeeds,
+        profileEdits: state.profileEdits,
         agentMessages: state.agentMessages,
       }),
     }

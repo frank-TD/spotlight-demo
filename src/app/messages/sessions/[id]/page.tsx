@@ -59,7 +59,8 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
   const counterpartIsAria = counterpartId === "u_creator_01";
 
   const flow = sessionFlows[session.id];
-  const invitationActive = !!flow; // a flow exists once an invitation has been sent
+  const isRejected = flow?.phase === "rejected";
+  const invitationActive = !!flow && flow.phase === "invitation";
   const inCollab = !!flow && flow.phase !== "invitation" && flow.phase !== "rejected";
   const hasOrder = inCollab && !!session.orderId;
 
@@ -197,7 +198,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
             <span className="font-label text-[11px] uppercase tracking-widest bg-tertiary-container text-on-tertiary-container px-3 py-1.5 rounded-full">
               {t.chat.listInCollab}
             </span>
-          ) : invitationActive ? (
+          ) : isRejected ? null : invitationActive ? (
             <span className="font-label text-[11px] uppercase tracking-widest bg-primary-container text-on-primary-container px-3 py-1.5 rounded-full">
               {t.chat.invitationSentBadge}
             </span>
