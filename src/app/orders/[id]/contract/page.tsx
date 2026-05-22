@@ -23,6 +23,10 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
 
   const isDraft = flow?.phase === "contract_draft";
   const isConfirm = flow?.phase === "contract_confirm";
+  // Contract is fully signed once the flow has moved past the contract phases.
+  const contractDone = !!flow && !["invitation", "rejected", "contract_draft", "contract_confirm"].includes(flow.phase);
+  // Reached the contract page before it has been drafted (e.g. during invitation).
+  const beforeContract = !flow || flow.phase === "invitation" || flow.phase === "rejected";
 
   // Editable terms (draft mode); otherwise reflect what the flow has stored.
   const [total, setTotal] = useState(flow?.total ?? order.totalFiat);
@@ -37,8 +41,8 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
   const dRevisions = isDraft ? revisionLimit : flow?.terms?.revisionLimit ?? 3;
   const dDays = isDraft ? autoAcceptDays : flow?.terms?.autoAcceptDays ?? 7;
 
-  const backerSigned = !isDraft; // backer signs by submitting the draft
-  const creatorSigned = !isDraft && !isConfirm; // creator signs by confirming
+  const backerSigned = isConfirm || contractDone; // backer signs by submitting the draft
+  const creatorSigned = contractDone; // creator signs by confirming
 
   const handleSubmitDraft = async () => {
     setBusy(true);
@@ -57,7 +61,13 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
   };
 
   const headerTitle = isDraft ? t.contract.draftTitle : isConfirm ? t.contract.confirmTitle : t.contract.title;
-  const headerSub = isDraft ? t.contract.draftSubtitle : isConfirm ? t.contract.confirmSubtitle : t.contract.subtitle;
+  const headerSub = isDraft
+    ? t.contract.draftSubtitle
+    : isConfirm
+    ? t.contract.confirmSubtitle
+    : beforeContract
+    ? t.contract.notDrafted
+    : t.contract.subtitle;
   const backHref = isDraft || isConfirm ? `/messages/sessions/${sessionId}` : `/orders/${id}`;
   const backLabel = isDraft || isConfirm ? t.contract.backToConversation : t.contract.backToOrder;
 
@@ -219,9 +229,14 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
             {busy ? t.contract.confirming : t.contract.confirmContractBtn}
           </button>
         )}
-        {!isDraft && !isConfirm && (
+        {contractDone && (
           <div className="w-full flex items-center justify-center gap-2 bg-tertiary-container text-on-tertiary-container font-label text-label-md uppercase tracking-wider py-4 rounded-lg text-base">
             <Check className="w-4 h-4" /> {t.contract.confirmed}
+          </div>
+        )}
+        {beforeContract && (
+          <div className="w-full flex items-center justify-center gap-2 bg-surface-container text-on-surface-variant font-label text-label-md uppercase tracking-wider py-4 rounded-lg text-base">
+            {t.contract.notDrafted}
           </div>
         )}
       </div>
