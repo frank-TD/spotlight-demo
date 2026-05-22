@@ -17,6 +17,7 @@ import {
   Upload,
   FileText,
   ArrowUpRight,
+  RotateCcw,
 } from "lucide-react";
 
 type Role = "backer" | "creator";
@@ -33,15 +34,39 @@ export default function FlowActionCard({
   orderId: string;
 }) {
   const t = useT();
-  const { acceptInvitation, declineInvitation } = useStore();
+  const { acceptInvitation, declineInvitation, resetFlow } = useStore();
   const actor = flowActor(flow);
   const isActor = actor === viewerRole;
   // Pinned and collapsed by default; the acting party expands it to respond.
   const [open, setOpen] = useState(false);
 
-  if (flow.phase === "rejected") return null;
-
   const f = t.flow;
+
+  // Declined invitation: backer can revise and re-invite; creator sees a passive note.
+  if (flow.phase === "rejected") {
+    const backerView = viewerRole === "backer";
+    return (
+      <div className="shrink-0 border-b bg-surface-container border-outline-variant/30 flex items-center gap-3 px-5 py-3">
+        <span className="w-8 h-8 rounded-full bg-surface-container-high text-on-surface-variant flex items-center justify-center shrink-0">
+          <X className="w-4 h-4" />
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="font-headline text-[15px] text-on-surface leading-tight">{f.rejTitle}</p>
+          <p className="font-body text-xs text-on-surface-variant leading-relaxed">
+            {backerView ? f.rejActor : f.rejWait}
+          </p>
+        </div>
+        {backerView && (
+          <button
+            onClick={() => resetFlow(sessionId)}
+            className="shrink-0 inline-flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider px-4 py-2 rounded-lg bg-primary text-on-primary hover:opacity-90 transition-all active:scale-95"
+          >
+            <RotateCcw className="w-3.5 h-3.5" /> {f.reInvite}
+          </button>
+        )}
+      </div>
+    );
+  }
   const stageName = f.stageNames[flow.stageIndex] ?? "";
   const orderHref = `/orders/${orderId}`;
   const contractHref = `/orders/${orderId}/contract`;

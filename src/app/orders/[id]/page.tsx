@@ -4,7 +4,7 @@ import { useStore, flowToStages } from "@/lib/store";
 import AppShell from "@/components/layout/AppShell";
 import { ORDER_ACTIVE } from "@/lib/mock-data";
 import Link from "next/link";
-import { ArrowLeft, Upload, Check, X, Download, FileText, Clock } from "lucide-react";
+import { ArrowLeft, Upload, Check, X, Download, FileText, Clock, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
@@ -25,11 +25,12 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   const t = useT();
   const [rejectOpen, setRejectOpen] = useState(false);
   const [submitOpen, setSubmitOpen] = useState(false);
-  const [activeTab, setActiveTab] = useState<"stages" | "messages" | "ledger">("stages");
+  const [activeTab, setActiveTab] = useState<"stages" | "ledger">("stages");
 
   const SESSION_ID = "sess_001";
   const flow = sessionFlows[SESSION_ID];
   const order = ORDER_ACTIVE;
+  const orderTotal = flow?.total ?? order.totalFiat;
   const stages = flowToStages(flow);
   // Deliverables (static mock) mapped by stage index → only shown once delivered.
   const deliverablesByIdx: Record<number, Array<{ id: string; name: string; size: string; type: string; uploadedAt: string }>> = {
@@ -60,13 +61,19 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                 {activeRole === "backer"
                   ? t.orderDetail.withCounterpart(order.creator.nickname)
                   : t.orderDetail.forCounterpart(order.backer.nickname)}{" "}
-                · ¥{order.totalFiat.toLocaleString()}
+                · ¥{orderTotal.toLocaleString()}
               </p>
             </div>
             <div className="flex items-center gap-3">
               <span className="font-label text-[11px] uppercase tracking-widest bg-primary-container text-on-primary-container px-3 py-1 rounded-full">
                 {t.common.inProgress}
               </span>
+              <Link
+                href={`/messages/sessions/${SESSION_ID}`}
+                className="flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider px-3 py-1.5 border border-outline-variant rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors"
+              >
+                <MessageCircle className="w-3.5 h-3.5" /> {t.orderDetail.tabConversation}
+              </Link>
               <Link
                 href={`/orders/${id}/contract`}
                 className="flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider px-3 py-1.5 border border-outline-variant rounded-lg text-on-surface-variant hover:bg-surface-container-high transition-colors"
@@ -114,7 +121,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
 
         {/* Tabs */}
         <div className="flex border-b border-outline-variant/30 mb-6">
-          {(["stages", "messages", "ledger"] as const).map((tab) => (
+          {(["stages", "ledger"] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setActiveTab(tab)}
@@ -125,7 +132,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                   : "border-transparent text-on-surface-variant hover:text-on-surface"
               )}
             >
-              {tab === "stages" ? t.orderDetail.tabStages : tab === "messages" ? t.orderDetail.tabConversation : t.orderDetail.tabPayments}
+              {tab === "stages" ? t.orderDetail.tabStages : t.orderDetail.tabPayments}
             </button>
           ))}
         </div>
@@ -201,7 +208,10 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                               </p>
                             </div>
                           </div>
-                          <button className="text-on-surface-variant hover:text-primary">
+                          <button
+                            onClick={() => toast.success(t.orderDetail.downloadToast)}
+                            className="text-on-surface-variant hover:text-primary"
+                          >
                             <Download className="w-4 h-4" />
                           </button>
                         </div>
@@ -258,64 +268,6 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
           </div>
         )}
 
-        {/* Messages */}
-        {activeTab === "messages" && (
-          <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl overflow-hidden">
-            <div className="h-[480px] overflow-y-auto p-5 space-y-3">
-              {order.messages.map((msg) => {
-                if (msg.isCard) {
-                  return (
-                    <div key={msg.id} className="flex justify-center">
-                      <div className="bg-primary-container/40 border border-primary/20 rounded-lg px-4 py-2 font-body text-xs text-on-primary-container text-center max-w-xs">
-                        {msg.text}
-                      </div>
-                    </div>
-                  );
-                }
-                const isMe =
-                  (activeRole === "backer" && msg.senderId === "u_backer_01") ||
-                  (activeRole === "creator" && msg.senderId === "u_creator_01");
-                return (
-                  <div key={msg.id} className={cn("flex", isMe ? "justify-end" : "justify-start")}>
-                    {!isMe && (
-                      <div className="w-8 h-8 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center text-xs font-bold mr-2 shrink-0">
-                        {msg.senderName.split(" ").map((n) => n[0]).join("")}
-                      </div>
-                    )}
-                    <div className={cn("max-w-[70%] flex flex-col gap-0.5", isMe ? "items-end" : "items-start")}>
-                      {!isMe && (
-                        <span className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant px-1">
-                          {msg.senderName} · {msg.senderRole}
-                        </span>
-                      )}
-                      <div
-                        className={cn(
-                          "rounded-2xl px-3.5 py-2.5 font-body text-sm leading-relaxed",
-                          isMe ? "bg-primary text-on-primary rounded-br-sm" : "bg-surface-container text-on-surface rounded-bl-sm"
-                        )}
-                      >
-                        {msg.text}
-                      </div>
-                      <span className="font-label text-[9px] uppercase tracking-wider text-on-surface-variant/70 px-1">
-                        {msg.ts}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            <div className="border-t border-outline-variant/30 p-3 flex gap-2">
-              <input
-                className="flex-1 font-body text-sm rounded-xl border border-outline-variant px-4 py-2.5 bg-surface-container-low focus:border-primary focus:outline-none"
-                placeholder={t.orderDetail.messagePlaceholder}
-              />
-              <button className="bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-4 py-2.5 rounded-lg hover:opacity-90">
-                {t.orderDetail.sendBtn}
-              </button>
-            </div>
-          </div>
-        )}
-
         {/* Ledger */}
         {activeTab === "ledger" && (
           <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-6">
@@ -347,7 +299,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                 </span>
                 <span className="font-headline text-[20px] text-primary">
                   ¥{order.ledger.filter((e) => e.type === "Release").reduce((a, b) => a + b.amount, 0).toLocaleString()}
-                  <span className="font-body text-sm text-on-surface-variant font-normal"> / ¥{order.totalFiat.toLocaleString()}</span>
+                  <span className="font-body text-sm text-on-surface-variant font-normal"> / ¥{orderTotal.toLocaleString()}</span>
                 </span>
               </div>
             </div>

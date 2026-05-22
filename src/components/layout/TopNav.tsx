@@ -11,7 +11,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Globe, Sparkles, Wallet, ChevronDown, User, FolderOpen, LogOut } from "lucide-react";
+import { Globe, Sparkles, Wallet, ChevronDown, User, FolderOpen, LogOut, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Locale } from "@/lib/i18n";
 
@@ -24,7 +24,7 @@ const LOCALES: { value: Locale; label: string; short: string }[] = [
 export default function TopNav() {
   const pathname = usePathname();
   const router = useRouter();
-  const { isLoggedIn, activeRole, backerDiamond, creatorShell, locale, setLocale, logout, toggleAgent } = useStore();
+  const { isLoggedIn, activeRole, backerDiamond, creatorShell, locale, setLocale, logout, toggleAgent, switchRole } = useStore();
   const t = useT();
 
   const NAV_ITEMS = [
@@ -123,6 +123,20 @@ export default function TopNav() {
                       {activeRole === "backer" ? t.market.roleBacker : t.market.roleCreator}
                     </p>
                   </div>
+                  <DropdownMenuSeparator />
+                  <div className="px-2 py-1 font-label text-[10px] uppercase tracking-wider text-on-surface-variant">
+                    {t.nav.viewAs}
+                  </div>
+                  {(["backer", "creator"] as const).map((r) => (
+                    <DropdownMenuItem
+                      key={r}
+                      onClick={() => switchRole(r)}
+                      className={cn("gap-2 cursor-pointer", activeRole === r && "text-primary")}
+                    >
+                      {activeRole === r ? <Check className="w-4 h-4" /> : <span className="w-4 h-4" />}
+                      {r === "backer" ? t.market.roleBacker : t.market.roleCreator}
+                    </DropdownMenuItem>
+                  ))}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={() => router.push("/account/profile")} className="gap-2 cursor-pointer">
                     <User className="w-4 h-4" /> {t.nav.profile}

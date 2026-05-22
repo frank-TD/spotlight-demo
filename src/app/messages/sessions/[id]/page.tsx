@@ -32,6 +32,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
     appendSessionMessage,
     sessionFlows,
     startInvitation,
+    postedNeeds,
   } = useStore();
   const t = useT();
   const [input, setInput] = useState("");
@@ -58,7 +59,8 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
   const counterpartIsAria = counterpartId === "u_creator_01";
 
   const flow = sessionFlows[session.id];
-  const invitationActive = !!flow; // a flow exists once an invitation has been sent
+  const isRejected = flow?.phase === "rejected";
+  const invitationActive = !!flow && flow.phase === "invitation";
   const inCollab = !!flow && flow.phase !== "invitation" && flow.phase !== "rejected";
   const hasOrder = inCollab && !!session.orderId;
 
@@ -71,7 +73,10 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
     return p.role === "backer" ? t.chat.roleBacker : t.chat.roleCreator;
   };
 
-  const myNeeds = NEEDS.filter((n) => n.backerId === "u_backer_01");
+  const myNeeds = [
+    ...postedNeeds.filter((n) => n.backerId === "u_backer_01"),
+    ...NEEDS.filter((n) => n.backerId === "u_backer_01"),
+  ].map((n) => ({ id: n.id, title: n.title, status: n.status as string, budget: n.budget }));
 
   const baseMessages = session.messages ?? [];
   const extras = sessionExtraMessages[session.id] ?? [];
@@ -193,7 +198,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
             <span className="font-label text-[11px] uppercase tracking-widest bg-tertiary-container text-on-tertiary-container px-3 py-1.5 rounded-full">
               {t.chat.listInCollab}
             </span>
-          ) : invitationActive ? (
+          ) : isRejected ? null : invitationActive ? (
             <span className="font-label text-[11px] uppercase tracking-widest bg-primary-container text-on-primary-container px-3 py-1.5 rounded-full">
               {t.chat.invitationSentBadge}
             </span>

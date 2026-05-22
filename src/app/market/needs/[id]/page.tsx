@@ -14,18 +14,19 @@ import { useT } from "@/hooks/useT";
 
 export default function NeedDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const { isLoggedIn, activeRole, myBidStatus, submitBid } = useStore();
+  const { isLoggedIn, activeRole, appliedNeeds, submitBid, acceptBid, hasHydrated } = useStore();
   const router = useRouter();
   const t = useT();
   const [bidOpen, setBidOpen] = useState(false);
   const [manageOpen, setManageOpen] = useState(false);
   const [acceptedBid, setAcceptedBid] = useState<string | null>(null);
+  const [declinedBids, setDeclinedBids] = useState<string[]>([]);
   const [attachments, setAttachments] = useState<Array<{ id: string; name: string; size: string; note: string }>>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (!isLoggedIn) router.push("/login");
-  }, [isLoggedIn, router]);
+    if (hasHydrated && !isLoggedIn) router.push("/login");
+  }, [hasHydrated, isLoggedIn, router]);
 
   const need = NEEDS.find((n) => n.id === id) ?? NEEDS[0];
   const bids = id === "need_001" ? BIDS_NEED_001 : [];
@@ -33,6 +34,8 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
   const handleAccept = (bidId: string) => {
     setAcceptedBid(bidId);
     setManageOpen(false);
+    // Accepting a bid kicks off the contract-drafting phase of the collaboration flow.
+    acceptBid("sess_001", need.title, need.budget);
     toast.success(t.needDetail.collaborationConfirmedToast);
     setTimeout(() => router.push("/orders/ord_001/contract"), 800);
   };
@@ -62,7 +65,7 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
   const removeAttachment = (id: string) => setAttachments((prev) => prev.filter((a) => a.id !== id));
   const resetBidForm = () => setAttachments([]);
 
-  if (!isLoggedIn) return null;
+  if (!hasHydrated || !isLoggedIn) return null;
 
   const inputCls =
     "w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm";
@@ -176,7 +179,7 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
 
               {activeRole === "creator" && need.status === "open" && (
                 <>
-                  {myBidStatus === "none" ? (
+                  {!appliedNeeds[id] ? (
                     <button
                       onClick={() => setBidOpen(true)}
                       className="w-full bg-primary text-on-primary font-label text-label-md uppercase tracking-wider py-3 rounded-lg hover:opacity-90 active:scale-95 transition-all"
@@ -263,6 +266,10 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
                       <span className="font-label text-[11px] uppercase tracking-widest bg-tertiary-container text-on-tertiary-container px-3 py-1.5 rounded-full">
                         {t.needDetail.accepted}
                       </span>
+                    ) : declinedBids.includes(bid.id) ? (
+                      <span className="font-label text-[11px] uppercase tracking-widest bg-surface-container text-on-surface-variant px-3 py-1.5 rounded-full">
+                        {t.needDetail.declined}
+                      </span>
                     ) : (
                       <>
                         <button
@@ -271,7 +278,13 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
                         >
                           <Check className="w-3.5 h-3.5" /> {t.needDetail.confirmBtn}
                         </button>
-                        <button className="flex items-center gap-1 font-label text-label-md uppercase tracking-wider px-4 py-2 border border-outline-variant rounded-lg hover:bg-surface-container-high text-on-surface-variant">
+                        <button
+                          onClick={() => {
+                            setDeclinedBids((prev) => [...prev, bid.id]);
+                            toast.info(t.needDetail.declinedToast);
+                          }}
+                          className="flex items-center gap-1 font-label text-label-md uppercase tracking-wider px-4 py-2 border border-outline-variant rounded-lg hover:bg-surface-container-high text-on-surface-variant"
+                        >
                           <X className="w-3.5 h-3.5" /> {t.needDetail.declineBtn}
                         </button>
                         <Link
@@ -391,7 +404,7 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
             </button>
             <button
               onClick={() => {
-                submitBid();
+                submitBid(id);
                 setBidOpen(false);
                 resetBidForm();
                 toast.success(t.needDetail.applicationSubmittedToast);

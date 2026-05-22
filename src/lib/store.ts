@@ -65,6 +65,21 @@ export function flowToStages(flow: SessionFlow | undefined): StageView[] {
   });
 }
 
+export interface PostedNeed {
+  id: string;
+  backerId: string;
+  title: string;
+  contentType: string;
+  styles: string[];
+  budget: number;
+  deliveryDays: number;
+  durationSec: number;
+  episodes: number;
+  status: "open";
+  publishedAt: string;
+  brief: string;
+}
+
 export interface BankCard {
   id: string;
   bankCode: string; // resolves to a localized bank name
@@ -107,6 +122,10 @@ interface AppState {
   logout: () => void;
   switchRole: (role: Role) => void;
 
+  // True once persisted state has rehydrated on the client (avoids guard redirects on refresh)
+  hasHydrated: boolean;
+  setHasHydrated: (v: boolean) => void;
+
   // Session lifecycle flow (shared by messages + order detail)
   sessionFlows: Record<string, SessionFlow>;
   startInvitation: (sessionId: string, needTitle: string, total: number) => void;
@@ -114,10 +133,17 @@ interface AppState {
   declineInvitation: (sessionId: string) => void;
   submitContract: (sessionId: string, terms: ContractTerms & { total: number }) => void;
   confirmContract: (sessionId: string) => void;
+  rejectContract: (sessionId: string) => void;
+  acceptBid: (sessionId: string, needTitle: string, total: number) => void;
   payDeposit: (sessionId: string) => void;
   submitDelivery: (sessionId: string) => void;
   approveDelivery: (sessionId: string) => void;
   requestRevision: (sessionId: string) => void;
+  resetFlow: (sessionId: string) => void;
+
+  // Account profile edits (persisted, per role)
+  profileEdits: Partial<Record<Role, { nickname?: string; email?: string; bio?: string }>>;
+  updateProfile: (role: Role, edits: { nickname?: string; email?: string; bio?: string }) => void;
 
   // Wallet simulation
   backerDiamond: number;
@@ -139,9 +165,13 @@ interface AppState {
   appendAgentMessages: (msgs: Array<{ role: "user" | "agent"; text: string; link?: { label: string; href: string } | null }>) => void;
   clearAgentMessages: () => void;
 
-  // Bid state
-  myBidStatus: "none" | "pending" | "accepted" | "rejected";
-  submitBid: () => void;
+  // Bid state (tracked per need)
+  appliedNeeds: Record<string, boolean>;
+  submitBid: (needId: string) => void;
+
+  // Backer-posted needs (persisted, shown alongside the mock NEEDS)
+  postedNeeds: PostedNeed[];
+  addNeed: (need: PostedNeed) => void;
 
   // Per-session messaging
   sessionExtraMessages: Record<string, Array<{ id: string; senderId: string; senderName: string; senderRole: string; text: string; ts: string; isCard?: boolean }>>;
@@ -233,6 +263,9 @@ export const useStore = create<AppState>()(
       logout: () => set({ isLoggedIn: false }),
       switchRole: (role) => set({ activeRole: role }),
 
+      hasHydrated: false,
+      setHasHydrated: (v) => set({ hasHydrated: v }),
+
       // Seeded so the flagship NeoVision conversation (sess_001) starts at the
       // invitation step and shares its lifecycle state with the order page.
       sessionFlows: {
@@ -299,6 +332,40 @@ export const useStore = create<AppState>()(
           return {
             sessionFlows: { ...s.sessionFlows, [sessionId]: { ...flow, phase: "deposit" } },
             sessionExtraMessages: appendCard(s, sessionId, f.sysContractConfirmed(creator)),
+          };
+        }),
+
+      // Creator sends the contract back to the backer to revise.
+      rejectContract: (sessionId) =>
+        set((s) => {
+          const flow = s.sessionFlows[sessionId];
+          if (!flow || flow.phase !== "contract_confirm") return {};
+          const f = translations[s.locale].flow;
+          const { creator } = partyNames(sessionId);
+          return {
+            sessionFlows: { ...s.sessionFlows, [sessionId]: { ...flow, phase: "contract_draft" } },
+            sessionExtraMessages: appendCard(s, sessionId, f.sysContractChanges(creator)),
+          };
+        }),
+
+      // Clear a session's flow (e.g. after a declined invitation, to allow re-inviting).
+      resetFlow: (sessionId) =>
+        set((s) => {
+          const next = { ...s.sessionFlows };
+          delete next[sessionId];
+          return { sessionFlows: next };
+        }),
+
+      // Accepting a creator's bid skips the invitation and goes straight to contract drafting.
+      acceptBid: (sessionId, needTitle, total) =>
+        set((s) => {
+          const f = translations[s.locale].flow;
+          return {
+            sessionFlows: {
+              ...s.sessionFlows,
+              [sessionId]: { phase: "contract_draft", stageIndex: 0, total, needTitle, revisions: 0 },
+            },
+            sessionExtraMessages: appendCard(s, sessionId, f.sysBidAccepted),
           };
         }),
 
@@ -401,8 +468,15 @@ export const useStore = create<AppState>()(
       appendAgentMessages: (msgs) => set((s) => ({ agentMessages: [...s.agentMessages, ...msgs] })),
       clearAgentMessages: () => set({ agentMessages: [] }),
 
-      myBidStatus: "none",
-      submitBid: () => set({ myBidStatus: "pending" }),
+      appliedNeeds: {},
+      submitBid: (needId) => set((s) => ({ appliedNeeds: { ...s.appliedNeeds, [needId]: true } })),
+
+      postedNeeds: [],
+      addNeed: (need) => set((s) => ({ postedNeeds: [need, ...s.postedNeeds] })),
+
+      profileEdits: {},
+      updateProfile: (role, edits) =>
+        set((s) => ({ profileEdits: { ...s.profileEdits, [role]: { ...s.profileEdits[role], ...edits } } })),
 
       sessionExtraMessages: {},
       appendSessionMessage: (sessionId, msg) =>
@@ -447,8 +521,14 @@ export const useStore = create<AppState>()(
         sessionExtraMessages: state.sessionExtraMessages,
         sessionFlows: state.sessionFlows,
         bankCards: state.bankCards,
+        appliedNeeds: state.appliedNeeds,
+        postedNeeds: state.postedNeeds,
+        profileEdits: state.profileEdits,
         agentMessages: state.agentMessages,
       }),
+      onRehydrateStorage: () => (state) => {
+        state?.setHasHydrated(true);
+      },
     }
   )
 );

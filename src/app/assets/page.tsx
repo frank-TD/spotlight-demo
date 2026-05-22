@@ -156,7 +156,10 @@ export default function AssetsPage() {
 
                     {/* Actions */}
                     <div className="flex gap-2 mt-4">
-                      <button className="flex-1 flex items-center justify-center gap-1.5 border border-outline-variant rounded-lg px-3 py-2 font-label text-label-md uppercase tracking-wider hover:bg-surface-container-high transition-colors">
+                      <button
+                        onClick={() => toast.success(t.assets.downloadToast)}
+                        className="flex-1 flex items-center justify-center gap-1.5 border border-outline-variant rounded-lg px-3 py-2 font-label text-label-md uppercase tracking-wider hover:bg-surface-container-high transition-colors"
+                      >
                         <Download className="w-3.5 h-3.5" /> {t.assets.downloadBtn}
                       </button>
                       {!dist && (
@@ -295,7 +298,10 @@ export default function AssetsPage() {
                     <div className="flex-1" />
 
                     <div className="flex gap-2 mt-4">
-                      <button className="flex-1 flex items-center justify-center gap-1.5 border border-outline-variant rounded-lg px-3 py-2 font-label text-label-md uppercase tracking-wider hover:bg-surface-container-high transition-colors">
+                      <button
+                        onClick={() => toast.success(t.assets.downloadToast)}
+                        className="flex-1 flex items-center justify-center gap-1.5 border border-outline-variant rounded-lg px-3 py-2 font-label text-label-md uppercase tracking-wider hover:bg-surface-container-high transition-colors"
+                      >
                         <Download className="w-3.5 h-3.5" /> {t.assets.downloadBtn}
                       </button>
                       {!dist && (
