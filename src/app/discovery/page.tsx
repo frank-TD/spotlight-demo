@@ -181,17 +181,18 @@ export default function DiscoveryPage() {
             </span>
             {t.discovery.badge}
           </div>
-          <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tighter leading-[0.95]">
+          <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tight leading-[1.05] [overflow:visible] px-2 md:px-4">
             <StaggerText text={t.discovery.title1} />
             <span>&nbsp;</span>
             <span
-              className="italic font-headline inline-block animate-fade-up pr-[0.12em]"
+              className="italic font-headline animate-fade-in"
               style={{
                 animationDelay: `${t.discovery.title1.length * 50 + 100}ms`,
                 background: "linear-gradient(135deg, #6e5b47 0%, #dcc2aa 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
+                paddingRight: "0.15em",
               }}
             >
               {t.discovery.title2}

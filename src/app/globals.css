@@ -280,6 +280,17 @@
   animation: fade-up 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
+/* Opacity-only fade for inline text where transform would force inline-block
+   and clip italic overhangs (e.g. the gradient brand word). */
+@keyframes fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.animate-fade-in {
+  opacity: 0;
+  animation: fade-in 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
 /* Image shimmer placeholder — sweeps across the gradient while the picture loads */
 @keyframes shimmer {
   0% { transform: translateX(-100%); }
