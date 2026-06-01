@@ -1,12 +1,16 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import AppShell from "@/components/layout/AppShell";
 import { useStore } from "@/lib/store";
 import { useT } from "@/hooks/useT";
 import { getAgentReply } from "@/lib/agent-response";
-import { Sparkles, Send, Megaphone, Camera, Wand2, ArrowRight, Paperclip, X } from "lucide-react";
+import { CREATORS, findSessionForCounterpart } from "@/lib/mock-data";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Sparkles, Send, Megaphone, Camera, Wand2, ArrowRight, Paperclip, X, Play, Star, MessageCircle, ArrowUpRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 type Aspect = "portrait" | "tall" | "landscape" | "wide" | "square";
 type Item = { id: number; title: string; creator: string; category: string; aspect: Aspect; seed: string };
@@ -70,8 +74,15 @@ export default function DiscoveryPage() {
   const [prompt, setPrompt] = useState("");
   const [promptExpanded, setPromptExpanded] = useState(false);
   const [files, setFiles] = useState<{ name: string; size: string }[]>([]);
+  const [openItem, setOpenItem] = useState<Item | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const promptRef = useRef<HTMLDivElement>(null);
+
+  const startConversation = (creatorId: string) => {
+    setOpenItem(null);
+    const sid = findSessionForCounterpart("backer", creatorId);
+    router.push(sid ? `/messages/sessions/${sid}` : "/messages");
+  };
 
   // Collapse the prompt when clicking outside (unless the user has typed/attached).
   useEffect(() => {
@@ -204,10 +215,12 @@ export default function DiscoveryPage() {
             const grad = GRADIENTS[i % GRADIENTS.length];
             const [w, h] = ASPECT_DIM[item.aspect];
             return (
-              <div
+              <button
                 key={item.id}
+                type="button"
+                onClick={() => setOpenItem(item)}
                 className={cn(
-                  "break-inside-avoid mb-3 md:mb-4 relative overflow-hidden rounded-2xl bg-gradient-to-br group hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/20 transition-all duration-500",
+                  "break-inside-avoid mb-3 md:mb-4 relative overflow-hidden rounded-2xl bg-gradient-to-br group hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/20 transition-all duration-500 cursor-pointer w-full text-left",
                   ASPECT_CLASS[item.aspect],
                   grad
                 )}
@@ -221,6 +234,9 @@ export default function DiscoveryPage() {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="absolute inset-0 p-4 flex flex-col justify-end opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+                  <span className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-white">
+                    <Play className="w-3.5 h-3.5 ml-0.5" fill="currentColor" />
+                  </span>
                   <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-3 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
                     <p className="font-headline italic text-white text-base md:text-lg leading-tight">{item.title}</p>
                     <p className="font-label text-white/70 text-[10px] uppercase tracking-widest mt-1">
@@ -228,11 +244,125 @@ export default function DiscoveryPage() {
                     </p>
                   </div>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
       </main>
+
+      {/* Work preview dialog */}
+      <Dialog open={!!openItem} onOpenChange={(o) => !o && setOpenItem(null)}>
+        <DialogContent className="sm:max-w-5xl p-0 overflow-hidden max-h-[90vh]">
+          {openItem && (() => {
+            const creator = CREATORS.find((c) => c.nickname === openItem.creator);
+            const previewW = 1280;
+            const previewH = Math.round((previewW * 9) / 16);
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] max-h-[90vh] overflow-hidden">
+                {/* Left: preview */}
+                <div className="bg-[#0f0d0c] p-6 md:p-7 flex flex-col gap-4 overflow-y-auto">
+                  <div className="aspect-video relative rounded-xl overflow-hidden bg-surface-container group">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`https://picsum.photos/seed/${openItem.seed}/${previewW}/${previewH}`}
+                      alt={openItem.title}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => toast.info(t.discovery.playbackToast)}
+                      className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/45 transition-colors"
+                      aria-label="play"
+                    >
+                      <span className="w-16 h-16 rounded-full bg-white/95 shadow-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Play className="w-7 h-7 text-on-surface ml-1" fill="currentColor" />
+                      </span>
+                    </button>
+                  </div>
+                  <div>
+                    <span className="font-label text-[10px] uppercase tracking-widest bg-white/10 text-white/80 px-2.5 py-1 rounded">
+                      {t.discovery.filters[openItem.category] ?? openItem.category}
+                    </span>
+                    <h2 className="font-headline italic text-white text-2xl md:text-3xl mt-3 leading-tight">
+                      {openItem.title}
+                    </h2>
+                    <p className="font-label text-white/60 text-[11px] uppercase tracking-widest mt-2">
+                      {t.discovery.by} {openItem.creator}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Right: creator card */}
+                {creator && (
+                  <div className="p-6 md:p-7 flex flex-col overflow-y-auto">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div
+                        className={cn(
+                          "w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold shrink-0",
+                          creator.avatarColor
+                        )}
+                      >
+                        {creator.avatar}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-headline text-[20px] text-on-surface truncate">{creator.nickname}</p>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <Star className="w-3 h-3 fill-tertiary text-tertiary" />
+                          <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                            {creator.rating} · {creator.orders} {t.creators.projectsLabel}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                      {creator.specialties.map((s) => (
+                        <span
+                          key={s}
+                          className="font-label text-[10px] uppercase tracking-widest bg-primary-container text-on-primary-container px-2.5 py-1 rounded-full"
+                        >
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+
+                    <p className="font-body text-sm text-on-surface-variant leading-relaxed mb-5 line-clamp-4 flex-1">
+                      {creator.bio}
+                    </p>
+
+                    <div className="bg-surface-container rounded-xl p-4 mb-4 flex items-center justify-between">
+                      <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                        {t.creators.fromLabel}
+                      </span>
+                      <span className="font-headline text-[20px] text-on-surface">
+                        ¥{creator.rateCard.from.toLocaleString()}+
+                      </span>
+                    </div>
+
+                    <div className="space-y-2">
+                      {activeRole === "backer" && (
+                        <button
+                          onClick={() => startConversation(creator.id)}
+                          className="w-full flex items-center justify-center gap-2 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider py-3 rounded-lg hover:opacity-90 active:scale-95 transition-all"
+                        >
+                          <MessageCircle className="w-4 h-4" /> {t.chat.startConversation}
+                        </button>
+                      )}
+                      <Link
+                        href={`/market/creators/${creator.id}`}
+                        onClick={() => setOpenItem(null)}
+                        className="w-full flex items-center justify-center gap-1.5 font-label text-label-md uppercase tracking-wider py-3 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors"
+                      >
+                        {t.needDetail.viewProfile} <ArrowUpRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
 
       {/* Floating agent prompt — expands on focus with file upload */}
       <div

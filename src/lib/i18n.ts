@@ -564,6 +564,7 @@ const en = {
     by: "by",
     attach: "Attach",
     shiftEnterHint: "Shift+Enter for newline",
+    playbackToast: "Playback is a demo preview",
   },
   studio: {
     title: "AIGC Studio",
@@ -1280,6 +1281,7 @@ const zhCN: typeof en = {
     by: "by",
     attach: "附件",
     shiftEnterHint: "Shift+Enter 换行",
+    playbackToast: "演示版本，仅作预览",
   },
   studio: {
     title: "AIGC 创作台",
@@ -1993,6 +1995,7 @@ const zhTW: typeof en = {
     by: "by",
     attach: "附件",
     shiftEnterHint: "Shift+Enter 換行",
+    playbackToast: "示範版本，僅作預覽",
   },
   studio: {
     title: "AIGC 創作台",
