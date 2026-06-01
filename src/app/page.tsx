@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import Link from "next/link";
 import { useStore } from "@/lib/store";
 import { useRouter } from "next/navigation";
@@ -17,9 +18,16 @@ const AVATAR_STACK = [
 ];
 
 export default function HomePage() {
-  const { isLoggedIn } = useStore();
+  const { isLoggedIn, hasHydrated } = useStore();
   const router = useRouter();
   const t = useT();
+
+  // Once logged in, the marketing home isn't the destination — send them to Discovery.
+  useEffect(() => {
+    if (hasHydrated && isLoggedIn) router.replace("/discovery");
+  }, [hasHydrated, isLoggedIn, router]);
+
+  if (hasHydrated && isLoggedIn) return null;
 
   const STATS = [
     { label: t.home.stats.activeCreators, value: "2,400+" },
@@ -53,7 +61,7 @@ export default function HomePage() {
           <div className="flex items-center justify-center gap-3 flex-wrap mt-12">
             {isLoggedIn ? (
               <button
-                onClick={() => router.push("/market")}
+                onClick={() => router.push("/discovery")}
                 className="group glow-hover flex items-center gap-3 bg-primary text-on-primary font-label text-lg uppercase tracking-widest px-10 py-5 rounded-lg hover:scale-105 active:scale-95 transition-transform"
               >
                 {t.home.goToMarketplace}

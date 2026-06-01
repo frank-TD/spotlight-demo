@@ -44,12 +44,12 @@ export default function TopNav() {
   return (
     <header className="fixed top-0 left-0 right-0 h-[80px] z-50 bg-surface/60 backdrop-blur-[30px] border-b border-outline-variant/10 shadow-[0_4px_30px_rgba(0,0,0,0.06)]">
       <div className="flex justify-between items-center px-6 md:px-12 w-full max-w-[1280px] mx-auto h-full">
-        <div className="flex items-center gap-12">
-          <Link href="/" className="font-headline text-[28px] md:text-[32px] text-on-surface italic font-bold leading-none">
+        <div className="flex items-center gap-8">
+          <Link href="/" className="font-headline text-[28px] md:text-[32px] text-on-surface italic font-bold leading-none whitespace-nowrap">
             Spotlight
           </Link>
           {isLoggedIn && (
-            <nav className="hidden md:flex gap-8">
+            <nav className="hidden md:flex gap-5 lg:gap-7">
               {NAV_ITEMS.map((item) => {
                 const active = pathname.startsWith(item.href.split("/").slice(0, 3).join("/"));
                 return (
@@ -57,7 +57,7 @@ export default function TopNav() {
                     key={item.href}
                     href={item.href}
                     className={cn(
-                      "font-label text-label-md uppercase tracking-[0.2em] transition-colors duration-300",
+                      "font-label text-label-md uppercase tracking-widest transition-colors duration-300 whitespace-nowrap",
                       active
                         ? "text-primary relative after:content-[''] after:absolute after:-bottom-2 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-primary after:rounded-full"
                         : "text-on-surface-variant hover:text-on-surface"

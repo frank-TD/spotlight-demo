@@ -562,6 +562,8 @@ const en = {
     promptCreator: "Tell Wren what kind of work you'd like to be matched with…",
     send: "Ask Spotlight",
     by: "by",
+    attach: "Attach",
+    shiftEnterHint: "Shift+Enter for newline",
   },
   studio: {
     title: "AIGC Studio",
@@ -1276,6 +1278,8 @@ const zhCN: typeof en = {
     promptCreator: "告诉 Wren 你想匹配什么样的项目…",
     send: "问问 Spotlight",
     by: "by",
+    attach: "附件",
+    shiftEnterHint: "Shift+Enter 换行",
   },
   studio: {
     title: "AIGC 创作台",
@@ -1987,6 +1991,8 @@ const zhTW: typeof en = {
     promptCreator: "告訴 Wren 你想匹配什麼樣的專案…",
     send: "問問 Spotlight",
     by: "by",
+    attach: "附件",
+    shiftEnterHint: "Shift+Enter 換行",
   },
   studio: {
     title: "AIGC 創作台",
