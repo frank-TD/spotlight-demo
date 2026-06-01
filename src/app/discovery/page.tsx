@@ -185,7 +185,7 @@ export default function DiscoveryPage() {
             <StaggerText text={t.discovery.title1} />
             <span>&nbsp;</span>
             <span
-              className="italic font-headline inline-block animate-fade-up"
+              className="italic font-headline inline-block animate-fade-up pr-[0.12em]"
               style={{
                 animationDelay: `${t.discovery.title1.length * 50 + 100}ms`,
                 background: "linear-gradient(135deg, #6e5b47 0%, #dcc2aa 100%)",
@@ -197,7 +197,10 @@ export default function DiscoveryPage() {
               {t.discovery.title2}
             </span>
           </h1>
-          <p className="font-body text-on-surface-variant text-base md:text-xl max-w-3xl mx-auto opacity-80 leading-relaxed animate-fade-up" style={{ animationDelay: `${(t.discovery.title1.length + t.discovery.title2.length) * 50 + 200}ms` }}>
+          <p
+            className="font-headline italic font-light text-on-surface-variant text-lg md:text-2xl max-w-3xl mx-auto opacity-90 leading-relaxed tracking-tight animate-fade-up"
+            style={{ animationDelay: `${(t.discovery.title1.length + t.discovery.title2.length) * 50 + 200}ms` }}
+          >
             {t.discovery.subtitle}
           </p>
         </header>
