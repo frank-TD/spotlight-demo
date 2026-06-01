@@ -1,4 +1,5 @@
 "use client";
+import { useEffect } from "react";
 import Link from "next/link";
 import { useStore } from "@/lib/store";
 import { useRouter } from "next/navigation";
@@ -8,6 +9,7 @@ import ScrollReveal from "@/components/home/ScrollReveal";
 import { useT } from "@/hooks/useT";
 import { ArrowRight, Sparkles, Film, FileVideo, ScrollText } from "lucide-react";
 import { cn } from "@/lib/utils";
+import CountUp from "@/components/common/CountUp";
 
 const AVATAR_STACK = [
   { initials: "AS", bg: "bg-rose-100", text: "text-rose-700" },
@@ -17,15 +19,22 @@ const AVATAR_STACK = [
 ];
 
 export default function HomePage() {
-  const { isLoggedIn } = useStore();
+  const { isLoggedIn, hasHydrated } = useStore();
   const router = useRouter();
   const t = useT();
 
-  const STATS = [
-    { label: t.home.stats.activeCreators, value: "2,400+" },
-    { label: t.home.stats.projectsCompleted, value: "18,000+" },
-    { label: t.home.stats.avgDelivery, value: t.home.stats.avgDeliveryValue },
-    { label: t.home.stats.satisfaction, value: "98.2%" },
+  // Once logged in, the marketing home isn't the destination — send them to Discovery.
+  useEffect(() => {
+    if (hasHydrated && isLoggedIn) router.replace("/discovery");
+  }, [hasHydrated, isLoggedIn, router]);
+
+  if (hasHydrated && isLoggedIn) return null;
+
+  const STATS: Array<{ label: string; n?: number; suffix?: string; raw?: string; decimal?: boolean }> = [
+    { label: t.home.stats.activeCreators, n: 2400, suffix: "+" },
+    { label: t.home.stats.projectsCompleted, n: 18000, suffix: "+" },
+    { label: t.home.stats.avgDelivery, raw: t.home.stats.avgDeliveryValue },
+    { label: t.home.stats.satisfaction, n: 98.2, suffix: "%", decimal: true },
   ];
 
   return (
@@ -53,7 +62,7 @@ export default function HomePage() {
           <div className="flex items-center justify-center gap-3 flex-wrap mt-12">
             {isLoggedIn ? (
               <button
-                onClick={() => router.push("/market")}
+                onClick={() => router.push("/discovery")}
                 className="group glow-hover flex items-center gap-3 bg-primary text-on-primary font-label text-lg uppercase tracking-widest px-10 py-5 rounded-lg hover:scale-105 active:scale-95 transition-transform"
               >
                 {t.home.goToMarketplace}
@@ -88,7 +97,18 @@ export default function HomePage() {
               <div key={s.label} className="flex items-center gap-8 md:gap-12">
                 <div className="flex flex-col items-center">
                   <span className="font-headline text-[40px] md:text-[48px] font-bold text-primary leading-none mb-2">
-                    {s.value}
+                    {s.raw ? (
+                      s.raw
+                    ) : (
+                      <>
+                        <CountUp
+                          value={s.n ?? 0}
+                          duration={1400}
+                          format={(n) => (s.decimal ? n.toFixed(1) : Math.round(n).toLocaleString())}
+                        />
+                        {s.suffix}
+                      </>
+                    )}
                   </span>
                   <span className="font-label text-label-md uppercase tracking-widest text-on-surface-variant">
                     {s.label}
