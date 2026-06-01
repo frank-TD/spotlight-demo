@@ -13,9 +13,10 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await new Promise((r) => setTimeout(r, 700));
-    login("backer");
+    // Register without committing to a role — the user picks Backer or Creator on /discovery.
+    login();
     toast.success(t.register.successToast);
-    router.push("/market");
+    router.push("/discovery");
   };
 
   return (
