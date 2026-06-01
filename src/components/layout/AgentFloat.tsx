@@ -4,17 +4,10 @@ import { useStore } from "@/lib/store";
 import { Sparkles, X, Send, ArrowUpRight, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useT } from "@/hooks/useT";
-
-const KEYWORDS = [
-  ["order", "progress", "status", "订单", "进度", "狀態", "進度", "訂單"],
-  ["wallet", "balance", "diamond", "shell", "钱包", "余额", "錢包", "餘額"],
-  ["withdraw", "payout", "cash", "提现", "提現"],
-  ["recommend", "creator", "find", "推荐", "創作者", "推薦", "创作者"],
-  ["kyc", "verify", "identity", "认证", "身份", "認證"],
-];
+import { getAgentReply } from "@/lib/agent-response";
 
 export default function AgentFloat() {
-  const { agentOpen, toggleAgent, isLoggedIn, agentMessages, appendAgentMessages, clearAgentMessages } = useStore();
+  const { agentOpen, toggleAgent, isLoggedIn, agentMessages, appendAgentMessages, clearAgentMessages, locale } = useStore();
   const t = useT();
   const [input, setInput] = useState("");
 
@@ -23,17 +16,10 @@ export default function AgentFloat() {
 
   if (!isLoggedIn) return null;
 
-  const getResponse = (q: string) => {
-    const lower = q.toLowerCase();
-    const idx = KEYWORDS.findIndex((kws) => kws.some((kw) => lower.includes(kw.toLowerCase())));
-    if (idx === -1) return { a: t.agent.fallback, link: null as { label: string; href: string } | null };
-    return t.agent.canned[idx];
-  };
-
   const send = () => {
     const q = input.trim();
     if (!q) return;
-    const resp = getResponse(q);
+    const resp = getAgentReply(q, locale);
     appendAgentMessages([
       { role: "user", text: q },
       { role: "agent", text: resp.a, link: resp.link },

@@ -10,16 +10,16 @@ export default function LoginPage() {
   const router = useRouter();
   const { login } = useStore();
   const t = useT();
-  const [role, setRole] = useState<"backer" | "creator">("backer");
   const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     await new Promise((r) => setTimeout(r, 600));
-    login(role);
-    toast.success(t.login.signedInAs(role === "backer" ? "Lucas Chen" : "Aria Song"));
-    router.push("/market");
+    // Sign in without committing to a role — the user picks Backer or Creator on /discovery.
+    login();
+    toast.success(t.login.welcomeBack);
+    router.push("/discovery");
   };
 
   return (
@@ -58,35 +58,6 @@ export default function LoginPage() {
           <h1 className="font-headline text-[40px] text-on-surface mb-2 leading-tight">{t.login.welcomeBack}</h1>
           <p className="text-on-surface-variant font-body italic mb-8">{t.login.subtitle}</p>
 
-          {/* Demo role selector */}
-          <div className="bg-primary-container/40 border border-outline-variant/30 rounded-xl p-4 mb-6">
-            <p className="font-label text-label-md uppercase tracking-wider text-on-primary-container mb-3">
-              {t.login.demoLabel}
-            </p>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setRole("backer")}
-                className={`flex-1 font-label text-[11px] uppercase tracking-wider py-2 rounded-lg transition-colors ${
-                  role === "backer"
-                    ? "bg-primary text-on-primary"
-                    : "bg-surface-container-lowest border border-outline-variant/30 text-on-surface-variant hover:text-on-surface"
-                }`}
-              >
-                {t.login.backerOption}
-              </button>
-              <button
-                onClick={() => setRole("creator")}
-                className={`flex-1 font-label text-[11px] uppercase tracking-wider py-2 rounded-lg transition-colors ${
-                  role === "creator"
-                    ? "bg-primary text-on-primary"
-                    : "bg-surface-container-lowest border border-outline-variant/30 text-on-surface-variant hover:text-on-surface"
-                }`}
-              >
-                {t.login.creatorOption}
-              </button>
-            </div>
-          </div>
-
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2">
@@ -94,7 +65,7 @@ export default function LoginPage() {
               </label>
               <input
                 type="email"
-                defaultValue={role === "backer" ? "lucas@neovision.co" : "aria@studio.me"}
+                defaultValue="you@spotlight.demo"
                 readOnly
                 className="w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm"
               />

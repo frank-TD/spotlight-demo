@@ -126,6 +126,10 @@ interface AppState {
   hasHydrated: boolean;
   setHasHydrated: (v: boolean) => void;
 
+  // Discovery identity step: true once the user has confirmed their role this session
+  roleConfirmed: boolean;
+  confirmRole: (role: Role) => void;
+
   // Session lifecycle flow (shared by messages + order detail)
   sessionFlows: Record<string, SessionFlow>;
   startInvitation: (sessionId: string, needTitle: string, total: number) => void;
@@ -161,6 +165,7 @@ interface AppState {
   // Agent float
   agentOpen: boolean;
   toggleAgent: () => void;
+  openAgent: () => void;
   agentMessages: Array<{ role: "user" | "agent"; text: string; link?: { label: string; href: string } | null }>;
   appendAgentMessages: (msgs: Array<{ role: "user" | "agent"; text: string; link?: { label: string; href: string } | null }>) => void;
   clearAgentMessages: () => void;
@@ -259,12 +264,15 @@ export const useStore = create<AppState>()(
       locale: "en" as Locale,
       setLocale: (locale) => set({ locale }),
 
-      login: (role = "backer") => set({ isLoggedIn: true, activeRole: role }),
-      logout: () => set({ isLoggedIn: false }),
+      login: (role = "backer") => set({ isLoggedIn: true, activeRole: role, roleConfirmed: false }),
+      logout: () => set({ isLoggedIn: false, roleConfirmed: false }),
       switchRole: (role) => set({ activeRole: role }),
 
       hasHydrated: false,
       setHasHydrated: (v) => set({ hasHydrated: v }),
+
+      roleConfirmed: false,
+      confirmRole: (role) => set({ activeRole: role, roleConfirmed: true }),
 
       // Seeded so the flagship NeoVision conversation (sess_001) starts at the
       // invitation step and shares its lifecycle state with the order page.
@@ -464,6 +472,7 @@ export const useStore = create<AppState>()(
 
       agentOpen: false,
       toggleAgent: () => set((s) => ({ agentOpen: !s.agentOpen })),
+      openAgent: () => set({ agentOpen: true }),
       agentMessages: [],
       appendAgentMessages: (msgs) => set((s) => ({ agentMessages: [...s.agentMessages, ...msgs] })),
       clearAgentMessages: () => set({ agentMessages: [] }),
@@ -525,6 +534,7 @@ export const useStore = create<AppState>()(
         postedNeeds: state.postedNeeds,
         profileEdits: state.profileEdits,
         agentMessages: state.agentMessages,
+        roleConfirmed: state.roleConfirmed,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);

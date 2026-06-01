@@ -28,6 +28,7 @@ export default function TopNav() {
   const t = useT();
 
   const NAV_ITEMS = [
+    { label: t.nav.discover, href: "/discovery" },
     { label: t.nav.marketplace, href: "/market" },
     { label: t.nav.studio, href: "/studio" },
     { label: t.nav.myProjects, href: "/projects" },
