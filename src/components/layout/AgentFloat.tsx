@@ -7,7 +7,17 @@ import { useT } from "@/hooks/useT";
 import { getAgentReply } from "@/lib/agent-response";
 
 export default function AgentFloat() {
-  const { agentOpen, toggleAgent, isLoggedIn, agentMessages, appendAgentMessages, clearAgentMessages, locale } = useStore();
+  const {
+    agentOpen,
+    toggleAgent,
+    isLoggedIn,
+    agentMessages,
+    appendAgentMessages,
+    clearAgentMessages,
+    locale,
+    agentThinking,
+    setAgentThinking,
+  } = useStore();
   const t = useT();
   const [input, setInput] = useState("");
 
@@ -19,12 +29,15 @@ export default function AgentFloat() {
   const send = () => {
     const q = input.trim();
     if (!q) return;
-    const resp = getAgentReply(q, locale);
-    appendAgentMessages([
-      { role: "user", text: q },
-      { role: "agent", text: resp.a, link: resp.link },
-    ]);
+    // Show the user message immediately, then a typing indicator, then the canned reply.
+    appendAgentMessages([{ role: "user", text: q }]);
     setInput("");
+    setAgentThinking(true);
+    const resp = getAgentReply(q, locale);
+    setTimeout(() => {
+      appendAgentMessages([{ role: "agent", text: resp.a, link: resp.link }]);
+      setAgentThinking(false);
+    }, 800);
   };
 
   return (
@@ -94,6 +107,15 @@ export default function AgentFloat() {
                 </div>
               </div>
             ))}
+            {agentThinking && (
+              <div className="flex justify-start">
+                <div className="bg-surface-container text-on-surface-variant rounded-2xl rounded-bl-sm px-4 py-3">
+                  <span className="typing-dot" />
+                  <span className="typing-dot" style={{ animationDelay: "0.15s" }} />
+                  <span className="typing-dot" style={{ animationDelay: "0.3s" }} />
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Input */}

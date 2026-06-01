@@ -169,6 +169,8 @@ interface AppState {
   agentMessages: Array<{ role: "user" | "agent"; text: string; link?: { label: string; href: string } | null }>;
   appendAgentMessages: (msgs: Array<{ role: "user" | "agent"; text: string; link?: { label: string; href: string } | null }>) => void;
   clearAgentMessages: () => void;
+  agentThinking: boolean;
+  setAgentThinking: (v: boolean) => void;
 
   // Bid state (tracked per need)
   appliedNeeds: Record<string, boolean>;
@@ -476,6 +478,8 @@ export const useStore = create<AppState>()(
       agentMessages: [],
       appendAgentMessages: (msgs) => set((s) => ({ agentMessages: [...s.agentMessages, ...msgs] })),
       clearAgentMessages: () => set({ agentMessages: [] }),
+      agentThinking: false,
+      setAgentThinking: (v) => set({ agentThinking: v }),
 
       appliedNeeds: {},
       submitBid: (needId) => set((s) => ({ appliedNeeds: { ...s.appliedNeeds, [needId]: true } })),

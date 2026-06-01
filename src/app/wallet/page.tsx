@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import { useT } from "@/hooks/useT";
 import type { BankCard } from "@/lib/store";
+import CountUp from "@/components/common/CountUp";
 
 const AMOUNTS = [1000, 3000, 5000, 10000];
 
@@ -62,8 +63,8 @@ export default function WalletPage() {
                 <p className="font-label text-label-md uppercase tracking-widest opacity-70 mb-2">
                   {t.wallet.diamondBalance}
                 </p>
-                <p className="font-headline text-[44px] leading-none">◆ {backerDiamond.toLocaleString()}</p>
-                <p className="font-body text-sm opacity-60 mt-2">≈ ¥{backerDiamond.toLocaleString()}</p>
+                <p className="font-headline text-[44px] leading-none">◆ <CountUp value={backerDiamond} /></p>
+                <p className="font-body text-sm opacity-60 mt-2">≈ ¥<CountUp value={backerDiamond} /></p>
                 <p className="font-label text-label-md uppercase tracking-wider opacity-50 mt-4">
                   {t.wallet.diamondNote}
                 </p>
@@ -103,8 +104,8 @@ export default function WalletPage() {
                 <p className="font-label text-label-md uppercase tracking-widest opacity-70 mb-2">
                   {t.wallet.shellBalance}
                 </p>
-                <p className="font-headline text-[44px] leading-none">◉ {creatorShell.toLocaleString()}</p>
-                <p className="font-body text-sm opacity-60 mt-2">≈ ¥{creatorShell.toLocaleString()}</p>
+                <p className="font-headline text-[44px] leading-none">◉ <CountUp value={creatorShell} /></p>
+                <p className="font-body text-sm opacity-60 mt-2">≈ ¥<CountUp value={creatorShell} /></p>
                 <p className="font-label text-label-md uppercase tracking-wider opacity-50 mt-4">
                   {t.wallet.shellNote}
                 </p>

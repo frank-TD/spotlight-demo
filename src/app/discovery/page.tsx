@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AppShell from "@/components/layout/AppShell";
+import MouseGlow from "@/components/home/MouseGlow";
 import { useStore } from "@/lib/store";
 import { useT } from "@/hooks/useT";
 import { getAgentReply } from "@/lib/agent-response";
@@ -68,6 +69,7 @@ export default function DiscoveryPage() {
     locale,
     appendAgentMessages,
     openAgent,
+    setAgentThinking,
   } = useStore();
   const t = useT();
   const [filter, setFilter] = useState("All");
@@ -153,30 +155,39 @@ export default function DiscoveryPage() {
     if (!q && files.length === 0) return;
     const attached = files.length > 0 ? ` 📎 ${files.map((f) => f.name).join(", ")}` : "";
     const text = (q || "Files attached") + attached;
-    const resp = getAgentReply(text, locale);
-    appendAgentMessages([
-      { role: "user", text },
-      { role: "agent", text: resp.a, link: resp.link },
-    ]);
+    appendAgentMessages([{ role: "user", text }]);
     setPrompt("");
     setFiles([]);
     setPromptExpanded(false);
     openAgent();
+    setAgentThinking(true);
+    const resp = getAgentReply(text, locale);
+    setTimeout(() => {
+      appendAgentMessages([{ role: "agent", text: resp.a, link: resp.link }]);
+      setAgentThinking(false);
+    }, 800);
   };
 
   return (
     <AppShell>
+      <MouseGlow />
       <main className="max-w-[1800px] mx-auto px-4 md:px-6 pt-10 pb-48">
         {/* Header */}
         <header className="text-center mb-12 animate-fade-up">
           <div className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full bg-tertiary-container text-on-tertiary-container font-label text-[11px] uppercase tracking-[0.2em]">
-            <Sparkles className="w-3 h-3" /> {t.discovery.badge}
+            <span className="relative inline-flex w-2 h-2">
+              <span className="absolute inline-flex w-full h-full rounded-full bg-tertiary opacity-60 animate-ping" />
+              <span className="relative inline-flex w-2 h-2 rounded-full bg-tertiary live-dot" />
+            </span>
+            {t.discovery.badge}
           </div>
           <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tighter leading-[0.95]">
-            {t.discovery.title1}{" "}
+            <StaggerText text={t.discovery.title1} />
+            <span>&nbsp;</span>
             <span
-              className="italic font-headline"
+              className="italic font-headline inline-block animate-fade-up"
               style={{
+                animationDelay: `${t.discovery.title1.length * 50 + 100}ms`,
                 background: "linear-gradient(135deg, #6e5b47 0%, #dcc2aa 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
@@ -186,7 +197,7 @@ export default function DiscoveryPage() {
               {t.discovery.title2}
             </span>
           </h1>
-          <p className="font-body text-on-surface-variant text-base md:text-xl max-w-3xl mx-auto opacity-80 leading-relaxed">
+          <p className="font-body text-on-surface-variant text-base md:text-xl max-w-3xl mx-auto opacity-80 leading-relaxed animate-fade-up" style={{ animationDelay: `${(t.discovery.title1.length + t.discovery.title2.length) * 50 + 200}ms` }}>
             {t.discovery.subtitle}
           </p>
         </header>
@@ -209,44 +220,18 @@ export default function DiscoveryPage() {
           ))}
         </div>
 
-        {/* Masonry */}
-        <div className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-3 md:gap-4">
-          {filtered.map((item, i) => {
-            const grad = GRADIENTS[i % GRADIENTS.length];
-            const [w, h] = ASPECT_DIM[item.aspect];
-            return (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => setOpenItem(item)}
-                className={cn(
-                  "break-inside-avoid mb-3 md:mb-4 relative overflow-hidden rounded-2xl bg-gradient-to-br group hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/20 transition-all duration-500 cursor-pointer w-full text-left",
-                  ASPECT_CLASS[item.aspect],
-                  grad
-                )}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={`https://picsum.photos/seed/${item.seed}/${w}/${h}`}
-                  alt={item.title}
-                  loading="lazy"
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="absolute inset-0 p-4 flex flex-col justify-end opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                  <span className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-white">
-                    <Play className="w-3.5 h-3.5 ml-0.5" fill="currentColor" />
-                  </span>
-                  <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-3 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                    <p className="font-headline italic text-white text-base md:text-lg leading-tight">{item.title}</p>
-                    <p className="font-label text-white/70 text-[10px] uppercase tracking-widest mt-1">
-                      {t.discovery.by} {item.creator}
-                    </p>
-                  </div>
-                </div>
-              </button>
-            );
-          })}
+        {/* Masonry — re-keyed on filter so items replay the stagger entrance */}
+        <div key={filter} className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-3 md:gap-4">
+          {filtered.map((item, i) => (
+            <MasonryCard
+              key={item.id}
+              item={item}
+              index={i}
+              gradient={GRADIENTS[i % GRADIENTS.length]}
+              byLabel={t.discovery.by}
+              onOpen={() => setOpenItem(item)}
+            />
+          ))}
         </div>
       </main>
 
@@ -471,6 +456,77 @@ export default function DiscoveryPage() {
         </div>
       </div>
     </AppShell>
+  );
+}
+
+function MasonryCard({
+  item,
+  index,
+  gradient,
+  byLabel,
+  onOpen,
+}: {
+  item: Item;
+  index: number;
+  gradient: string;
+  byLabel: string;
+  onOpen: () => void;
+}) {
+  const [loaded, setLoaded] = useState(false);
+  const [w, h] = ASPECT_DIM[item.aspect];
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className={cn(
+        "break-inside-avoid mb-3 md:mb-4 relative overflow-hidden rounded-2xl bg-gradient-to-br group hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/20 transition-all duration-500 cursor-pointer w-full text-left animate-fade-up",
+        ASPECT_CLASS[item.aspect],
+        gradient
+      )}
+      style={{ animationDelay: `${index * 60}ms` }}
+    >
+      {!loaded && <span className="shimmer-overlay" />}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={`https://picsum.photos/seed/${item.seed}/${w}/${h}`}
+        alt={item.title}
+        loading="lazy"
+        onLoad={() => setLoaded(true)}
+        onError={() => setLoaded(true)}
+        className={cn(
+          "absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-105",
+          loaded ? "opacity-100" : "opacity-0"
+        )}
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute inset-0 p-4 flex flex-col justify-end opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+        <span className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-white">
+          <Play className="w-3.5 h-3.5 ml-0.5" fill="currentColor" />
+        </span>
+        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-3 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+          <p className="font-headline italic text-white text-base md:text-lg leading-tight">{item.title}</p>
+          <p className="font-label text-white/70 text-[10px] uppercase tracking-widest mt-1">
+            {byLabel} {item.creator}
+          </p>
+        </div>
+      </div>
+    </button>
+  );
+}
+
+function StaggerText({ text, baseDelay = 0, step = 50 }: { text: string; baseDelay?: number; step?: number }) {
+  return (
+    <>
+      {Array.from(text).map((ch, i) => (
+        <span
+          key={i}
+          className="inline-block animate-fade-up"
+          style={{ animationDelay: `${baseDelay + i * step}ms` }}
+        >
+          {ch === " " ? " " : ch}
+        </span>
+      ))}
+    </>
   );
 }
 
