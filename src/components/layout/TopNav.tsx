@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
@@ -11,7 +12,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Globe, Sparkles, Wallet, ChevronDown, User, FolderOpen, LogOut, Check } from "lucide-react";
+import { Globe, Sparkles, Wallet, ChevronDown, User, FolderOpen, LogOut, Check, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Locale } from "@/lib/i18n";
 
@@ -26,6 +27,7 @@ export default function TopNav() {
   const router = useRouter();
   const { isLoggedIn, activeRole, backerDiamond, creatorShell, locale, setLocale, logout, toggleAgent, switchRole } = useStore();
   const t = useT();
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   const NAV_ITEMS = [
     { label: t.nav.discover, href: "/discovery" },
@@ -43,7 +45,7 @@ export default function TopNav() {
 
   return (
     <header className="fixed top-0 left-0 right-0 h-[80px] z-50 bg-surface/60 backdrop-blur-[30px] border-b border-outline-variant/10 shadow-[0_4px_30px_rgba(0,0,0,0.06)]">
-      <div className="flex justify-between items-center px-6 md:px-12 w-full max-w-[1280px] mx-auto h-full">
+      <div className="flex justify-between items-center px-4 md:px-12 w-full max-w-[1280px] mx-auto h-full">
         <div className="flex items-center gap-8">
           <Link href="/" className="font-headline text-[28px] md:text-[32px] text-on-surface italic font-bold leading-none whitespace-nowrap">
             Spotlight
@@ -92,6 +94,13 @@ export default function TopNav() {
 
           {isLoggedIn ? (
             <>
+              <button
+                onClick={() => setMobileOpen(true)}
+                className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg hover:bg-surface-container transition-colors text-on-surface-variant"
+                aria-label="open menu"
+              >
+                <Menu className="w-5 h-5" />
+              </button>
               <button
                 onClick={toggleAgent}
                 className="hidden md:flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors px-2 py-1.5"
@@ -172,6 +181,81 @@ export default function TopNav() {
           )}
         </div>
       </div>
+
+      {/* Mobile slide-in menu */}
+      {isLoggedIn && (
+        <div
+          className={cn(
+            "md:hidden fixed inset-0 z-[60] transition-opacity duration-300",
+            mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
+          )}
+        >
+          <div
+            className="absolute inset-0 bg-on-surface/40 backdrop-blur-sm"
+            onClick={() => setMobileOpen(false)}
+          />
+          <aside
+            className={cn(
+              "absolute top-0 right-0 h-full w-[80%] max-w-[320px] bg-surface shadow-2xl flex flex-col transition-transform duration-300 ease-out",
+              mobileOpen ? "translate-x-0" : "translate-x-full"
+            )}
+          >
+            <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant/30">
+              <span className="font-headline text-2xl italic font-bold text-on-surface">Spotlight</span>
+              <button
+                onClick={() => setMobileOpen(false)}
+                className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-surface-container text-on-surface-variant"
+                aria-label="close menu"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
+              {NAV_ITEMS.map((item) => {
+                const active = pathname.startsWith(item.href.split("/").slice(0, 3).join("/"));
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setMobileOpen(false)}
+                    className={cn(
+                      "block px-4 py-3 rounded-lg font-label text-label-md uppercase tracking-widest transition-colors",
+                      active
+                        ? "bg-primary-container text-primary"
+                        : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+            <div className="border-t border-outline-variant/30 px-3 py-3 space-y-1">
+              <button
+                onClick={() => {
+                  toggleAgent();
+                  setMobileOpen(false);
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-primary transition-colors font-label text-label-md uppercase tracking-widest"
+              >
+                <Sparkles className="w-4 h-4" /> {t.nav.aiAssistant}
+              </button>
+              <Link
+                href="/wallet"
+                onClick={() => setMobileOpen(false)}
+                className="flex items-center justify-between gap-2 px-4 py-3 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
+              >
+                <span className="flex items-center gap-3 font-label text-label-md uppercase tracking-widest">
+                  <Wallet className="w-4 h-4" /> {t.nav.wallet}
+                </span>
+                <span className="font-mono text-sm text-on-surface">
+                  {activeRole === "backer" ? `◆ ${backerDiamond.toLocaleString()}` : `◉ ${creatorShell.toLocaleString()}`}
+                </span>
+              </Link>
+            </div>
+          </aside>
+        </div>
+      )}
     </header>
   );
 }
