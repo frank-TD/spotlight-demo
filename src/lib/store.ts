@@ -126,9 +126,33 @@ interface AppState {
   hasHydrated: boolean;
   setHasHydrated: (v: boolean) => void;
 
-  // Discovery identity step: true once the user has confirmed their role this session
-  roleConfirmed: boolean;
-  confirmRole: (role: Role) => void;
+  // Onboarding: true once the user has finished /onboarding/role + /onboarding/profile
+  onboardingComplete: boolean;
+  setOnboardingComplete: (v: boolean) => void;
+
+  // Role-specific onboarding answers (persisted; demo-only — never displayed in detail yet)
+  userPreferences: {
+    backer?: {
+      company?: string;
+      industry?: string;
+      budgetTier?: string;
+      contentTypes?: string[];
+      styles?: string[];
+      bio?: string;
+    };
+    creator?: {
+      displayName?: string;
+      specialties?: string[];
+      experience?: string;
+      rateFrom?: number;
+      portfolioUrl?: string;
+      styles?: string[];
+      availability?: string;
+      bio?: string;
+    };
+  };
+  updateBackerPrefs: (prefs: Partial<NonNullable<AppState["userPreferences"]["backer"]>>) => void;
+  updateCreatorPrefs: (prefs: Partial<NonNullable<AppState["userPreferences"]["creator"]>>) => void;
 
   // Session lifecycle flow (shared by messages + order detail)
   sessionFlows: Record<string, SessionFlow>;
@@ -266,15 +290,21 @@ export const useStore = create<AppState>()(
       locale: "en" as Locale,
       setLocale: (locale) => set({ locale }),
 
-      login: (role = "backer") => set({ isLoggedIn: true, activeRole: role, roleConfirmed: false }),
-      logout: () => set({ isLoggedIn: false, roleConfirmed: false }),
+      login: (role = "backer") => set({ isLoggedIn: true, activeRole: role }),
+      logout: () => set({ isLoggedIn: false, onboardingComplete: false, userPreferences: {} }),
       switchRole: (role) => set({ activeRole: role }),
 
       hasHydrated: false,
       setHasHydrated: (v) => set({ hasHydrated: v }),
 
-      roleConfirmed: false,
-      confirmRole: (role) => set({ activeRole: role, roleConfirmed: true }),
+      onboardingComplete: false,
+      setOnboardingComplete: (v) => set({ onboardingComplete: v }),
+
+      userPreferences: {},
+      updateBackerPrefs: (prefs) =>
+        set((s) => ({ userPreferences: { ...s.userPreferences, backer: { ...s.userPreferences.backer, ...prefs } } })),
+      updateCreatorPrefs: (prefs) =>
+        set((s) => ({ userPreferences: { ...s.userPreferences, creator: { ...s.userPreferences.creator, ...prefs } } })),
 
       // Seeded so the flagship NeoVision conversation (sess_001) starts at the
       // invitation step and shares its lifecycle state with the order page.
@@ -538,7 +568,8 @@ export const useStore = create<AppState>()(
         postedNeeds: state.postedNeeds,
         profileEdits: state.profileEdits,
         agentMessages: state.agentMessages,
-        roleConfirmed: state.roleConfirmed,
+        onboardingComplete: state.onboardingComplete,
+        userPreferences: state.userPreferences,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
