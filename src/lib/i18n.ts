@@ -703,6 +703,7 @@ const en = {
     refTooLarge: (name: string) => `${name} is over 10 MB and was skipped`,
     refCount: (n: number) => (n === 1 ? "1 reference" : `${n} references`),
     referencesLabel: "References",
+    assetCount: (n: number) => (n === 1 ? "1 item" : `${n} items`),
     // Sessions / groups
     newProject: "New project",
     untitledProject: "Untitled project",
@@ -1554,6 +1555,7 @@ const zhCN: typeof en = {
     refTooLarge: (name: string) => `${name} 超过 10 MB，已跳过`,
     refCount: (n: number) => `${n} 个参考`,
     referencesLabel: "参考",
+    assetCount: (n: number) => `${n} 项`,
     newProject: "新建项目",
     untitledProject: "未命名项目",
     rename: "重命名",
@@ -2401,6 +2403,7 @@ const zhTW: typeof en = {
     refTooLarge: (name: string) => `${name} 超過 10 MB，已略過`,
     refCount: (n: number) => `${n} 個參考`,
     referencesLabel: "參考",
+    assetCount: (n: number) => `${n} 項`,
     newProject: "新增專案",
     untitledProject: "未命名專案",
     rename: "重新命名",

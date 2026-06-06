@@ -46,12 +46,24 @@ export default function VisualsCanvas({
 
   return (
     <div className="h-full flex flex-col rounded-3xl border border-outline-variant/40 bg-surface-container-lowest/60 overflow-hidden">
-      {/* Header */}
-      <div className="flex items-center justify-between px-5 py-3 border-b border-outline-variant/30">
-        <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">{t.aigc.visuals}</span>
-        <span className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/60">
-          {assets.length > 0 ? `${assets.length}` : ""}
-        </span>
+      {/* Header — identifies the active session (or falls back to the mode
+          when there's no session yet) so the canvas isn't anonymous. */}
+      <div className="flex items-center justify-between gap-3 px-5 py-3 border-b border-outline-variant/30">
+        <div className="flex items-center gap-2 min-w-0">
+          <Icon className="w-3.5 h-3.5 text-on-surface-variant shrink-0" />
+          {session && session.assets.length > 0 ? (
+            <span className="font-body text-sm text-on-surface truncate">{session.title}</span>
+          ) : (
+            <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+              {t.aigc.modes[mode]}
+            </span>
+          )}
+        </div>
+        {assets.length > 0 && (
+          <span className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/60 shrink-0">
+            {t.aigc.assetCount(assets.length)}
+          </span>
+        )}
       </div>
 
       {/* Body */}
