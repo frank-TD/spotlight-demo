@@ -47,6 +47,7 @@ export default function StudioWorkspace() {
     addStudioAsset,
     setStudioGenerating,
     updateStudioSessionTitle,
+    updateStudioSessionMode,
     moveStudioSession,
     reorderStudioSession,
     newStudioGroup,
@@ -97,19 +98,61 @@ export default function StudioWorkspace() {
     setReferences([]);
   };
 
-  const onModeChange = (m: StudioMode) => {
+  const onModeChange = (targetMode: StudioMode) => {
     if (studioGenerating) return;
-    setMode(m);
+    const cur = studioSessions.find((s) => s.id === currentStudioSessionId);
     clearReferences();
-    // Show the most recent session of that mode, if any; else a fresh canvas.
-    const latest = studioSessions.find((s) => s.mode === m);
-    setCurrentStudioSession(latest ? latest.id : null);
+    setPrompt("");
+
+    // Case 1 — no current session anywhere: just remember the mode; first
+    // generate will spin up a session.
+    if (!cur) {
+      setMode(targetMode);
+      return;
+    }
+
+    // Case 2 — current is empty: try to morph it into the target mode in
+    // place. If a same-scope session of the target mode already exists, jump
+    // to it and drop the empty one so we don't accumulate placeholders.
+    if (cur.assets.length === 0) {
+      const scope = cur.groupId ?? null;
+      const conflict = studioSessions.find(
+        (s) => s.id !== cur.id && s.mode === targetMode && (s.groupId ?? null) === scope
+      );
+      if (conflict) {
+        setCurrentStudioSession(conflict.id);
+        deleteStudioSession(cur.id);
+      } else {
+        updateStudioSessionMode(cur.id, targetMode);
+      }
+      setMode(targetMode);
+      return;
+    }
+
+    // Case 3 — current has assets and lives inside a project (group).
+    // Reuse the project's same-mode session if it has one, else spawn a new
+    // session inside the same project.
+    if (cur.groupId) {
+      const groupTarget = studioSessions.find(
+        (s) => s.groupId === cur.groupId && s.mode === targetMode
+      );
+      if (groupTarget) setCurrentStudioSession(groupTarget.id);
+      else newStudioSession(targetMode, cur.groupId);
+      setMode(targetMode);
+      return;
+    }
+
+    // Case 4 — current has assets and is ungrouped: scratch space always
+    // gets a fresh ungrouped session for the new mode.
+    newStudioSession(targetMode, null);
+    setMode(targetMode);
   };
 
   const onSelectSession = (id: string) => {
     const s = studioSessions.find((x) => x.id === id);
     if (!s) return;
     clearReferences();
+    setPrompt("");
     setCurrentStudioSession(id);
     setMode(s.mode);
   };
@@ -151,11 +194,13 @@ export default function StudioWorkspace() {
       return;
     }
 
-    // Append to the active session if it matches this mode; else start one.
+    // The mode switch / new-session handlers keep currentSession in sync with
+    // mode, so we only spin up a fresh session here as a defensive fallback
+    // (e.g. the user lands fresh and hits Generate immediately).
     let sid = currentStudioSessionId;
     const active = studioSessions.find((s) => s.id === sid);
     if (!active || active.mode !== mode) {
-      sid = newStudioSession(mode);
+      sid = newStudioSession(mode, null);
     }
 
     setStudioGenerating(true);
@@ -183,12 +228,18 @@ export default function StudioWorkspace() {
   };
 
   const onNewSession = () => {
-    // Always land the user on a fresh, focused canvas. If the current session
-    // is already empty (no assets), keep it and just reset the dock — no point
-    // stacking empty "Untitled session" entries; otherwise spin up a new one.
+    // The top-left button is the "scratch a fresh session" affordance — it
+    // always lands in the no-group bucket so projects don't get cluttered.
+    // Reuse the current canvas only if it's already a no-group, same-mode,
+    // empty session — that's effectively the same state.
     const active = studioSessions.find((s) => s.id === currentStudioSessionId);
-    if (!active || active.assets.length > 0 || active.mode !== mode) {
-      newStudioSession(mode);
+    const reuse =
+      active &&
+      !active.groupId &&
+      active.mode === mode &&
+      active.assets.length === 0;
+    if (!reuse) {
+      newStudioSession(mode, null);
     }
     setPrompt("");
     clearReferences();

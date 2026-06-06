@@ -233,6 +233,9 @@ interface AppState {
   addStudioAsset: (sessionId: string, asset: StudioAsset) => void;
   setStudioGenerating: (v: boolean) => void;
   updateStudioSessionTitle: (id: string, title: string) => void;
+  // Mutate an empty session's mode in place so the user can swap modes
+  // without spawning a new session entry in the rail.
+  updateStudioSessionMode: (id: string, mode: StudioMode) => void;
   moveStudioSession: (sessionId: string, groupId: string | null) => void;
   // Drop the dragged session at a specific position relative to another session.
   // Sets the dragged session's groupId to match the target's and re-orders the
@@ -448,6 +451,10 @@ export const useStore = create<AppState>()(
       updateStudioSessionTitle: (id, title) =>
         set((s) => ({
           studioSessions: s.studioSessions.map((sess) => (sess.id === id ? { ...sess, title } : sess)),
+        })),
+      updateStudioSessionMode: (id, mode) =>
+        set((s) => ({
+          studioSessions: s.studioSessions.map((sess) => (sess.id === id ? { ...sess, mode } : sess)),
         })),
       moveStudioSession: (sessionId, groupId) =>
         set((s) => ({

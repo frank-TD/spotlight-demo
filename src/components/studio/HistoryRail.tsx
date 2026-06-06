@@ -25,6 +25,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
 const MODE_ICON: Record<StudioMode, typeof ImageIcon> = {
   image: ImageIcon,
@@ -157,6 +158,38 @@ export default function HistoryRail({
     onGroupDrop,
   };
 
+  // Sessions can't share a name within the same scope (a project, or the
+  // ungrouped bucket). Group names also can't collide. We wrap the parent's
+  // raw rename callbacks here so the inline-edit input can stay dumb.
+  const safeRenameSession = (id: string, title: string) => {
+    const trimmed = title.trim();
+    if (!trimmed) return;
+    const sess = sessions.find((s) => s.id === id);
+    if (!sess || sess.title === trimmed) return;
+    const scope = sess.groupId ?? null;
+    const conflict = sessions.find(
+      (s) => s.id !== id && (s.groupId ?? null) === scope && s.title === trimmed
+    );
+    if (conflict) {
+      toast.error(t.aigc.nameTakenSession);
+      return;
+    }
+    onRenameSession(id, trimmed);
+  };
+
+  const safeRenameGroup = (id: string, name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    const grp = groups.find((g) => g.id === id);
+    if (!grp || grp.name === trimmed) return;
+    const conflict = groups.find((g) => g.id !== id && g.name === trimmed);
+    if (conflict) {
+      toast.error(t.aigc.nameTakenGroup);
+      return;
+    }
+    onRenameGroup(id, trimmed);
+  };
+
   return (
     <aside data-testid="studio-rail" className="w-[240px] shrink-0 hidden lg:flex flex-col gap-3 pr-1">
       <div className="flex gap-2">
@@ -199,9 +232,9 @@ export default function HistoryRail({
                   setEditingId={setEditingId}
                   onSelect={onSelect}
                   onToggleGroup={onToggleGroup}
-                  onRenameGroup={onRenameGroup}
+                  onRenameGroup={safeRenameGroup}
                   onDeleteGroup={onDeleteGroup}
-                  onRenameSession={onRenameSession}
+                  onRenameSession={safeRenameSession}
                   onMoveSession={onMoveSession}
                   onDeleteSession={onDeleteSession}
                   groups={groups}
@@ -219,7 +252,7 @@ export default function HistoryRail({
                 editingId={editingId}
                 setEditingId={setEditingId}
                 onSelect={onSelect}
-                onRenameSession={onRenameSession}
+                onRenameSession={safeRenameSession}
                 onMoveSession={onMoveSession}
                 onDeleteSession={onDeleteSession}
                 groups={groups}
