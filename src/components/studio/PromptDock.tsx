@@ -24,8 +24,11 @@ import {
   Sparkles,
   Send,
   Check,
+  X,
+  FileIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import type { PromptReference } from "./ReferenceUploadDialog";
 
 const MODE_META: { id: StudioMode; icon: typeof ImageIcon }[] = [
   { id: "image", icon: ImageIcon },
@@ -46,6 +49,9 @@ export default function PromptDock({
   onGenerate,
   onOpenModelPicker,
   onOpenVoiceCatalog,
+  onOpenReferences,
+  references,
+  onRemoveReference,
 }: {
   mode: StudioMode;
   onModeChange: (m: StudioMode) => void;
@@ -58,6 +64,9 @@ export default function PromptDock({
   onGenerate: () => void;
   onOpenModelPicker: () => void;
   onOpenVoiceCatalog: () => void;
+  onOpenReferences: () => void;
+  references: PromptReference[];
+  onRemoveReference: (id: string) => void;
 }) {
   const t = useT();
   const [expanded, setExpanded] = useState(true);
@@ -102,13 +111,26 @@ export default function PromptDock({
         {expanded && (
           <>
             {/* Reference / add row */}
-            <div className="flex items-center gap-2 px-4 pb-1">
-              <button className="w-8 h-8 rounded-full border border-outline-variant/50 flex items-center justify-center text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors" aria-label="add">
+            <div className="flex items-center gap-2 px-4 pb-1 flex-wrap">
+              <button
+                onClick={onOpenReferences}
+                className="w-8 h-8 rounded-full border border-outline-variant/50 flex items-center justify-center text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
+                aria-label="add reference"
+              >
                 <Plus className="w-4 h-4" />
               </button>
               {(mode === "image" || mode === "video") && (
-                <button className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full border border-outline-variant/50 font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors">
-                  <ImagePlus className="w-3.5 h-3.5" /> {t.aigc.imageReference}
+                <button
+                  onClick={onOpenReferences}
+                  className={cn(
+                    "inline-flex items-center gap-2 px-3 py-1.5 rounded-full border font-label text-[10px] uppercase tracking-wider transition-colors",
+                    references.length > 0
+                      ? "border-primary/50 text-primary bg-primary-container/30"
+                      : "border-outline-variant/50 text-on-surface-variant hover:border-primary/50 hover:text-primary"
+                  )}
+                >
+                  <ImagePlus className="w-3.5 h-3.5" />
+                  {references.length > 0 ? t.aigc.refCount(references.length) : t.aigc.imageReference}
                 </button>
               )}
               {mode === "voiceover" && (
@@ -119,6 +141,29 @@ export default function PromptDock({
                   <Mic className="w-3.5 h-3.5" /> {voice ? voice.name : t.aigc.voiceCatalog}
                 </button>
               )}
+
+              {/* Selected reference chips */}
+              {references.map((r) => (
+                <span
+                  key={r.id}
+                  className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-primary-container/40 text-on-primary-container max-w-[180px]"
+                >
+                  {r.previewUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={r.previewUrl} alt="" className="w-4 h-4 rounded object-cover" />
+                  ) : (
+                    <FileIcon className="w-3 h-3" />
+                  )}
+                  <span className="font-body text-[11px] truncate">{r.name}</span>
+                  <button
+                    onClick={() => onRemoveReference(r.id)}
+                    className="hover:text-error"
+                    aria-label="remove reference"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
             </div>
 
             {/* Prompt textarea */}

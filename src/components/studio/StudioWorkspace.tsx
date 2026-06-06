@@ -8,6 +8,7 @@ import VisualsCanvas from "./VisualsCanvas";
 import PromptDock from "./PromptDock";
 import ModelPickerDialog from "./ModelPickerDialog";
 import VoiceCatalogDialog from "./VoiceCatalogDialog";
+import ReferenceUploadDialog, { type PromptReference } from "./ReferenceUploadDialog";
 import { toast } from "sonner";
 
 const DEFAULT_SETTINGS: Record<StudioMode, StudioAssetSettings> = {
@@ -36,6 +37,7 @@ export default function StudioWorkspace() {
   const t = useT();
   const {
     studioSessions,
+    studioGroups,
     currentStudioSessionId,
     studioGenerating,
     newStudioSession,
@@ -43,6 +45,12 @@ export default function StudioWorkspace() {
     deleteStudioSession,
     addStudioAsset,
     setStudioGenerating,
+    updateStudioSessionTitle,
+    moveStudioSession,
+    newStudioGroup,
+    renameStudioGroup,
+    deleteStudioGroup,
+    toggleStudioGroupCollapsed,
     hasHydrated,
   } = useStore();
 
@@ -51,6 +59,8 @@ export default function StudioWorkspace() {
   const [progress, setProgress] = useState(0);
   const [modelPickerOpen, setModelPickerOpen] = useState(false);
   const [voiceCatalogOpen, setVoiceCatalogOpen] = useState(false);
+  const [referencesOpen, setReferencesOpen] = useState(false);
+  const [references, setReferences] = useState<PromptReference[]>([]);
 
   // Per-mode model + settings so switching modes preserves each mode's choices.
   const [modelByMode, setModelByMode] = useState<Record<StudioMode, string>>(DEFAULT_MODEL_BY_MODE);
@@ -71,9 +81,23 @@ export default function StudioWorkspace() {
   const modelId = modelByMode[mode];
   const settings = settingsByMode[mode];
 
+  const removeReference = (id: string) => {
+    setReferences((prev) => {
+      const ref = prev.find((r) => r.id === id);
+      if (ref?.previewUrl) URL.revokeObjectURL(ref.previewUrl);
+      return prev.filter((r) => r.id !== id);
+    });
+  };
+
+  const clearReferences = () => {
+    references.forEach((r) => r.previewUrl && URL.revokeObjectURL(r.previewUrl));
+    setReferences([]);
+  };
+
   const onModeChange = (m: StudioMode) => {
     if (studioGenerating) return;
     setMode(m);
+    clearReferences();
     // Show the most recent session of that mode, if any; else a fresh canvas.
     const latest = studioSessions.find((s) => s.mode === m);
     setCurrentStudioSession(latest ? latest.id : null);
@@ -82,6 +106,7 @@ export default function StudioWorkspace() {
   const onSelectSession = (id: string) => {
     const s = studioSessions.find((x) => x.id === id);
     if (!s) return;
+    clearReferences();
     setCurrentStudioSession(id);
     setMode(s.mode);
   };
@@ -98,6 +123,9 @@ export default function StudioWorkspace() {
       settings: { ...settings },
       createdAt: Date.now(),
     };
+    if (references.length > 0) {
+      base.references = references.map((r) => ({ id: r.id, name: r.name, size: r.size, type: r.type }));
+    }
     if (sessionMode === "image" || sessionMode === "video") {
       const [w, h] = ASPECT_DIM[settings.aspect ?? "16:9"] ?? [960, 540];
       base.imageUrl = `https://picsum.photos/seed/${seed}/${w}/${h}`;
@@ -142,12 +170,23 @@ export default function StudioWorkspace() {
       }
       setStudioGenerating(false);
       setPrompt("");
+      clearReferences();
     }, 2400);
   };
 
   const onConfirmModel = (newModelId: string, newSettings: StudioAssetSettings) => {
     setModelByMode((m) => ({ ...m, [mode]: newModelId }));
     setSettingsByMode((s) => ({ ...s, [mode]: newSettings }));
+  };
+
+  const onNewSession = () => {
+    setCurrentStudioSession(null);
+    setPrompt("");
+    clearReferences();
+  };
+
+  const onNewGroup = () => {
+    newStudioGroup(t.aigc.untitledProject);
   };
 
   if (!hasHydrated) return null;
@@ -157,13 +196,17 @@ export default function StudioWorkspace() {
       <div className="flex gap-5">
         <HistoryRail
           sessions={studioSessions}
+          groups={studioGroups}
           currentId={currentStudioSessionId}
           onSelect={onSelectSession}
-          onNew={() => {
-            setCurrentStudioSession(null);
-            setPrompt("");
-          }}
-          onDelete={deleteStudioSession}
+          onNewSession={onNewSession}
+          onNewGroup={onNewGroup}
+          onDeleteSession={deleteStudioSession}
+          onRenameSession={updateStudioSessionTitle}
+          onMoveSession={moveStudioSession}
+          onRenameGroup={renameStudioGroup}
+          onDeleteGroup={deleteStudioGroup}
+          onToggleGroup={toggleStudioGroupCollapsed}
         />
 
         <main className="flex-1 min-w-0">
@@ -192,6 +235,9 @@ export default function StudioWorkspace() {
           onGenerate={onGenerate}
           onOpenModelPicker={() => setModelPickerOpen(true)}
           onOpenVoiceCatalog={() => setVoiceCatalogOpen(true)}
+          onOpenReferences={() => setReferencesOpen(true)}
+          references={references}
+          onRemoveReference={removeReference}
         />
       </div>
 
@@ -208,6 +254,12 @@ export default function StudioWorkspace() {
         onOpenChange={setVoiceCatalogOpen}
         selectedVoiceId={voice.id}
         onSelect={setVoice}
+      />
+      <ReferenceUploadDialog
+        open={referencesOpen}
+        onOpenChange={setReferencesOpen}
+        references={references}
+        onChange={setReferences}
       />
     </div>
   );

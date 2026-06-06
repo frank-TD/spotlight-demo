@@ -134,6 +134,17 @@ export interface StudioAssetSettings {
   tempo?: string;
 }
 
+// Reference file attached to a prompt or persisted onto a generated asset.
+// We intentionally don't persist the actual file bytes — only metadata so the
+// localStorage footprint stays small. Thumbnails live in PromptDock state via
+// URL.createObjectURL and disappear on reload.
+export interface StudioReference {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+}
+
 export interface StudioAsset {
   id: string;
   mode: StudioMode;
@@ -146,6 +157,7 @@ export interface StudioAsset {
   // For voiceover/music: a synthetic duration in seconds + waveform seed.
   durationSec?: number;
   waveformSeed?: string;
+  references?: StudioReference[];
   createdAt: number;
 }
 
@@ -154,6 +166,15 @@ export interface StudioSession {
   title: string;
   mode: StudioMode;
   assets: StudioAsset[];
+  // null/undefined = ungrouped; otherwise points at a StudioGroup.
+  groupId?: string | null;
+  createdAt: number;
+}
+
+export interface StudioGroup {
+  id: string;
+  name: string;
+  collapsed?: boolean;
   createdAt: number;
 }
 
@@ -203,14 +224,21 @@ interface AppState {
 
   // AIGC Studio sessions (persisted)
   studioSessions: StudioSession[];
+  studioGroups: StudioGroup[];
   currentStudioSessionId: string | null;
   studioGenerating: boolean;
-  newStudioSession: (mode: StudioMode) => string;
+  newStudioSession: (mode: StudioMode, groupId?: string | null) => string;
   setCurrentStudioSession: (id: string | null) => void;
   deleteStudioSession: (id: string) => void;
   addStudioAsset: (sessionId: string, asset: StudioAsset) => void;
   setStudioGenerating: (v: boolean) => void;
   updateStudioSessionTitle: (id: string, title: string) => void;
+  moveStudioSession: (sessionId: string, groupId: string | null) => void;
+  // Groups
+  newStudioGroup: (name?: string) => string;
+  renameStudioGroup: (id: string, name: string) => void;
+  deleteStudioGroup: (id: string) => void;
+  toggleStudioGroupCollapsed: (id: string) => void;
 
   // Session lifecycle flow (shared by messages + order detail)
   sessionFlows: Record<string, SessionFlow>;
@@ -366,15 +394,17 @@ export const useStore = create<AppState>()(
 
       // AIGC Studio
       studioSessions: [],
+      studioGroups: [],
       currentStudioSessionId: null,
       studioGenerating: false,
-      newStudioSession: (mode) => {
+      newStudioSession: (mode, groupId = null) => {
         const id = `studio_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
         const session: StudioSession = {
           id,
           title: "Untitled session",
           mode,
           assets: [],
+          groupId,
           createdAt: Date.now(),
         };
         set((s) => ({
@@ -410,6 +440,36 @@ export const useStore = create<AppState>()(
       updateStudioSessionTitle: (id, title) =>
         set((s) => ({
           studioSessions: s.studioSessions.map((sess) => (sess.id === id ? { ...sess, title } : sess)),
+        })),
+      moveStudioSession: (sessionId, groupId) =>
+        set((s) => ({
+          studioSessions: s.studioSessions.map((sess) =>
+            sess.id === sessionId ? { ...sess, groupId } : sess
+          ),
+        })),
+      newStudioGroup: (name = "New project") => {
+        const id = `group_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+        const group: StudioGroup = { id, name, collapsed: false, createdAt: Date.now() };
+        set((s) => ({ studioGroups: [group, ...s.studioGroups] }));
+        return id;
+      },
+      renameStudioGroup: (id, name) =>
+        set((s) => ({
+          studioGroups: s.studioGroups.map((g) => (g.id === id ? { ...g, name } : g)),
+        })),
+      deleteStudioGroup: (id) =>
+        set((s) => ({
+          studioGroups: s.studioGroups.filter((g) => g.id !== id),
+          // Sessions inside the deleted group become ungrouped (they aren't deleted).
+          studioSessions: s.studioSessions.map((sess) =>
+            sess.groupId === id ? { ...sess, groupId: null } : sess
+          ),
+        })),
+      toggleStudioGroupCollapsed: (id) =>
+        set((s) => ({
+          studioGroups: s.studioGroups.map((g) =>
+            g.id === id ? { ...g, collapsed: !g.collapsed } : g
+          ),
         })),
 
       // Seeded so the flagship NeoVision conversation (sess_001) starts at the
@@ -677,6 +737,7 @@ export const useStore = create<AppState>()(
         onboardingComplete: state.onboardingComplete,
         userPreferences: state.userPreferences,
         studioSessions: state.studioSessions,
+        studioGroups: state.studioGroups,
         currentStudioSessionId: state.currentStudioSessionId,
       }),
       onRehydrateStorage: () => (state) => {

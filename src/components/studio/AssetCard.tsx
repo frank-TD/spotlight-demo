@@ -3,7 +3,7 @@ import { useState } from "react";
 import type { StudioAsset } from "@/lib/store";
 import { useT } from "@/hooks/useT";
 import Waveform from "./Waveform";
-import { Play, Pause, Download, Music2, Mic } from "lucide-react";
+import { Play, Pause, Download, Music2, Mic, Paperclip } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -100,6 +100,8 @@ export default function AssetCard({ asset }: { asset: StudioAsset }) {
           </>
         )}
       </div>
+
+      <ReferenceChips asset={asset} />
     </div>
   );
 }
@@ -109,6 +111,38 @@ function Chip({ children }: { children: React.ReactNode }) {
     <span className={cn("font-label text-[10px] uppercase tracking-widest bg-surface-container text-on-surface-variant px-2.5 py-1 rounded-full")}>
       {children}
     </span>
+  );
+}
+
+function ReferenceChips({ asset, light = false }: { asset: StudioAsset; light?: boolean }) {
+  const t = useT();
+  if (!asset.references || asset.references.length === 0) return null;
+  return (
+    <div className={cn("flex items-center gap-1.5 flex-wrap", light && "text-white/90")}>
+      <span
+        className={cn(
+          "inline-flex items-center gap-1 font-label text-[9px] uppercase tracking-widest",
+          light ? "text-white/70" : "text-on-surface-variant"
+        )}
+      >
+        <Paperclip className="w-3 h-3" /> {t.aigc.referencesLabel}
+      </span>
+      {asset.references.map((r) => (
+        <span
+          key={r.id}
+          className={cn(
+            "inline-flex max-w-[140px] items-center gap-1 px-1.5 py-0.5 rounded-full font-body text-[10px] truncate",
+            light
+              ? "bg-white/15 backdrop-blur border border-white/20 text-white/90"
+              : "bg-surface-container text-on-surface-variant"
+          )}
+          title={r.name}
+        >
+          <Paperclip className="w-2.5 h-2.5 shrink-0" />
+          <span className="truncate">{r.name}</span>
+        </span>
+      ))}
+    </div>
   );
 }
 
@@ -168,8 +202,9 @@ function VisualCard({
       >
         <Download className="w-3.5 h-3.5" />
       </button>
-      <figcaption className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
+      <figcaption className="absolute inset-x-0 bottom-0 p-3 bg-gradient-to-t from-black/70 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none flex flex-col gap-1.5">
         <p className="font-body text-xs text-white/90 line-clamp-1">{asset.prompt}</p>
+        <ReferenceChips asset={asset} light />
       </figcaption>
     </figure>
   );
