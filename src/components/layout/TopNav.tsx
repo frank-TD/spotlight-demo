@@ -30,9 +30,8 @@ export default function TopNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const NAV_ITEMS = [
-    { label: t.nav.discover, href: "/discovery" },
+    { label: t.nav.studio, href: "/discovery" },
     { label: t.nav.marketplace, href: "/market" },
-    { label: t.nav.studio, href: "/studio" },
     { label: t.nav.myProjects, href: "/projects" },
     { label: t.nav.assets, href: "/assets" },
     { label: t.nav.messages, href: "/messages" },

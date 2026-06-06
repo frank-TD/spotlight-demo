@@ -9,7 +9,7 @@ import { useT } from "@/hooks/useT";
 import { getAgentReply } from "@/lib/agent-response";
 import { CREATORS, findSessionForCounterpart } from "@/lib/mock-data";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Sparkles, Send, Megaphone, Camera, Wand2, ArrowRight, Paperclip, X, Play, Star, MessageCircle, ArrowUpRight } from "lucide-react";
+import { Send, Wand2, Paperclip, X, Play, Star, MessageCircle, ArrowUpRight, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 
@@ -62,10 +62,7 @@ export default function DiscoveryPage() {
   const router = useRouter();
   const {
     isLoggedIn,
-    hasHydrated,
     activeRole,
-    roleConfirmed,
-    confirmRole,
     locale,
     appendAgentMessages,
     openAgent,
@@ -80,10 +77,31 @@ export default function DiscoveryPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const promptRef = useRef<HTMLDivElement>(null);
 
+  // Anonymous browsing is allowed; acting (start conversation / send agent prompt)
+  // gates on signup. Logged-out users default to the Backer-facing UI.
+  const viewerRole = isLoggedIn ? activeRole : "backer";
+
+  const requireSignup = (msg: string) => {
+    toast.info(msg);
+    router.push("/register");
+  };
+
   const startConversation = (creatorId: string) => {
     setOpenItem(null);
+    if (!isLoggedIn) {
+      requireSignup(t.discovery.signUpToStart);
+      return;
+    }
     const sid = findSessionForCounterpart("backer", creatorId);
     router.push(sid ? `/messages/sessions/${sid}` : "/messages");
+  };
+
+  const handleStartCreating = () => {
+    if (!isLoggedIn) {
+      requireSignup(t.discovery.signUpToStart);
+      return;
+    }
+    router.push("/discovery/workspace");
   };
 
   // Collapse the prompt when clicking outside (unless the user has typed/attached).
@@ -107,52 +125,15 @@ export default function DiscoveryPage() {
     e.target.value = "";
   };
 
-  useEffect(() => {
-    if (hasHydrated && !isLoggedIn) router.push("/login");
-  }, [hasHydrated, isLoggedIn, router]);
-
-  if (!hasHydrated || !isLoggedIn) return null;
-
-  // Identity selection step
-  if (!roleConfirmed) {
-    return (
-      <AppShell>
-        <div className="max-w-4xl mx-auto px-6 md:px-12 pt-20 pb-16 text-center">
-          <div className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full bg-tertiary-container text-on-tertiary-container font-label text-[11px] uppercase tracking-[0.2em]">
-            <Sparkles className="w-3 h-3" /> {t.discovery.badge}
-          </div>
-          <h1 className="font-headline text-5xl md:text-6xl text-on-surface leading-tight mb-4">
-            {t.discovery.identityTitle}
-          </h1>
-          <p className="font-body text-on-surface-variant text-base md:text-lg italic mb-12 opacity-80">
-            {t.discovery.identitySubtitle}
-          </p>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <RoleCard
-              icon={Megaphone}
-              title={t.discovery.backerTitle}
-              desc={t.discovery.backerDesc}
-              cta={t.discovery.backerCta}
-              onClick={() => confirmRole("backer")}
-            />
-            <RoleCard
-              icon={Camera}
-              title={t.discovery.creatorTitle}
-              desc={t.discovery.creatorDesc}
-              cta={t.discovery.creatorCta}
-              onClick={() => confirmRole("creator")}
-            />
-          </div>
-        </div>
-      </AppShell>
-    );
-  }
-
   const filtered = filter === "All" ? ITEMS : ITEMS.filter((i) => i.category === filter);
 
   const sendPrompt = () => {
     const q = prompt.trim();
     if (!q && files.length === 0) return;
+    if (!isLoggedIn) {
+      requireSignup(t.discovery.signUpToStart);
+      return;
+    }
     const attached = files.length > 0 ? ` 📎 ${files.map((f) => f.name).join(", ")}` : "";
     const text = (q || "Files attached") + attached;
     appendAgentMessages([{ role: "user", text }]);
@@ -204,6 +185,24 @@ export default function DiscoveryPage() {
           >
             {t.discovery.subtitle}
           </p>
+
+          {/* Primary CTA — drops users into the AIGC workspace. */}
+          <div
+            className="mt-10 flex flex-col items-center gap-2.5 animate-fade-up"
+            style={{ animationDelay: `${(t.discovery.title1.length + t.discovery.title2.length) * 50 + 350}ms` }}
+          >
+            <button
+              onClick={handleStartCreating}
+              className="group glow-hover inline-flex items-center gap-3 bg-primary text-on-primary font-label text-base md:text-lg uppercase tracking-widest px-9 py-4 rounded-full hover:scale-105 active:scale-95 transition-transform shadow-lg shadow-primary/20"
+            >
+              <Wand2 className="w-4 h-4" />
+              {t.discovery.startCreating}
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </button>
+            <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/70">
+              {t.discovery.startCreatingHint}
+            </p>
+          </div>
         </header>
 
         {/* Filter chips */}
@@ -329,7 +328,7 @@ export default function DiscoveryPage() {
                     </div>
 
                     <div className="space-y-2">
-                      {activeRole === "backer" && (
+                      {viewerRole === "backer" && (
                         <button
                           onClick={() => startConversation(creator.id)}
                           className="w-full flex items-center justify-center gap-2 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider py-3 rounded-lg hover:opacity-90 active:scale-95 transition-all"
@@ -415,7 +414,7 @@ export default function DiscoveryPage() {
                   sendPrompt();
                 }
               }}
-              placeholder={activeRole === "backer" ? t.discovery.promptBacker : t.discovery.promptCreator}
+              placeholder={viewerRole === "backer" ? t.discovery.promptBacker : t.discovery.promptCreator}
               className={cn(
                 "flex-1 bg-transparent border-none resize-none focus:outline-none focus:ring-0 font-body text-base md:text-lg placeholder:text-on-surface-variant/60 transition-all duration-500 ease-out",
                 promptExpanded ? "min-h-[96px]" : "min-h-[28px]"
@@ -534,32 +533,3 @@ function StaggerText({ text, baseDelay = 0, step = 50 }: { text: string; baseDel
   );
 }
 
-function RoleCard({
-  icon: Icon,
-  title,
-  desc,
-  cta,
-  onClick,
-}: {
-  icon: typeof Megaphone;
-  title: string;
-  desc: string;
-  cta: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className="group text-left bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-8 hover:border-primary hover:shadow-xl hover:shadow-primary/10 transition-all duration-500 hover:-translate-y-1"
-    >
-      <div className="w-14 h-14 rounded-2xl bg-primary-container text-on-primary-container flex items-center justify-center mb-6 group-hover:bg-primary group-hover:text-on-primary transition-colors">
-        <Icon className="w-6 h-6" />
-      </div>
-      <h2 className="font-headline text-[28px] text-on-surface leading-tight mb-3">{title}</h2>
-      <p className="font-body text-sm text-on-surface-variant leading-relaxed mb-6">{desc}</p>
-      <span className="inline-flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider text-primary">
-        {cta} <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-      </span>
-    </button>
-  );
-}

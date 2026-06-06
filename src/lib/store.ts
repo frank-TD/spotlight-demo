@@ -110,6 +110,74 @@ export function flowActor(flow: SessionFlow | undefined): Role | null {
   }
 }
 
+/* ── AIGC Studio types ───────────────────────────────────────────────── */
+
+export type StudioMode = "image" | "video" | "voiceover" | "music";
+
+// Per-asset settings vary by mode; we keep them as a single record and
+// downstream renderers pick the relevant keys.
+export interface StudioAssetSettings {
+  aspect?: string;
+  quality?: string;
+  count?: number;
+  duration?: string;
+  resolution?: string;
+  audio?: boolean;
+  voiceId?: string;
+  voiceName?: string;
+  language?: string;
+  accent?: string;
+  effect?: string;
+  speed?: number;
+  genre?: string;
+  mood?: string;
+  tempo?: string;
+}
+
+// Reference file attached to a prompt or persisted onto a generated asset.
+// We intentionally don't persist the actual file bytes — only metadata so the
+// localStorage footprint stays small. Thumbnails live in PromptDock state via
+// URL.createObjectURL and disappear on reload.
+export interface StudioReference {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+}
+
+export interface StudioAsset {
+  id: string;
+  mode: StudioMode;
+  prompt: string;
+  modelId: string;
+  modelName: string;
+  settings: StudioAssetSettings;
+  // For image/video: a picsum URL seeded by the prompt.
+  imageUrl?: string;
+  // For voiceover/music: a synthetic duration in seconds + waveform seed.
+  durationSec?: number;
+  waveformSeed?: string;
+  references?: StudioReference[];
+  createdAt: number;
+}
+
+export interface StudioSession {
+  id: string;
+  title: string;
+  mode: StudioMode;
+  assets: StudioAsset[];
+  // null/undefined = ungrouped; otherwise points at a StudioGroup.
+  groupId?: string | null;
+  createdAt: number;
+}
+
+export interface StudioGroup {
+  id: string;
+  name: string;
+  collapsed?: boolean;
+  createdAt: number;
+}
+
 interface AppState {
   // Auth
   isLoggedIn: boolean;
@@ -126,9 +194,70 @@ interface AppState {
   hasHydrated: boolean;
   setHasHydrated: (v: boolean) => void;
 
-  // Discovery identity step: true once the user has confirmed their role this session
-  roleConfirmed: boolean;
-  confirmRole: (role: Role) => void;
+  // Onboarding: true once the user has finished /onboarding/role + /onboarding/profile
+  onboardingComplete: boolean;
+  setOnboardingComplete: (v: boolean) => void;
+
+  // Role-specific onboarding answers (persisted; demo-only — never displayed in detail yet)
+  userPreferences: {
+    backer?: {
+      company?: string;
+      industry?: string;
+      budgetTier?: string;
+      contentTypes?: string[];
+      styles?: string[];
+      bio?: string;
+    };
+    creator?: {
+      displayName?: string;
+      specialties?: string[];
+      experience?: string;
+      rateFrom?: number;
+      portfolioUrl?: string;
+      styles?: string[];
+      availability?: string;
+      bio?: string;
+    };
+  };
+  updateBackerPrefs: (prefs: Partial<NonNullable<AppState["userPreferences"]["backer"]>>) => void;
+  updateCreatorPrefs: (prefs: Partial<NonNullable<AppState["userPreferences"]["creator"]>>) => void;
+
+  // AIGC Studio sessions (persisted)
+  studioSessions: StudioSession[];
+  studioGroups: StudioGroup[];
+  currentStudioSessionId: string | null;
+  studioGenerating: boolean;
+  newStudioSession: (mode: StudioMode, groupId?: string | null) => string;
+  setCurrentStudioSession: (id: string | null) => void;
+  deleteStudioSession: (id: string) => void;
+  addStudioAsset: (sessionId: string, asset: StudioAsset) => void;
+  setStudioGenerating: (v: boolean) => void;
+  updateStudioSessionTitle: (id: string, title: string) => void;
+  // Mutate an empty session's mode in place so the user can swap modes
+  // without spawning a new session entry in the rail.
+  updateStudioSessionMode: (id: string, mode: StudioMode) => void;
+  moveStudioSession: (sessionId: string, groupId: string | null) => void;
+  // Concatenate source's assets onto target, drop source, and reroute the
+  // current selection if it pointed at source. Used when a session is moved
+  // into a project that already has a session of the same mode.
+  mergeStudioSessions: (targetId: string, sourceId: string) => void;
+  // One-shot cleanup that runs on hydrate. Collapses any pre-existing grouped
+  // duplicates (legacy data from before the per-project-per-mode rule landed)
+  // so the rail can't display a project with three image sessions at once.
+  cleanupStudioDuplicates: () => void;
+  // Drop the dragged session at a specific position relative to another session.
+  // Sets the dragged session's groupId to match the target's and re-orders the
+  // sessions array so the new neighbor ends up just before/after the target.
+  reorderStudioSession: (
+    sessionId: string,
+    targetSessionId: string,
+    position: "before" | "after"
+  ) => void;
+  // Groups
+  newStudioGroup: (name?: string) => string;
+  renameStudioGroup: (id: string, name: string) => void;
+  deleteStudioGroup: (id: string) => void;
+  toggleStudioGroupCollapsed: (id: string) => void;
 
   // Session lifecycle flow (shared by messages + order detail)
   sessionFlows: Record<string, SessionFlow>;
@@ -266,15 +395,182 @@ export const useStore = create<AppState>()(
       locale: "en" as Locale,
       setLocale: (locale) => set({ locale }),
 
-      login: (role = "backer") => set({ isLoggedIn: true, activeRole: role, roleConfirmed: false }),
-      logout: () => set({ isLoggedIn: false, roleConfirmed: false }),
+      login: (role = "backer") => set({ isLoggedIn: true, activeRole: role }),
+      logout: () => set({ isLoggedIn: false, onboardingComplete: false, userPreferences: {} }),
       switchRole: (role) => set({ activeRole: role }),
 
       hasHydrated: false,
       setHasHydrated: (v) => set({ hasHydrated: v }),
 
-      roleConfirmed: false,
-      confirmRole: (role) => set({ activeRole: role, roleConfirmed: true }),
+      onboardingComplete: false,
+      setOnboardingComplete: (v) => set({ onboardingComplete: v }),
+
+      userPreferences: {},
+      updateBackerPrefs: (prefs) =>
+        set((s) => ({ userPreferences: { ...s.userPreferences, backer: { ...s.userPreferences.backer, ...prefs } } })),
+      updateCreatorPrefs: (prefs) =>
+        set((s) => ({ userPreferences: { ...s.userPreferences, creator: { ...s.userPreferences.creator, ...prefs } } })),
+
+      // AIGC Studio
+      studioSessions: [],
+      studioGroups: [],
+      currentStudioSessionId: null,
+      studioGenerating: false,
+      newStudioSession: (mode, groupId = null) => {
+        const id = `studio_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+        const session: StudioSession = {
+          id,
+          title: "Untitled session",
+          mode,
+          assets: [],
+          groupId,
+          createdAt: Date.now(),
+        };
+        set((s) => ({
+          studioSessions: [session, ...s.studioSessions],
+          currentStudioSessionId: id,
+        }));
+        return id;
+      },
+      setCurrentStudioSession: (id) => set({ currentStudioSessionId: id }),
+      deleteStudioSession: (id) =>
+        set((s) => {
+          const next = s.studioSessions.filter((sess) => sess.id !== id);
+          return {
+            studioSessions: next,
+            currentStudioSessionId:
+              s.currentStudioSessionId === id ? (next[0]?.id ?? null) : s.currentStudioSessionId,
+          };
+        }),
+      addStudioAsset: (sessionId, asset) =>
+        set((s) => ({
+          studioSessions: s.studioSessions.map((sess) =>
+            sess.id === sessionId
+              ? {
+                  ...sess,
+                  assets: [...sess.assets, asset],
+                  // First asset's prompt becomes the session title (shown in left rail + header).
+                  title: sess.assets.length === 0 ? asset.prompt.slice(0, 60) : sess.title,
+                }
+              : sess
+          ),
+        })),
+      setStudioGenerating: (v) => set({ studioGenerating: v }),
+      updateStudioSessionTitle: (id, title) =>
+        set((s) => ({
+          studioSessions: s.studioSessions.map((sess) => (sess.id === id ? { ...sess, title } : sess)),
+        })),
+      updateStudioSessionMode: (id, mode) =>
+        set((s) => ({
+          studioSessions: s.studioSessions.map((sess) => (sess.id === id ? { ...sess, mode } : sess)),
+        })),
+      moveStudioSession: (sessionId, groupId) =>
+        set((s) => ({
+          studioSessions: s.studioSessions.map((sess) =>
+            sess.id === sessionId ? { ...sess, groupId } : sess
+          ),
+        })),
+      mergeStudioSessions: (targetId, sourceId) =>
+        set((s) => {
+          if (targetId === sourceId) return {};
+          const target = s.studioSessions.find((x) => x.id === targetId);
+          const source = s.studioSessions.find((x) => x.id === sourceId);
+          if (!target || !source) return {};
+          const mergedAssets = [...target.assets, ...source.assets];
+          // Adopt source's title only when the target hasn't picked up a real
+          // one yet (still default-named with no prior generation).
+          const adopt =
+            (!target.title || target.title === "Untitled session") &&
+            !!source.title &&
+            source.title !== "Untitled session";
+          const updatedTarget = {
+            ...target,
+            assets: mergedAssets,
+            title: adopt ? source.title : target.title,
+          };
+          return {
+            studioSessions: s.studioSessions
+              .filter((x) => x.id !== sourceId)
+              .map((x) => (x.id === targetId ? updatedTarget : x)),
+            currentStudioSessionId:
+              s.currentStudioSessionId === sourceId ? targetId : s.currentStudioSessionId,
+          };
+        }),
+      cleanupStudioDuplicates: () =>
+        set((s) => {
+          const seen = new Map<string, string>();
+          // Keepers list maintains existing order; losers get merged into the
+          // first session we encountered for each (groupId, mode) pair.
+          const toMerge: { keeperId: string; loserId: string }[] = [];
+          for (const sess of s.studioSessions) {
+            if (!sess.groupId) continue; // ungrouped allows multiple same-mode
+            const key = `${sess.groupId}:${sess.mode}`;
+            const firstId = seen.get(key);
+            if (firstId) toMerge.push({ keeperId: firstId, loserId: sess.id });
+            else seen.set(key, sess.id);
+          }
+          if (toMerge.length === 0) return {};
+          // Build a fresh sessions array by folding loser assets into keepers.
+          const byId = new Map(s.studioSessions.map((x) => [x.id, { ...x, assets: [...x.assets] }]));
+          for (const { keeperId, loserId } of toMerge) {
+            const keeper = byId.get(keeperId);
+            const loser = byId.get(loserId);
+            if (!keeper || !loser) continue;
+            keeper.assets.push(...loser.assets);
+            if ((!keeper.title || keeper.title === "Untitled session") && loser.title && loser.title !== "Untitled session") {
+              keeper.title = loser.title;
+            }
+            byId.delete(loserId);
+          }
+          const losers = new Set(toMerge.map((m) => m.loserId));
+          let cur = s.currentStudioSessionId;
+          if (cur && losers.has(cur)) {
+            const remap = toMerge.find((m) => m.loserId === cur);
+            cur = remap ? remap.keeperId : cur;
+          }
+          return {
+            studioSessions: s.studioSessions.filter((x) => !losers.has(x.id)).map((x) => byId.get(x.id) ?? x),
+            currentStudioSessionId: cur,
+          };
+        }),
+      reorderStudioSession: (sessionId, targetSessionId, position) =>
+        set((s) => {
+          if (sessionId === targetSessionId) return {};
+          const target = s.studioSessions.find((x) => x.id === targetSessionId);
+          if (!target) return {};
+          const without = s.studioSessions.filter((x) => x.id !== sessionId);
+          const moved = s.studioSessions.find((x) => x.id === sessionId);
+          if (!moved) return {};
+          const updated = { ...moved, groupId: target.groupId };
+          const idx = without.findIndex((x) => x.id === targetSessionId);
+          const at = position === "before" ? idx : idx + 1;
+          const next = [...without.slice(0, at), updated, ...without.slice(at)];
+          return { studioSessions: next };
+        }),
+      newStudioGroup: (name = "New project") => {
+        const id = `group_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+        const group: StudioGroup = { id, name, collapsed: false, createdAt: Date.now() };
+        set((s) => ({ studioGroups: [group, ...s.studioGroups] }));
+        return id;
+      },
+      renameStudioGroup: (id, name) =>
+        set((s) => ({
+          studioGroups: s.studioGroups.map((g) => (g.id === id ? { ...g, name } : g)),
+        })),
+      deleteStudioGroup: (id) =>
+        set((s) => ({
+          studioGroups: s.studioGroups.filter((g) => g.id !== id),
+          // Sessions inside the deleted group become ungrouped (they aren't deleted).
+          studioSessions: s.studioSessions.map((sess) =>
+            sess.groupId === id ? { ...sess, groupId: null } : sess
+          ),
+        })),
+      toggleStudioGroupCollapsed: (id) =>
+        set((s) => ({
+          studioGroups: s.studioGroups.map((g) =>
+            g.id === id ? { ...g, collapsed: !g.collapsed } : g
+          ),
+        })),
 
       // Seeded so the flagship NeoVision conversation (sess_001) starts at the
       // invitation step and shares its lifecycle state with the order page.
@@ -538,9 +834,16 @@ export const useStore = create<AppState>()(
         postedNeeds: state.postedNeeds,
         profileEdits: state.profileEdits,
         agentMessages: state.agentMessages,
-        roleConfirmed: state.roleConfirmed,
+        onboardingComplete: state.onboardingComplete,
+        userPreferences: state.userPreferences,
+        studioSessions: state.studioSessions,
+        studioGroups: state.studioGroups,
+        currentStudioSessionId: state.currentStudioSessionId,
       }),
       onRehydrateStorage: () => (state) => {
+        // Collapse any legacy grouped duplicates that pre-date the
+        // per-project-per-mode invariant before the workspace renders.
+        state?.cleanupStudioDuplicates();
         state?.setHasHydrated(true);
       },
     }

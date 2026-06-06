@@ -19,14 +19,16 @@ const AVATAR_STACK = [
 ];
 
 export default function HomePage() {
-  const { isLoggedIn, hasHydrated } = useStore();
+  const { isLoggedIn, onboardingComplete, hasHydrated } = useStore();
   const router = useRouter();
   const t = useT();
 
-  // Once logged in, the marketing home isn't the destination — send them to Discovery.
+  // Returning logged-in users skip the marketing home. Send them straight into the
+  // product — Discovery if onboarded, otherwise the role picker to finish setup.
   useEffect(() => {
-    if (hasHydrated && isLoggedIn) router.replace("/discovery");
-  }, [hasHydrated, isLoggedIn, router]);
+    if (!hasHydrated || !isLoggedIn) return;
+    router.replace(onboardingComplete ? "/discovery" : "/onboarding/role");
+  }, [hasHydrated, isLoggedIn, onboardingComplete, router]);
 
   if (hasHydrated && isLoggedIn) return null;
 
@@ -60,31 +62,13 @@ export default function HomePage() {
             {t.home.heroDesc}
           </p>
           <div className="flex items-center justify-center gap-3 flex-wrap mt-12">
-            {isLoggedIn ? (
-              <button
-                onClick={() => router.push("/discovery")}
-                className="group glow-hover flex items-center gap-3 bg-primary text-on-primary font-label text-lg uppercase tracking-widest px-10 py-5 rounded-lg hover:scale-105 active:scale-95 transition-transform"
-              >
-                {t.home.goToMarketplace}
-                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-              </button>
-            ) : (
-              <>
-                <Link
-                  href="/register"
-                  className="group glow-hover flex items-center gap-3 bg-primary text-on-primary font-label text-lg uppercase tracking-widest px-10 py-5 rounded-lg hover:scale-105 active:scale-95 transition-transform"
-                >
-                  {t.home.startProject}
-                  <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-                </Link>
-                <Link
-                  href="/login"
-                  className="font-label text-lg uppercase tracking-widest px-10 py-5 border border-outline-variant rounded-lg hover:bg-surface-container-high transition-colors"
-                >
-                  {t.nav.signIn}
-                </Link>
-              </>
-            )}
+            <Link
+              href="/discovery"
+              className="group glow-hover flex items-center gap-3 bg-primary text-on-primary font-label text-lg uppercase tracking-widest px-10 py-5 rounded-lg hover:scale-105 active:scale-95 transition-transform"
+            >
+              {t.nav.getStarted}
+              <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+            </Link>
           </div>
         </div>
       </section>

@@ -8,7 +8,7 @@ import { useT } from "@/hooks/useT";
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login } = useStore();
+  const { login, onboardingComplete } = useStore();
   const t = useT();
   const [loading, setLoading] = useState(false);
 
@@ -16,10 +16,11 @@ export default function LoginPage() {
     e.preventDefault();
     setLoading(true);
     await new Promise((r) => setTimeout(r, 600));
-    // Sign in without committing to a role — the user picks Backer or Creator on /discovery.
     login();
     toast.success(t.login.welcomeBack);
-    router.push("/discovery");
+    // Returning users that finished onboarding head straight to Discovery;
+    // anyone still in the funnel resumes at the role picker.
+    router.push(onboardingComplete ? "/discovery" : "/onboarding/role");
   };
 
   return (

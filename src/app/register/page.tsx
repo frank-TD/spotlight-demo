@@ -13,10 +13,10 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await new Promise((r) => setTimeout(r, 700));
-    // Register without committing to a role — the user picks Backer or Creator on /discovery.
+    // Register without committing to a role — the user picks Backer or Creator on /onboarding/role.
     login();
     toast.success(t.register.successToast);
-    router.push("/discovery");
+    router.push("/onboarding/role");
   };
 
   return (
