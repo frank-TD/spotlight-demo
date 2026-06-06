@@ -97,14 +97,14 @@ export default function AssetCard({
       <div className="flex flex-wrap gap-1.5">
         {isMusic ? (
           <>
-            {asset.settings.genre && <Chip>{asset.settings.genre}</Chip>}
-            {asset.settings.mood && <Chip>{asset.settings.mood}</Chip>}
+            {asset.settings?.genre && <Chip>{asset.settings.genre}</Chip>}
+            {asset.settings?.mood && <Chip>{asset.settings.mood}</Chip>}
           </>
         ) : (
           <>
-            {asset.settings.voiceName && <Chip>{asset.settings.voiceName}</Chip>}
-            {asset.settings.language && <Chip>{asset.settings.language}</Chip>}
-            {asset.settings.accent && <Chip>{asset.settings.accent}</Chip>}
+            {asset.settings?.voiceName && <Chip>{asset.settings.voiceName}</Chip>}
+            {asset.settings?.language && <Chip>{asset.settings.language}</Chip>}
+            {asset.settings?.accent && <Chip>{asset.settings.accent}</Chip>}
           </>
         )}
       </div>
@@ -169,7 +169,7 @@ function VisualCard({
 }) {
   const [imgOk, setImgOk] = useState(true);
   const gradient = gradientFor(asset.id);
-  const aspect = aspectClass(asset.settings.aspect);
+  const aspect = aspectClass(asset.settings?.aspect);
   return (
     <figure
       onClick={onOpen}
@@ -211,7 +211,7 @@ function VisualCard({
             </span>
           </button>
           <span className="absolute top-2 left-2 font-label text-[10px] uppercase tracking-widest bg-black/50 text-white px-2 py-1 rounded">
-            {asset.settings.duration ?? ""}
+            {asset.settings?.duration ?? ""}
           </span>
         </>
       )}

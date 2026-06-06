@@ -50,6 +50,7 @@ export default function StudioWorkspace() {
     updateStudioSessionMode,
     moveStudioSession,
     reorderStudioSession,
+    mergeStudioSessions,
     newStudioGroup,
     renameStudioGroup,
     deleteStudioGroup,
@@ -249,6 +250,54 @@ export default function StudioWorkspace() {
     newStudioGroup(t.aigc.untitledProject);
   };
 
+  // Per-project-per-mode invariant: when a session enters a project that
+  // already hosts the same mode, fold its assets into the resident session
+  // instead of letting two coexist. Ungrouped scratch space allows multiples,
+  // so moves into no-group skip the merge path.
+  const findMergeTarget = (movingId: string, targetGroupId: string | null) => {
+    if (!targetGroupId) return null;
+    const moving = studioSessions.find((s) => s.id === movingId);
+    if (!moving) return null;
+    return (
+      studioSessions.find(
+        (s) => s.id !== movingId && s.groupId === targetGroupId && s.mode === moving.mode
+      ) ?? null
+    );
+  };
+
+  const handleMoveSession = (sessionId: string, groupId: string | null) => {
+    const target = findMergeTarget(sessionId, groupId);
+    if (target) {
+      mergeStudioSessions(target.id, sessionId);
+      toast.success(t.aigc.mergedToast(target.title || t.aigc.untitled));
+      return;
+    }
+    moveStudioSession(sessionId, groupId);
+  };
+
+  const handleReorderSession = (
+    sessionId: string,
+    targetSessionId: string,
+    position: "before" | "after"
+  ) => {
+    const target = studioSessions.find((s) => s.id === targetSessionId);
+    if (!target) return;
+    const moving = studioSessions.find((s) => s.id === sessionId);
+    if (!moving) return;
+    // Cross-group reorder may still trigger the merge rule — the moved session
+    // adopts the drop target's group and that group might already host the
+    // same mode (which could even be the drop target itself).
+    if (moving.groupId !== target.groupId) {
+      const conflict = findMergeTarget(sessionId, target.groupId ?? null);
+      if (conflict) {
+        mergeStudioSessions(conflict.id, sessionId);
+        toast.success(t.aigc.mergedToast(conflict.title || t.aigc.untitled));
+        return;
+      }
+    }
+    reorderStudioSession(sessionId, targetSessionId, position);
+  };
+
   if (!hasHydrated) return null;
 
   return (
@@ -263,8 +312,8 @@ export default function StudioWorkspace() {
           onNewGroup={onNewGroup}
           onDeleteSession={deleteStudioSession}
           onRenameSession={updateStudioSessionTitle}
-          onMoveSession={moveStudioSession}
-          onReorderSession={reorderStudioSession}
+          onMoveSession={handleMoveSession}
+          onReorderSession={handleReorderSession}
           onRenameGroup={renameStudioGroup}
           onDeleteGroup={deleteStudioGroup}
           onToggleGroup={toggleStudioGroupCollapsed}

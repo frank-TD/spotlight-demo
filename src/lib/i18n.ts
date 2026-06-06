@@ -706,6 +706,7 @@ const en = {
     assetCount: (n: number) => (n === 1 ? "1 item" : `${n} items`),
     nameTakenSession: "Another session in this scope already has that name",
     nameTakenGroup: "Another project already has that name",
+    mergedToast: (intoName: string) => `Merged into "${intoName}"`,
     // Sessions / groups
     newProject: "New project",
     untitledProject: "Untitled project",
@@ -1560,6 +1561,7 @@ const zhCN: typeof en = {
     assetCount: (n: number) => `${n} 项`,
     nameTakenSession: "当前分组内已有同名会话",
     nameTakenGroup: "已有同名项目",
+    mergedToast: (intoName: string) => `已合并到「${intoName}」`,
     newProject: "新建项目",
     untitledProject: "未命名项目",
     rename: "重命名",
@@ -2410,6 +2412,7 @@ const zhTW: typeof en = {
     assetCount: (n: number) => `${n} 項`,
     nameTakenSession: "目前分組內已有同名工作階段",
     nameTakenGroup: "已有同名專案",
+    mergedToast: (intoName: string) => `已合併到「${intoName}」`,
     newProject: "新增專案",
     untitledProject: "未命名專案",
     rename: "重新命名",

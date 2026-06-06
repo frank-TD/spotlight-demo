@@ -237,6 +237,14 @@ interface AppState {
   // without spawning a new session entry in the rail.
   updateStudioSessionMode: (id: string, mode: StudioMode) => void;
   moveStudioSession: (sessionId: string, groupId: string | null) => void;
+  // Concatenate source's assets onto target, drop source, and reroute the
+  // current selection if it pointed at source. Used when a session is moved
+  // into a project that already has a session of the same mode.
+  mergeStudioSessions: (targetId: string, sourceId: string) => void;
+  // One-shot cleanup that runs on hydrate. Collapses any pre-existing grouped
+  // duplicates (legacy data from before the per-project-per-mode rule landed)
+  // so the rail can't display a project with three image sessions at once.
+  cleanupStudioDuplicates: () => void;
   // Drop the dragged session at a specific position relative to another session.
   // Sets the dragged session's groupId to match the target's and re-orders the
   // sessions array so the new neighbor ends up just before/after the target.
@@ -462,6 +470,69 @@ export const useStore = create<AppState>()(
             sess.id === sessionId ? { ...sess, groupId } : sess
           ),
         })),
+      mergeStudioSessions: (targetId, sourceId) =>
+        set((s) => {
+          if (targetId === sourceId) return {};
+          const target = s.studioSessions.find((x) => x.id === targetId);
+          const source = s.studioSessions.find((x) => x.id === sourceId);
+          if (!target || !source) return {};
+          const mergedAssets = [...target.assets, ...source.assets];
+          // Adopt source's title only when the target hasn't picked up a real
+          // one yet (still default-named with no prior generation).
+          const adopt =
+            (!target.title || target.title === "Untitled session") &&
+            !!source.title &&
+            source.title !== "Untitled session";
+          const updatedTarget = {
+            ...target,
+            assets: mergedAssets,
+            title: adopt ? source.title : target.title,
+          };
+          return {
+            studioSessions: s.studioSessions
+              .filter((x) => x.id !== sourceId)
+              .map((x) => (x.id === targetId ? updatedTarget : x)),
+            currentStudioSessionId:
+              s.currentStudioSessionId === sourceId ? targetId : s.currentStudioSessionId,
+          };
+        }),
+      cleanupStudioDuplicates: () =>
+        set((s) => {
+          const seen = new Map<string, string>();
+          // Keepers list maintains existing order; losers get merged into the
+          // first session we encountered for each (groupId, mode) pair.
+          const toMerge: { keeperId: string; loserId: string }[] = [];
+          for (const sess of s.studioSessions) {
+            if (!sess.groupId) continue; // ungrouped allows multiple same-mode
+            const key = `${sess.groupId}:${sess.mode}`;
+            const firstId = seen.get(key);
+            if (firstId) toMerge.push({ keeperId: firstId, loserId: sess.id });
+            else seen.set(key, sess.id);
+          }
+          if (toMerge.length === 0) return {};
+          // Build a fresh sessions array by folding loser assets into keepers.
+          const byId = new Map(s.studioSessions.map((x) => [x.id, { ...x, assets: [...x.assets] }]));
+          for (const { keeperId, loserId } of toMerge) {
+            const keeper = byId.get(keeperId);
+            const loser = byId.get(loserId);
+            if (!keeper || !loser) continue;
+            keeper.assets.push(...loser.assets);
+            if ((!keeper.title || keeper.title === "Untitled session") && loser.title && loser.title !== "Untitled session") {
+              keeper.title = loser.title;
+            }
+            byId.delete(loserId);
+          }
+          const losers = new Set(toMerge.map((m) => m.loserId));
+          let cur = s.currentStudioSessionId;
+          if (cur && losers.has(cur)) {
+            const remap = toMerge.find((m) => m.loserId === cur);
+            cur = remap ? remap.keeperId : cur;
+          }
+          return {
+            studioSessions: s.studioSessions.filter((x) => !losers.has(x.id)).map((x) => byId.get(x.id) ?? x),
+            currentStudioSessionId: cur,
+          };
+        }),
       reorderStudioSession: (sessionId, targetSessionId, position) =>
         set((s) => {
           if (sessionId === targetSessionId) return {};
@@ -770,6 +841,9 @@ export const useStore = create<AppState>()(
         currentStudioSessionId: state.currentStudioSessionId,
       }),
       onRehydrateStorage: () => (state) => {
+        // Collapse any legacy grouped duplicates that pre-date the
+        // per-project-per-mode invariant before the workspace renders.
+        state?.cleanupStudioDuplicates();
         state?.setHasHydrated(true);
       },
     }
