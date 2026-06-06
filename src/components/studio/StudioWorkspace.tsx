@@ -9,6 +9,7 @@ import PromptDock from "./PromptDock";
 import ModelPickerDialog from "./ModelPickerDialog";
 import VoiceCatalogDialog from "./VoiceCatalogDialog";
 import ReferenceUploadDialog, { type PromptReference } from "./ReferenceUploadDialog";
+import AssetLightbox from "./AssetLightbox";
 import { toast } from "sonner";
 
 const DEFAULT_SETTINGS: Record<StudioMode, StudioAssetSettings> = {
@@ -47,6 +48,7 @@ export default function StudioWorkspace() {
     setStudioGenerating,
     updateStudioSessionTitle,
     moveStudioSession,
+    reorderStudioSession,
     newStudioGroup,
     renameStudioGroup,
     deleteStudioGroup,
@@ -61,6 +63,7 @@ export default function StudioWorkspace() {
   const [voiceCatalogOpen, setVoiceCatalogOpen] = useState(false);
   const [referencesOpen, setReferencesOpen] = useState(false);
   const [references, setReferences] = useState<PromptReference[]>([]);
+  const [lightboxAsset, setLightboxAsset] = useState<StudioAsset | null>(null);
 
   // Per-mode model + settings so switching modes preserves each mode's choices.
   const [modelByMode, setModelByMode] = useState<Record<StudioMode, string>>(DEFAULT_MODEL_BY_MODE);
@@ -204,6 +207,7 @@ export default function StudioWorkspace() {
           onDeleteSession={deleteStudioSession}
           onRenameSession={updateStudioSessionTitle}
           onMoveSession={moveStudioSession}
+          onReorderSession={reorderStudioSession}
           onRenameGroup={renameStudioGroup}
           onDeleteGroup={deleteStudioGroup}
           onToggleGroup={toggleStudioGroupCollapsed}
@@ -216,6 +220,7 @@ export default function StudioWorkspace() {
               session={currentSession}
               generating={studioGenerating}
               progress={progress}
+              onOpenAsset={setLightboxAsset}
             />
           </div>
         </main>
@@ -260,6 +265,18 @@ export default function StudioWorkspace() {
         onOpenChange={setReferencesOpen}
         references={references}
         onChange={setReferences}
+      />
+      <AssetLightbox
+        asset={lightboxAsset}
+        onOpenChange={(o) => !o && setLightboxAsset(null)}
+        onReuse={(a) => {
+          // Switch to the asset's mode + select its session so the canvas matches.
+          setMode(a.mode);
+          const sess = studioSessions.find((s) => s.assets.some((x) => x.id === a.id));
+          if (sess) setCurrentStudioSession(sess.id);
+          setPrompt(a.prompt);
+          clearReferences();
+        }}
       />
     </div>
   );

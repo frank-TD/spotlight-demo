@@ -37,7 +37,13 @@ function fmtDuration(sec?: number) {
   return `${m}:${s.toString().padStart(2, "0")}`;
 }
 
-export default function AssetCard({ asset }: { asset: StudioAsset }) {
+export default function AssetCard({
+  asset,
+  onOpen,
+}: {
+  asset: StudioAsset;
+  onOpen?: (asset: StudioAsset) => void;
+}) {
   const t = useT();
   const [playing, setPlaying] = useState(false);
 
@@ -46,15 +52,17 @@ export default function AssetCard({ asset }: { asset: StudioAsset }) {
     if (!playing) toast.info(t.aigc.playbackToast);
   };
   const onDownload = () => toast.info(t.aigc.downloadToast);
+  const openLightbox = () => onOpen?.(asset);
 
   // Image — single picsum still (with gradient fallback)
   if (asset.mode === "image") {
-    return <VisualCard asset={asset} onDownload={onDownload} />;
+    return <VisualCard asset={asset} onDownload={onDownload} onOpen={openLightbox} />;
   }
 
-  // Video — poster + play overlay
+  // Video — poster + play overlay. The whole card opens the lightbox;
+  // the play button inside the overlay still triggers the playback toast.
   if (asset.mode === "video") {
-    return <VisualCard asset={asset} onDownload={onDownload} onPlay={onPlay} isVideo />;
+    return <VisualCard asset={asset} onDownload={onDownload} onPlay={onPlay} isVideo onOpen={openLightbox} />;
   }
 
   // Voiceover / Music — waveform card
@@ -151,17 +159,26 @@ function VisualCard({
   isVideo = false,
   onPlay,
   onDownload,
+  onOpen,
 }: {
   asset: StudioAsset;
   isVideo?: boolean;
   onPlay?: () => void;
   onDownload: () => void;
+  onOpen?: () => void;
 }) {
   const [imgOk, setImgOk] = useState(true);
   const gradient = gradientFor(asset.id);
   const aspect = aspectClass(asset.settings.aspect);
   return (
-    <figure className={cn("group relative rounded-2xl overflow-hidden border border-outline-variant/40 bg-gradient-to-br", gradient, aspect)}>
+    <figure
+      onClick={onOpen}
+      className={cn(
+        "group relative rounded-2xl overflow-hidden border border-outline-variant/40 bg-gradient-to-br cursor-zoom-in",
+        gradient,
+        aspect
+      )}
+    >
       {imgOk && asset.imageUrl && (
         // eslint-disable-next-line @next/next/no-img-element
         <img
@@ -182,7 +199,10 @@ function VisualCard({
       {isVideo && (
         <>
           <button
-            onClick={onPlay}
+            onClick={(e) => {
+              e.stopPropagation();
+              onPlay?.();
+            }}
             className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/35 transition-colors"
             aria-label="play"
           >
@@ -196,7 +216,10 @@ function VisualCard({
         </>
       )}
       <button
-        onClick={onDownload}
+        onClick={(e) => {
+          e.stopPropagation();
+          onDownload();
+        }}
         className="absolute top-2 right-2 w-8 h-8 rounded-full bg-white/20 backdrop-blur border border-white/30 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
         aria-label="download"
       >

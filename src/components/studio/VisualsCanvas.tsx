@@ -1,5 +1,5 @@
 "use client";
-import type { StudioMode, StudioSession } from "@/lib/store";
+import type { StudioAsset, StudioMode, StudioSession } from "@/lib/store";
 import { useT } from "@/hooks/useT";
 import AssetCard from "./AssetCard";
 import { ImageIcon, Clapperboard, Mic, Music2 } from "lucide-react";
@@ -17,11 +17,13 @@ export default function VisualsCanvas({
   session,
   generating,
   progress,
+  onOpenAsset,
 }: {
   mode: StudioMode;
   session: StudioSession | null;
   generating: boolean;
   progress: number;
+  onOpenAsset?: (asset: StudioAsset) => void;
 }) {
   const t = useT();
   const assets = session?.assets ?? [];
@@ -96,13 +98,13 @@ export default function VisualsCanvas({
             {isAudio ? (
               <div className="space-y-3 max-w-2xl">
                 {[...assets].reverse().map((a) => (
-                  <AssetCard key={a.id} asset={a} />
+                  <AssetCard key={a.id} asset={a} onOpen={onOpenAsset} />
                 ))}
               </div>
             ) : (
               <div className="columns-1 sm:columns-2 lg:columns-3 gap-4 [&>*]:mb-4 [&>*]:break-inside-avoid">
                 {[...assets].reverse().map((a) => (
-                  <AssetCard key={a.id} asset={a} />
+                  <AssetCard key={a.id} asset={a} onOpen={onOpenAsset} />
                 ))}
               </div>
             )}

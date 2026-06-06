@@ -234,6 +234,14 @@ interface AppState {
   setStudioGenerating: (v: boolean) => void;
   updateStudioSessionTitle: (id: string, title: string) => void;
   moveStudioSession: (sessionId: string, groupId: string | null) => void;
+  // Drop the dragged session at a specific position relative to another session.
+  // Sets the dragged session's groupId to match the target's and re-orders the
+  // sessions array so the new neighbor ends up just before/after the target.
+  reorderStudioSession: (
+    sessionId: string,
+    targetSessionId: string,
+    position: "before" | "after"
+  ) => void;
   // Groups
   newStudioGroup: (name?: string) => string;
   renameStudioGroup: (id: string, name: string) => void;
@@ -447,6 +455,20 @@ export const useStore = create<AppState>()(
             sess.id === sessionId ? { ...sess, groupId } : sess
           ),
         })),
+      reorderStudioSession: (sessionId, targetSessionId, position) =>
+        set((s) => {
+          if (sessionId === targetSessionId) return {};
+          const target = s.studioSessions.find((x) => x.id === targetSessionId);
+          if (!target) return {};
+          const without = s.studioSessions.filter((x) => x.id !== sessionId);
+          const moved = s.studioSessions.find((x) => x.id === sessionId);
+          if (!moved) return {};
+          const updated = { ...moved, groupId: target.groupId };
+          const idx = without.findIndex((x) => x.id === targetSessionId);
+          const at = position === "before" ? idx : idx + 1;
+          const next = [...without.slice(0, at), updated, ...without.slice(at)];
+          return { studioSessions: next };
+        }),
       newStudioGroup: (name = "New project") => {
         const id = `group_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
         const group: StudioGroup = { id, name, collapsed: false, createdAt: Date.now() };

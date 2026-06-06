@@ -33,6 +33,24 @@ const MODE_ICON: Record<StudioMode, typeof ImageIcon> = {
   music: Music2,
 };
 
+// Sentinel for the "ungrouped" drop zone so we can distinguish it from a real
+// group id of null when tracking drag-over state.
+const UNGROUPED_KEY = "__ungrouped__";
+
+interface DragState {
+  draggingId: string | null;
+  overSessionId: string | null;
+  overPosition: "before" | "after" | null;
+  overGroupKey: string | null;
+}
+
+const INITIAL_DRAG: DragState = {
+  draggingId: null,
+  overSessionId: null,
+  overPosition: null,
+  overGroupKey: null,
+};
+
 export default function HistoryRail({
   sessions,
   groups,
@@ -43,6 +61,7 @@ export default function HistoryRail({
   onDeleteSession,
   onRenameSession,
   onMoveSession,
+  onReorderSession,
   onRenameGroup,
   onDeleteGroup,
   onToggleGroup,
@@ -56,15 +75,87 @@ export default function HistoryRail({
   onDeleteSession: (id: string) => void;
   onRenameSession: (id: string, title: string) => void;
   onMoveSession: (sessionId: string, groupId: string | null) => void;
+  onReorderSession: (sessionId: string, targetSessionId: string, position: "before" | "after") => void;
   onRenameGroup: (id: string, name: string) => void;
   onDeleteGroup: (id: string) => void;
   onToggleGroup: (id: string) => void;
 }) {
   const t = useT();
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [drag, setDrag] = useState<DragState>(INITIAL_DRAG);
 
   const ungrouped = sessions.filter((s) => !s.groupId);
   const byGroup = (gid: string) => sessions.filter((s) => s.groupId === gid);
+
+  /* ── drag handlers ───────────────────────────────────────────────── */
+
+  const onSessionDragStart = (e: React.DragEvent, id: string) => {
+    e.dataTransfer.setData("text/plain", id);
+    e.dataTransfer.effectAllowed = "move";
+    setDrag({ ...INITIAL_DRAG, draggingId: id });
+  };
+  const onDragEnd = () => setDrag(INITIAL_DRAG);
+
+  const onSessionDragOver = (e: React.DragEvent, id: string) => {
+    if (!drag.draggingId || drag.draggingId === id) return;
+    e.preventDefault();
+    // Stop bubbling so the enclosing group/ungrouped wrapper doesn't overwrite
+    // our overSessionId / overPosition with its own group-level drop intent.
+    e.stopPropagation();
+    e.dataTransfer.dropEffect = "move";
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const isAbove = e.clientY < rect.top + rect.height / 2;
+    setDrag((d) => ({
+      ...d,
+      overSessionId: id,
+      overPosition: isAbove ? "before" : "after",
+      overGroupKey: null,
+    }));
+  };
+
+  const onSessionDrop = (e: React.DragEvent, id: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Read drag id from dataTransfer to avoid relying on a possibly stale
+    // closure on the drag state, and compute the drop position from the cursor
+    // so we don't depend on overPosition having flushed before drop fires.
+    const draggedId = e.dataTransfer.getData("text/plain");
+    if (draggedId && draggedId !== id) {
+      const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      const isAbove = e.clientY < rect.top + rect.height / 2;
+      onReorderSession(draggedId, id, isAbove ? "before" : "after");
+    }
+    setDrag(INITIAL_DRAG);
+  };
+
+  const onGroupDragOver = (e: React.DragEvent, key: string) => {
+    if (!drag.draggingId) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDrag((d) => ({
+      ...d,
+      overGroupKey: key,
+      overSessionId: null,
+      overPosition: null,
+    }));
+  };
+
+  const onGroupDrop = (e: React.DragEvent, gid: string | null) => {
+    e.preventDefault();
+    const draggedId = e.dataTransfer.getData("text/plain");
+    if (draggedId) onMoveSession(draggedId, gid);
+    setDrag(INITIAL_DRAG);
+  };
+
+  const dragApi = {
+    drag,
+    onSessionDragStart,
+    onSessionDragOver,
+    onSessionDrop,
+    onDragEnd,
+    onGroupDragOver,
+    onGroupDrop,
+  };
 
   return (
     <aside data-testid="studio-rail" className="w-[240px] shrink-0 hidden lg:flex flex-col gap-3 pr-1">
@@ -94,7 +185,6 @@ export default function HistoryRail({
           <p className="font-body text-sm text-on-surface-variant/60 px-2 py-3">{t.aigc.noSessions}</p>
         ) : (
           <>
-            {/* Groups */}
             {groups.map((g) => {
               const items = byGroup(g.id);
               const collapsed = g.collapsed ?? false;
@@ -115,42 +205,45 @@ export default function HistoryRail({
                   onMoveSession={onMoveSession}
                   onDeleteSession={onDeleteSession}
                   groups={groups}
+                  dragApi={dragApi}
                 />
               );
             })}
 
-            {/* Ungrouped sessions */}
-            {ungrouped.length > 0 && (
-              <div>
-                {groups.length > 0 && (
-                  <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/60 px-2 pb-1.5">
-                    {t.aigc.ungrouped}
-                  </p>
-                )}
-                <div className="space-y-0.5">
-                  {ungrouped.map((s) => (
-                    <SessionRow
-                      key={s.id}
-                      session={s}
-                      currentId={currentId}
-                      isEditing={editingId === s.id}
-                      onStartEdit={() => setEditingId(s.id)}
-                      onEndEdit={() => setEditingId(null)}
-                      onSelect={onSelect}
-                      onRenameSession={onRenameSession}
-                      onMoveSession={onMoveSession}
-                      onDeleteSession={onDeleteSession}
-                      groups={groups}
-                    />
-                  ))}
-                </div>
-              </div>
+            {/* Ungrouped section (always rendered as a drop target during drag,
+                even when empty, so users can move sessions out of a group). */}
+            {(ungrouped.length > 0 || drag.draggingId) && (
+              <UngroupedSection
+                sessions={ungrouped}
+                currentId={currentId}
+                editingId={editingId}
+                setEditingId={setEditingId}
+                onSelect={onSelect}
+                onRenameSession={onRenameSession}
+                onMoveSession={onMoveSession}
+                onDeleteSession={onDeleteSession}
+                groups={groups}
+                showHeader={groups.length > 0}
+                dragApi={dragApi}
+              />
             )}
           </>
         )}
       </div>
     </aside>
   );
+}
+
+/* ── shared drag API type ────────────────────────────────────────────── */
+
+interface DragApi {
+  drag: DragState;
+  onSessionDragStart: (e: React.DragEvent, id: string) => void;
+  onSessionDragOver: (e: React.DragEvent, id: string) => void;
+  onSessionDrop: (e: React.DragEvent, id: string) => void;
+  onDragEnd: () => void;
+  onGroupDragOver: (e: React.DragEvent, key: string) => void;
+  onGroupDrop: (e: React.DragEvent, gid: string | null) => void;
 }
 
 /* ── Group section ───────────────────────────────────────────────────── */
@@ -170,6 +263,7 @@ function GroupSection({
   onMoveSession,
   onDeleteSession,
   groups,
+  dragApi,
 }: {
   group: StudioGroup;
   sessions: StudioSession[];
@@ -185,11 +279,18 @@ function GroupSection({
   onMoveSession: (sessionId: string, groupId: string | null) => void;
   onDeleteSession: (id: string) => void;
   groups: StudioGroup[];
+  dragApi: DragApi;
 }) {
   const t = useT();
   const editingGroup = editingId === `group:${group.id}`;
+  const over = dragApi.drag.overGroupKey === group.id;
+
   return (
-    <div>
+    <div
+      onDragOver={(e) => dragApi.onGroupDragOver(e, group.id)}
+      onDrop={(e) => dragApi.onGroupDrop(e, group.id)}
+      className={cn("rounded-lg transition-colors", over && "bg-primary-container/40 ring-1 ring-primary/30")}
+    >
       <div className="group/grp flex items-center gap-1 px-1 py-1 rounded-lg hover:bg-surface-container/60 transition-colors">
         <button
           onClick={() => onToggleGroup(group.id)}
@@ -260,11 +361,81 @@ function GroupSection({
                 onMoveSession={onMoveSession}
                 onDeleteSession={onDeleteSession}
                 groups={groups}
+                dragApi={dragApi}
               />
             ))
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+/* ── Ungrouped section (drop target wrapper) ─────────────────────────── */
+
+function UngroupedSection({
+  sessions,
+  currentId,
+  editingId,
+  setEditingId,
+  onSelect,
+  onRenameSession,
+  onMoveSession,
+  onDeleteSession,
+  groups,
+  showHeader,
+  dragApi,
+}: {
+  sessions: StudioSession[];
+  currentId: string | null;
+  editingId: string | null;
+  setEditingId: (id: string | null) => void;
+  onSelect: (id: string) => void;
+  onRenameSession: (id: string, title: string) => void;
+  onMoveSession: (sessionId: string, groupId: string | null) => void;
+  onDeleteSession: (id: string) => void;
+  groups: StudioGroup[];
+  showHeader: boolean;
+  dragApi: DragApi;
+}) {
+  const t = useT();
+  const over = dragApi.drag.overGroupKey === UNGROUPED_KEY;
+  return (
+    <div
+      onDragOver={(e) => dragApi.onGroupDragOver(e, UNGROUPED_KEY)}
+      onDrop={(e) => dragApi.onGroupDrop(e, null)}
+      className={cn(
+        "rounded-lg transition-colors",
+        over && "bg-primary-container/40 ring-1 ring-primary/30"
+      )}
+    >
+      {showHeader && (
+        <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/60 px-2 pb-1.5">
+          {t.aigc.ungrouped}
+        </p>
+      )}
+      <div className="space-y-0.5 min-h-[2px]">
+        {sessions.length === 0 ? (
+          <p className="font-body text-xs text-on-surface-variant/40 px-2 py-1">·</p>
+        ) : (
+          sessions.map((s) => (
+            <SessionRow
+              key={s.id}
+              session={s}
+              currentId={currentId}
+              isEditing={editingId === s.id}
+              onStartEdit={() => setEditingId(s.id)}
+              onEndEdit={() => setEditingId(null)}
+              onSelect={onSelect}
+              onRenameSession={onRenameSession}
+              onMoveSession={onMoveSession}
+              onDeleteSession={onDeleteSession}
+              groups={groups}
+              dragApi={dragApi}
+            />
+          ))
+        )}
+      </div>
     </div>
   );
 }
@@ -282,6 +453,7 @@ function SessionRow({
   onMoveSession,
   onDeleteSession,
   groups,
+  dragApi,
 }: {
   session: StudioSession;
   currentId: string | null;
@@ -293,20 +465,38 @@ function SessionRow({
   onMoveSession: (sessionId: string, groupId: string | null) => void;
   onDeleteSession: (id: string) => void;
   groups: StudioGroup[];
+  dragApi: DragApi;
 }) {
   const t = useT();
   const Icon = MODE_ICON[session.mode];
   const active = session.id === currentId;
   const title = session.assets.length > 0 ? session.title : t.aigc.untitled;
 
+  const isDragging = dragApi.drag.draggingId === session.id;
+  const isOver = dragApi.drag.overSessionId === session.id;
+  const showTopIndicator = isOver && dragApi.drag.overPosition === "before";
+  const showBottomIndicator = isOver && dragApi.drag.overPosition === "after";
+
   return (
     <div
+      draggable={!isEditing}
+      onDragStart={(e) => dragApi.onSessionDragStart(e, session.id)}
+      onDragOver={(e) => dragApi.onSessionDragOver(e, session.id)}
+      onDrop={(e) => dragApi.onSessionDrop(e, session.id)}
+      onDragEnd={dragApi.onDragEnd}
       className={cn(
-        "group/sess flex items-center gap-2 px-2.5 py-2 rounded-lg cursor-pointer transition-colors",
-        active ? "bg-primary-container/50 ring-1 ring-primary/20" : "hover:bg-surface-container"
+        "relative group/sess flex items-center gap-2 px-2.5 py-2 rounded-lg cursor-pointer transition-colors",
+        active ? "bg-primary-container/50 ring-1 ring-primary/20" : "hover:bg-surface-container",
+        isDragging && "opacity-40"
       )}
       onClick={() => !isEditing && onSelect(session.id)}
     >
+      {showTopIndicator && (
+        <span className="absolute left-0 right-0 -top-0.5 h-0.5 bg-primary rounded-full" />
+      )}
+      {showBottomIndicator && (
+        <span className="absolute left-0 right-0 -bottom-0.5 h-0.5 bg-primary rounded-full" />
+      )}
       <Icon className={cn("w-3.5 h-3.5 shrink-0", active ? "text-primary" : "text-on-surface-variant")} />
       {isEditing ? (
         <InlineEdit
