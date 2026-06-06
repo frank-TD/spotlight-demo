@@ -183,7 +183,13 @@ export default function StudioWorkspace() {
   };
 
   const onNewSession = () => {
-    setCurrentStudioSession(null);
+    // Always land the user on a fresh, focused canvas. If the current session
+    // is already empty (no assets), keep it and just reset the dock — no point
+    // stacking empty "Untitled session" entries; otherwise spin up a new one.
+    const active = studioSessions.find((s) => s.id === currentStudioSessionId);
+    if (!active || active.assets.length > 0 || active.mode !== mode) {
+      newStudioSession(mode);
+    }
     setPrompt("");
     clearReferences();
   };
