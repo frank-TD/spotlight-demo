@@ -110,6 +110,53 @@ export function flowActor(flow: SessionFlow | undefined): Role | null {
   }
 }
 
+/* ── AIGC Studio types ───────────────────────────────────────────────── */
+
+export type StudioMode = "image" | "video" | "voiceover" | "music";
+
+// Per-asset settings vary by mode; we keep them as a single record and
+// downstream renderers pick the relevant keys.
+export interface StudioAssetSettings {
+  aspect?: string;
+  quality?: string;
+  count?: number;
+  duration?: string;
+  resolution?: string;
+  audio?: boolean;
+  voiceId?: string;
+  voiceName?: string;
+  language?: string;
+  accent?: string;
+  effect?: string;
+  speed?: number;
+  genre?: string;
+  mood?: string;
+  tempo?: string;
+}
+
+export interface StudioAsset {
+  id: string;
+  mode: StudioMode;
+  prompt: string;
+  modelId: string;
+  modelName: string;
+  settings: StudioAssetSettings;
+  // For image/video: a picsum URL seeded by the prompt.
+  imageUrl?: string;
+  // For voiceover/music: a synthetic duration in seconds + waveform seed.
+  durationSec?: number;
+  waveformSeed?: string;
+  createdAt: number;
+}
+
+export interface StudioSession {
+  id: string;
+  title: string;
+  mode: StudioMode;
+  assets: StudioAsset[];
+  createdAt: number;
+}
+
 interface AppState {
   // Auth
   isLoggedIn: boolean;
@@ -153,6 +200,17 @@ interface AppState {
   };
   updateBackerPrefs: (prefs: Partial<NonNullable<AppState["userPreferences"]["backer"]>>) => void;
   updateCreatorPrefs: (prefs: Partial<NonNullable<AppState["userPreferences"]["creator"]>>) => void;
+
+  // AIGC Studio sessions (persisted)
+  studioSessions: StudioSession[];
+  currentStudioSessionId: string | null;
+  studioGenerating: boolean;
+  newStudioSession: (mode: StudioMode) => string;
+  setCurrentStudioSession: (id: string | null) => void;
+  deleteStudioSession: (id: string) => void;
+  addStudioAsset: (sessionId: string, asset: StudioAsset) => void;
+  setStudioGenerating: (v: boolean) => void;
+  updateStudioSessionTitle: (id: string, title: string) => void;
 
   // Session lifecycle flow (shared by messages + order detail)
   sessionFlows: Record<string, SessionFlow>;
@@ -305,6 +363,54 @@ export const useStore = create<AppState>()(
         set((s) => ({ userPreferences: { ...s.userPreferences, backer: { ...s.userPreferences.backer, ...prefs } } })),
       updateCreatorPrefs: (prefs) =>
         set((s) => ({ userPreferences: { ...s.userPreferences, creator: { ...s.userPreferences.creator, ...prefs } } })),
+
+      // AIGC Studio
+      studioSessions: [],
+      currentStudioSessionId: null,
+      studioGenerating: false,
+      newStudioSession: (mode) => {
+        const id = `studio_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+        const session: StudioSession = {
+          id,
+          title: "Untitled session",
+          mode,
+          assets: [],
+          createdAt: Date.now(),
+        };
+        set((s) => ({
+          studioSessions: [session, ...s.studioSessions],
+          currentStudioSessionId: id,
+        }));
+        return id;
+      },
+      setCurrentStudioSession: (id) => set({ currentStudioSessionId: id }),
+      deleteStudioSession: (id) =>
+        set((s) => {
+          const next = s.studioSessions.filter((sess) => sess.id !== id);
+          return {
+            studioSessions: next,
+            currentStudioSessionId:
+              s.currentStudioSessionId === id ? (next[0]?.id ?? null) : s.currentStudioSessionId,
+          };
+        }),
+      addStudioAsset: (sessionId, asset) =>
+        set((s) => ({
+          studioSessions: s.studioSessions.map((sess) =>
+            sess.id === sessionId
+              ? {
+                  ...sess,
+                  assets: [...sess.assets, asset],
+                  // First asset's prompt becomes the session title (shown in left rail + header).
+                  title: sess.assets.length === 0 ? asset.prompt.slice(0, 60) : sess.title,
+                }
+              : sess
+          ),
+        })),
+      setStudioGenerating: (v) => set({ studioGenerating: v }),
+      updateStudioSessionTitle: (id, title) =>
+        set((s) => ({
+          studioSessions: s.studioSessions.map((sess) => (sess.id === id ? { ...sess, title } : sess)),
+        })),
 
       // Seeded so the flagship NeoVision conversation (sess_001) starts at the
       // invitation step and shares its lifecycle state with the order page.
@@ -570,6 +676,8 @@ export const useStore = create<AppState>()(
         agentMessages: state.agentMessages,
         onboardingComplete: state.onboardingComplete,
         userPreferences: state.userPreferences,
+        studioSessions: state.studioSessions,
+        currentStudioSessionId: state.currentStudioSessionId,
       }),
       onRehydrateStorage: () => (state) => {
         state?.setHasHydrated(true);
