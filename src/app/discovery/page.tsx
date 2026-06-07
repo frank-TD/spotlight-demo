@@ -1,38 +1,509 @@
 "use client";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 import AppShell from "@/components/layout/AppShell";
-import ScrollReveal from "@/components/home/ScrollReveal";
-import HeroSection from "@/components/home/HeroSection";
-import TrustLogosSection from "@/components/home/TrustLogosSection";
-import TrendingSection from "@/components/home/TrendingSection";
-import HowItWorksSection from "@/components/home/HowItWorksSection";
-import DealAgentsSection from "@/components/home/DealAgentsSection";
-import TwoRolesSection from "@/components/home/TwoRolesSection";
-import CommissionStudioSection from "@/components/home/CommissionStudioSection";
-import AigcStudioShowcase from "@/components/home/AigcStudioShowcase";
-import EndlessInspiration from "@/components/home/EndlessInspiration";
-import FaqSection from "@/components/home/FaqSection";
-import SiteFooter from "@/components/home/SiteFooter";
+import MouseGlow from "@/components/home/MouseGlow";
+import SectionLabel from "@/components/home/SectionLabel";
+import { useStore } from "@/lib/store";
+import { useT } from "@/hooks/useT";
+import { getAgentReply } from "@/lib/agent-response";
+import { CREATORS, findSessionForCounterpart } from "@/lib/mock-data";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Send, Wand2, Paperclip, X, Play, Star, MessageCircle, ArrowUpRight, ArrowRight } from "lucide-react";
+import { cn } from "@/lib/utils";
+import { toast } from "sonner";
 
-// New AIGC Studio homepage — cinematic dark landing built around the UX
-// review's 8 priorities (identity correction, Marlow/Wren moat moment,
-// horizontal genre rows, role split, FAQ).
+type Aspect = "portrait" | "tall" | "landscape" | "wide" | "square";
+type Item = { id: number; title: string; creator: string; category: string; aspect: Aspect; seed: string };
+
+// Discovery feed — 12 curated mock works. Picsum thumbnails seeded by id;
+// the dim cinematic gradient underneath shows through if the network fails.
+const ITEMS: Item[] = [
+  { id: 1, title: "Celestial Entity",  creator: "Aria Song",     category: "Character",    aspect: "portrait",  seed: "celestial" },
+  { id: 2, title: "Neon Rain",         creator: "Marco Reyes",   category: "Cinematic",    aspect: "tall",      seed: "neonrain" },
+  { id: 3, title: "Orbital Zen",       creator: "Yuki Tanaka",   category: "Architecture", aspect: "landscape", seed: "orbital" },
+  { id: 4, title: "Golden Core",       creator: "Sofia Okonkwo", category: "Abstract",     aspect: "portrait",  seed: "goldencore" },
+  { id: 5, title: "Aurora Crystal",    creator: "Aria Song",     category: "Nature",       aspect: "wide",      seed: "aurora" },
+  { id: 6, title: "Cyber Ghost",       creator: "Marco Reyes",   category: "Character",    aspect: "portrait",  seed: "cyberghost" },
+  { id: 7, title: "Biodome Alpha",     creator: "Yuki Tanaka",   category: "Architecture", aspect: "wide",      seed: "biodome" },
+  { id: 8, title: "Dune Metropolis",   creator: "Sofia Okonkwo", category: "Sci-Fi",       aspect: "landscape", seed: "dune" },
+  { id: 9, title: "Techno Ascetic",    creator: "Aria Song",     category: "Character",    aspect: "portrait",  seed: "techno" },
+  { id: 10, title: "Iridescent Flow",  creator: "Marco Reyes",   category: "Abstract",     aspect: "square",    seed: "iridescent" },
+  { id: 11, title: "Glassine Garden",  creator: "Yuki Tanaka",   category: "Nature",       aspect: "tall",      seed: "glassine" },
+  { id: 12, title: "Static Bloom",     creator: "Sofia Okonkwo", category: "Sci-Fi",       aspect: "portrait",  seed: "staticbloom" },
+];
+
+const FILTERS = ["All", "Character", "Cinematic", "Architecture", "Abstract", "Nature", "Sci-Fi"];
+
+const ASPECT_CLASS: Record<Aspect, string> = {
+  portrait: "aspect-[2/3]",
+  tall: "aspect-[9/16]",
+  landscape: "aspect-[3/2]",
+  wide: "aspect-video",
+  square: "aspect-square",
+};
+
+const ASPECT_DIM: Record<Aspect, [number, number]> = {
+  portrait: [600, 900],
+  tall: [600, 1067],
+  landscape: [900, 600],
+  wide: [1600, 900],
+  square: [600, 600],
+};
+
+// `/discovery` — the inspiration mode. Browse what the network is making,
+// chat with Marlow at the bottom dock, jump to the AIGC Studio when ready.
+// Reached via the "Discover" nav tab or the homepage "Browse Creators" CTA.
 export default function DiscoveryPage() {
+  const router = useRouter();
+  const {
+    isLoggedIn,
+    activeRole,
+    locale,
+    appendAgentMessages,
+    openAgent,
+    setAgentThinking,
+  } = useStore();
+  const t = useT();
+  const [filter, setFilter] = useState("All");
+  const [prompt, setPrompt] = useState("");
+  const [promptExpanded, setPromptExpanded] = useState(false);
+  const [files, setFiles] = useState<{ name: string; size: string }[]>([]);
+  const [openItem, setOpenItem] = useState<Item | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const promptRef = useRef<HTMLDivElement>(null);
+
+  // Anonymous browsing is fine; acting (start conversation / send prompt /
+  // start creating) gates on signup. Logged-out viewers default to backer.
+  const viewerRole = isLoggedIn ? activeRole : "backer";
+
+  const requireSignup = (msg: string) => {
+    toast.info(msg);
+    router.push("/register");
+  };
+
+  const startConversation = (creatorId: string) => {
+    setOpenItem(null);
+    if (!isLoggedIn) {
+      requireSignup(t.discovery.signUpToStart);
+      return;
+    }
+    const sid = findSessionForCounterpart("backer", creatorId);
+    router.push(sid ? `/messages/sessions/${sid}` : "/messages");
+  };
+
+  const handleStartCreating = () => {
+    if (!isLoggedIn) {
+      requireSignup(t.discovery.signUpToStart);
+      return;
+    }
+    router.push("/discovery/workspace");
+  };
+
+  // Collapse the prompt when clicking outside (unless the user has typed/attached).
+  useEffect(() => {
+    if (!promptExpanded) return;
+    const onDown = (e: MouseEvent) => {
+      if (promptRef.current && !promptRef.current.contains(e.target as Node)) {
+        if (!prompt.trim() && files.length === 0) setPromptExpanded(false);
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [promptExpanded, prompt, files.length]);
+
+  const formatSize = (b: number) =>
+    b < 1024 ? `${b} B` : b < 1024 * 1024 ? `${(b / 1024).toFixed(1)} KB` : `${(b / (1024 * 1024)).toFixed(1)} MB`;
+
+  const onFilePick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const picked = Array.from(e.target.files ?? []).slice(0, 5 - files.length);
+    setFiles((prev) => [...prev, ...picked.map((f) => ({ name: f.name, size: formatSize(f.size) }))]);
+    e.target.value = "";
+  };
+
+  const filtered = filter === "All" ? ITEMS : ITEMS.filter((i) => i.category === filter);
+
+  const sendPrompt = () => {
+    const q = prompt.trim();
+    if (!q && files.length === 0) return;
+    if (!isLoggedIn) {
+      requireSignup(t.discovery.signUpToStart);
+      return;
+    }
+    const attached = files.length > 0 ? ` 📎 ${files.map((f) => f.name).join(", ")}` : "";
+    const text = (q || "Files attached") + attached;
+    appendAgentMessages([{ role: "user", text }]);
+    setPrompt("");
+    setFiles([]);
+    setPromptExpanded(false);
+    openAgent();
+    setAgentThinking(true);
+    const resp = getAgentReply(text, locale);
+    setTimeout(() => {
+      appendAgentMessages([{ role: "agent", text: resp.a, link: resp.link }]);
+      setAgentThinking(false);
+    }, 800);
+  };
+
   return (
-    <AppShell hideFooter>
-      <ScrollReveal />
-      <HeroSection />
-      <div className="max-w-[1280px] mx-auto px-2 md:px-6">
-        <TrustLogosSection />
-        <TrendingSection />
-        <HowItWorksSection />
-        <DealAgentsSection />
-        <TwoRolesSection />
-        <CommissionStudioSection />
-        <AigcStudioShowcase />
-        <EndlessInspiration />
-        <FaqSection />
+    <AppShell>
+      <MouseGlow />
+      <main className="max-w-[1800px] mx-auto px-4 md:px-6 pt-14 pb-48">
+        {/* Hero */}
+        <header className="text-center mb-12 animate-fade-up">
+          <div className="inline-flex justify-center mb-6">
+            <SectionLabel>{t.discovery.badge}</SectionLabel>
+          </div>
+          <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tight leading-[1.05] [overflow:visible] px-2 md:px-4">
+            <span className="animate-fade-up" style={{ animationDelay: "100ms" }}>
+              {t.discovery.title1}
+            </span>
+            <span>&nbsp;</span>
+            <span
+              className="italic font-headline animate-fade-in"
+              style={{
+                animationDelay: "260ms",
+                background: "linear-gradient(135deg, #d4af37 0%, #f3d57f 60%, #d4af37 100%)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundClip: "text",
+                paddingRight: "0.15em",
+              }}
+            >
+              {t.discovery.title2}
+            </span>
+          </h1>
+          <p
+            className="font-headline italic font-light text-on-surface-variant text-lg md:text-2xl max-w-3xl mx-auto opacity-90 leading-relaxed tracking-tight animate-fade-up"
+            style={{ animationDelay: "380ms" }}
+          >
+            {t.discovery.subtitle}
+          </p>
+
+          {/* Single Start Creating CTA → AIGC Studio */}
+          <div
+            className="mt-10 flex flex-col items-center gap-2.5 animate-fade-up"
+            style={{ animationDelay: "520ms" }}
+          >
+            <button
+              onClick={handleStartCreating}
+              className="group glow-hover inline-flex items-center gap-3 bg-primary text-on-primary font-label text-base md:text-lg uppercase tracking-widest px-9 py-4 rounded-full hover:scale-105 active:scale-95 transition-transform shadow-[0_8px_30px_rgba(212,175,55,0.25)]"
+            >
+              <Wand2 className="w-4 h-4" />
+              {t.discovery.startCreating}
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </button>
+            <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/70">
+              {t.discovery.startCreatingHint}
+            </p>
+          </div>
+        </header>
+
+        {/* Filter chips */}
+        <div className="flex flex-wrap justify-center gap-2 mb-12 animate-fade-up" style={{ animationDelay: "100ms" }}>
+          {FILTERS.map((f) => (
+            <button
+              key={f}
+              onClick={() => setFilter(f)}
+              className={cn(
+                "px-5 py-1.5 rounded-full border font-label text-[11px] uppercase tracking-widest transition-all duration-300",
+                filter === f
+                  ? "bg-primary text-on-primary border-primary shadow-md shadow-primary/20"
+                  : "border-outline-variant/40 text-on-surface-variant hover:border-primary/50 hover:bg-primary/5"
+              )}
+            >
+              {t.discovery.filters[f] ?? f}
+            </button>
+          ))}
+        </div>
+
+        {/* Masonry — re-keyed on filter so items replay the stagger entrance */}
+        <div key={filter} className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-3 md:gap-4">
+          {filtered.map((item, i) => (
+            <MasonryCard
+              key={item.id}
+              item={item}
+              index={i}
+              byLabel={t.discovery.by}
+              onOpen={() => setOpenItem(item)}
+            />
+          ))}
+        </div>
+      </main>
+
+      {/* Work preview dialog */}
+      <Dialog open={!!openItem} onOpenChange={(o) => !o && setOpenItem(null)}>
+        <DialogContent className="sm:max-w-5xl p-0 overflow-hidden max-h-[90vh]">
+          {openItem && (() => {
+            const creator = CREATORS.find((c) => c.nickname === openItem.creator);
+            const previewW = 1280;
+            const previewH = Math.round((previewW * 9) / 16);
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] max-h-[90vh] overflow-hidden">
+                {/* Left: preview */}
+                <div className="bg-[#08080a] p-6 md:p-7 flex flex-col gap-4 overflow-y-auto">
+                  <div className="aspect-video relative rounded-xl overflow-hidden bg-surface-container group">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={`https://picsum.photos/seed/${openItem.seed}/${previewW}/${previewH}`}
+                      alt={openItem.title}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => toast.info(t.discovery.playbackToast)}
+                      className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/45 transition-colors"
+                      aria-label="play"
+                    >
+                      <span className="w-16 h-16 rounded-full bg-primary/95 text-on-primary shadow-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Play className="w-7 h-7 ml-1" fill="currentColor" />
+                      </span>
+                    </button>
+                  </div>
+                  <div>
+                    <span className="font-label text-[10px] uppercase tracking-widest bg-white/10 text-white/80 px-2.5 py-1 rounded">
+                      {t.discovery.filters[openItem.category] ?? openItem.category}
+                    </span>
+                    <h2 className="font-headline italic text-white text-2xl md:text-3xl mt-3 leading-tight">
+                      {openItem.title}
+                    </h2>
+                    <p className="font-label text-white/60 text-[11px] uppercase tracking-widest mt-2">
+                      {t.discovery.by} {openItem.creator}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Right: creator card */}
+                {creator && (
+                  <div className="p-6 md:p-7 flex flex-col overflow-y-auto">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div
+                        className={cn(
+                          "w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold shrink-0",
+                          creator.avatarColor
+                        )}
+                      >
+                        {creator.avatar}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-headline text-[20px] text-on-surface truncate">{creator.nickname}</p>
+                        <div className="flex items-center gap-1.5 mt-0.5">
+                          <Star className="w-3 h-3 fill-primary text-primary" />
+                          <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                            {creator.rating} · {creator.orders} {t.creators.projectsLabel}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-1.5 mb-4">
+                      {creator.specialties.map((s) => (
+                        <span
+                          key={s}
+                          className="font-label text-[10px] uppercase tracking-widest bg-primary-container text-on-primary-container px-2.5 py-1 rounded-full"
+                        >
+                          {s}
+                        </span>
+                      ))}
+                    </div>
+
+                    <p className="font-body text-sm text-on-surface-variant leading-relaxed mb-5 line-clamp-4 flex-1">
+                      {creator.bio}
+                    </p>
+
+                    <div className="bg-surface-container rounded-xl p-4 mb-4 flex items-center justify-between">
+                      <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                        {t.creators.fromLabel}
+                      </span>
+                      <span className="font-headline text-[20px] text-on-surface">
+                        ¥{creator.rateCard.from.toLocaleString()}+
+                      </span>
+                    </div>
+
+                    <div className="space-y-2">
+                      {viewerRole === "backer" && (
+                        <button
+                          onClick={() => startConversation(creator.id)}
+                          className="w-full flex items-center justify-center gap-2 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider py-3 rounded-lg hover:opacity-90 active:scale-95 transition-all"
+                        >
+                          <MessageCircle className="w-4 h-4" /> {t.chat.startConversation}
+                        </button>
+                      )}
+                      <Link
+                        href={`/market/creators/${creator.id}`}
+                        onClick={() => setOpenItem(null)}
+                        className="w-full flex items-center justify-center gap-1.5 font-label text-label-md uppercase tracking-wider py-3 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors"
+                      >
+                        {t.needDetail.viewProfile} <ArrowUpRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
+        </DialogContent>
+      </Dialog>
+
+      {/* Floating Marlow textbox — expands on focus, dark frosted glass */}
+      <div
+        className={cn(
+          "fixed left-1/2 -translate-x-1/2 w-[94%] max-w-[820px] z-40 pointer-events-none transition-all duration-500 ease-out",
+          promptExpanded ? "bottom-10" : "bottom-8"
+        )}
+      >
+        <div
+          ref={promptRef}
+          onClick={() => setPromptExpanded(true)}
+          className={cn(
+            "pointer-events-auto rounded-[28px] border border-outline-variant/40 transition-all duration-500 ease-out overflow-hidden",
+            promptExpanded
+              ? "shadow-[0_24px_60px_rgba(0,0,0,0.6)] ring-1 ring-primary/20"
+              : "shadow-2xl"
+          )}
+          style={{
+            background: "rgba(20, 20, 26, 0.85)",
+            backdropFilter: "blur(24px) saturate(180%)",
+            WebkitBackdropFilter: "blur(24px) saturate(180%)",
+          }}
+        >
+          {/* Attachment chips */}
+          {files.length > 0 && (
+            <div className="px-5 pt-3 flex flex-wrap gap-2 animate-fade-up">
+              {files.map((f, i) => (
+                <span
+                  key={`${f.name}-${i}`}
+                  className="inline-flex items-center gap-1.5 bg-primary-container/60 text-on-primary-container rounded-full pl-2.5 pr-1.5 py-1 font-body text-xs"
+                >
+                  <Paperclip className="w-3 h-3" />
+                  <span className="max-w-[160px] truncate">{f.name}</span>
+                  <span className="opacity-60 font-label text-[9px] uppercase tracking-wider">{f.size}</span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setFiles((prev) => prev.filter((_, idx) => idx !== i));
+                    }}
+                    className="ml-0.5 w-4 h-4 rounded-full hover:bg-on-primary-container/10 flex items-center justify-center"
+                    aria-label="remove attachment"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          {/* Main row */}
+          <div className="flex items-end gap-3 px-4 py-3">
+            <Wand2 className={cn("text-primary shrink-0 transition-all duration-300", promptExpanded ? "w-5 h-5 mb-2.5" : "w-5 h-5 mb-1.5")} />
+            <textarea
+              rows={1}
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              onFocus={() => setPromptExpanded(true)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  sendPrompt();
+                }
+              }}
+              placeholder={viewerRole === "backer" ? t.discovery.promptBacker : t.discovery.promptCreator}
+              className={cn(
+                "flex-1 bg-transparent border-none resize-none focus:outline-none focus:ring-0 font-body text-base md:text-lg placeholder:text-on-surface-variant/60 transition-all duration-500 ease-out",
+                promptExpanded ? "min-h-[96px]" : "min-h-[28px]"
+              )}
+              style={{ maxHeight: promptExpanded ? 200 : 28 }}
+            />
+            <button
+              onClick={sendPrompt}
+              disabled={!prompt.trim() && files.length === 0}
+              className="bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-5 md:px-6 py-3 rounded-2xl hover:opacity-95 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+            >
+              <span className="hidden sm:inline">{t.discovery.send}</span>
+              <Send className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {/* Bottom toolbar — slides in when expanded */}
+          {promptExpanded && (
+            <div className="flex items-center gap-3 px-5 pb-3 pt-2 border-t border-outline-variant/20 animate-fade-up">
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                className="hidden"
+                onChange={onFilePick}
+              />
+              <button
+                onClick={() => fileInputRef.current?.click()}
+                disabled={files.length >= 5}
+                className="flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider px-3 py-1.5 rounded-lg border border-outline-variant/40 hover:border-primary/40 hover:text-primary text-on-surface-variant transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Paperclip className="w-3.5 h-3.5" /> {t.discovery.attach}
+              </button>
+              <span className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/60">
+                {files.length}/5
+              </span>
+              <span className="ml-auto font-label text-[10px] uppercase tracking-widest text-on-surface-variant/60 hidden sm:inline">
+                {t.discovery.shiftEnterHint}
+              </span>
+            </div>
+          )}
+        </div>
       </div>
-      <SiteFooter />
     </AppShell>
+  );
+}
+
+function MasonryCard({
+  item,
+  index,
+  byLabel,
+  onOpen,
+}: {
+  item: Item;
+  index: number;
+  byLabel: string;
+  onOpen: () => void;
+}) {
+  const [loaded, setLoaded] = useState(false);
+  const [w, h] = ASPECT_DIM[item.aspect];
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className={cn(
+        "break-inside-avoid mb-3 md:mb-4 relative overflow-hidden rounded-2xl bg-surface-container border border-outline-variant/30 group hover:scale-[1.02] hover:border-primary/30 hover:shadow-xl hover:shadow-primary/15 transition-all duration-500 cursor-pointer w-full text-left animate-fade-up",
+        ASPECT_CLASS[item.aspect]
+      )}
+      style={{ animationDelay: `${index * 60}ms` }}
+    >
+      {!loaded && <span className="shimmer-overlay" />}
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={`https://picsum.photos/seed/${item.seed}/${w}/${h}`}
+        alt={item.title}
+        loading="lazy"
+        onLoad={() => setLoaded(true)}
+        onError={() => setLoaded(true)}
+        className={cn(
+          "absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-105",
+          loaded ? "opacity-100" : "opacity-0"
+        )}
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute inset-0 p-4 flex flex-col justify-end opacity-0 group-hover:opacity-100 transition-opacity duration-500">
+        <span className="absolute top-3 right-3 w-9 h-9 rounded-full bg-primary/20 backdrop-blur-md border border-primary/40 flex items-center justify-center text-primary">
+          <Play className="w-3.5 h-3.5 ml-0.5" fill="currentColor" />
+        </span>
+        <div className="bg-black/30 backdrop-blur-md border border-white/10 rounded-lg p-3 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+          <p className="font-headline italic text-white text-base md:text-lg leading-tight">{item.title}</p>
+          <p className="font-label text-white/70 text-[10px] uppercase tracking-widest mt-1">
+            {byLabel} {item.creator}
+          </p>
+        </div>
+      </div>
+    </button>
   );
 }

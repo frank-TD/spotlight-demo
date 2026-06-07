@@ -6,6 +6,7 @@ import { useT } from "@/hooks/useT";
 import { toast } from "sonner";
 import { ArrowLeft, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import SectionLabel from "@/components/home/SectionLabel";
 
 export default function OnboardingProfilePage() {
   const router = useRouter();
@@ -34,28 +35,59 @@ export default function OnboardingProfilePage() {
     router.replace("/discovery");
   };
 
+  const isBacker = activeRole === "backer";
+  const title1 = isBacker ? t.onboarding.profileBackerTitle1 : t.onboarding.profileCreatorTitle1;
+  const title2 = isBacker ? t.onboarding.profileBackerTitle2 : t.onboarding.profileCreatorTitle2;
+  const sub = isBacker ? t.onboarding.profileBackerSubtitle : t.onboarding.profileCreatorSubtitle;
+
   return (
-    <div className="min-h-screen bg-surface">
-      <div className="max-w-2xl mx-auto px-6 md:px-8 pt-16 md:pt-24 pb-32">
+    <div className="relative min-h-screen bg-mesh overflow-hidden">
+      <div className="absolute -top-32 -left-32 w-[480px] h-[480px] rounded-full bg-primary/10 blur-[140px] pointer-events-none" />
+      <div className="absolute -bottom-40 -right-32 w-[520px] h-[520px] rounded-full bg-secondary/10 blur-[160px] pointer-events-none" />
+
+      <div className="relative max-w-2xl mx-auto px-6 md:px-8 pt-20 md:pt-28 pb-32">
         <button
           onClick={() => router.push("/onboarding/role")}
-          className="inline-flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider text-on-surface-variant hover:text-on-surface mb-8 transition-colors"
+          className="inline-flex items-center gap-1.5 font-label text-[11px] uppercase tracking-[0.24em] text-on-surface-variant hover:text-primary mb-10 transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" /> {t.onboarding.back}
         </button>
 
-        <h1 className="font-headline text-4xl md:text-5xl text-on-surface leading-tight mb-3">
-          {activeRole === "backer" ? t.onboarding.profileBackerTitle : t.onboarding.profileCreatorTitle}
+        <div className="mb-6 animate-fade-up">
+          <SectionLabel>{t.onboarding.stepProfile}</SectionLabel>
+        </div>
+        <h1 className="font-headline text-4xl md:text-6xl text-on-surface leading-[1.05] tracking-tight">
+          <span className="block animate-fade-up" style={{ animationDelay: "120ms" }}>
+            {title1}
+          </span>
+          <span
+            className="block italic font-headline animate-fade-up"
+            style={{
+              animationDelay: "260ms",
+              background: "linear-gradient(135deg, #d4af37 0%, #f3d57f 60%, #d4af37 100%)",
+              WebkitBackgroundClip: "text",
+              WebkitTextFillColor: "transparent",
+              backgroundClip: "text",
+              paddingBottom: "0.05em",
+            }}
+          >
+            {title2}
+          </span>
         </h1>
-        <p className="font-body text-on-surface-variant text-base md:text-lg italic mb-10 opacity-80">
-          {activeRole === "backer" ? t.onboarding.profileBackerSubtitle : t.onboarding.profileCreatorSubtitle}
+        <p
+          className="font-body text-on-surface-variant text-base md:text-lg mt-7 mb-12 leading-relaxed animate-fade-up"
+          style={{ animationDelay: "400ms" }}
+        >
+          {sub}
         </p>
 
-        {activeRole === "backer" ? (
-          <BackerForm onSubmit={updateBackerPrefs} onFinish={finish} />
-        ) : (
-          <CreatorForm onSubmit={updateCreatorPrefs} onFinish={finish} />
-        )}
+        <div className="animate-fade-up" style={{ animationDelay: "540ms" }}>
+          {isBacker ? (
+            <BackerForm onSubmit={updateBackerPrefs} onFinish={finish} />
+          ) : (
+            <CreatorForm onSubmit={updateCreatorPrefs} onFinish={finish} />
+          )}
+        </div>
       </div>
     </div>
   );

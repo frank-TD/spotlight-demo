@@ -29,12 +29,16 @@ export default function TopNav() {
   const t = useT();
   const [mobileOpen, setMobileOpen] = useState(false);
 
+  // `match` controls how the active state is decided. Workspace is a sub-route
+  // of /discovery, so plain startsWith would double-highlight Discover and
+  // AIGC Studio when the user is in the workspace — we pin Discover to an
+  // exact match and let AIGC Studio claim the workspace prefix.
   const NAV_ITEMS = [
-    { label: t.nav.discover, href: "/discovery" },
-    { label: t.nav.marketplace, href: "/market" },
-    { label: t.nav.studio, href: "/discovery/workspace" },
-    { label: t.nav.myProjects, href: "/projects" },
-    { label: t.nav.messages, href: "/messages" },
+    { label: t.nav.discover, href: "/discovery", match: (p: string) => p === "/discovery" },
+    { label: t.nav.marketplace, href: "/market", match: (p: string) => p.startsWith("/market") },
+    { label: t.nav.studio, href: "/discovery/workspace", match: (p: string) => p.startsWith("/discovery/workspace") },
+    { label: t.nav.myProjects, href: "/projects", match: (p: string) => p.startsWith("/projects") },
+    { label: t.nav.messages, href: "/messages", match: (p: string) => p.startsWith("/messages") },
   ];
 
   const handleLogout = () => {
@@ -52,7 +56,7 @@ export default function TopNav() {
           {isLoggedIn && (
             <nav className="hidden md:flex gap-5 lg:gap-7">
               {NAV_ITEMS.map((item) => {
-                const active = pathname.startsWith(item.href.split("/").slice(0, 3).join("/"));
+                const active = item.match(pathname);
                 return (
                   <Link
                     key={item.href}
@@ -211,7 +215,7 @@ export default function TopNav() {
             </div>
             <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
               {NAV_ITEMS.map((item) => {
-                const active = pathname.startsWith(item.href.split("/").slice(0, 3).join("/"));
+                const active = item.match(pathname);
                 return (
                   <Link
                     key={item.href}

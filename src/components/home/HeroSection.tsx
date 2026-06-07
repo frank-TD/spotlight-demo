@@ -12,23 +12,26 @@ export default function HeroSection() {
   const t = useT();
   const router = useRouter();
   const isLoggedIn = useStore((s) => s.isLoggedIn);
+  const onboardingComplete = useStore((s) => s.onboardingComplete);
 
+  // Post a Brief — smart routing. Anonymous users go through register; signed-
+  // in users that haven't finished onboarding land on the role picker; fully
+  // onboarded users jump straight into the marketplace post-a-need flow.
   const post = () => {
     if (!isLoggedIn) {
       toast.info(t.landing.signupToastBrief);
       router.push("/register");
       return;
     }
-    router.push("/market");
-  };
-  const browse = () => {
-    if (!isLoggedIn) {
-      toast.info(t.landing.signupToastBrowse);
-      router.push("/register");
+    if (!onboardingComplete) {
+      router.push("/onboarding/role");
       return;
     }
-    router.push("/market/creators");
+    router.push("/market");
   };
+  // Browse Creators is the inspiration entry point — no signup gate, just
+  // walk over to the masonry feed.
+  const browse = () => router.push("/discovery");
 
   return (
     <section className="relative bg-mesh -mx-6 md:-mx-12 px-6 md:px-12 pt-20 md:pt-28 pb-24 md:pb-32 overflow-hidden">
