@@ -3,12 +3,12 @@ import Link from "next/link";
 import TopNav from "./TopNav";
 import AgentFloat from "./AgentFloat";
 
-export default function AppShell({ children }: { children: React.ReactNode }) {
+export default function AppShell({ children, hideFooter = false }: { children: React.ReactNode; hideFooter?: boolean }) {
   return (
     <div className="min-h-screen flex flex-col bg-surface text-on-surface">
       <TopNav />
       <main className="flex-1 pt-[80px]">{children}</main>
-      <Footer />
+      {!hideFooter && <Footer />}
       <AgentFloat />
     </div>
   );

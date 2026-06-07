@@ -30,10 +30,10 @@ export default function TopNav() {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   const NAV_ITEMS = [
-    { label: t.nav.studio, href: "/discovery" },
+    { label: t.nav.discover, href: "/discovery" },
     { label: t.nav.marketplace, href: "/market" },
+    { label: t.nav.studio, href: "/discovery/workspace" },
     { label: t.nav.myProjects, href: "/projects" },
-    { label: t.nav.assets, href: "/assets" },
     { label: t.nav.messages, href: "/messages" },
   ];
 
@@ -46,7 +46,7 @@ export default function TopNav() {
     <header className="fixed top-0 left-0 right-0 h-[80px] z-50 bg-surface/60 backdrop-blur-[30px] border-b border-outline-variant/10 shadow-[0_4px_30px_rgba(0,0,0,0.06)]">
       <div className="flex justify-between items-center px-4 md:px-12 w-full max-w-[1280px] mx-auto h-full">
         <div className="flex items-center gap-8">
-          <Link href="/" className="font-headline text-[28px] md:text-[32px] text-on-surface italic font-bold leading-none whitespace-nowrap">
+          <Link href="/" className="font-headline text-[28px] md:text-[32px] text-primary italic font-bold leading-none whitespace-nowrap">
             Spotlight
           </Link>
           {isLoggedIn && (
