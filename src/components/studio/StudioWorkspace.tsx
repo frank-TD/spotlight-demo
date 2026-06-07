@@ -303,6 +303,7 @@ export default function StudioWorkspace() {
   return (
     <div className="max-w-[1500px] mx-auto px-4 md:px-6 pt-6 pb-52">
       <div className="flex gap-5">
+        <div className="animate-fade-up" style={{ animationDelay: "60ms" }}>
         <HistoryRail
           sessions={studioSessions}
           groups={studioGroups}
@@ -318,8 +319,9 @@ export default function StudioWorkspace() {
           onDeleteGroup={deleteStudioGroup}
           onToggleGroup={toggleStudioGroupCollapsed}
         />
+        </div>
 
-        <main className="flex-1 min-w-0">
+        <main className="flex-1 min-w-0 animate-fade-up" style={{ animationDelay: "180ms" }}>
           <div className="h-[calc(100vh-220px)] min-h-[480px]">
             <VisualsCanvas
               mode={mode}
@@ -333,7 +335,7 @@ export default function StudioWorkspace() {
       </div>
 
       {/* Floating dock */}
-      <div className="fixed left-0 right-0 bottom-6 px-4 z-40 pointer-events-none lg:pl-[260px]">
+      <div className="fixed left-0 right-0 bottom-6 px-4 z-40 pointer-events-none lg:pl-[260px] animate-fade-up" style={{ animationDelay: "320ms" }}>
         <PromptDock
           mode={mode}
           onModeChange={onModeChange}

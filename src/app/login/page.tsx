@@ -25,9 +25,9 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen bg-surface flex">
-      {/* Left brand panel */}
-      <div className="hidden lg:flex lg:w-1/2 bg-primary text-on-primary flex-col justify-between p-12 relative overflow-hidden">
-        <Link href="/" className="font-headline text-[32px] italic font-bold leading-none">
+      {/* Left brand panel — cinematic dark with a soft gold mesh wash */}
+      <div className="hidden lg:flex lg:w-1/2 bg-surface-container-lowest text-on-surface flex-col justify-between p-12 relative overflow-hidden bg-mesh">
+        <Link href="/" className="font-headline text-[32px] italic font-bold leading-none text-primary">
           Spotlight
         </Link>
         <div className="relative z-10">
@@ -40,13 +40,13 @@ export default function LoginPage() {
             </div>
             <div>
               <p className="font-body font-bold">Aria Song</p>
-              <p className="font-label text-label-md uppercase tracking-wider opacity-70 mt-1">
+              <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-1">
                 {t.login.testimonialRole}
               </p>
             </div>
           </div>
         </div>
-        <p className="font-label text-label-md uppercase tracking-wider opacity-60">{t.login.copyright}</p>
+        <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">{t.login.copyright}</p>
       </div>
 
       {/* Right form panel */}

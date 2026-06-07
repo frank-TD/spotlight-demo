@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import AppShell from "@/components/layout/AppShell";
 import MouseGlow from "@/components/home/MouseGlow";
+import SectionLabel from "@/components/home/SectionLabel";
 import { useStore } from "@/lib/store";
 import { useT } from "@/hooks/useT";
 import { getAgentReply } from "@/lib/agent-response";
@@ -16,8 +17,8 @@ import { toast } from "sonner";
 type Aspect = "portrait" | "tall" | "landscape" | "wide" | "square";
 type Item = { id: number; title: string; creator: string; category: string; aspect: Aspect; seed: string };
 
-// Discovery feed — 12 curated mock works. Images are picsum thumbnails seeded by id;
-// the underlying gradient fills in if the network is unavailable.
+// Discovery feed — 12 curated mock works. Picsum thumbnails seeded by id;
+// the dim cinematic gradient underneath shows through if the network fails.
 const ITEMS: Item[] = [
   { id: 1, title: "Celestial Entity",  creator: "Aria Song",     category: "Character",    aspect: "portrait",  seed: "celestial" },
   { id: 2, title: "Neon Rain",         creator: "Marco Reyes",   category: "Cinematic",    aspect: "tall",      seed: "neonrain" },
@@ -51,13 +52,9 @@ const ASPECT_DIM: Record<Aspect, [number, number]> = {
   square: [600, 600],
 };
 
-const GRADIENTS = [
-  "from-primary-container via-primary-fixed to-tertiary-container",
-  "from-tertiary-container via-tertiary-fixed to-primary-container",
-  "from-secondary-container via-secondary-fixed to-primary-container",
-  "from-primary-container via-tertiary-fixed to-secondary-container",
-];
-
+// `/discovery` — the inspiration mode. Browse what the network is making,
+// chat with Marlow at the bottom dock, jump to the AIGC Studio when ready.
+// Reached via the "Discover" nav tab or the homepage "Browse Creators" CTA.
 export default function DiscoveryPage() {
   const router = useRouter();
   const {
@@ -77,8 +74,8 @@ export default function DiscoveryPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const promptRef = useRef<HTMLDivElement>(null);
 
-  // Anonymous browsing is allowed; acting (start conversation / send agent prompt)
-  // gates on signup. Logged-out users default to the Backer-facing UI.
+  // Anonymous browsing is fine; acting (start conversation / send prompt /
+  // start creating) gates on signup. Logged-out viewers default to backer.
   const viewerRole = isLoggedIn ? activeRole : "backer";
 
   const requireSignup = (msg: string) => {
@@ -152,24 +149,22 @@ export default function DiscoveryPage() {
   return (
     <AppShell>
       <MouseGlow />
-      <main className="max-w-[1800px] mx-auto px-4 md:px-6 pt-10 pb-48">
-        {/* Header */}
+      <main className="max-w-[1800px] mx-auto px-4 md:px-6 pt-14 pb-48">
+        {/* Hero */}
         <header className="text-center mb-12 animate-fade-up">
-          <div className="inline-flex items-center gap-2 mb-6 px-4 py-1.5 rounded-full bg-tertiary-container text-on-tertiary-container font-label text-[11px] uppercase tracking-[0.2em]">
-            <span className="relative inline-flex w-2 h-2">
-              <span className="absolute inline-flex w-full h-full rounded-full bg-tertiary opacity-60 animate-ping" />
-              <span className="relative inline-flex w-2 h-2 rounded-full bg-tertiary live-dot" />
-            </span>
-            {t.discovery.badge}
+          <div className="inline-flex justify-center mb-6">
+            <SectionLabel>{t.discovery.badge}</SectionLabel>
           </div>
           <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tight leading-[1.05] [overflow:visible] px-2 md:px-4">
-            <StaggerText text={t.discovery.title1} />
+            <span className="animate-fade-up" style={{ animationDelay: "100ms" }}>
+              {t.discovery.title1}
+            </span>
             <span>&nbsp;</span>
             <span
               className="italic font-headline animate-fade-in"
               style={{
-                animationDelay: `${t.discovery.title1.length * 50 + 100}ms`,
-                background: "linear-gradient(135deg, #6e5b47 0%, #dcc2aa 100%)",
+                animationDelay: "260ms",
+                background: "linear-gradient(135deg, #d4af37 0%, #f3d57f 60%, #d4af37 100%)",
                 WebkitBackgroundClip: "text",
                 WebkitTextFillColor: "transparent",
                 backgroundClip: "text",
@@ -181,19 +176,19 @@ export default function DiscoveryPage() {
           </h1>
           <p
             className="font-headline italic font-light text-on-surface-variant text-lg md:text-2xl max-w-3xl mx-auto opacity-90 leading-relaxed tracking-tight animate-fade-up"
-            style={{ animationDelay: `${(t.discovery.title1.length + t.discovery.title2.length) * 50 + 200}ms` }}
+            style={{ animationDelay: "380ms" }}
           >
             {t.discovery.subtitle}
           </p>
 
-          {/* Primary CTA — drops users into the AIGC workspace. */}
+          {/* Single Start Creating CTA → AIGC Studio */}
           <div
             className="mt-10 flex flex-col items-center gap-2.5 animate-fade-up"
-            style={{ animationDelay: `${(t.discovery.title1.length + t.discovery.title2.length) * 50 + 350}ms` }}
+            style={{ animationDelay: "520ms" }}
           >
             <button
               onClick={handleStartCreating}
-              className="group glow-hover inline-flex items-center gap-3 bg-primary text-on-primary font-label text-base md:text-lg uppercase tracking-widest px-9 py-4 rounded-full hover:scale-105 active:scale-95 transition-transform shadow-lg shadow-primary/20"
+              className="group glow-hover inline-flex items-center gap-3 bg-primary text-on-primary font-label text-base md:text-lg uppercase tracking-widest px-9 py-4 rounded-full hover:scale-105 active:scale-95 transition-transform shadow-[0_8px_30px_rgba(212,175,55,0.25)]"
             >
               <Wand2 className="w-4 h-4" />
               {t.discovery.startCreating}
@@ -230,7 +225,6 @@ export default function DiscoveryPage() {
               key={item.id}
               item={item}
               index={i}
-              gradient={GRADIENTS[i % GRADIENTS.length]}
               byLabel={t.discovery.by}
               onOpen={() => setOpenItem(item)}
             />
@@ -248,7 +242,7 @@ export default function DiscoveryPage() {
             return (
               <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] max-h-[90vh] overflow-hidden">
                 {/* Left: preview */}
-                <div className="bg-[#0f0d0c] p-6 md:p-7 flex flex-col gap-4 overflow-y-auto">
+                <div className="bg-[#08080a] p-6 md:p-7 flex flex-col gap-4 overflow-y-auto">
                   <div className="aspect-video relative rounded-xl overflow-hidden bg-surface-container group">
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -262,8 +256,8 @@ export default function DiscoveryPage() {
                       className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/45 transition-colors"
                       aria-label="play"
                     >
-                      <span className="w-16 h-16 rounded-full bg-white/95 shadow-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <Play className="w-7 h-7 text-on-surface ml-1" fill="currentColor" />
+                      <span className="w-16 h-16 rounded-full bg-primary/95 text-on-primary shadow-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Play className="w-7 h-7 ml-1" fill="currentColor" />
                       </span>
                     </button>
                   </div>
@@ -295,7 +289,7 @@ export default function DiscoveryPage() {
                       <div className="min-w-0">
                         <p className="font-headline text-[20px] text-on-surface truncate">{creator.nickname}</p>
                         <div className="flex items-center gap-1.5 mt-0.5">
-                          <Star className="w-3 h-3 fill-tertiary text-tertiary" />
+                          <Star className="w-3 h-3 fill-primary text-primary" />
                           <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
                             {creator.rating} · {creator.orders} {t.creators.projectsLabel}
                           </span>
@@ -352,7 +346,7 @@ export default function DiscoveryPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Floating agent prompt — expands on focus with file upload */}
+      {/* Floating Marlow textbox — expands on focus, dark frosted glass */}
       <div
         className={cn(
           "fixed left-1/2 -translate-x-1/2 w-[94%] max-w-[820px] z-40 pointer-events-none transition-all duration-500 ease-out",
@@ -363,13 +357,13 @@ export default function DiscoveryPage() {
           ref={promptRef}
           onClick={() => setPromptExpanded(true)}
           className={cn(
-            "pointer-events-auto rounded-[28px] border border-outline-variant/30 transition-all duration-500 ease-out overflow-hidden",
+            "pointer-events-auto rounded-[28px] border border-outline-variant/40 transition-all duration-500 ease-out overflow-hidden",
             promptExpanded
-              ? "shadow-[0_24px_60px_rgba(110,91,71,0.28)] ring-1 ring-primary/15"
+              ? "shadow-[0_24px_60px_rgba(0,0,0,0.6)] ring-1 ring-primary/20"
               : "shadow-2xl"
           )}
           style={{
-            background: "rgba(255, 248, 245, 0.85)",
+            background: "rgba(20, 20, 26, 0.85)",
             backdropFilter: "blur(24px) saturate(180%)",
             WebkitBackdropFilter: "blur(24px) saturate(180%)",
           }}
@@ -465,13 +459,11 @@ export default function DiscoveryPage() {
 function MasonryCard({
   item,
   index,
-  gradient,
   byLabel,
   onOpen,
 }: {
   item: Item;
   index: number;
-  gradient: string;
   byLabel: string;
   onOpen: () => void;
 }) {
@@ -482,9 +474,8 @@ function MasonryCard({
       type="button"
       onClick={onOpen}
       className={cn(
-        "break-inside-avoid mb-3 md:mb-4 relative overflow-hidden rounded-2xl bg-gradient-to-br group hover:scale-[1.02] hover:shadow-xl hover:shadow-primary/20 transition-all duration-500 cursor-pointer w-full text-left animate-fade-up",
-        ASPECT_CLASS[item.aspect],
-        gradient
+        "break-inside-avoid mb-3 md:mb-4 relative overflow-hidden rounded-2xl bg-surface-container border border-outline-variant/30 group hover:scale-[1.02] hover:border-primary/30 hover:shadow-xl hover:shadow-primary/15 transition-all duration-500 cursor-pointer w-full text-left animate-fade-up",
+        ASPECT_CLASS[item.aspect]
       )}
       style={{ animationDelay: `${index * 60}ms` }}
     >
@@ -501,12 +492,12 @@ function MasonryCard({
           loaded ? "opacity-100" : "opacity-0"
         )}
       />
-      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       <div className="absolute inset-0 p-4 flex flex-col justify-end opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-        <span className="absolute top-3 right-3 w-9 h-9 rounded-full bg-white/15 backdrop-blur-md border border-white/30 flex items-center justify-center text-white">
+        <span className="absolute top-3 right-3 w-9 h-9 rounded-full bg-primary/20 backdrop-blur-md border border-primary/40 flex items-center justify-center text-primary">
           <Play className="w-3.5 h-3.5 ml-0.5" fill="currentColor" />
         </span>
-        <div className="bg-white/10 backdrop-blur-md border border-white/20 rounded-lg p-3 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+        <div className="bg-black/30 backdrop-blur-md border border-white/10 rounded-lg p-3 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
           <p className="font-headline italic text-white text-base md:text-lg leading-tight">{item.title}</p>
           <p className="font-label text-white/70 text-[10px] uppercase tracking-widest mt-1">
             {byLabel} {item.creator}
@@ -516,20 +507,3 @@ function MasonryCard({
     </button>
   );
 }
-
-function StaggerText({ text, baseDelay = 0, step = 50 }: { text: string; baseDelay?: number; step?: number }) {
-  return (
-    <>
-      {Array.from(text).map((ch, i) => (
-        <span
-          key={i}
-          className="inline-block animate-fade-up"
-          style={{ animationDelay: `${baseDelay + i * step}ms` }}
-        >
-          {ch === " " ? " " : ch}
-        </span>
-      ))}
-    </>
-  );
-}
-
