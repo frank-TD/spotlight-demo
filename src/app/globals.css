@@ -4,66 +4,76 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* ─── M3 design tokens (from Spotlight UI examples) ───────────────────────── */
+/* ─── Cinematic dark tokens — Spotlight Phase A rebrand ──────────────────
+   Inspired by the netlify sample (dark backdrop + warm gold + cool blue).
+   Token slots match the prior M3 schema so every existing utility class
+   (bg-surface, text-on-surface-variant, etc.) keeps working — we just
+   redefined the values. */
 :root {
-  /* Primary tones (warm brown) */
-  --md-primary: #6e5b47;
-  --md-on-primary: #ffffff;
-  --md-primary-container: #fde2c9;
-  --md-on-primary-container: #77634f;
-  --md-primary-fixed: #f9dec5;
-  --md-primary-fixed-dim: #dcc2aa;
-  --md-on-primary-fixed: #261909;
-  --md-on-primary-fixed-variant: #554431;
-  --md-inverse-primary: #dcc2aa;
+  /* Primary = warm cinematic gold (was warm brown). Used for the wordmark,
+     accented italic display words like "Stream it.", and the primary CTA. */
+  --md-primary: #d4af37;
+  --md-on-primary: #08080a;
+  --md-primary-container: #3a2f12;
+  --md-on-primary-container: #f3d57f;
+  /* *-fixed are used as gradient stops on placeholder cards. Light gold here
+     causes a chrome look against the container — keep these in the dim
+     cinematic range so cards read as moody, not metallic. */
+  --md-primary-fixed: #5a4515;
+  --md-primary-fixed-dim: #3a2f12;
+  --md-on-primary-fixed: #f3d57f;
+  --md-on-primary-fixed-variant: #f3d57f;
+  --md-inverse-primary: #6e5b47;
 
-  /* Secondary tones (warm gray) */
-  --md-secondary: #675d53;
-  --md-on-secondary: #ffffff;
-  --md-secondary-container: #ecddd1;
-  --md-on-secondary-container: #6b6157;
-  --md-secondary-fixed: #eee0d4;
-  --md-secondary-fixed-dim: #d2c4b9;
-  --md-on-secondary-fixed: #211a13;
-  --md-on-secondary-fixed-variant: #4e453c;
+  /* Secondary = cool slate blue (Creator / Wren accent, "I'M A CREATOR" chip,
+     Sci-Fi category). */
+  --md-secondary: #a8c4e5;
+  --md-on-secondary: #08080a;
+  --md-secondary-container: #1c2a3a;
+  --md-on-secondary-container: #a8c4e5;
+  --md-secondary-fixed: #2c3a4a;
+  --md-secondary-fixed-dim: #1c2a3a;
+  --md-on-secondary-fixed: #c5d6e8;
+  --md-on-secondary-fixed-variant: #c5d6e8;
 
-  /* Tertiary tones (olive) */
-  --md-tertiary: #5f6048;
-  --md-on-tertiary: #ffffff;
-  --md-tertiary-container: #e9e8ca;
-  --md-on-tertiary-container: #686850;
-  --md-tertiary-fixed: #e5e4c6;
-  --md-tertiary-fixed-dim: #c9c8ab;
-  --md-on-tertiary-fixed: #1c1d0a;
-  --md-on-tertiary-fixed-variant: #474832;
+  /* Tertiary = muted moss (Documentary chip, supporting accent). */
+  --md-tertiary: #c9c8ab;
+  --md-on-tertiary: #08080a;
+  --md-tertiary-container: #2d2e1f;
+  --md-on-tertiary-container: #e5e4c6;
+  --md-tertiary-fixed: #3d3e2c;
+  --md-tertiary-fixed-dim: #2d2e1f;
+  --md-on-tertiary-fixed: #c9c8ab;
+  --md-on-tertiary-fixed-variant: #c9c8ab;
 
-  /* Surface scale */
-  --md-background: #fff8f5;
-  --md-on-background: #1d1b1a;
-  --md-surface: #fff8f5;
-  --md-surface-bright: #fff8f5;
-  --md-surface-dim: #dfd9d6;
-  --md-surface-container-lowest: #ffffff;
-  --md-surface-container-low: #f9f2f0;
-  --md-surface-container: #f3edea;
-  --md-surface-container-high: #ede7e4;
-  --md-surface-container-highest: #e7e1df;
-  --md-surface-variant: #e7e1df;
-  --md-surface-tint: #6e5b47;
-  --md-on-surface: #1d1b1a;
-  --md-on-surface-variant: #4e453e;
-  --md-inverse-surface: #32302e;
-  --md-inverse-on-surface: #f6efed;
+  /* Dark surface scale — graduated near-black to slightly lifted greys for
+     stacked card layers (banner > section > card > raised card). */
+  --md-background: #08080a;
+  --md-on-background: #ffffff;
+  --md-surface: #08080a;
+  --md-surface-bright: #1a1a1f;
+  --md-surface-dim: #050507;
+  --md-surface-container-lowest: #0c0c0e;
+  --md-surface-container-low: #101012;
+  --md-surface-container: #14141a;
+  --md-surface-container-high: #1a1a22;
+  --md-surface-container-highest: #22222a;
+  --md-surface-variant: #1a1a22;
+  --md-surface-tint: #d4af37;
+  --md-on-surface: #ffffff;
+  --md-on-surface-variant: #a8a8b0;
+  --md-inverse-surface: #f6efed;
+  --md-inverse-on-surface: #1d1b1a;
 
   /* Outline */
-  --md-outline: #7f756c;
-  --md-outline-variant: #d1c4ba;
+  --md-outline: #44444c;
+  --md-outline-variant: #2a2a32;
 
   /* Error */
-  --md-error: #ba1a1a;
-  --md-on-error: #ffffff;
-  --md-error-container: #ffdad6;
-  --md-on-error-container: #93000a;
+  --md-error: #ff6b6b;
+  --md-on-error: #08080a;
+  --md-error-container: #4a1818;
+  --md-on-error-container: #ffb4ab;
 
   /* ── shadcn aliases mapped to M3 tokens ────────────────────────────────── */
   --primary: var(--md-primary);
@@ -247,17 +257,19 @@
   animation: subtle-float 6s ease-in-out infinite;
 }
 
+/* Cinematic mesh — near-black backdrop with very subtle warm-gold and cool-blue
+   pools in the corners, mimicking the moody hero photography in the sample. */
 .bg-mesh {
   background-color: var(--md-surface);
   background-image:
-    radial-gradient(at 0% 0%, hsla(20, 40%, 90%, 1) 0px, transparent 50%),
-    radial-gradient(at 100% 0%, hsla(30, 30%, 92%, 1) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, hsla(10, 20%, 94%, 1) 0px, transparent 50%),
-    radial-gradient(at 0% 100%, hsla(40, 25%, 91%, 1) 0px, transparent 50%);
+    radial-gradient(at 0% 0%, hsla(45, 60%, 14%, 0.85) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, hsla(210, 35%, 10%, 0.65) 0px, transparent 50%),
+    radial-gradient(at 100% 100%, hsla(40, 30%, 8%, 0.7) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, hsla(220, 25%, 9%, 0.55) 0px, transparent 50%);
 }
 
 .glow-hover { transition: box-shadow 0.3s ease, transform 0.3s ease; }
-.glow-hover:hover { box-shadow: 0 0 24px rgba(110, 91, 71, 0.3); }
+.glow-hover:hover { box-shadow: 0 0 24px rgba(212, 175, 55, 0.35); }
 
 .scroll-reveal {
   opacity: 0;
@@ -332,9 +344,9 @@
 
 /* Live pulse halo — slow breathing ring used by status dots */
 @keyframes live-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(95, 96, 72, 0.45); }
-  70% { box-shadow: 0 0 0 8px rgba(95, 96, 72, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(95, 96, 72, 0); }
+  0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.55); }
+  70% { box-shadow: 0 0 0 8px rgba(212, 175, 55, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
 }
 .live-dot {
   animation: live-pulse 1.8s ease-out infinite;

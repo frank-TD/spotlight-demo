@@ -363,13 +363,13 @@ export default function DiscoveryPage() {
           ref={promptRef}
           onClick={() => setPromptExpanded(true)}
           className={cn(
-            "pointer-events-auto rounded-[28px] border border-outline-variant/30 transition-all duration-500 ease-out overflow-hidden",
+            "pointer-events-auto rounded-[28px] border border-outline-variant/40 transition-all duration-500 ease-out overflow-hidden",
             promptExpanded
-              ? "shadow-[0_24px_60px_rgba(110,91,71,0.28)] ring-1 ring-primary/15"
+              ? "shadow-[0_24px_60px_rgba(0,0,0,0.6)] ring-1 ring-primary/20"
               : "shadow-2xl"
           )}
           style={{
-            background: "rgba(255, 248, 245, 0.85)",
+            background: "rgba(20, 20, 26, 0.85)",
             backdropFilter: "blur(24px) saturate(180%)",
             WebkitBackdropFilter: "blur(24px) saturate(180%)",
           }}

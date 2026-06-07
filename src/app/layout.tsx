@@ -1,13 +1,13 @@
 import type { Metadata } from "next";
-import { Arimo, Bebas_Neue, Bodoni_Moda } from "next/font/google";
+import { Arimo, Bebas_Neue, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 
-const bodoni = Bodoni_Moda({
+const cormorant = Cormorant_Garamond({
   variable: "--font-headline",
   subsets: ["latin"],
   style: ["normal", "italic"],
-  weight: ["400", "600", "700"],
+  weight: ["400", "500", "600", "700"],
   display: "swap",
 });
 
@@ -26,8 +26,8 @@ const bebas = Bebas_Neue({
 });
 
 export const metadata: Metadata = {
-  title: "Spotlight — AIGC Creative Marketplace",
-  description: "Connect creators and backers for AI-powered video production",
+  title: "Spotlight — Fund it. Own it. Stream it.",
+  description: "The world's first AI-powered content commissioning platform. Your brief. Your IP. Your name on it.",
 };
 
 export default function RootLayout({
@@ -36,7 +36,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${bodoni.variable} ${arimo.variable} ${bebas.variable} h-full`}>
+    <html lang="en" className={`${cormorant.variable} ${arimo.variable} ${bebas.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-background text-on-surface font-body antialiased">
         {children}
         <Toaster position="top-center" />
