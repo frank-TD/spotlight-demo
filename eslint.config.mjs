@@ -1,47 +1,23 @@
-import { FlatCompat } from "@eslint/eslintrc";
-import { fixupConfigRules } from "@eslint/compat";
 import { defineConfig, globalIgnores } from "eslint/config";
-import path from "node:path";
-import { fileURLToPath } from "node:url";
+import importPlugin from "eslint-plugin-import";
+import jsxA11yPlugin from "eslint-plugin-jsx-a11y";
 import nextVitals from "eslint-config-next/core-web-vitals";
 import nextTs from "eslint-config-next/typescript";
 import prettier from "eslint-config-prettier";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-const warnOnly = (rules = {}) =>
-  Object.fromEntries(
-    Object.entries(rules).map(([rule, value]) => {
-      if (Array.isArray(value)) {
-        return [rule, ["warn", ...value.slice(1)]];
-      }
-      if (value === "off" || value === 0) {
-        return [rule, value];
-      }
-      return [rule, "warn"];
-    })
-  );
-
-const airbnbConfigs = fixupConfigRules(compat.extends("airbnb", "airbnb/hooks")).map((config) => {
-  const airbnbConfig = { ...config };
-  delete airbnbConfig.plugins;
-  airbnbConfig.rules = warnOnly(airbnbConfig.rules);
-  return airbnbConfig;
-});
-
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
-  ...airbnbConfigs,
-  prettier,
   {
+    files: ["**/*.{js,jsx,ts,tsx}"],
     rules: {
-      "import/extensions": "off",
+      ...importPlugin.flatConfigs.recommended.rules,
+      ...jsxA11yPlugin.flatConfigs.recommended.rules,
+      "arrow-body-style": "warn",
+      "default-case": "warn",
+      "dot-notation": "warn",
       "import/no-extraneous-dependencies": [
-        "error",
+        "warn",
         {
           devDependencies: [
             "**/*.config.{js,mjs,ts}",
@@ -51,10 +27,44 @@ const eslintConfig = defineConfig([
           ],
         },
       ],
+      "import/no-duplicates": "warn",
       "import/no-unused-modules": "off",
+      "import/order": "warn",
       "import/prefer-default-export": "off",
-      "import/no-internal-modules": "off",
+      "import/extensions": "off",
       "import/max-dependencies": "off",
+      "import/no-internal-modules": "off",
+      "jsx-a11y/click-events-have-key-events": "warn",
+      "jsx-a11y/control-has-associated-label": "warn",
+      "jsx-a11y/label-has-associated-control": "warn",
+      "jsx-a11y/label-has-for": "off",
+      "jsx-a11y/no-autofocus": "warn",
+      "jsx-a11y/no-noninteractive-element-interactions": "warn",
+      "jsx-a11y/no-static-element-interactions": "warn",
+      "no-alert": "warn",
+      "no-bitwise": "warn",
+      "no-continue": "warn",
+      "no-else-return": "warn",
+      "no-plusplus": "warn",
+      "no-promise-executor-return": "warn",
+      "no-restricted-globals": ["warn", "confirm"],
+      "no-restricted-properties": [
+        "warn",
+        {
+          object: "Math",
+          property: "pow",
+          message: "Use the exponentiation operator (**) instead.",
+        },
+      ],
+      "prefer-exponentiation-operator": "warn",
+      "prefer-template": "warn",
+      radix: "warn",
+      "react/button-has-type": "warn",
+      "react/jsx-boolean-value": "warn",
+      "react/jsx-handler-names": "warn",
+      "react/jsx-no-useless-fragment": "warn",
+      "react/no-array-index-key": "warn",
+      "react/no-danger": "warn",
       "line-comment-position": "off",
       "lines-around-directive": "off",
       complexity: "off",
@@ -73,11 +83,10 @@ const eslintConfig = defineConfig([
       "no-undef": "off",
       "no-unused-vars": "off",
       "no-use-before-define": "off",
-      "jsx-a11y/label-has-for": "off",
       "react/boolean-prop-naming": "off",
       "react/function-component-definition": "off",
       "react/jsx-no-literals": "off",
-      "react/jsx-filename-extension": ["error", { extensions: [".jsx", ".tsx"] }],
+      "react/jsx-filename-extension": ["warn", { extensions: [".jsx", ".tsx"] }],
       "react/jsx-props-no-spreading": "off",
       "react/jsx-sort-default-props": "off",
       "react/jsx-sort-props": "off",
@@ -97,6 +106,7 @@ const eslintConfig = defineConfig([
       },
     },
   },
+  prettier,
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:
