@@ -274,6 +274,45 @@
   animation: subtle-float 6s ease-in-out infinite;
 }
 
+/* Continuous right→left marquee for the homepage card rows (Trending,
+   Commission Studio). The track is a duplicated list, scrolled by exactly half
+   its width, so the loop is seamless. Pure GPU transform, paused on hover. */
+@keyframes marquee-x {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+.marquee-track {
+  animation: marquee-x linear infinite;
+  will-change: transform;
+}
+.group\/marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+.marquee-item {
+  flex: 0 0 auto;
+  width: 55vw;
+  max-width: 240px;
+}
+@media (min-width: 640px) {
+  .marquee-item {
+    width: 30vw;
+  }
+}
+@media (min-width: 1024px) {
+  .marquee-item {
+    width: 19vw;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
 /* Slow Ken Burns drift for the hero clips. Pure GPU transform (translate3d +
    scale) — composites cheaply, never triggers a repaint. */
 @keyframes hero-kenburns {

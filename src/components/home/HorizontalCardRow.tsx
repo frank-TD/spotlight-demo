@@ -30,25 +30,43 @@ const CATEGORY_STYLE: Record<string, string> = {
   Character: "bg-primary/15 text-primary",
 };
 
+// Cinematic marquee: cards drift continuously right→left and pause on hover.
+// Implementation is a pure CSS keyframe (GPU transform only) over a duplicated
+// item list, so the loop is seamless without JS per-frame work. Bleeds to the
+// viewport edges via negative margins for a "billboard wall" feel.
 export default function HorizontalCardRow({ items }: { items: RowCard[] }) {
+  const SECONDS_PER_CARD = 8;
+  const duration = `${items.length * SECONDS_PER_CARD}s`;
+
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-      {items.map((item, i) => (
-        <Card key={item.id} item={item} delayMs={i * 70} />
-      ))}
+    <div className="-mx-2 md:-mx-6 lg:-mx-12 overflow-hidden group/marquee">
+      <ul
+        className="marquee-track flex w-max gap-3 md:gap-4 px-2 md:px-6 lg:px-12"
+        style={{ animationDuration: duration }}
+      >
+        {items.map((item) => (
+          <li key={item.id} className="marquee-item">
+            <Card item={item} />
+          </li>
+        ))}
+        {/* Mirror copy — the keyframe scrolls exactly the width of one set,
+            so reaching the first mirror item lands us back at item #1. */}
+        {items.map((item) => (
+          <li key={`mirror-${item.id}`} className="marquee-item" aria-hidden="true">
+            <Card item={item} />
+          </li>
+        ))}
+      </ul>
     </div>
   );
 }
 
-function Card({ item, delayMs }: { item: RowCard; delayMs: number }) {
+function Card({ item }: { item: RowCard }) {
   const t = useT();
   const [loaded, setLoaded] = useState(false);
   const chip = CATEGORY_STYLE[item.category] ?? "bg-surface-container text-on-surface-variant";
   return (
-    <figure
-      className="group relative rounded-2xl overflow-hidden aspect-[2/3] bg-surface-container border border-outline-variant/30 cursor-pointer hover:border-primary/40 hover:shadow-[0_18px_50px_rgba(212,175,55,0.18)] transition-all animate-fade-up"
-      style={{ animationDelay: `${delayMs}ms` }}
-    >
+    <figure className="group relative rounded-2xl overflow-hidden aspect-[2/3] bg-surface-container border border-outline-variant/30 cursor-pointer hover:border-primary/40 hover:shadow-[0_18px_50px_rgba(212,175,55,0.18)] transition-all">
       {!loaded && <span className="shimmer-overlay" />}
       <Image
         src={`https://picsum.photos/seed/${item.seed}/600/900`}
