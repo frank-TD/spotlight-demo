@@ -292,6 +292,13 @@
 .group\/marquee:hover .marquee-track {
   animation-play-state: paused;
 }
+/* Soft alpha fade at the marquee's left/right edges so cards drift in and out
+   rather than popping at hard borders. Mask cuts through the layer alpha, so
+   the gradient overlays on each card aren't darkened. */
+.marquee-mask {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%);
+}
 .marquee-item {
   flex: 0 0 auto;
   width: 55vw;

@@ -1,39 +1,52 @@
 "use client";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { toast } from "sonner";
 import { ArrowRight, Play } from "lucide-react";
 import SectionLabel from "./SectionLabel";
 import { useT } from "@/hooks/useT";
+import CreatorPreviewDialog, { type CreatorPreviewItem } from "./CreatorPreviewDialog";
 
 export default function AigcStudioShowcase() {
   const t = useT();
   const router = useRouter();
+  const [active, setActive] = useState<CreatorPreviewItem | null>(null);
 
+  // Each AIGC card is paired with a creator from our roster so clicking opens
+  // the same creator-preview lightbox as the other homepage rows. Category is
+  // synthesized for the lightbox chip — the homepage card itself shows `tags`.
   const cards = [
     {
       title: t.landing.aigcCard1Title,
       tags: t.landing.aigcCard1Tags,
       sub: t.landing.aigcCard1Sub,
       seed: "glass-strawberry",
+      creator: "Aria Song",
+      category: "Cinematic",
     },
     {
       title: t.landing.aigcCard2Title,
       tags: t.landing.aigcCard2Tags,
       sub: t.landing.aigcCard2Sub,
       seed: "golden-hour-coast",
+      creator: "Yuki Tanaka",
+      category: "Cinematic",
     },
     {
       title: t.landing.aigcCard3Title,
       tags: t.landing.aigcCard3Tags,
       sub: t.landing.aigcCard3Sub,
       seed: "saturn-field",
+      creator: "Marco Reyes",
+      category: "Sci-Fi",
     },
     {
       title: t.landing.aigcCard4Title,
       tags: t.landing.aigcCard4Tags,
       sub: t.landing.aigcCard4Sub,
       seed: "kaiju-city",
+      creator: "Sofia Okonkwo",
+      category: "Sci-Fi",
     },
   ];
 
@@ -61,18 +74,12 @@ export default function AigcStudioShowcase() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
         {cards.map((c, i) => (
-          <div
+          <button
+            type="button"
             key={c.seed}
-            role="button"
-            tabIndex={0}
-            onClick={() => toast.info(t.discovery.playbackToast)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                toast.info(t.discovery.playbackToast);
-              }
-            }}
-            className="scroll-reveal group relative rounded-2xl overflow-hidden aspect-[3/4] bg-surface-container border border-outline-variant/40 hover:border-primary/40 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            onClick={() => setActive(c)}
+            aria-label={`${c.title} — ${c.creator}`}
+            className="scroll-reveal group relative rounded-2xl overflow-hidden aspect-[3/4] bg-surface-container border border-outline-variant/40 text-left hover:border-primary/40 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             style={{ animationDelay: `${i * 90}ms` }}
           >
             <Image
@@ -82,20 +89,23 @@ export default function AigcStudioShowcase() {
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
               className="object-cover transition-transform duration-700 group-hover:scale-[1.05]"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
+            <span className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
             <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-primary/90 text-on-primary shadow-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
               <Play className="w-6 h-6 ml-1" fill="currentColor" />
             </span>
-            <div className="absolute inset-x-0 bottom-0 p-4">
-              <p className="font-label text-[10px] uppercase tracking-[0.22em] text-primary/80 mb-1.5">
+            <span className="absolute inset-x-0 bottom-0 p-4 flex flex-col">
+              <span className="font-label text-[10px] uppercase tracking-[0.22em] text-primary/80 mb-1.5">
                 {c.tags}
-              </p>
-              <h3 className="font-headline italic text-xl text-white leading-tight">{c.title}</h3>
-              <p className="font-body text-[12px] text-white/65 mt-1.5">{c.sub}</p>
-            </div>
-          </div>
+              </span>
+              <span className="font-headline italic text-xl text-white leading-tight">
+                {c.title}
+              </span>
+              <span className="font-body text-[12px] text-white/65 mt-1.5">{c.sub}</span>
+            </span>
+          </button>
         ))}
       </div>
+      <CreatorPreviewDialog item={active} onOpenChange={(o) => !o && setActive(null)} />
 
       <div className="text-center">
         <button

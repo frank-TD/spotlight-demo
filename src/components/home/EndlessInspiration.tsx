@@ -5,6 +5,7 @@ import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { useT } from "@/hooks/useT";
 import { cn } from "@/lib/utils";
+import CreatorPreviewDialog, { type CreatorPreviewItem } from "./CreatorPreviewDialog";
 
 type Aspect = "portrait" | "tall" | "landscape" | "wide" | "square";
 type Item = {
@@ -132,6 +133,7 @@ const ASPECT_DIM: Record<Aspect, [number, number]> = {
 
 export default function EndlessInspiration() {
   const t = useT();
+  const [active, setActive] = useState<CreatorPreviewItem | null>(null);
   return (
     <section className="py-24 md:py-32">
       <div className="flex items-end justify-between gap-6 mb-12 flex-wrap">
@@ -147,14 +149,15 @@ export default function EndlessInspiration() {
       </div>
       <div className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-3 md:gap-4">
         {ITEMS.map((item, i) => (
-          <MasonryCard key={item.id} item={item} index={i} />
+          <MasonryCard key={item.id} item={item} index={i} onOpen={() => setActive(item)} />
         ))}
       </div>
+      <CreatorPreviewDialog item={active} onOpenChange={(o) => !o && setActive(null)} />
     </section>
   );
 }
 
-function MasonryCard({ item, index }: { item: Item; index: number }) {
+function MasonryCard({ item, index, onOpen }: { item: Item; index: number; onOpen: () => void }) {
   const [loaded, setLoaded] = useState(false);
   const [w, h] = ASPECT_DIM[item.aspect];
   return (
@@ -188,6 +191,14 @@ function MasonryCard({ item, index }: { item: Item; index: number }) {
           by {item.creator}
         </p>
       </figcaption>
+      {/* Transparent click surface above the imagery — keeps the figure
+          semantics intact while making the whole tile activatable. */}
+      <button
+        type="button"
+        onClick={onOpen}
+        aria-label={`${item.title} — ${item.creator}`}
+        className="absolute inset-0 z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-2xl"
+      />
     </figure>
   );
 }
