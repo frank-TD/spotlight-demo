@@ -274,6 +274,27 @@
   animation: subtle-float 6s ease-in-out infinite;
 }
 
+/* Slow Ken Burns drift for the hero clips. Pure GPU transform (translate3d +
+   scale) — composites cheaply, never triggers a repaint. */
+@keyframes hero-kenburns {
+  0% {
+    transform: scale(1.04) translate3d(0, 0, 0);
+  }
+  100% {
+    transform: scale(1.12) translate3d(0, -1.5%, 0);
+  }
+}
+.hero-kenburns {
+  animation: hero-kenburns 24s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-kenburns {
+    animation: none;
+    transform: scale(1.04);
+  }
+}
+
 /* Cinematic mesh — near-black backdrop with very subtle warm-gold and cool-blue
    pools in the corners, mimicking the moody hero photography in the sample. */
 .bg-mesh {

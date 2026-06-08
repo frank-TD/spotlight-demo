@@ -14,6 +14,11 @@ const HERO_VIDEOS = [
   "/videos/hero/optimized/16107702_hero.mp4",
 ];
 
+// Tiny dark poster (matches --md-surface) so each cell paints instantly as a
+// solid panel instead of flashing black/blank while the clip buffers.
+const HERO_POSTER =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='8' height='8' fill='%2308080a'/%3E%3C/svg%3E";
+
 // Full-bleed cinematic hero with the user's selected footage combined into a
 // moving background collage.
 export default function HeroSection() {
@@ -23,6 +28,7 @@ export default function HeroSection() {
   const onboardingComplete = useStore((s) => s.onboardingComplete);
   const sectionRef = useRef<HTMLElement | null>(null);
   const [motionAllowed, setMotionAllowed] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
   const [heroInView, setHeroInView] = useState(false);
   const [pageVisible, setPageVisible] = useState(true);
 
@@ -32,6 +38,16 @@ export default function HeroSection() {
     syncMotionPreference();
     media.addEventListener("change", syncMotionPreference);
     return () => media.removeEventListener("change", syncMotionPreference);
+  }, []);
+
+  // The 4-clip collage is desktop-only — decoding it on phones tanks scroll
+  // performance and battery, so mobile keeps the static cinematic mesh.
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 768px)");
+    const syncIsDesktop = () => setIsDesktop(media.matches);
+    syncIsDesktop();
+    media.addEventListener("change", syncIsDesktop);
+    return () => media.removeEventListener("change", syncIsDesktop);
   }, []);
 
   useEffect(() => {
@@ -99,7 +115,7 @@ export default function HeroSection() {
       ref={sectionRef}
       className="relative bg-mesh -mx-6 md:-mx-12 px-6 md:px-12 pt-20 md:pt-28 pb-24 md:pb-32 overflow-hidden"
     >
-      {motionAllowed && (
+      {motionAllowed && isDesktop && (
         <div
           className="absolute inset-0 grid grid-cols-2 grid-rows-2 opacity-80"
           aria-hidden="true"
@@ -118,10 +134,12 @@ export default function HeroSection() {
               {heroInView && (
                 <video
                   data-hero-video
-                  className="h-full w-full object-cover"
+                  className="hero-kenburns h-full w-full object-cover"
                   // Promote each video to its own GPU layer; no CSS filters /
                   // blend modes (those repaint every frame and caused the jank).
-                  style={{ transform: "translateZ(0)", backfaceVisibility: "hidden" }}
+                  // The Ken Burns drift is a cheap GPU transform, not a repaint.
+                  style={{ backfaceVisibility: "hidden" }}
+                  poster={HERO_POSTER}
                   autoPlay={pageVisible}
                   muted
                   loop
