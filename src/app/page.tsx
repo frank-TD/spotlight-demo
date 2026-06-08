@@ -19,7 +19,7 @@ import SiteFooter from "@/components/home/SiteFooter";
 // the gold "Spotlight" wordmark in the top nav.
 export default function HomePage() {
   return (
-    <AppShell hideFooter>
+    <AppShell hideFooter heroUnderNav>
       <ScrollReveal />
       <HeroSection />
       <div className="max-w-[1280px] mx-auto px-2 md:px-6">

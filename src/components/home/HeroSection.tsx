@@ -113,7 +113,7 @@ export default function HeroSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative bg-mesh -mx-6 md:-mx-12 px-6 md:px-12 pt-20 md:pt-28 pb-24 md:pb-32 overflow-hidden"
+      className="relative bg-mesh -mx-6 md:-mx-12 px-6 md:px-12 pt-28 md:pt-36 pb-24 md:pb-32 overflow-hidden"
     >
       {motionAllowed && isDesktop && (
         <div
