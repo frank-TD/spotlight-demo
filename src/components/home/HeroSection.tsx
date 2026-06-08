@@ -103,29 +103,39 @@ export default function HeroSection() {
         <div
           className="absolute inset-0 grid grid-cols-2 grid-rows-2 opacity-80"
           aria-hidden="true"
+          // Isolate this layer so scrolling the page doesn't repaint the videos,
+          // and keep its painting contained to its own box.
+          style={{ transform: "translateZ(0)", contain: "paint" }}
         >
-          {HERO_VIDEOS.map((src, index) => (
+          {HERO_VIDEOS.map((src) => (
             <div
               key={src}
               className="relative overflow-hidden border border-on-surface/5 bg-surface"
             >
-              <video
-                data-hero-video
-                className="h-full w-full scale-110 object-cover saturate-125 contrast-110"
-                autoPlay={heroInView && pageVisible}
-                muted
-                loop
-                playsInline
-                preload={heroInView ? "auto" : "metadata"}
-              >
-                <source src={src} type="video/mp4" />
-              </video>
-              <div
-                className="absolute inset-0 bg-primary/10 mix-blend-soft-light"
-                style={{ opacity: index % 2 === 0 ? 0.18 : 0.08 }}
-              />
+              {/* Only mount (and therefore fetch/decode) the clips once the hero
+                  is actually on screen — avoids a heavy 4-video decode burst
+                  competing with first paint. */}
+              {heroInView && (
+                <video
+                  data-hero-video
+                  className="h-full w-full object-cover"
+                  // Promote each video to its own GPU layer; no CSS filters /
+                  // blend modes (those repaint every frame and caused the jank).
+                  style={{ transform: "translateZ(0)", backfaceVisibility: "hidden" }}
+                  autoPlay={pageVisible}
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  disablePictureInPicture
+                >
+                  <source src={src} type="video/mp4" />
+                </video>
+              )}
             </div>
           ))}
+          {/* One cheap flat gold cast in place of the four per-video blends. */}
+          <div className="absolute inset-0 bg-primary/[0.08] pointer-events-none" />
         </div>
       )}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(8,8,10,0.08),rgba(8,8,10,0.66)_72%),linear-gradient(180deg,rgba(8,8,10,0.52)_0%,rgba(8,8,10,0.18)_42%,rgba(8,8,10,0.82)_100%)] pointer-events-none" />
