@@ -6,7 +6,9 @@ import TrustLogosSection from "@/components/home/TrustLogosSection";
 import TrendingSection from "@/components/home/TrendingSection";
 import HowItWorksSection from "@/components/home/HowItWorksSection";
 import DealAgentsSection from "@/components/home/DealAgentsSection";
+import CapabilitiesGrid from "@/components/home/CapabilitiesGrid";
 import TwoRolesSection from "@/components/home/TwoRolesSection";
+import MomentumBand from "@/components/home/MomentumBand";
 import CommissionStudioSection from "@/components/home/CommissionStudioSection";
 import AigcStudioShowcase from "@/components/home/AigcStudioShowcase";
 import NicheShowcase from "@/components/home/NicheShowcase";
@@ -28,7 +30,9 @@ export default function HomePage() {
         <TrendingSection />
         <HowItWorksSection />
         <DealAgentsSection />
+        <CapabilitiesGrid />
         <TwoRolesSection />
+        <MomentumBand />
         <CommissionStudioSection />
         <AigcStudioShowcase />
         <NicheShowcase />
