@@ -15,18 +15,25 @@ export default function FaqSection() {
   return (
     <section className="py-24 md:py-32">
       <div className="text-center space-y-4 mb-16">
-        <div className="flex justify-center">
+        <div className="scroll-reveal flex justify-center">
           <SectionLabel>{t.landing.faqLabel}</SectionLabel>
         </div>
-        <h2 className="font-headline text-4xl md:text-6xl text-on-surface leading-[1.05]">
+        <h2
+          className="scroll-reveal font-headline text-4xl md:text-6xl text-on-surface leading-[1.05]"
+          style={{ animationDelay: "90ms" }}
+        >
           {t.landing.faqTitle1}
           <br />
           <span className="italic">{t.landing.faqTitle2}</span>
         </h2>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-12">
-        {items.map(({ q, a }) => (
-          <div key={q} className="space-y-3 border-t border-outline-variant/30 pt-7">
+        {items.map(({ q, a }, i) => (
+          <div
+            key={q}
+            className="scroll-reveal space-y-3 border-t border-outline-variant/30 pt-7"
+            style={{ animationDelay: `${(i % 2) * 80}ms` }}
+          >
             <h3 className="font-headline text-xl text-on-surface leading-snug">{q}</h3>
             <p className="font-body text-on-surface-variant leading-relaxed text-sm md:text-base">
               {a}

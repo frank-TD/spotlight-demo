@@ -294,16 +294,25 @@
   box-shadow: 0 0 24px rgba(212, 175, 55, 0.35);
 }
 
+/* Scroll-triggered entrance. Animation-based (not transition-based) so it never
+   clobbers an element's own `transition`/`transition-all` hover styles. Reuses
+   the fade-up keyframe for visual parity with the mount-time reveals. The global
+   ScrollReveal observer toggles `.visible`; stagger via inline animationDelay. */
 .scroll-reveal {
   opacity: 0;
-  transform: translateY(20px);
-  transition:
-    opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .scroll-reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
+  animation: fade-up 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+}
+
+/* Reduced-motion: skip the entrance entirely so content is shown immediately. */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal {
+    opacity: 1;
+  }
+  .scroll-reveal.visible {
+    animation: none;
+  }
 }
 
 /* Mount-time fade-up — used by page sections / cards so each tab switch

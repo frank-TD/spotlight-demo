@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ArrowRight } from "lucide-react";
+import StatCountUp from "./StatCountUp";
 import { useStore } from "@/lib/store";
 import { useT } from "@/hooks/useT";
 
@@ -209,7 +210,7 @@ export default function HeroSection() {
 function Stat({ value, label }: { value: string; label: string }) {
   return (
     <div className="flex flex-col items-center text-center">
-      <span className="font-headline text-2xl md:text-3xl text-primary">{value}</span>
+      <StatCountUp value={value} className="font-headline text-2xl md:text-3xl text-primary" />
       <span className="font-label text-[10px] uppercase tracking-[0.28em] text-on-surface-variant mt-1.5">
         {label}
       </span>

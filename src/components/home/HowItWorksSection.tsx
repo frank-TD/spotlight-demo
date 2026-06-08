@@ -23,8 +23,13 @@ export default function HowItWorksSection() {
   return (
     <section className="py-24 md:py-32">
       <div className="space-y-4 mb-16">
-        <SectionLabel>{t.landing.processLabel}</SectionLabel>
-        <h2 className="font-headline text-4xl md:text-6xl text-on-surface leading-[1.05] max-w-3xl">
+        <div className="scroll-reveal">
+          <SectionLabel>{t.landing.processLabel}</SectionLabel>
+        </div>
+        <h2
+          className="scroll-reveal font-headline text-4xl md:text-6xl text-on-surface leading-[1.05] max-w-3xl"
+          style={{ animationDelay: "90ms" }}
+        >
           {t.landing.processTitle1}
           <br />
           <span className="italic text-on-surface/95">{t.landing.processTitle2}</span>
@@ -35,7 +40,7 @@ export default function HowItWorksSection() {
         {steps.map(({ n, icon: Icon, title, body }, i) => (
           <div
             key={n}
-            className="relative bg-surface-container-lowest p-10 md:p-12 overflow-hidden animate-fade-up"
+            className="scroll-reveal relative bg-surface-container-lowest p-10 md:p-12 overflow-hidden"
             style={{ animationDelay: `${i * 120}ms` }}
           >
             {/* Giant faded gold numeral as background mark */}

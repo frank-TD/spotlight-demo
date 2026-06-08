@@ -39,15 +39,21 @@ export default function AigcStudioShowcase() {
   return (
     <section className="py-24 md:py-32">
       <div className="text-center space-y-4 mb-16">
-        <div className="flex justify-center">
+        <div className="scroll-reveal flex justify-center">
           <SectionLabel>{t.landing.aigcLabel}</SectionLabel>
         </div>
-        <h2 className="font-headline text-4xl md:text-6xl text-on-surface leading-[1.05]">
+        <h2
+          className="scroll-reveal font-headline text-4xl md:text-6xl text-on-surface leading-[1.05]"
+          style={{ animationDelay: "90ms" }}
+        >
           {t.landing.aigcTitle1}
           <br />
           <span className="italic text-primary">{t.landing.aigcTitle2}</span>
         </h2>
-        <p className="font-body text-on-surface-variant max-w-2xl mx-auto leading-relaxed">
+        <p
+          className="scroll-reveal font-body text-on-surface-variant max-w-2xl mx-auto leading-relaxed"
+          style={{ animationDelay: "170ms" }}
+        >
           {t.landing.aigcSub}
         </p>
       </div>
@@ -57,7 +63,7 @@ export default function AigcStudioShowcase() {
           <figure
             key={c.seed}
             onClick={() => toast.info(t.discovery.playbackToast)}
-            className="group relative rounded-2xl overflow-hidden aspect-[3/4] bg-surface-container border border-outline-variant/40 hover:border-primary/40 transition-all cursor-pointer animate-fade-up"
+            className="scroll-reveal group relative rounded-2xl overflow-hidden aspect-[3/4] bg-surface-container border border-outline-variant/40 hover:border-primary/40 transition-all cursor-pointer"
             style={{ animationDelay: `${i * 90}ms` }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}

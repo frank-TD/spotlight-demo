@@ -134,7 +134,7 @@ export default function EndlessInspiration() {
   return (
     <section className="py-24 md:py-32">
       <div className="flex items-end justify-between gap-6 mb-12 flex-wrap">
-        <h2 className="font-headline text-4xl md:text-5xl text-on-surface leading-tight">
+        <h2 className="scroll-reveal font-headline text-4xl md:text-5xl text-on-surface leading-tight">
           {t.landing.inspirationTitle}
         </h2>
         <Link
@@ -159,7 +159,7 @@ function MasonryCard({ item, index }: { item: Item; index: number }) {
   return (
     <figure
       className={cn(
-        "break-inside-avoid mb-3 md:mb-4 relative overflow-hidden rounded-2xl bg-surface-container border border-outline-variant/30 group hover:border-primary/30 transition-all duration-500 animate-fade-up",
+        "break-inside-avoid mb-3 md:mb-4 relative overflow-hidden rounded-2xl bg-surface-container border border-outline-variant/30 group hover:border-primary/30 transition-all duration-500 scroll-reveal",
         ASPECT_CLASS[item.aspect]
       )}
       style={{ animationDelay: `${index * 50}ms` }}
