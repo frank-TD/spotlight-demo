@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ArrowRight } from "lucide-react";
+import StatCountUp from "./StatCountUp";
 import { useStore } from "@/lib/store";
 import { useT } from "@/hooks/useT";
 
@@ -13,6 +14,11 @@ const HERO_VIDEOS = [
   "/videos/hero/optimized/16107702_hero.mp4",
 ];
 
+// Tiny dark poster (matches --md-surface) so each cell paints instantly as a
+// solid panel instead of flashing black/blank while the clip buffers.
+const HERO_POSTER =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='8' height='8' fill='%2308080a'/%3E%3C/svg%3E";
+
 // Full-bleed cinematic hero with the user's selected footage combined into a
 // moving background collage.
 export default function HeroSection() {
@@ -22,6 +28,7 @@ export default function HeroSection() {
   const onboardingComplete = useStore((s) => s.onboardingComplete);
   const sectionRef = useRef<HTMLElement | null>(null);
   const [motionAllowed, setMotionAllowed] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
   const [heroInView, setHeroInView] = useState(false);
   const [pageVisible, setPageVisible] = useState(true);
 
@@ -31,6 +38,16 @@ export default function HeroSection() {
     syncMotionPreference();
     media.addEventListener("change", syncMotionPreference);
     return () => media.removeEventListener("change", syncMotionPreference);
+  }, []);
+
+  // The 4-clip collage is desktop-only — decoding it on phones tanks scroll
+  // performance and battery, so mobile keeps the static cinematic mesh.
+  useEffect(() => {
+    const media = window.matchMedia("(min-width: 768px)");
+    const syncIsDesktop = () => setIsDesktop(media.matches);
+    syncIsDesktop();
+    media.addEventListener("change", syncIsDesktop);
+    return () => media.removeEventListener("change", syncIsDesktop);
   }, []);
 
   useEffect(() => {
@@ -96,35 +113,48 @@ export default function HeroSection() {
   return (
     <section
       ref={sectionRef}
-      className="relative bg-mesh -mx-6 md:-mx-12 px-6 md:px-12 pt-20 md:pt-28 pb-24 md:pb-32 overflow-hidden"
+      className="relative bg-mesh -mx-6 md:-mx-12 px-6 md:px-12 pt-28 md:pt-36 pb-24 md:pb-32 overflow-hidden"
     >
-      {motionAllowed && (
+      {motionAllowed && isDesktop && (
         <div
           className="absolute inset-0 grid grid-cols-2 grid-rows-2 opacity-80"
           aria-hidden="true"
+          // Isolate this layer so scrolling the page doesn't repaint the videos,
+          // and keep its painting contained to its own box.
+          style={{ transform: "translateZ(0)", contain: "paint" }}
         >
-          {HERO_VIDEOS.map((src, index) => (
+          {HERO_VIDEOS.map((src) => (
             <div
               key={src}
               className="relative overflow-hidden border border-on-surface/5 bg-surface"
             >
-              <video
-                data-hero-video
-                className="h-full w-full scale-110 object-cover saturate-125 contrast-110"
-                autoPlay={heroInView && pageVisible}
-                muted
-                loop
-                playsInline
-                preload={heroInView ? "auto" : "metadata"}
-              >
-                <source src={src} type="video/mp4" />
-              </video>
-              <div
-                className="absolute inset-0 bg-primary/10 mix-blend-soft-light"
-                style={{ opacity: index % 2 === 0 ? 0.18 : 0.08 }}
-              />
+              {/* Only mount (and therefore fetch/decode) the clips once the hero
+                  is actually on screen — avoids a heavy 4-video decode burst
+                  competing with first paint. */}
+              {heroInView && (
+                <video
+                  data-hero-video
+                  aria-hidden="true"
+                  className="hero-kenburns h-full w-full object-cover"
+                  // Promote each video to its own GPU layer; no CSS filters /
+                  // blend modes (those repaint every frame and caused the jank).
+                  // The Ken Burns drift is a cheap GPU transform, not a repaint.
+                  style={{ backfaceVisibility: "hidden" }}
+                  poster={HERO_POSTER}
+                  autoPlay={pageVisible}
+                  muted
+                  loop
+                  playsInline
+                  preload="metadata"
+                  disablePictureInPicture
+                >
+                  <source src={src} type="video/mp4" />
+                </video>
+              )}
             </div>
           ))}
+          {/* One cheap flat gold cast in place of the four per-video blends. */}
+          <div className="absolute inset-0 bg-primary/[0.08] pointer-events-none" />
         </div>
       )}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(8,8,10,0.08),rgba(8,8,10,0.66)_72%),linear-gradient(180deg,rgba(8,8,10,0.52)_0%,rgba(8,8,10,0.18)_42%,rgba(8,8,10,0.82)_100%)] pointer-events-none" />
@@ -173,6 +203,7 @@ export default function HeroSection() {
           style={{ animationDelay: "560ms" }}
         >
           <button
+            type="button"
             onClick={post}
             className="group inline-flex items-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-7 py-4 rounded-full hover:opacity-90 active:scale-95 transition-all shadow-[0_8px_30px_rgba(212,175,55,0.25)]"
           >
@@ -180,6 +211,7 @@ export default function HeroSection() {
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </button>
           <button
+            type="button"
             onClick={browse}
             className="inline-flex items-center gap-2 font-label text-label-md uppercase tracking-widest text-on-surface px-7 py-4 rounded-full border border-on-surface/40 hover:bg-on-surface/5 hover:border-on-surface transition-colors"
           >
@@ -209,7 +241,7 @@ export default function HeroSection() {
 function Stat({ value, label }: { value: string; label: string }) {
   return (
     <div className="flex flex-col items-center text-center">
-      <span className="font-headline text-2xl md:text-3xl text-primary">{value}</span>
+      <StatCountUp value={value} className="font-headline text-2xl md:text-3xl text-primary" />
       <span className="font-label text-[10px] uppercase tracking-[0.28em] text-on-surface-variant mt-1.5">
         {label}
       </span>

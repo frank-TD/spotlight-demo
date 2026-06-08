@@ -59,8 +59,13 @@ export default function CommissionStudioSection() {
     <section className="py-24 md:py-32">
       <div className="flex items-end justify-between gap-6 mb-12 flex-wrap">
         <div className="space-y-4">
-          <SectionLabel>{t.landing.commissionLabel}</SectionLabel>
-          <h2 className="font-headline text-4xl md:text-5xl text-on-surface leading-tight max-w-3xl">
+          <div className="scroll-reveal">
+            <SectionLabel>{t.landing.commissionLabel}</SectionLabel>
+          </div>
+          <h2
+            className="scroll-reveal font-headline text-4xl md:text-5xl text-on-surface leading-tight max-w-3xl"
+            style={{ animationDelay: "90ms" }}
+          >
             {t.landing.commissionTitle}
           </h2>
         </div>

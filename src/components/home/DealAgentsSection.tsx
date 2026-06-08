@@ -1,8 +1,11 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { ArrowRight, Check } from "lucide-react";
 import SectionLabel from "./SectionLabel";
 import { useT } from "@/hooks/useT";
+import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 // The headline moat moment from the design review. The 4-turn negotiation
@@ -10,8 +13,26 @@ import { cn } from "@/lib/utils";
 // is "agreed" we drop the gold summary banner. Replays on each visit.
 export default function DealAgentsSection() {
   const t = useT();
+  const router = useRouter();
+  const isLoggedIn = useStore((s) => s.isLoggedIn);
+  const onboardingComplete = useStore((s) => s.onboardingComplete);
   const sectionRef = useRef<HTMLElement | null>(null);
   const [revealed, setRevealed] = useState(0);
+
+  // "See how it works" CTA. Anonymous users go through register → onboarding;
+  // signed-in users land in their messages (where the live agent threads are).
+  const handleCta = () => {
+    if (!isLoggedIn) {
+      toast.info(t.landing.signupToastBrief);
+      router.push("/register");
+      return;
+    }
+    if (!onboardingComplete) {
+      router.push("/onboarding/role");
+      return;
+    }
+    router.push("/messages");
+  };
 
   const bubbles = [
     { who: "marlow" as const, role: t.landing.dealRoleMarlow, text: t.landing.dealMsg1 },
@@ -103,8 +124,13 @@ export default function DealAgentsSection() {
           <p className="font-body text-on-surface-variant leading-relaxed max-w-xl">
             {t.landing.dealBody}
           </p>
-          <button className="inline-flex items-center gap-2 font-label text-[11px] uppercase tracking-[0.24em] text-primary border border-primary/40 px-5 py-3 rounded-full hover:bg-primary/10 transition-colors">
-            {t.landing.dealCta} <ArrowRight className="w-3.5 h-3.5" />
+          <button
+            type="button"
+            onClick={handleCta}
+            className="group inline-flex items-center gap-2 font-label text-[11px] uppercase tracking-[0.24em] text-primary border border-primary/40 px-5 py-3 rounded-full hover:bg-primary/10 transition-colors"
+          >
+            {t.landing.dealCta}{" "}
+            <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
           </button>
 
           <div className="grid grid-cols-2 gap-4 pt-4">

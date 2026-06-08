@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -49,6 +49,16 @@ export default function TopNav() {
   } = useStore();
   const t = useT();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  // Nav is transparent over the top of the page (cinematic over the hero) and
+  // fades into a frosted bar once the user starts scrolling.
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   // `match` controls how the active state is decided. Workspace is a sub-route
   // of /discovery, so plain startsWith would double-highlight Discover and
@@ -72,7 +82,14 @@ export default function TopNav() {
   };
 
   return (
-    <header className="fixed top-0 left-0 right-0 h-[80px] z-50 bg-surface/60 backdrop-blur-[30px] border-b border-outline-variant/10 shadow-[0_4px_30px_rgba(0,0,0,0.06)]">
+    <header
+      className={cn(
+        "fixed top-0 left-0 right-0 h-[80px] z-50 border-b transition-[background-color,backdrop-filter,border-color,box-shadow] duration-300",
+        scrolled || mobileOpen
+          ? "bg-surface/60 backdrop-blur-[30px] border-outline-variant/10 shadow-[0_4px_30px_rgba(0,0,0,0.06)]"
+          : "bg-transparent border-transparent"
+      )}
+    >
       <div className="flex justify-between items-center px-4 md:px-12 w-full max-w-[1280px] mx-auto h-full">
         <div className="flex items-center gap-8">
           <Link
@@ -128,6 +145,7 @@ export default function TopNav() {
           {isLoggedIn ? (
             <>
               <button
+                type="button"
                 onClick={() => setMobileOpen(true)}
                 className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg hover:bg-surface-container transition-colors text-on-surface-variant"
                 aria-label="open menu"
@@ -135,6 +153,7 @@ export default function TopNav() {
                 <Menu className="w-5 h-5" />
               </button>
               <button
+                type="button"
                 onClick={toggleAgent}
                 className="hidden md:flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors px-2 py-1.5"
               >
@@ -243,7 +262,10 @@ export default function TopNav() {
             mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
           )}
         >
-          <div
+          <button
+            type="button"
+            aria-label="close menu"
+            tabIndex={-1}
             className="absolute inset-0 bg-on-surface/40 backdrop-blur-sm"
             onClick={() => setMobileOpen(false)}
           />
@@ -258,6 +280,7 @@ export default function TopNav() {
                 Spotlight
               </span>
               <button
+                type="button"
                 onClick={() => setMobileOpen(false)}
                 className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-surface-container text-on-surface-variant"
                 aria-label="close menu"
@@ -287,6 +310,7 @@ export default function TopNav() {
             </nav>
             <div className="border-t border-outline-variant/30 px-3 py-3 space-y-1">
               <button
+                type="button"
                 onClick={() => {
                   toggleAgent();
                   setMobileOpen(false);

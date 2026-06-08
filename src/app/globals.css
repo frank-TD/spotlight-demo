@@ -274,6 +274,73 @@
   animation: subtle-float 6s ease-in-out infinite;
 }
 
+/* Continuous right→left marquee for the homepage card rows (Trending,
+   Commission Studio). The track is a duplicated list, scrolled by exactly half
+   its width, so the loop is seamless. Pure GPU transform, paused on hover. */
+@keyframes marquee-x {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+.marquee-track {
+  animation: marquee-x linear infinite;
+  will-change: transform;
+}
+.group\/marquee:hover .marquee-track {
+  animation-play-state: paused;
+}
+/* Soft alpha fade at the marquee's left/right edges so cards drift in and out
+   rather than popping at hard borders. Mask cuts through the layer alpha, so
+   the gradient overlays on each card aren't darkened. */
+.marquee-mask {
+  -webkit-mask-image: linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0, #000 6%, #000 94%, transparent 100%);
+}
+.marquee-item {
+  flex: 0 0 auto;
+  width: 55vw;
+  max-width: 240px;
+}
+@media (min-width: 640px) {
+  .marquee-item {
+    width: 30vw;
+  }
+}
+@media (min-width: 1024px) {
+  .marquee-item {
+    width: 19vw;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
+/* Slow Ken Burns drift for the hero clips. Pure GPU transform (translate3d +
+   scale) — composites cheaply, never triggers a repaint. */
+@keyframes hero-kenburns {
+  0% {
+    transform: scale(1.04) translate3d(0, 0, 0);
+  }
+  100% {
+    transform: scale(1.12) translate3d(0, -1.5%, 0);
+  }
+}
+.hero-kenburns {
+  animation: hero-kenburns 24s ease-in-out infinite alternate;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-kenburns {
+    animation: none;
+    transform: scale(1.04);
+  }
+}
+
 /* Cinematic mesh — near-black backdrop with very subtle warm-gold and cool-blue
    pools in the corners, mimicking the moody hero photography in the sample. */
 .bg-mesh {
@@ -294,16 +361,38 @@
   box-shadow: 0 0 24px rgba(212, 175, 55, 0.35);
 }
 
+/* Scroll-triggered entrance. Animation-based (not transition-based) so it never
+   clobbers an element's own `transition`/`transition-all` hover styles. The
+   global ScrollReveal observer toggles `.visible`; stagger via inline
+   animationDelay. Pronounced rise + soft blur so the entrance reads clearly. */
 .scroll-reveal {
   opacity: 0;
-  transform: translateY(20px);
-  transition:
-    opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
-    transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .scroll-reveal.visible {
-  opacity: 1;
-  transform: translateY(0);
+  animation: reveal-rise 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes reveal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* Reduced-motion: skip the entrance entirely so content is shown immediately. */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal {
+    opacity: 1;
+  }
+  .scroll-reveal.visible {
+    animation: none;
+  }
 }
 
 /* Mount-time fade-up — used by page sections / cards so each tab switch

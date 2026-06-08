@@ -1,9 +1,11 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { useT } from "@/hooks/useT";
 import { cn } from "@/lib/utils";
+import CreatorPreviewDialog, { type CreatorPreviewItem } from "./CreatorPreviewDialog";
 
 type Aspect = "portrait" | "tall" | "landscape" | "wide" | "square";
 type Item = {
@@ -131,10 +133,11 @@ const ASPECT_DIM: Record<Aspect, [number, number]> = {
 
 export default function EndlessInspiration() {
   const t = useT();
+  const [active, setActive] = useState<CreatorPreviewItem | null>(null);
   return (
     <section className="py-24 md:py-32">
       <div className="flex items-end justify-between gap-6 mb-12 flex-wrap">
-        <h2 className="font-headline text-4xl md:text-5xl text-on-surface leading-tight">
+        <h2 className="scroll-reveal font-headline text-4xl md:text-5xl text-on-surface leading-tight">
           {t.landing.inspirationTitle}
         </h2>
         <Link
@@ -146,34 +149,35 @@ export default function EndlessInspiration() {
       </div>
       <div className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-3 md:gap-4">
         {ITEMS.map((item, i) => (
-          <MasonryCard key={item.id} item={item} index={i} />
+          <MasonryCard key={item.id} item={item} index={i} onOpen={() => setActive(item)} />
         ))}
       </div>
+      <CreatorPreviewDialog item={active} onOpenChange={(o) => !o && setActive(null)} />
     </section>
   );
 }
 
-function MasonryCard({ item, index }: { item: Item; index: number }) {
+function MasonryCard({ item, index, onOpen }: { item: Item; index: number; onOpen: () => void }) {
   const [loaded, setLoaded] = useState(false);
   const [w, h] = ASPECT_DIM[item.aspect];
   return (
     <figure
       className={cn(
-        "break-inside-avoid mb-3 md:mb-4 relative overflow-hidden rounded-2xl bg-surface-container border border-outline-variant/30 group hover:border-primary/30 transition-all duration-500 animate-fade-up",
+        "break-inside-avoid mb-3 md:mb-4 relative overflow-hidden rounded-2xl bg-surface-container border border-outline-variant/30 group hover:border-primary/30 transition-all duration-500 scroll-reveal",
         ASPECT_CLASS[item.aspect]
       )}
       style={{ animationDelay: `${index * 50}ms` }}
     >
       {!loaded && <span className="shimmer-overlay" />}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <Image
         src={`https://picsum.photos/seed/${item.seed}/${w}/${h}`}
         alt={item.title}
-        loading="lazy"
+        fill
+        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
         onLoad={() => setLoaded(true)}
         onError={() => setLoaded(true)}
         className={cn(
-          "absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-[1.04]",
+          "object-cover transition-all duration-700 group-hover:scale-[1.04]",
           loaded ? "opacity-100" : "opacity-0"
         )}
       />
@@ -187,6 +191,14 @@ function MasonryCard({ item, index }: { item: Item; index: number }) {
           by {item.creator}
         </p>
       </figcaption>
+      {/* Transparent click surface above the imagery — keeps the figure
+          semantics intact while making the whole tile activatable. */}
+      <button
+        type="button"
+        onClick={onOpen}
+        aria-label={`${item.title} — ${item.creator}`}
+        className="absolute inset-0 z-10 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-2xl"
+      />
     </figure>
   );
 }

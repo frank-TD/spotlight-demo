@@ -1,5 +1,5 @@
 "use client";
-import { Clipboard, Bot, Clapperboard } from "lucide-react";
+import { Clipboard, Bot, Clapperboard, Share2 } from "lucide-react";
 import SectionLabel from "./SectionLabel";
 import { useT } from "@/hooks/useT";
 
@@ -19,23 +19,34 @@ export default function HowItWorksSection() {
       title: t.landing.processStep3Title,
       body: t.landing.processStep3Body,
     },
+    {
+      n: "04",
+      icon: Share2,
+      title: t.landing.processStep4Title,
+      body: t.landing.processStep4Body,
+    },
   ];
   return (
     <section className="py-24 md:py-32">
       <div className="space-y-4 mb-16">
-        <SectionLabel>{t.landing.processLabel}</SectionLabel>
-        <h2 className="font-headline text-4xl md:text-6xl text-on-surface leading-[1.05] max-w-3xl">
+        <div className="scroll-reveal">
+          <SectionLabel>{t.landing.processLabel}</SectionLabel>
+        </div>
+        <h2
+          className="scroll-reveal font-headline text-4xl md:text-6xl text-on-surface leading-[1.05] max-w-3xl"
+          style={{ animationDelay: "90ms" }}
+        >
           {t.landing.processTitle1}
           <br />
           <span className="italic text-on-surface/95">{t.landing.processTitle2}</span>
         </h2>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-outline-variant/30 border border-outline-variant/30 rounded-2xl overflow-hidden">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-px bg-outline-variant/30 border border-outline-variant/30 rounded-2xl overflow-hidden">
         {steps.map(({ n, icon: Icon, title, body }, i) => (
           <div
             key={n}
-            className="relative bg-surface-container-lowest p-10 md:p-12 overflow-hidden animate-fade-up"
+            className="scroll-reveal relative bg-surface-container-lowest p-10 md:p-12 overflow-hidden"
             style={{ animationDelay: `${i * 120}ms` }}
           >
             {/* Giant faded gold numeral as background mark */}

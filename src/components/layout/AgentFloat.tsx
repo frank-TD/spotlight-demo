@@ -47,7 +47,9 @@ export default function AgentFloat() {
     <>
       {!agentOpen && (
         <button
+          type="button"
           onClick={toggleAgent}
+          aria-label="open assistant"
           className="fixed bottom-8 right-8 z-50 w-14 h-14 rounded-full bg-primary text-on-primary shadow-[0_8px_30px_rgba(110,91,71,0.35)] flex items-center justify-center hover:scale-105 active:scale-95 transition-all"
         >
           <Sparkles className="w-5 h-5" />
@@ -74,6 +76,7 @@ export default function AgentFloat() {
             <div className="flex items-center gap-1">
               {agentMessages.length > 0 && (
                 <button
+                  type="button"
                   onClick={clearAgentMessages}
                   className="text-on-surface-variant hover:text-error p-1"
                   aria-label="clear conversation"
@@ -83,7 +86,9 @@ export default function AgentFloat() {
                 </button>
               )}
               <button
+                type="button"
                 onClick={toggleAgent}
+                aria-label="close assistant"
                 className="text-on-surface-variant hover:text-on-surface"
               >
                 <X className="w-4 h-4" />
@@ -136,6 +141,7 @@ export default function AgentFloat() {
           {/* Input */}
           <div className="p-3 border-t border-outline-variant/30 flex gap-2">
             <input
+              aria-label={t.agent.placeholder}
               className="flex-1 font-body text-xs rounded-xl border border-outline-variant px-3 py-2 bg-surface-container-low focus:border-primary focus:outline-none placeholder:text-on-surface-variant/60"
               placeholder={t.agent.placeholder}
               value={input}
@@ -143,7 +149,9 @@ export default function AgentFloat() {
               onKeyDown={(e) => e.key === "Enter" && send()}
             />
             <button
+              type="button"
               onClick={send}
+              aria-label="send message"
               className="w-9 h-9 rounded-xl bg-primary text-on-primary flex items-center justify-center hover:opacity-90"
             >
               <Send className="w-3.5 h-3.5" />

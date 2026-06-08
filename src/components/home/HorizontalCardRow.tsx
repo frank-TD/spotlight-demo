@@ -1,8 +1,10 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { useT } from "@/hooks/useT";
 import { cn } from "@/lib/utils";
+import CreatorPreviewDialog, { type CreatorPreviewItem } from "./CreatorPreviewDialog";
 
 export interface RowCard {
   id: string;
@@ -29,35 +31,76 @@ const CATEGORY_STYLE: Record<string, string> = {
   Character: "bg-primary/15 text-primary",
 };
 
+// Cinematic marquee: cards drift continuously right→left and pause on hover.
+// Implementation is a pure CSS keyframe (GPU transform only) over a duplicated
+// item list, so the loop is seamless without JS per-frame work. Bleeds to the
+// viewport edges via negative margins for a "billboard wall" feel, with a soft
+// alpha mask fading the leftmost / rightmost edges so cards drift in/out
+// rather than popping at hard borders. Clicking a card opens the shared
+// creator preview lightbox.
 export default function HorizontalCardRow({ items }: { items: RowCard[] }) {
+  const SECONDS_PER_CARD = 8;
+  const duration = `${items.length * SECONDS_PER_CARD}s`;
+  const [active, setActive] = useState<CreatorPreviewItem | null>(null);
+
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-      {items.map((item, i) => (
-        <Card key={item.id} item={item} delayMs={i * 70} />
-      ))}
-    </div>
+    <>
+      <div className="marquee-mask -mx-2 md:-mx-6 lg:-mx-12 overflow-hidden group/marquee">
+        <ul
+          className="marquee-track flex w-max gap-3 md:gap-4 px-2 md:px-6 lg:px-12"
+          style={{ animationDuration: duration }}
+        >
+          {items.map((item) => (
+            <li key={item.id} className="marquee-item">
+              <Card item={item} onOpen={() => setActive(item)} />
+            </li>
+          ))}
+          {/* Mirror copy — the keyframe scrolls exactly the width of one set,
+              so reaching the first mirror item lands us back at item #1. */}
+          {items.map((item) => (
+            <li key={`mirror-${item.id}`} className="marquee-item" aria-hidden="true">
+              <Card item={item} onOpen={() => setActive(item)} mirror />
+            </li>
+          ))}
+        </ul>
+      </div>
+      <CreatorPreviewDialog item={active} onOpenChange={(o) => !o && setActive(null)} />
+    </>
   );
 }
 
-function Card({ item, delayMs }: { item: RowCard; delayMs: number }) {
+function Card({
+  item,
+  onOpen,
+  mirror = false,
+}: {
+  item: RowCard;
+  onOpen: () => void;
+  mirror?: boolean;
+}) {
   const t = useT();
   const [loaded, setLoaded] = useState(false);
   const chip = CATEGORY_STYLE[item.category] ?? "bg-surface-container text-on-surface-variant";
   return (
-    <figure
-      className="group relative rounded-2xl overflow-hidden aspect-[2/3] bg-surface-container border border-outline-variant/30 cursor-pointer hover:border-primary/40 hover:shadow-[0_18px_50px_rgba(212,175,55,0.18)] transition-all animate-fade-up"
-      style={{ animationDelay: `${delayMs}ms` }}
+    <button
+      type="button"
+      onClick={onOpen}
+      // The mirror copy is duplicate content for screen readers — keep it
+      // focusable only via the original set.
+      tabIndex={mirror ? -1 : 0}
+      aria-label={`${item.title} — ${item.creator}`}
+      className="group relative rounded-2xl overflow-hidden aspect-[2/3] w-full bg-surface-container border border-outline-variant/30 text-left hover:border-primary/40 hover:shadow-[0_18px_50px_rgba(212,175,55,0.18)] transition-all"
     >
       {!loaded && <span className="shimmer-overlay" />}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <Image
         src={`https://picsum.photos/seed/${item.seed}/600/900`}
         alt={item.title}
-        loading="lazy"
+        fill
+        sizes="(max-width: 768px) 55vw, 220px"
         onLoad={() => setLoaded(true)}
         onError={() => setLoaded(true)}
         className={cn(
-          "absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-[1.04]",
+          "object-cover transition-all duration-500 group-hover:scale-[1.04]",
           loaded ? "opacity-100" : "opacity-0"
         )}
       />
@@ -69,7 +112,7 @@ function Card({ item, delayMs }: { item: RowCard; delayMs: number }) {
       </span>
 
       {/* Bottom info */}
-      <figcaption className="absolute inset-x-0 bottom-0 p-4 flex flex-col gap-2">
+      <span className="absolute inset-x-0 bottom-0 p-4 flex flex-col gap-2">
         <span
           className={cn(
             "self-start font-label text-[10px] uppercase tracking-[0.2em] px-2 py-1 rounded",
@@ -78,11 +121,11 @@ function Card({ item, delayMs }: { item: RowCard; delayMs: number }) {
         >
           {item.category}
         </span>
-        <h3 className="font-headline italic text-white text-xl leading-tight">{item.title}</h3>
-        <p className="font-label text-[10px] uppercase tracking-[0.18em] text-white/65">
+        <span className="font-headline italic text-white text-xl leading-tight">{item.title}</span>
+        <span className="font-label text-[10px] uppercase tracking-[0.18em] text-white/65">
           {item.creator} · {item.city}
-        </p>
-      </figcaption>
+        </span>
+      </span>
 
       {/* Hover CTA */}
       <span className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black via-black/85 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end">
@@ -90,6 +133,6 @@ function Card({ item, delayMs }: { item: RowCard; delayMs: number }) {
           {t.landing.cardCommission} <ArrowRight className="w-3 h-3" />
         </span>
       </span>
-    </figure>
+    </button>
   );
 }

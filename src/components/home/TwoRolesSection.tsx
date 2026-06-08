@@ -1,5 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { toast } from "sonner";
 import { ArrowRight, Check } from "lucide-react";
 import SectionLabel from "./SectionLabel";
@@ -24,10 +25,13 @@ export default function TwoRolesSection() {
   return (
     <section className="py-24 md:py-32 text-center">
       <div className="space-y-4 mb-16">
-        <div className="flex justify-center">
+        <div className="scroll-reveal flex justify-center">
           <SectionLabel>{t.landing.rolesLabel}</SectionLabel>
         </div>
-        <h2 className="font-headline text-4xl md:text-6xl text-on-surface leading-[1.05]">
+        <h2
+          className="scroll-reveal font-headline text-4xl md:text-6xl text-on-surface leading-[1.05]"
+          style={{ animationDelay: "90ms" }}
+        >
           {t.landing.rolesTitle1}
           <br />
           <span className="italic">{t.landing.rolesTitle2}</span>
@@ -59,6 +63,7 @@ export default function TwoRolesSection() {
           ]}
           cta={t.landing.creatorCta}
           onClick={() => go("/register", t.landing.signupToastBrowse)}
+          delay={120}
         />
       </div>
     </section>
@@ -74,6 +79,7 @@ function RoleCard({
   bullets,
   cta,
   onClick,
+  delay = 0,
 }: {
   seed: string;
   chip: string;
@@ -83,19 +89,23 @@ function RoleCard({
   bullets: string[];
   cta: string;
   onClick: () => void;
+  delay?: number;
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
-      className="group rounded-3xl bg-surface-container-lowest border border-outline-variant/40 overflow-hidden text-left hover:border-primary/40 hover:shadow-[0_30px_70px_rgba(0,0,0,0.5)] transition-all"
+      style={{ animationDelay: `${delay}ms` }}
+      className="scroll-reveal group rounded-3xl bg-surface-container-lowest border border-outline-variant/40 overflow-hidden text-left hover:border-primary/40 hover:shadow-[0_30px_70px_rgba(0,0,0,0.5)] transition-all"
     >
       {/* Top photo with category-tinted gradient overlay */}
       <div className="relative aspect-[16/10] bg-surface-container overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={`https://picsum.photos/seed/${seed}/1200/750`}
           alt=""
-          className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:scale-[1.03] transition-transform duration-700"
+          fill
+          sizes="(max-width: 768px) 100vw, 50vw"
+          className="object-cover opacity-70 group-hover:scale-[1.03] transition-transform duration-700"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/85" />
       </div>

@@ -611,7 +611,7 @@ const en = {
     // The Process
     processLabel: "The Process",
     processTitle1: "From brief to screen",
-    processTitle2: "in three steps",
+    processTitle2: "in four steps",
     processStep1Title: "Post your vision",
     processStep1Body:
       "Write a brief or browse 2,400+ creators filtered by style, genre, and track record. Our AI surfaces the best matches for your project.",
@@ -621,6 +621,9 @@ const en = {
     processStep3Title: "Fund it. Own it.",
     processStep3Body:
       "Pay across milestones held in escrow. Review at every stage. IP transfers to you on final delivery and full payment. Your name on it, forever.",
+    processStep4Title: "Hand off distribution",
+    processStep4Body:
+      "Hand the finished film to your AI agent to distribute. It picks the right channels and platforms for your audience and budget, schedules the release, and reports back on performance.",
     // Deal Agents
     dealLabel: "AI Deal Agents",
     dealTitle1: "Your AI team negotiates",
@@ -1718,7 +1721,7 @@ const zhCN: typeof en = {
     cardCommission: "委托这种风格",
     processLabel: "委托流程",
     processTitle1: "从需求到上线",
-    processTitle2: "只需三步",
+    processTitle2: "只需四步",
     processStep1Title: "发布你的构想",
     processStep1Body:
       "撰写需求或浏览 2,400+ 经过风格、题材、履历筛选的创作者。AI 会为你的项目挑出最匹配的人选。",
@@ -1727,6 +1730,9 @@ const zhCN: typeof en = {
       "Marlow 作为你的 Patron AI 代理，与创作者代理 Wren 协商范围、价格、里程碑、修改次数、版权——你睡觉的时候它已经搞定。",
     processStep3Title: "出资，持有",
     processStep3Body: "按里程碑托管付款，每个阶段审核。终交付 + 付清尾款后版权归你，永久署名。",
+    processStep4Title: "交给 AI 发行",
+    processStep4Body:
+      "成片之后，把发行交给你的 AI 代理。它会根据受众与预算挑选合适、合理的渠道与平台，安排上线并回报表现数据。",
     dealLabel: "AI 谈判代理",
     dealTitle1: "你的 AI 团队为你谈判",
     dealTitle2: "在你休息的时候",
@@ -2755,7 +2761,7 @@ const zhTW: typeof en = {
     cardCommission: "委託這種風格",
     processLabel: "委託流程",
     processTitle1: "從需求到上線",
-    processTitle2: "只需三步",
+    processTitle2: "只需四步",
     processStep1Title: "發佈你的構想",
     processStep1Body:
       "撰寫需求或瀏覽 2,400+ 經過風格、題材、履歷篩選的創作者。AI 會為你的專案挑出最匹配的人選。",
@@ -2764,6 +2770,9 @@ const zhTW: typeof en = {
       "Marlow 作為你的 Patron AI 代理，與創作者代理 Wren 協商範圍、價格、里程碑、修改次數、版權——你睡覺時它已經搞定。",
     processStep3Title: "出資，持有",
     processStep3Body: "按里程碑託管付款，每個階段審核。終交付 + 付清尾款後版權歸你，永久署名。",
+    processStep4Title: "交給 AI 發行",
+    processStep4Body:
+      "成片之後，把發行交給你的 AI 代理。它會根據受眾與預算挑選合適、合理的渠道與平台，安排上線並回報成效數據。",
     dealLabel: "AI 談判代理",
     dealTitle1: "你的 AI 團隊為你談判",
     dealTitle2: "在你休息的時候",
