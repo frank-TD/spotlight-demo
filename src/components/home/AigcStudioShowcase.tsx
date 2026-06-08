@@ -1,5 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { toast } from "sonner";
 import { ArrowRight, Play } from "lucide-react";
 import SectionLabel from "./SectionLabel";
@@ -66,12 +67,12 @@ export default function AigcStudioShowcase() {
             className="scroll-reveal group relative rounded-2xl overflow-hidden aspect-[3/4] bg-surface-container border border-outline-variant/40 hover:border-primary/40 transition-all cursor-pointer"
             style={{ animationDelay: `${i * 90}ms` }}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+            <Image
               src={`https://picsum.photos/seed/${c.seed}/600/800`}
               alt={c.title}
-              loading="lazy"
-              className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-[1.05]"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent" />
             <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-primary/90 text-on-primary shadow-2xl flex items-center justify-center group-hover:scale-110 transition-transform">

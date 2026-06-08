@@ -1,5 +1,6 @@
 "use client";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { toast } from "sonner";
 import { ArrowRight, Check } from "lucide-react";
 import SectionLabel from "./SectionLabel";
@@ -98,11 +99,12 @@ function RoleCard({
     >
       {/* Top photo with category-tinted gradient overlay */}
       <div className="relative aspect-[16/10] bg-surface-container overflow-hidden">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={`https://picsum.photos/seed/${seed}/1200/750`}
           alt=""
-          className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:scale-[1.03] transition-transform duration-700"
+          fill
+          sizes="(max-width: 768px) 100vw, 50vw"
+          className="object-cover opacity-70 group-hover:scale-[1.03] transition-transform duration-700"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-black/30 to-black/85" />
       </div>

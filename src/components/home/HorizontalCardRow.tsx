@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import { useT } from "@/hooks/useT";
 import { cn } from "@/lib/utils";
@@ -49,15 +50,15 @@ function Card({ item, delayMs }: { item: RowCard; delayMs: number }) {
       style={{ animationDelay: `${delayMs}ms` }}
     >
       {!loaded && <span className="shimmer-overlay" />}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <Image
         src={`https://picsum.photos/seed/${item.seed}/600/900`}
         alt={item.title}
-        loading="lazy"
+        fill
+        sizes="(max-width: 768px) 55vw, 220px"
         onLoad={() => setLoaded(true)}
         onError={() => setLoaded(true)}
         className={cn(
-          "absolute inset-0 w-full h-full object-cover transition-all duration-500 group-hover:scale-[1.04]",
+          "object-cover transition-all duration-500 group-hover:scale-[1.04]",
           loaded ? "opacity-100" : "opacity-0"
         )}
       />

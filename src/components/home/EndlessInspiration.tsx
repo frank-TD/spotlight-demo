@@ -1,5 +1,6 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { ArrowRight } from "lucide-react";
 import { useT } from "@/hooks/useT";
@@ -165,15 +166,15 @@ function MasonryCard({ item, index }: { item: Item; index: number }) {
       style={{ animationDelay: `${index * 50}ms` }}
     >
       {!loaded && <span className="shimmer-overlay" />}
-      {/* eslint-disable-next-line @next/next/no-img-element */}
-      <img
+      <Image
         src={`https://picsum.photos/seed/${item.seed}/${w}/${h}`}
         alt={item.title}
-        loading="lazy"
+        fill
+        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
         onLoad={() => setLoaded(true)}
         onError={() => setLoaded(true)}
         className={cn(
-          "absolute inset-0 w-full h-full object-cover transition-all duration-700 group-hover:scale-[1.04]",
+          "object-cover transition-all duration-700 group-hover:scale-[1.04]",
           loaded ? "opacity-100" : "opacity-0"
         )}
       />
