@@ -9,6 +9,7 @@ import DealAgentsSection from "@/components/home/DealAgentsSection";
 import TwoRolesSection from "@/components/home/TwoRolesSection";
 import CommissionStudioSection from "@/components/home/CommissionStudioSection";
 import AigcStudioShowcase from "@/components/home/AigcStudioShowcase";
+import NicheShowcase from "@/components/home/NicheShowcase";
 import EndlessInspiration from "@/components/home/EndlessInspiration";
 import FaqSection from "@/components/home/FaqSection";
 import SiteFooter from "@/components/home/SiteFooter";
@@ -30,6 +31,7 @@ export default function HomePage() {
         <TwoRolesSection />
         <CommissionStudioSection />
         <AigcStudioShowcase />
+        <NicheShowcase />
         <EndlessInspiration />
         <FaqSection />
       </div>
