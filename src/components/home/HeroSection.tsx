@@ -134,6 +134,7 @@ export default function HeroSection() {
               {heroInView && (
                 <video
                   data-hero-video
+                  aria-hidden="true"
                   className="hero-kenburns h-full w-full object-cover"
                   // Promote each video to its own GPU layer; no CSS filters /
                   // blend modes (those repaint every frame and caused the jank).
@@ -202,6 +203,7 @@ export default function HeroSection() {
           style={{ animationDelay: "560ms" }}
         >
           <button
+            type="button"
             onClick={post}
             className="group inline-flex items-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-7 py-4 rounded-full hover:opacity-90 active:scale-95 transition-all shadow-[0_8px_30px_rgba(212,175,55,0.25)]"
           >
@@ -209,6 +211,7 @@ export default function HeroSection() {
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </button>
           <button
+            type="button"
             onClick={browse}
             className="inline-flex items-center gap-2 font-label text-label-md uppercase tracking-widest text-on-surface px-7 py-4 rounded-full border border-on-surface/40 hover:bg-on-surface/5 hover:border-on-surface transition-colors"
           >

@@ -61,10 +61,18 @@ export default function AigcStudioShowcase() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
         {cards.map((c, i) => (
-          <figure
+          <div
             key={c.seed}
+            role="button"
+            tabIndex={0}
             onClick={() => toast.info(t.discovery.playbackToast)}
-            className="scroll-reveal group relative rounded-2xl overflow-hidden aspect-[3/4] bg-surface-container border border-outline-variant/40 hover:border-primary/40 transition-all cursor-pointer"
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                toast.info(t.discovery.playbackToast);
+              }
+            }}
+            className="scroll-reveal group relative rounded-2xl overflow-hidden aspect-[3/4] bg-surface-container border border-outline-variant/40 hover:border-primary/40 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
             style={{ animationDelay: `${i * 90}ms` }}
           >
             <Image
@@ -78,19 +86,20 @@ export default function AigcStudioShowcase() {
             <span className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-primary/90 text-on-primary shadow-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
               <Play className="w-6 h-6 ml-1" fill="currentColor" />
             </span>
-            <figcaption className="absolute inset-x-0 bottom-0 p-4">
+            <div className="absolute inset-x-0 bottom-0 p-4">
               <p className="font-label text-[10px] uppercase tracking-[0.22em] text-primary/80 mb-1.5">
                 {c.tags}
               </p>
               <h3 className="font-headline italic text-xl text-white leading-tight">{c.title}</h3>
               <p className="font-body text-[12px] text-white/65 mt-1.5">{c.sub}</p>
-            </figcaption>
-          </figure>
+            </div>
+          </div>
         ))}
       </div>
 
       <div className="text-center">
         <button
+          type="button"
           onClick={() => router.push("/discovery/workspace")}
           className="group inline-flex items-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-7 py-4 rounded-full hover:opacity-90 active:scale-95 transition-all shadow-[0_8px_30px_rgba(212,175,55,0.25)]"
         >

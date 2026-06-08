@@ -145,6 +145,7 @@ export default function TopNav() {
           {isLoggedIn ? (
             <>
               <button
+                type="button"
                 onClick={() => setMobileOpen(true)}
                 className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg hover:bg-surface-container transition-colors text-on-surface-variant"
                 aria-label="open menu"
@@ -152,6 +153,7 @@ export default function TopNav() {
                 <Menu className="w-5 h-5" />
               </button>
               <button
+                type="button"
                 onClick={toggleAgent}
                 className="hidden md:flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors px-2 py-1.5"
               >
@@ -260,7 +262,10 @@ export default function TopNav() {
             mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
           )}
         >
-          <div
+          <button
+            type="button"
+            aria-label="close menu"
+            tabIndex={-1}
             className="absolute inset-0 bg-on-surface/40 backdrop-blur-sm"
             onClick={() => setMobileOpen(false)}
           />
@@ -275,6 +280,7 @@ export default function TopNav() {
                 Spotlight
               </span>
               <button
+                type="button"
                 onClick={() => setMobileOpen(false)}
                 className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-surface-container text-on-surface-variant"
                 aria-label="close menu"
@@ -304,6 +310,7 @@ export default function TopNav() {
             </nav>
             <div className="border-t border-outline-variant/30 px-3 py-3 space-y-1">
               <button
+                type="button"
                 onClick={() => {
                   toggleAgent();
                   setMobileOpen(false);

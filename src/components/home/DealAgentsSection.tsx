@@ -103,7 +103,10 @@ export default function DealAgentsSection() {
           <p className="font-body text-on-surface-variant leading-relaxed max-w-xl">
             {t.landing.dealBody}
           </p>
-          <button className="inline-flex items-center gap-2 font-label text-[11px] uppercase tracking-[0.24em] text-primary border border-primary/40 px-5 py-3 rounded-full hover:bg-primary/10 transition-colors">
+          <button
+            type="button"
+            className="inline-flex items-center gap-2 font-label text-[11px] uppercase tracking-[0.24em] text-primary border border-primary/40 px-5 py-3 rounded-full hover:bg-primary/10 transition-colors"
+          >
             {t.landing.dealCta} <ArrowRight className="w-3.5 h-3.5" />
           </button>
 

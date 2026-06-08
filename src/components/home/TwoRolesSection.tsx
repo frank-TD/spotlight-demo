@@ -93,6 +93,7 @@ function RoleCard({
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       style={{ animationDelay: `${delay}ms` }}
       className="scroll-reveal group rounded-3xl bg-surface-container-lowest border border-outline-variant/40 overflow-hidden text-left hover:border-primary/40 hover:shadow-[0_30px_70px_rgba(0,0,0,0.5)] transition-all"
