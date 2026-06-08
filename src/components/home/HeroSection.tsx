@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ArrowRight } from "lucide-react";
 import StatCountUp from "./StatCountUp";
+import MobileHeroVideo from "./MobileHeroVideo";
 import { useStore } from "@/lib/store";
 import { useT } from "@/hooks/useT";
 
@@ -115,6 +116,13 @@ export default function HeroSection() {
       ref={sectionRef}
       className="relative bg-mesh -mx-6 md:-mx-12 px-6 md:px-12 pt-28 md:pt-36 pb-24 md:pb-32 overflow-hidden"
     >
+      {motionAllowed && !isDesktop && (
+        <MobileHeroVideo
+          clips={HERO_VIDEOS}
+          poster={HERO_POSTER}
+          playing={heroInView && pageVisible}
+        />
+      )}
       {motionAllowed && isDesktop && (
         <div
           className="absolute inset-0 grid grid-cols-2 grid-rows-2 opacity-80"
