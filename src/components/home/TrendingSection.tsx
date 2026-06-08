@@ -9,8 +9,8 @@ const TRENDING: RowCard[] = [
   {
     id: "t1",
     title: "Celestial Entity",
-    creator: "Luna Chen",
-    city: "Hong Kong",
+    creator: "Sofia Okonkwo",
+    city: "Seoul",
     category: "Cinematic",
     priceRange: "¥120K–480K",
     seed: "celestial",
@@ -18,8 +18,8 @@ const TRENDING: RowCard[] = [
   {
     id: "t2",
     title: "Neon Rain",
-    creator: "NeoFrame Studio",
-    city: "Taipei",
+    creator: "Yuki Tanaka",
+    city: "Osaka",
     category: "Sci-Fi",
     priceRange: "¥200K–650K",
     seed: "neonrain",
@@ -36,8 +36,8 @@ const TRENDING: RowCard[] = [
   {
     id: "t4",
     title: "Aurora Crystal",
-    creator: "Marcus Yip",
-    city: "Singapore",
+    creator: "Sofia Okonkwo",
+    city: "Seoul",
     category: "Documentary",
     priceRange: "¥80K–320K",
     seed: "aurora",
