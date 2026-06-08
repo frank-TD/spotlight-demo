@@ -1,18 +1,78 @@
 "use client";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ArrowRight } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { useT } from "@/hooks/useT";
 
-// Full-bleed cinematic hero. Photography is faked with a layered radial mesh
-// (the existing bg-mesh utility, redefined for dark mode in Phase A) plus a
-// subtle gold/blue glow so we don't depend on a licensed stock image.
+const HERO_VIDEOS = [
+  "/videos/hero/optimized/16022209_hero.mp4",
+  "/videos/hero/optimized/16049416_hero.mp4",
+  "/videos/hero/optimized/16079919_hero.mp4",
+  "/videos/hero/optimized/16107702_hero.mp4",
+];
+
+// Full-bleed cinematic hero with the user's selected footage combined into a
+// moving background collage.
 export default function HeroSection() {
   const t = useT();
   const router = useRouter();
   const isLoggedIn = useStore((s) => s.isLoggedIn);
   const onboardingComplete = useStore((s) => s.onboardingComplete);
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [motionAllowed, setMotionAllowed] = useState(false);
+  const [heroInView, setHeroInView] = useState(false);
+  const [pageVisible, setPageVisible] = useState(true);
+
+  useEffect(() => {
+    const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const syncMotionPreference = () => setMotionAllowed(!media.matches);
+    syncMotionPreference();
+    media.addEventListener("change", syncMotionPreference);
+    return () => media.removeEventListener("change", syncMotionPreference);
+  }, []);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const observer = new IntersectionObserver(([entry]) => setHeroInView(entry.isIntersecting), {
+      threshold: 0.15,
+    });
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const syncPageVisibility = () => setPageVisible(document.visibilityState === "visible");
+    syncPageVisibility();
+    document.addEventListener("visibilitychange", syncPageVisibility);
+    return () => document.removeEventListener("visibilitychange", syncPageVisibility);
+  }, []);
+
+  useEffect(() => {
+    const section = sectionRef.current;
+    if (!section) return;
+
+    const videos = Array.from(section.querySelectorAll<HTMLVideoElement>("[data-hero-video]"));
+    const shouldPlay = motionAllowed && heroInView && pageVisible;
+
+    if (!shouldPlay) {
+      videos.forEach((video) => video.pause());
+      return;
+    }
+
+    const playAll = () => {
+      videos.forEach((video) => {
+        video.muted = true;
+        void video.play();
+      });
+    };
+
+    const timers = [0, 500, 1500].map((delay) => window.setTimeout(playAll, delay));
+    return () => timers.forEach((timer) => window.clearTimeout(timer));
+  }, [heroInView, motionAllowed, pageVisible]);
 
   // Post a Brief — smart routing. Anonymous users go through register; signed-
   // in users that haven't finished onboarding land on the role picker; fully
@@ -34,10 +94,41 @@ export default function HeroSection() {
   const browse = () => router.push("/discovery");
 
   return (
-    <section className="relative bg-mesh -mx-6 md:-mx-12 px-6 md:px-12 pt-20 md:pt-28 pb-24 md:pb-32 overflow-hidden">
-      {/* Decorative ambient glows — anchored top-left and bottom-right corners */}
-      <div className="absolute -top-32 -left-32 w-[480px] h-[480px] rounded-full bg-primary/10 blur-[140px] pointer-events-none" />
-      <div className="absolute -bottom-40 -right-32 w-[520px] h-[520px] rounded-full bg-secondary/10 blur-[160px] pointer-events-none" />
+    <section
+      ref={sectionRef}
+      className="relative bg-mesh -mx-6 md:-mx-12 px-6 md:px-12 pt-20 md:pt-28 pb-24 md:pb-32 overflow-hidden"
+    >
+      {motionAllowed && (
+        <div
+          className="absolute inset-0 grid grid-cols-2 grid-rows-2 opacity-80"
+          aria-hidden="true"
+        >
+          {HERO_VIDEOS.map((src, index) => (
+            <div
+              key={src}
+              className="relative overflow-hidden border border-on-surface/5 bg-surface"
+            >
+              <video
+                data-hero-video
+                className="h-full w-full scale-110 object-cover saturate-125 contrast-110"
+                autoPlay={heroInView && pageVisible}
+                muted
+                loop
+                playsInline
+                preload={heroInView ? "auto" : "metadata"}
+              >
+                <source src={src} type="video/mp4" />
+              </video>
+              <div
+                className="absolute inset-0 bg-primary/10 mix-blend-soft-light"
+                style={{ opacity: index % 2 === 0 ? 0.18 : 0.08 }}
+              />
+            </div>
+          ))}
+        </div>
+      )}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_42%,rgba(8,8,10,0.08),rgba(8,8,10,0.66)_72%),linear-gradient(180deg,rgba(8,8,10,0.52)_0%,rgba(8,8,10,0.18)_42%,rgba(8,8,10,0.82)_100%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,8,10,0.82)_0%,rgba(8,8,10,0.3)_28%,rgba(8,8,10,0.08)_50%,rgba(8,8,10,0.34)_74%,rgba(8,8,10,0.84)_100%)] pointer-events-none" />
 
       <div className="relative max-w-5xl mx-auto text-center">
         <div className="inline-flex items-center gap-2 mb-10 px-4 py-1.5 rounded-full border border-primary/30 text-primary font-label text-[11px] uppercase tracking-[0.28em] animate-fade-up">
