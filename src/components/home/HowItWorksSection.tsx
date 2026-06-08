@@ -1,14 +1,24 @@
 "use client";
-import { useT } from "@/hooks/useT";
-import SectionLabel from "./SectionLabel";
 import { Clipboard, Bot, Clapperboard } from "lucide-react";
+import SectionLabel from "./SectionLabel";
+import { useT } from "@/hooks/useT";
 
 export default function HowItWorksSection() {
   const t = useT();
   const steps = [
-    { n: "01", icon: Clipboard,    title: t.landing.processStep1Title, body: t.landing.processStep1Body },
-    { n: "02", icon: Bot,          title: t.landing.processStep2Title, body: t.landing.processStep2Body },
-    { n: "03", icon: Clapperboard, title: t.landing.processStep3Title, body: t.landing.processStep3Body },
+    {
+      n: "01",
+      icon: Clipboard,
+      title: t.landing.processStep1Title,
+      body: t.landing.processStep1Body,
+    },
+    { n: "02", icon: Bot, title: t.landing.processStep2Title, body: t.landing.processStep2Body },
+    {
+      n: "03",
+      icon: Clapperboard,
+      title: t.landing.processStep3Title,
+      body: t.landing.processStep3Body,
+    },
   ];
   return (
     <section className="py-24 md:py-32">
@@ -39,8 +49,12 @@ export default function HowItWorksSection() {
               <div className="w-12 h-12 rounded-xl bg-primary-container text-primary flex items-center justify-center mb-8">
                 <Icon className="w-5 h-5" />
               </div>
-              <h3 className="font-headline text-2xl md:text-[28px] text-on-surface leading-tight mb-4">{title}</h3>
-              <p className="font-body text-sm md:text-base text-on-surface-variant leading-relaxed">{body}</p>
+              <h3 className="font-headline text-2xl md:text-[28px] text-on-surface leading-tight mb-4">
+                {title}
+              </h3>
+              <p className="font-body text-sm md:text-base text-on-surface-variant leading-relaxed">
+                {body}
+              </p>
             </div>
           </div>
         ))}

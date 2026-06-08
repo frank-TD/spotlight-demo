@@ -1,17 +1,5 @@
 "use client";
 import { use, useEffect, useState } from "react";
-import { useStore, type DistMetadata, type DistStatus } from "@/lib/store";
-import AppShell from "@/components/layout/AppShell";
-import {
-  MY_ASSETS_CREATED,
-  MY_ASSETS_PURCHASED,
-  DISTRIBUTION_PLATFORMS,
-  DISTRIBUTION_LANGUAGES,
-  DISTRIBUTION_REGIONS,
-  DISTRIBUTION_TYPES,
-  COPYRIGHT_OPTIONS,
-  DISTRIBUTION_COST_SHELL,
-} from "@/lib/mock-data";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -31,9 +19,27 @@ import {
   X,
   Info,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useStore, type DistMetadata, type DistStatus } from "@/lib/store";
+import AppShell from "@/components/layout/AppShell";
+import {
+  MY_ASSETS_CREATED,
+  MY_ASSETS_PURCHASED,
+  DISTRIBUTION_PLATFORMS,
+  DISTRIBUTION_LANGUAGES,
+  DISTRIBUTION_REGIONS,
+  DISTRIBUTION_TYPES,
+  COPYRIGHT_OPTIONS,
+  DISTRIBUTION_COST_SHELL,
+} from "@/lib/mock-data";
+import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { useT } from "@/hooks/useT";
 
 const STAGES: DistStatus[] = [
@@ -72,7 +78,15 @@ const DEFAULT_METADATA: DistMetadata = {
 export default function DistributePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
   const t = useT();
-  const { activeRole, distributionByAsset, updateDistribution, creatorShell, backerDiamond, withdraw, spendDiamond } = useStore();
+  const {
+    activeRole,
+    distributionByAsset,
+    updateDistribution,
+    creatorShell,
+    backerDiamond,
+    withdraw,
+    spendDiamond,
+  } = useStore();
 
   const useShell = activeRole === "creator";
   const balance = useShell ? creatorShell : backerDiamond;
@@ -91,7 +105,9 @@ export default function DistributePage({ params }: { params: Promise<{ id: strin
   const status: DistStatus = dist?.status ?? "metadata";
 
   // Local form state
-  const [metadata, setMetadata] = useState<DistMetadata>(dist?.metadata ?? { ...DEFAULT_METADATA, title: asset?.title ?? "" });
+  const [metadata, setMetadata] = useState<DistMetadata>(
+    dist?.metadata ?? { ...DEFAULT_METADATA, title: asset?.title ?? "" }
+  );
   const [tagsInput, setTagsInput] = useState((dist?.metadata?.tags ?? []).join(", "));
   const [platforms, setPlatforms] = useState<string[]>(dist?.platforms ?? []);
   const [takedownOpen, setTakedownOpen] = useState(false);
@@ -128,7 +144,14 @@ export default function DistributePage({ params }: { params: Promise<{ id: strin
   const goTo = (s: DistStatus) => updateDistribution(id, { status: s });
 
   const saveMetadata = () => {
-    const next = { ...metadata, tags: tagsInput.split(",").map((t) => t.trim()).filter(Boolean).slice(0, 10) };
+    const next = {
+      ...metadata,
+      tags: tagsInput
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean)
+        .slice(0, 10),
+    };
     if (!next.title.trim()) {
       toast.error(t.distribute.titleRequired);
       return false;
@@ -267,7 +290,9 @@ export default function DistributePage({ params }: { params: Promise<{ id: strin
           <DialogHeader>
             <DialogTitle className="font-headline text-[20px]">{t.distribute.takedown}</DialogTitle>
           </DialogHeader>
-          <p className="font-body text-sm text-on-surface-variant py-2">{t.distribute.takedownNotice}</p>
+          <p className="font-body text-sm text-on-surface-variant py-2">
+            {t.distribute.takedownNotice}
+          </p>
           <DialogFooter>
             <button
               onClick={() => setTakedownOpen(false)}
@@ -325,8 +350,12 @@ function StageTracker({ currentIdx, status }: { currentIdx: number; status: Dist
                 className={cn(
                   "rounded-full flex items-center justify-center border-4 border-surface shadow-sm transition-all",
                   done && "w-10 h-10 bg-primary text-on-primary",
-                  (active || isLive) && "w-12 h-12 -mt-1 bg-primary-container text-on-primary-container shadow-md ring-2 ring-primary/30",
-                  !done && !active && !isLive && "w-10 h-10 bg-surface-container text-outline-variant"
+                  (active || isLive) &&
+                    "w-12 h-12 -mt-1 bg-primary-container text-on-primary-container shadow-md ring-2 ring-primary/30",
+                  !done &&
+                    !active &&
+                    !isLive &&
+                    "w-10 h-10 bg-surface-container text-outline-variant"
                 )}
               >
                 {done || isLive ? (
@@ -375,7 +404,8 @@ function MetadataStep({
   const t = useT();
   const inputCls =
     "w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm";
-  const labelCls = "font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2";
+  const labelCls =
+    "font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2";
 
   const toggleSubtitle = (id: string) =>
     setMetadata({
@@ -455,7 +485,9 @@ function MetadataStep({
           placeholder="Cinematic, Brand, AI..."
           className={inputCls}
         />
-        <p className="font-body text-xs text-on-surface-variant mt-1.5">{t.distribute.fieldTagsHint}</p>
+        <p className="font-body text-xs text-on-surface-variant mt-1.5">
+          {t.distribute.fieldTagsHint}
+        </p>
       </div>
 
       <div>
@@ -510,7 +542,9 @@ function MetadataStep({
             onChange={(e) => setMetadata({ ...metadata, price: Number(e.target.value) || 0 })}
             className={inputCls}
           />
-          <p className="font-body text-xs text-on-surface-variant mt-1.5">{t.distribute.fieldPriceHint}</p>
+          <p className="font-body text-xs text-on-surface-variant mt-1.5">
+            {t.distribute.fieldPriceHint}
+          </p>
         </div>
         <div>
           <label className={labelCls}>{t.distribute.fieldCopyright}</label>
@@ -568,7 +602,8 @@ function PlatformsStep({
           {t.distribute.platformsSection}
         </h2>
         <p className="font-body text-sm text-on-surface-variant">
-          {t.distribute.selectedPlatforms}: <span className="font-bold text-on-surface">{platforms.length}</span>
+          {t.distribute.selectedPlatforms}:{" "}
+          <span className="font-bold text-on-surface">{platforms.length}</span>
         </p>
       </div>
 
@@ -667,7 +702,10 @@ function PaymentStep({
           />
           <SummaryRow
             label={t.distribute.fieldLanguage}
-            value={DISTRIBUTION_LANGUAGES.find((l) => l.id === metadata.language)?.name ?? metadata.language}
+            value={
+              DISTRIBUTION_LANGUAGES.find((l) => l.id === metadata.language)?.name ??
+              metadata.language
+            }
           />
           <SummaryRow
             label={t.distribute.fieldRegions}
@@ -688,14 +726,18 @@ function PaymentStep({
       <div className="bg-primary text-on-primary rounded-2xl p-6 flex items-start gap-4">
         <Coins className="w-6 h-6 shrink-0 mt-1" />
         <div className="flex-1">
-          <p className="font-label text-label-md uppercase tracking-wider opacity-80">{t.distribute.totalCost}</p>
+          <p className="font-label text-label-md uppercase tracking-wider opacity-80">
+            {t.distribute.totalCost}
+          </p>
           <p className="font-headline text-[28px] leading-none mt-1.5">
             {currencySymbol} {DISTRIBUTION_COST_SHELL.toLocaleString()}
           </p>
           <p className="font-body text-xs opacity-70 mt-2">{t.distribute.totalCostNote}</p>
         </div>
         <div className="text-right">
-          <p className="font-label text-label-md uppercase tracking-wider opacity-80">{t.wallet.balLabel}</p>
+          <p className="font-label text-label-md uppercase tracking-wider opacity-80">
+            {t.wallet.balLabel}
+          </p>
           <p className="font-body font-bold mt-1.5">
             {currencySymbol} {balance.toLocaleString()}
           </p>
@@ -725,8 +767,12 @@ function PaymentStep({
 function SummaryRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between gap-4">
-      <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">{label}</span>
-      <span className="font-body text-sm text-on-surface text-right max-w-[60%] truncate">{value}</span>
+      <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+        {label}
+      </span>
+      <span className="font-body text-sm text-on-surface text-right max-w-[60%] truncate">
+        {value}
+      </span>
     </div>
   );
 }
@@ -747,9 +793,13 @@ function ReviewStep({ status }: { status: DistStatus }) {
       <div className="w-16 h-16 rounded-2xl bg-primary-container flex items-center justify-center mb-5">
         <Icon className="w-7 h-7 text-on-primary-container" />
       </div>
-      <p className="font-label text-label-md uppercase tracking-widest text-primary mb-2">{t.distribute.inReview}</p>
+      <p className="font-label text-label-md uppercase tracking-widest text-primary mb-2">
+        {t.distribute.inReview}
+      </p>
       <h2 className="font-headline text-headline-md text-on-surface mb-3">{label}</h2>
-      <p className="font-body text-sm text-on-surface-variant max-w-md mb-6">{t.distribute.waitingMessage}</p>
+      <p className="font-body text-sm text-on-surface-variant max-w-md mb-6">
+        {t.distribute.waitingMessage}
+      </p>
       <div className="flex items-center gap-2 text-on-surface-variant font-label text-label-md uppercase tracking-wider">
         <Loader2 className="w-4 h-4 animate-spin" /> {t.distribute.estimatedCompletion}
       </div>
@@ -776,7 +826,9 @@ function LiveStep({
           <Check className="w-5 h-5" />
         </div>
         <div>
-          <h2 className="font-headline text-headline-md text-on-tertiary-container">{t.distribute.statusLive}</h2>
+          <h2 className="font-headline text-headline-md text-on-tertiary-container">
+            {t.distribute.statusLive}
+          </h2>
           <p className="font-body text-sm text-on-tertiary-container mt-1 opacity-80">
             {t.distribute.liveSection}
           </p>
@@ -827,11 +879,16 @@ function LiveStep({
             <SummaryRow label={t.distribute.fieldType} value={metadata.type} />
             <SummaryRow
               label={t.distribute.fieldLanguage}
-              value={DISTRIBUTION_LANGUAGES.find((l) => l.id === metadata.language)?.name ?? metadata.language}
+              value={
+                DISTRIBUTION_LANGUAGES.find((l) => l.id === metadata.language)?.name ??
+                metadata.language
+              }
             />
             <SummaryRow
               label={t.distribute.pricingSummary}
-              value={metadata.price === 0 ? t.distribute.free : `¥${metadata.price.toLocaleString()}`}
+              value={
+                metadata.price === 0 ? t.distribute.free : `¥${metadata.price.toLocaleString()}`
+              }
             />
             <SummaryRow label={t.distribute.fieldCopyright} value={metadata.copyright} />
           </div>
@@ -860,8 +917,12 @@ function TakedownStep({ onResubmit }: { onResubmit: () => void }) {
       <div className="w-16 h-16 rounded-2xl bg-surface-container flex items-center justify-center mb-5">
         <AlertTriangle className="w-7 h-7 text-on-surface-variant" />
       </div>
-      <h2 className="font-headline text-headline-md text-on-surface mb-3">{t.distribute.takedownSection}</h2>
-      <p className="font-body text-sm text-on-surface-variant max-w-md mb-6">{t.distribute.takedownNotice}</p>
+      <h2 className="font-headline text-headline-md text-on-surface mb-3">
+        {t.distribute.takedownSection}
+      </h2>
+      <p className="font-body text-sm text-on-surface-variant max-w-md mb-6">
+        {t.distribute.takedownNotice}
+      </p>
       <button
         onClick={onResubmit}
         className="font-label text-label-md uppercase tracking-wider px-5 py-2.5 bg-primary text-on-primary rounded-lg hover:opacity-90"

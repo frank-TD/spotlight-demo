@@ -1,13 +1,13 @@
 "use client";
 import { useState } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { Search } from "lucide-react";
 import AppShell from "@/components/layout/AppShell";
 import { useStore, flowActor } from "@/lib/store";
 import { SESSIONS, PARTICIPANTS, type Session } from "@/lib/mock-data";
 import { useT } from "@/hooks/useT";
-import Link from "next/link";
-import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { Search } from "lucide-react";
 
 export default function MessagesLayout({ children }: { children: React.ReactNode }) {
   const { activeRole, sessionExtraMessages, sessionFlows, creatorEdits } = useStore();
@@ -16,7 +16,8 @@ export default function MessagesLayout({ children }: { children: React.ReactNode
   const [query, setQuery] = useState("");
 
   const visibleSessions = SESSIONS.filter((s) => {
-    const owns = activeRole === "backer" ? s.backerId === "u_backer_01" : s.creatorId === "u_creator_01";
+    const owns =
+      activeRole === "backer" ? s.backerId === "u_backer_01" : s.creatorId === "u_creator_01";
     if (!owns) return false;
     if (!query.trim()) return true;
     const cpId = activeRole === "backer" ? s.creatorId : s.backerId;
@@ -62,7 +63,9 @@ export default function MessagesLayout({ children }: { children: React.ReactNode
             </div>
             <div className="flex-1 overflow-y-auto py-2">
               {visibleSessions.length === 0 && (
-                <p className="text-center text-on-surface-variant font-body text-sm py-8">{t.chat.listEmpty}</p>
+                <p className="text-center text-on-surface-variant font-body text-sm py-8">
+                  {t.chat.listEmpty}
+                </p>
               )}
               {visibleSessions.map((s) => {
                 const counterpartId = activeRole === "backer" ? s.creatorId : s.backerId;
@@ -84,8 +87,8 @@ export default function MessagesLayout({ children }: { children: React.ReactNode
                       isActive
                         ? "bg-primary-container/60"
                         : needsAction
-                        ? "bg-primary-container/25 hover:bg-primary-container/40"
-                        : "hover:bg-surface-container"
+                          ? "bg-primary-container/25 hover:bg-primary-container/40"
+                          : "hover:bg-surface-container"
                     )}
                   >
                     {needsAction && (
@@ -93,22 +96,43 @@ export default function MessagesLayout({ children }: { children: React.ReactNode
                     )}
                     {avatarUrl ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={avatarUrl} alt={cp.nickname} className="w-10 h-10 rounded-full object-cover shrink-0" />
+                      <img
+                        src={avatarUrl}
+                        alt={cp.nickname}
+                        className="w-10 h-10 rounded-full object-cover shrink-0"
+                      />
                     ) : (
-                      <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0", cp.avatarColor)}>
+                      <div
+                        className={cn(
+                          "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0",
+                          cp.avatarColor
+                        )}
+                      >
                         {cp.avatar}
                       </div>
                     )}
                     <div className="flex-1 min-w-0">
                       <div className="flex items-baseline justify-between gap-2">
-                        <p className={cn("text-on-surface text-sm truncate", needsAction ? "font-body font-bold" : "font-body font-bold")}>
+                        <p
+                          className={cn(
+                            "text-on-surface text-sm truncate",
+                            needsAction ? "font-body font-bold" : "font-body font-bold"
+                          )}
+                        >
                           {cp.nickname}
                         </p>
                         <span className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant/70 shrink-0">
                           {sessionTimestamp(s).slice(5, 10)}
                         </span>
                       </div>
-                      <p className={cn("text-xs truncate mt-0.5", needsAction ? "font-body text-on-surface" : "font-body text-on-surface-variant")}>
+                      <p
+                        className={cn(
+                          "text-xs truncate mt-0.5",
+                          needsAction
+                            ? "font-body text-on-surface"
+                            : "font-body text-on-surface-variant"
+                        )}
+                      >
                         {sessionPreview(s)}
                       </p>
                       <div className="flex items-center gap-1.5 mt-1">

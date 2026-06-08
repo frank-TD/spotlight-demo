@@ -18,11 +18,24 @@ const BRAND_STYLE: Record<StudioModel["brand"], { letter: string; cls: string }>
   elevenlabs: { letter: "11", cls: "bg-neutral-200 text-neutral-800" },
 };
 
-export default function BrandGlyph({ brand, size = "md" }: { brand: StudioModel["brand"]; size?: "sm" | "md" | "lg" }) {
+export default function BrandGlyph({
+  brand,
+  size = "md",
+}: {
+  brand: StudioModel["brand"];
+  size?: "sm" | "md" | "lg";
+}) {
   const s = BRAND_STYLE[brand];
-  const dim = size === "lg" ? "w-9 h-9 text-base" : size === "sm" ? "w-6 h-6 text-[10px]" : "w-7 h-7 text-xs";
+  const dim =
+    size === "lg" ? "w-9 h-9 text-base" : size === "sm" ? "w-6 h-6 text-[10px]" : "w-7 h-7 text-xs";
   return (
-    <span className={cn("inline-flex items-center justify-center rounded-lg font-bold shrink-0", dim, s.cls)}>
+    <span
+      className={cn(
+        "inline-flex items-center justify-center rounded-lg font-bold shrink-0",
+        dim,
+        s.cls
+      )}
+    >
       {s.letter}
     </span>
   );

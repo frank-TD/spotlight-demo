@@ -1,10 +1,10 @@
 "use client";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { ArrowRight, Check } from "lucide-react";
+import SectionLabel from "./SectionLabel";
 import { useT } from "@/hooks/useT";
 import { useStore } from "@/lib/store";
-import { toast } from "sonner";
-import SectionLabel from "./SectionLabel";
-import { ArrowRight, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function TwoRolesSection() {
@@ -51,7 +51,12 @@ export default function TwoRolesSection() {
           chipColor="blue"
           title={t.landing.creatorTitle}
           body={t.landing.creatorBody}
-          bullets={[t.landing.creatorB1, t.landing.creatorB2, t.landing.creatorB3, t.landing.creatorB4]}
+          bullets={[
+            t.landing.creatorB1,
+            t.landing.creatorB2,
+            t.landing.creatorB3,
+            t.landing.creatorB4,
+          ]}
           cta={t.landing.creatorCta}
           onClick={() => go("/register", t.landing.signupToastBrowse)}
         />
@@ -106,11 +111,18 @@ function RoleCard({
         >
           {chip}
         </span>
-        <h3 className="font-headline text-2xl md:text-3xl text-on-surface leading-tight mb-3">{title}</h3>
-        <p className="font-body text-on-surface-variant text-sm md:text-base leading-relaxed mb-6">{body}</p>
+        <h3 className="font-headline text-2xl md:text-3xl text-on-surface leading-tight mb-3">
+          {title}
+        </h3>
+        <p className="font-body text-on-surface-variant text-sm md:text-base leading-relaxed mb-6">
+          {body}
+        </p>
         <ul className="space-y-2.5 mb-8">
           {bullets.map((b) => (
-            <li key={b} className="flex items-start gap-2.5 font-body text-sm text-on-surface-variant">
+            <li
+              key={b}
+              className="flex items-start gap-2.5 font-body text-sm text-on-surface-variant"
+            >
               <Check
                 className={cn(
                   "w-4 h-4 mt-0.5 shrink-0",

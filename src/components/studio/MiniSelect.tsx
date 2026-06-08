@@ -1,11 +1,11 @@
 "use client";
+import { Check, ChevronDown } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Check, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 // Compact value selector used in the model picker settings rows and the dock

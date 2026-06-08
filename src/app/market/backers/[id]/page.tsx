@@ -1,9 +1,9 @@
 "use client";
 import { use } from "react";
-import AppShell from "@/components/layout/AppShell";
-import { CURRENT_USER_BACKER, ORDER_ACTIVE, ORDER_COMPLETED } from "@/lib/mock-data";
 import Link from "next/link";
 import { ArrowLeft, Film } from "lucide-react";
+import AppShell from "@/components/layout/AppShell";
+import { CURRENT_USER_BACKER, ORDER_ACTIVE, ORDER_COMPLETED } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import { useT } from "@/hooks/useT";
 
@@ -64,7 +64,9 @@ export default function BackerProfilePage({ params }: { params: Promise<{ id: st
 
             <div className="mt-6 pt-5 border-t border-outline-variant/30 grid grid-cols-3 gap-4 text-center">
               <div>
-                <p className="font-headline text-[24px] text-on-surface leading-none">{commissioned.length}</p>
+                <p className="font-headline text-[24px] text-on-surface leading-none">
+                  {commissioned.length}
+                </p>
                 <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-1.5">
                   {t.chat.backerProjectsCommissioned}
                 </p>
@@ -111,9 +113,12 @@ export default function BackerProfilePage({ params }: { params: Promise<{ id: st
                     <Film className="w-5 h-5 text-primary opacity-70" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-body font-bold text-on-surface text-sm truncate">{order.title}</p>
+                    <p className="font-body font-bold text-on-surface text-sm truncate">
+                      {order.title}
+                    </p>
                     <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-1">
-                      {t.projects.counterpartCreator}: {order.creator.nickname} · ¥{order.totalFiat.toLocaleString()}
+                      {t.projects.counterpartCreator}: {order.creator.nickname} · ¥
+                      {order.totalFiat.toLocaleString()}
                     </p>
                   </div>
                 </Link>

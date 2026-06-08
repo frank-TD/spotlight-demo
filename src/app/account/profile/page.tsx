@@ -1,11 +1,11 @@
 "use client";
 import { useState } from "react";
-import { useStore } from "@/lib/store";
 import { useRouter } from "next/navigation";
-import AppShell from "@/components/layout/AppShell";
-import { CURRENT_USER_BACKER, CURRENT_USER_CREATOR } from "@/lib/mock-data";
 import { CheckCircle2, LogOut } from "lucide-react";
 import { toast } from "sonner";
+import { useStore } from "@/lib/store";
+import AppShell from "@/components/layout/AppShell";
+import { CURRENT_USER_BACKER, CURRENT_USER_CREATOR } from "@/lib/mock-data";
 import { useT } from "@/hooks/useT";
 
 function ProfileForm({ role }: { role: "backer" | "creator" }) {
@@ -60,7 +60,12 @@ function ProfileForm({ role }: { role: "backer" | "creator" }) {
           <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2">
             {t.profile.email}
           </label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputCls} />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            className={inputCls}
+          />
         </div>
         <div>
           <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2">
@@ -107,8 +112,12 @@ export default function ProfilePage() {
           {/* KYC */}
           <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-6 flex items-center justify-between">
             <div>
-              <h2 className="font-headline text-[18px] text-on-surface">{t.profile.identityVerification}</h2>
-              <p className="font-body text-sm text-on-surface-variant mt-1">{t.profile.verificationDesc}</p>
+              <h2 className="font-headline text-[18px] text-on-surface">
+                {t.profile.identityVerification}
+              </h2>
+              <p className="font-body text-sm text-on-surface-variant mt-1">
+                {t.profile.verificationDesc}
+              </p>
             </div>
             <span className="flex items-center gap-1 font-label text-[10px] uppercase tracking-widest bg-tertiary-container text-on-tertiary-container px-3 py-1.5 rounded-full">
               <CheckCircle2 className="w-3 h-3" /> {t.profile.verified}

@@ -1,9 +1,6 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { useStore, flowActor, type SessionFlow } from "@/lib/store";
-import { useT } from "@/hooks/useT";
-import { cn } from "@/lib/utils";
 import { toast } from "sonner";
 import {
   ChevronDown,
@@ -19,6 +16,9 @@ import {
   ArrowUpRight,
   RotateCcw,
 } from "lucide-react";
+import { useStore, flowActor, type SessionFlow } from "@/lib/store";
+import { useT } from "@/hooks/useT";
+import { cn } from "@/lib/utils";
 
 type Role = "backer" | "creator";
 
@@ -130,8 +130,8 @@ export default function FlowActionCard({
         done
           ? "bg-tertiary-container/30 border-tertiary/20"
           : isActor
-          ? "bg-primary-container/40 border-primary/30"
-          : "bg-surface-container border-outline-variant/30"
+            ? "bg-primary-container/40 border-primary/30"
+            : "bg-surface-container border-outline-variant/30"
       )}
     >
       {/* Collapsed header row — always visible, pinned at top */}
@@ -144,13 +144,19 @@ export default function FlowActionCard({
         <span
           className={cn(
             "w-8 h-8 rounded-full flex items-center justify-center shrink-0",
-            done ? "bg-tertiary text-on-tertiary" : isActor ? "bg-primary text-on-primary" : "bg-surface-container-high text-on-surface-variant"
+            done
+              ? "bg-tertiary text-on-tertiary"
+              : isActor
+                ? "bg-primary text-on-primary"
+                : "bg-surface-container-high text-on-surface-variant"
           )}
         >
           <Icon className="w-4 h-4" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="font-headline text-[15px] text-on-surface leading-tight truncate">{title}</p>
+          <p className="font-headline text-[15px] text-on-surface leading-tight truncate">
+            {title}
+          </p>
           {flow.revisions > 0 && flow.phase !== "completed" && (
             <span className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant">
               {f.revisionTag(flow.revisions)}
@@ -161,14 +167,21 @@ export default function FlowActionCard({
           <span
             className={cn(
               "font-label text-[10px] uppercase tracking-widest px-2.5 py-1 rounded-full shrink-0 flex items-center gap-1",
-              isActor ? "bg-primary text-on-primary" : "bg-surface-container-high text-on-surface-variant"
+              isActor
+                ? "bg-primary text-on-primary"
+                : "bg-surface-container-high text-on-surface-variant"
             )}
           >
             {isActor ? <AlertCircle className="w-3 h-3" /> : <Clock className="w-3 h-3" />}
             {isActor ? f.actionNeeded : f.waiting}
           </span>
         )}
-        <ChevronDown className={cn("w-4 h-4 text-on-surface-variant shrink-0 transition-transform", open && "rotate-180")} />
+        <ChevronDown
+          className={cn(
+            "w-4 h-4 text-on-surface-variant shrink-0 transition-transform",
+            open && "rotate-180"
+          )}
+        />
       </button>
 
       {/* Expanded body */}

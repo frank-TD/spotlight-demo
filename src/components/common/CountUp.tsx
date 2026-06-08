@@ -30,7 +30,7 @@ export default function CountUp({
     let raf = 0;
     const tick = (now: number) => {
       const t = Math.min((now - startTime) / duration, 1);
-      const eased = 1 - Math.pow(1 - t, 3);
+      const eased = 1 - (1 - t) ** 3;
       const next = start + (target - start) * eased;
       setDisplay(Number.isInteger(target) ? Math.round(next) : Number(next.toFixed(1)));
       if (t < 1) raf = requestAnimationFrame(tick);

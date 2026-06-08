@@ -1,24 +1,37 @@
 "use client";
+import Link from "next/link";
+import {
+  Search,
+  SlidersHorizontal,
+  ArrowUpDown,
+  ArrowUpRight,
+  MoreVertical,
+  Film,
+} from "lucide-react";
 import { useStore, flowToStages } from "@/lib/store";
 import AppShell from "@/components/layout/AppShell";
 import { ORDER_ACTIVE, ORDER_COMPLETED } from "@/lib/mock-data";
-import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { useT } from "@/hooks/useT";
-import { Search, SlidersHorizontal, ArrowUpDown, ArrowUpRight, MoreVertical, Film } from "lucide-react";
 
 export default function ProjectsPage() {
   const { activeRole, sessionFlows } = useStore();
   const t = useT();
 
-  const orderStages = flowToStages(sessionFlows["sess_001"]);
+  const orderStages = flowToStages(sessionFlows.sess_001);
   const completedCount = orderStages.filter((s) => s.status === "accepted").length;
   const totalStages = orderStages.length;
   const heroProgressPct = Math.round((completedCount / totalStages) * 100);
 
   const heroOrder = ORDER_ACTIVE;
   const recentOrders = [
-    { ...ORDER_COMPLETED, completedCount: 5, total: 5, status: "completed" as const, progressPct: 100 },
+    {
+      ...ORDER_COMPLETED,
+      completedCount: 5,
+      total: 5,
+      status: "completed" as const,
+      progressPct: 100,
+    },
   ];
 
   const counterpartHero =
@@ -27,7 +40,10 @@ export default function ProjectsPage() {
   return (
     <AppShell>
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 pt-10 pb-16">
-        <div className="animate-fade-up flex flex-col md:flex-row justify-between md:items-end gap-6 mb-12" style={{ animationDelay: "0ms" }}>
+        <div
+          className="animate-fade-up flex flex-col md:flex-row justify-between md:items-end gap-6 mb-12"
+          style={{ animationDelay: "0ms" }}
+        >
           <div className="space-y-2">
             <h1 className="font-headline text-headline-lg text-on-surface">{t.projects.title}</h1>
             <p className="text-on-surface-variant font-body opacity-80">
@@ -69,7 +85,9 @@ export default function ProjectsPage() {
                           {t.projects.stagePendingReview}
                         </span>
                       </div>
-                      <h3 className="font-headline text-headline-md text-on-surface">{heroOrder.title}</h3>
+                      <h3 className="font-headline text-headline-md text-on-surface">
+                        {heroOrder.title}
+                      </h3>
                     </div>
                     <span className="w-12 h-12 flex items-center justify-center rounded-full border border-outline-variant group-hover:bg-primary group-hover:text-on-primary transition-all duration-300 shrink-0">
                       <ArrowUpRight className="w-5 h-5" />
@@ -83,7 +101,9 @@ export default function ProjectsPage() {
                       </div>
                       <div>
                         <p className="text-[10px] font-label uppercase text-outline tracking-wider">
-                          {activeRole === "backer" ? t.projects.counterpartCreator : t.projects.counterpartBacker}
+                          {activeRole === "backer"
+                            ? t.projects.counterpartCreator
+                            : t.projects.counterpartBacker}
                         </p>
                         <p className="font-body font-bold">{counterpartHero}</p>
                       </div>
@@ -173,13 +193,21 @@ export default function ProjectsPage() {
               </div>
               <h4 className="font-body font-bold mb-1">{ORDER_COMPLETED.title}</h4>
               <p className="text-sm text-on-surface-variant/70 italic">
-                {activeRole === "backer" ? t.projects.counterpartCreator : t.projects.counterpartBacker}:{" "}
-                {activeRole === "backer" ? ORDER_COMPLETED.creator.nickname : ORDER_COMPLETED.backer.nickname}
+                {activeRole === "backer"
+                  ? t.projects.counterpartCreator
+                  : t.projects.counterpartBacker}
+                :{" "}
+                {activeRole === "backer"
+                  ? ORDER_COMPLETED.creator.nickname
+                  : ORDER_COMPLETED.backer.nickname}
               </p>
             </div>
           </div>
 
-          <div className="animate-fade-up lg:col-span-3 space-y-4" style={{ animationDelay: "260ms" }}>
+          <div
+            className="animate-fade-up lg:col-span-3 space-y-4"
+            style={{ animationDelay: "260ms" }}
+          >
             <h4 className="font-label text-label-md uppercase tracking-[0.2em] text-outline mb-2">
               {t.creators.aiRanked}
             </h4>
@@ -193,7 +221,9 @@ export default function ProjectsPage() {
                   title={order.title}
                   counterpart={counterpart}
                   counterpartLabel={
-                    activeRole === "backer" ? t.projects.counterpartCreator : t.projects.counterpartBacker
+                    activeRole === "backer"
+                      ? t.projects.counterpartCreator
+                      : t.projects.counterpartBacker
                   }
                   budget={order.totalFiat}
                   progressPct={order.progressPct}
@@ -259,14 +289,18 @@ function ListRow({
       <div className="flex flex-col items-end gap-2 w-full md:w-48">
         <div className="flex justify-between w-full text-[10px] font-label text-outline">
           <span className="uppercase tracking-wider">progress</span>
-          <span className={cn(progressPct === 100 ? "text-primary" : "text-on-surface")}>{progressPct}%</span>
+          <span className={cn(progressPct === 100 ? "text-primary" : "text-on-surface")}>
+            {progressPct}%
+          </span>
         </div>
         <div className="w-full h-1 bg-outline-variant/30 rounded-full overflow-hidden">
           <div className="h-full bg-primary transition-all" style={{ width: `${progressPct}%` }} />
         </div>
       </div>
       <div className="flex items-center gap-4">
-        <span className="text-sm font-bold text-on-surface whitespace-nowrap">¥{budget.toLocaleString()}</span>
+        <span className="text-sm font-bold text-on-surface whitespace-nowrap">
+          ¥{budget.toLocaleString()}
+        </span>
         <span
           className={cn(
             "text-[10px] font-label uppercase tracking-wider px-3 py-1 rounded-full whitespace-nowrap",

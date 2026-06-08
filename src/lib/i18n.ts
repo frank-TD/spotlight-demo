@@ -52,7 +52,8 @@ const en = {
     badge: "AIGC Creative Marketplace",
     heroLine1: "Commission world-class",
     heroLine2: "AI-powered video",
-    heroDesc: "Spotlight connects creative directors and visionary storytellers. Post a brief, choose your creator, and watch your vision come to life — milestone by milestone.",
+    heroDesc:
+      "Spotlight connects creative directors and visionary storytellers. Post a brief, choose your creator, and watch your vision come to life — milestone by milestone.",
     startProject: "Start a project",
     goToMarketplace: "Go to Marketplace",
     stats: {
@@ -65,17 +66,41 @@ const en = {
     howTitle: "How Spotlight works",
     howDesc: "From brief to final delivery in four steps",
     steps: [
-      { title: "Post your brief", desc: "Describe your project — style, duration, budget. Our AI pre-matches creators instantly." },
-      { title: "Choose a creator", desc: "Review applications, ratings, and showreels. Confirm the one that fits." },
-      { title: "Fund per milestone", desc: "Pay stage by stage. Funds release only after you approve each deliverable." },
-      { title: "Receive final work", desc: "Download assets with full copyright. Rate the collaboration." },
+      {
+        title: "Post your brief",
+        desc: "Describe your project — style, duration, budget. Our AI pre-matches creators instantly.",
+      },
+      {
+        title: "Choose a creator",
+        desc: "Review applications, ratings, and showreels. Confirm the one that fits.",
+      },
+      {
+        title: "Fund per milestone",
+        desc: "Pay stage by stage. Funds release only after you approve each deliverable.",
+      },
+      {
+        title: "Receive final work",
+        desc: "Download assets with full copyright. Rate the collaboration.",
+      },
     ],
     featuresTitle: "Built for trust at every step",
     features: [
-      { title: "Stage-by-stage Delivery", desc: "Break projects into milestones. Funds release only after you approve each stage." },
-      { title: "Escrow Protection", desc: "Your budget is held in escrow. Creators get paid as work is verified — no risk on either side." },
-      { title: "AI-Powered Matching", desc: "Our Agent surfaces the best creators for your brief — factoring style, track record, and availability." },
-      { title: "Built for Global Creative Work", desc: "Multi-currency payouts, NDA support, and copyright management — for cross-border productions." },
+      {
+        title: "Stage-by-stage Delivery",
+        desc: "Break projects into milestones. Funds release only after you approve each stage.",
+      },
+      {
+        title: "Escrow Protection",
+        desc: "Your budget is held in escrow. Creators get paid as work is verified — no risk on either side.",
+      },
+      {
+        title: "AI-Powered Matching",
+        desc: "Our Agent surfaces the best creators for your brief — factoring style, track record, and availability.",
+      },
+      {
+        title: "Built for Global Creative Work",
+        desc: "Multi-currency payouts, NDA support, and copyright management — for cross-border productions.",
+      },
     ],
     ctaTitle: "Ready to bring your vision to life?",
     ctaDesc: "Join 2,400+ creators and 800+ studios on Spotlight.",
@@ -92,7 +117,8 @@ const en = {
     signingIn: "Signing in...",
     noAccount: "Don't have an account?",
     signUp: "Sign up",
-    testimonial: "\"Spotlight gave me access to briefs I'd never find elsewhere — and the escrow system means I get paid every single milestone.\"",
+    testimonial:
+      '"Spotlight gave me access to briefs I\'d never find elsewhere — and the escrow system means I get paid every single milestone."',
     testimonialRole: "AIGC Director · 47 projects completed",
     copyright: "© 2026 Spotlight Technologies",
     backerOption: "Lucas Chen · Backer",
@@ -179,7 +205,8 @@ const en = {
     submitApplication: "Submit Application",
     applicationSubmittedToast: "Application submitted!",
     collaborationConfirmedToast: "Collaboration confirmed! Contract page is ready.",
-    proposalDefault: "I specialize in minimal-cinematic narratives. My approach: cold open with a single visual metaphor, build through rhythm, close on the product reveal. Happy to share references.",
+    proposalDefault:
+      "I specialize in minimal-cinematic narratives. My approach: cold open with a single visual metaphor, build through rhythm, close on the product reveal. Happy to share references.",
     attachments: "Attachments",
     attachmentsHint: "Up to 5 files · add a note for each",
     addAttachment: "Add file",
@@ -193,10 +220,17 @@ const en = {
     projectTitle: "Project Title",
     projectTitlePlaceholder: "e.g. Cinematic Brand Film for AI Startup",
     contentType: "Content Type",
-    contentTypes: ["Commercial", "Narrative Short Film", "Music Video", "Documentary", "Social Content"],
+    contentTypes: [
+      "Commercial",
+      "Narrative Short Film",
+      "Music Video",
+      "Documentary",
+      "Social Content",
+    ],
     visualStyleTags: "Visual Style Tags",
     projectBrief: "Project Brief",
-    projectBriefPlaceholder: "Describe your vision, tone, references, and any creative constraints...",
+    projectBriefPlaceholder:
+      "Describe your vision, tone, references, and any creative constraints...",
     productionSpecs: "Production Specs",
     duration: "Duration (seconds)",
     episodesLabel: "Episodes",
@@ -223,7 +257,13 @@ const en = {
     filterAll: "All",
     fromLabel: "From",
     projectsLabel: "projects",
-    styleFilters: { All: "All", Cinematic: "Cinematic", Commercial: "Commercial", Anime: "Anime", Documentary: "Documentary" } as Record<string, string>,
+    styleFilters: {
+      All: "All",
+      Cinematic: "Cinematic",
+      Commercial: "Commercial",
+      Anime: "Anime",
+      Documentary: "Documentary",
+    } as Record<string, string>,
     priceAll: "All rates",
     priceLow: "≤ ¥2,500",
     priceMid: "¥2,500–3,500",
@@ -239,7 +279,7 @@ const en = {
     completionRate: "Completion Rate",
     onTimeDelivery: "On-time Delivery",
     disputeRate: "Dispute Rate",
-    disputes: (n: number) => n === 0 ? "0 disputes" : `${n} disputes`,
+    disputes: (n: number) => (n === 0 ? "0 disputes" : `${n} disputes`),
     copyrightIssues: "Copyright Issues",
     cleanRecord: "Clean record",
     violations: (n: number) => `${n} violations`,
@@ -256,7 +296,8 @@ const en = {
     note: "Note",
     invitedToast: "Invitation sent!",
     inviteProjectOption: (title: string) => `${title} (posted)`,
-    inviteNoteDefault: (name: string) => `Hi ${name}, I came across your work and think you'd be a great fit for my project. Would love to discuss!`,
+    inviteNoteDefault: (name: string) =>
+      `Hi ${name}, I came across your work and think you'd be a great fit for my project. Would love to discuss!`,
     editProfile: "Edit Profile",
     editDialogTitle: "Edit Creator Profile",
     bioLabel: "Bio",
@@ -329,7 +370,8 @@ const en = {
     dropFiles: "Drop files here or click to upload",
     fileTypes: "Video, PDF, ZIP · up to 10 GB",
     readyToSubmit: "Ready to submit",
-    approvedToast: (amount: number) => `Stage approved! ¥${amount.toLocaleString()} released to Aria Song.`,
+    approvedToast: (amount: number) =>
+      `Stage approved! ¥${amount.toLocaleString()} released to Aria Song.`,
     submittedToast: "Deliverable submitted! Backer has been notified.",
     downloadToast: "Download started",
   },
@@ -351,7 +393,8 @@ const en = {
     paymentSchedule: "Payment Schedule",
     ofTotal: "% of total",
     total: "Total",
-    escrowNotice: "Funds are held in escrow by Spotlight and released to the creator only upon your approval at each stage. The platform may mediate disputes. By confirming, both parties agree to the Spotlight Creator Agreement.",
+    escrowNotice:
+      "Funds are held in escrow by Spotlight and released to the creator only upon your approval at each stage. The platform may mediate disputes. By confirming, both parties agree to the Spotlight Creator Agreement.",
     confirmBtn: "Confirm & Sign Contract",
     confirming: "Confirming...",
     confirmed: "Contract confirmed ✓",
@@ -406,8 +449,10 @@ const en = {
     eta: "ETA",
     businessDays: "1–3 business days",
     withdrawBtn: (amount: number) => `Withdraw ¥${amount.toLocaleString()}`,
-    rechargedToast: (amount: number) => `¥${amount.toLocaleString()} Diamond recharged successfully`,
-    withdrawnToast: (amount: number) => `Withdrawal of ¥${amount.toLocaleString()} submitted · 1–3 business days`,
+    rechargedToast: (amount: number) =>
+      `¥${amount.toLocaleString()} Diamond recharged successfully`,
+    withdrawnToast: (amount: number) =>
+      `Withdrawal of ¥${amount.toLocaleString()} submitted · 1–3 business days`,
     bankAccount: "ICBC *8821",
     emptyDash: "—",
     // Bank card management
@@ -421,9 +466,11 @@ const en = {
     cardDefaultSetToast: "Default payout card updated",
     cardRemovedToast: "Bank card unbound",
     unbindTitle: "Unbind this card?",
-    unbindMsg: (bank: string, last4: string) => `${bank} ending in ${last4} will be removed from your account. Already-completed payouts are unaffected.`,
+    unbindMsg: (bank: string, last4: string) =>
+      `${bank} ending in ${last4} will be removed from your account. Already-completed payouts are unaffected.`,
     unbindDefaultTitle: "Set another default first",
-    unbindDefaultMsg: "This is your default payout card. Please set another card as default before unbinding it.",
+    unbindDefaultMsg:
+      "This is your default payout card. Please set another card as default before unbinding it.",
     unbindBtn: "Confirm unbind",
     bankNames: {
       cmb: "China Merchants Bank",
@@ -498,7 +545,8 @@ const en = {
     takedownSection: "Asset taken down",
     fieldTitle: "Title",
     fieldDescription: "Description",
-    fieldDescriptionPlaceholder: "A short description of this work, what it's about, the style and mood…",
+    fieldDescriptionPlaceholder:
+      "A short description of this work, what it's about, the style and mood…",
     fieldType: "Type",
     fieldTags: "Tags",
     fieldTagsHint: "Comma-separated · up to 10",
@@ -534,7 +582,8 @@ const en = {
     pricingSummary: "Pricing",
     free: "Free",
     titleRequired: "Title is required",
-    purchasedNotice: (copyright: string) => `Purchased asset · please respect the original ${copyright} license.`,
+    purchasedNotice: (copyright: string) =>
+      `Purchased asset · please respect the original ${copyright} license.`,
   },
   landing: {
     // Hero
@@ -542,7 +591,8 @@ const en = {
     heroLine1: "Fund it.",
     heroLine2: "Own it.",
     heroLine3: "Stream it.",
-    heroSub: "The world's first AI-powered content commissioning platform. Your brief. Your IP. Your name on it.",
+    heroSub:
+      "The world's first AI-powered content commissioning platform. Your brief. Your IP. Your name on it.",
     heroCtaPrimary: "Post a Brief",
     heroCtaSecondary: "Browse Creators",
     heroStatCreators: "2,400+",
@@ -563,25 +613,33 @@ const en = {
     processTitle1: "From brief to screen",
     processTitle2: "in three steps",
     processStep1Title: "Post your vision",
-    processStep1Body: "Write a brief or browse 2,400+ creators filtered by style, genre, and track record. Our AI surfaces the best matches for your project.",
+    processStep1Body:
+      "Write a brief or browse 2,400+ creators filtered by style, genre, and track record. Our AI surfaces the best matches for your project.",
     processStep2Title: "Let AI negotiate",
-    processStep2Body: "Marlow, your AI Patron agent, scopes the project and agrees terms with the creator's agent Wren — price, milestones, revisions, IP rights. Done while you sleep.",
+    processStep2Body:
+      "Marlow, your AI Patron agent, scopes the project and agrees terms with the creator's agent Wren — price, milestones, revisions, IP rights. Done while you sleep.",
     processStep3Title: "Fund it. Own it.",
-    processStep3Body: "Pay across milestones held in escrow. Review at every stage. IP transfers to you on final delivery and full payment. Your name on it, forever.",
+    processStep3Body:
+      "Pay across milestones held in escrow. Review at every stage. IP transfers to you on final delivery and full payment. Your name on it, forever.",
     // Deal Agents
     dealLabel: "AI Deal Agents",
     dealTitle1: "Your AI team negotiates",
     dealTitle2: "while you sleep",
-    dealBody: "Every project on Spotlight is handled by two AI agents. Marlow represents your interests as Patron. Wren represents the Creator. They scope the job, align on price, revision terms, IP rights — and produce a signed brief. You review. You approve. Done.",
+    dealBody:
+      "Every project on Spotlight is handled by two AI agents. Marlow represents your interests as Patron. Wren represents the Creator. They scope the job, align on price, revision terms, IP rights — and produce a signed brief. You review. You approve. Done.",
     dealCta: "See how it works",
     dealSession: "Cinematic Brand Film — NeoVision AI",
     dealSessionMeta: "Group · 4 participants · Marlow · Wren",
     dealRoleMarlow: "Marlow · Patron's Agent",
     dealRoleWren: "Wren · Creator's Agent",
-    dealMsg1: "Ran the NeoVision brief. Aria Song is a 98% match — 47 projects, cinematic-narrative specialty. Comparable deals settled ¥3,500–4,200. I'd open at ¥3,800, 21-day delivery.",
-    dealMsg2: "Aria's floor is ¥4,000. Hard terms: milestone escrow, 3 revision rounds, no AI-only final delivery — hybrid pipeline required.",
-    dealMsg3: "Lucas can meet ¥4,200 across 5 milestones with per-stage escrow and 3 revisions. Copyright buyout for launch markets; Aria retains portfolio rights.",
-    dealMsg4: "Accepted — ¥4,200, 5 milestones, escrow, 3 revisions, hybrid pipeline, portfolio rights retained. Over to you both to sign.",
+    dealMsg1:
+      "Ran the NeoVision brief. Aria Song is a 98% match — 47 projects, cinematic-narrative specialty. Comparable deals settled ¥3,500–4,200. I'd open at ¥3,800, 21-day delivery.",
+    dealMsg2:
+      "Aria's floor is ¥4,000. Hard terms: milestone escrow, 3 revision rounds, no AI-only final delivery — hybrid pipeline required.",
+    dealMsg3:
+      "Lucas can meet ¥4,200 across 5 milestones with per-stage escrow and 3 revisions. Copyright buyout for launch markets; Aria retains portfolio rights.",
+    dealMsg4:
+      "Accepted — ¥4,200, 5 milestones, escrow, 3 revisions, hybrid pipeline, portfolio rights retained. Over to you both to sign.",
     dealAgreed: "Deal agreed in 47 minutes — Brief ready to sign",
     dealAgreedMeta: "¥4,200 · 5 milestones · 21-day delivery · IP: full buyout",
     dealCardMarlow: "Marlow",
@@ -594,7 +652,8 @@ const en = {
     rolesTitle2: "One platform.",
     patronChip: "I'm a Patron",
     patronTitle: "Greenlight your next production",
-    patronBody: "Post a brief to 2,400+ verified creators. Let Marlow handle the deal. Pay in milestones. Own the IP outright.",
+    patronBody:
+      "Post a brief to 2,400+ verified creators. Let Marlow handle the deal. Pay in milestones. Own the IP outright.",
     patronB1: "AI-negotiated deals — zero back-and-forth",
     patronB2: "Full escrow payment protection",
     patronB3: "Complete IP ownership on delivery",
@@ -602,7 +661,8 @@ const en = {
     patronCta: "Post a Brief",
     creatorChip: "I'm a Creator",
     creatorTitle: "Get commissioned. Build your empire.",
-    creatorBody: "Showcase your work. Receive briefs matched to your style. Wren handles negotiation — you focus on creating.",
+    creatorBody:
+      "Showcase your work. Receive briefs matched to your style. Wren handles negotiation — you focus on creating.",
     creatorB1: "AI-matched briefs to your portfolio",
     creatorB2: "Protected milestone payments",
     creatorB3: "Visibility to studios and brands",
@@ -638,19 +698,26 @@ const en = {
     faqTitle1: "Everything you",
     faqTitle2: "need to know",
     faqQ1: "Is this like Fiverr or Upwork?",
-    faqA1: "No. Spotlight is a content commissioning platform, not a task marketplace. You commission full productions — brief to broadcast-ready — with IP protection and AI-managed delivery. Think executive producer, not task manager.",
+    faqA1:
+      "No. Spotlight is a content commissioning platform, not a task marketplace. You commission full productions — brief to broadcast-ready — with IP protection and AI-managed delivery. Think executive producer, not task manager.",
     faqQ2: "What does a Patron do?",
-    faqA2: "You fund and direct content. Post your creative brief, set your budget, and own the final work. Marlow, your AI agent, handles negotiation, scoping, and brief production. You review and approve.",
+    faqA2:
+      "You fund and direct content. Post your creative brief, set your budget, and own the final work. Marlow, your AI agent, handles negotiation, scoping, and brief production. You review and approve.",
     faqQ3: "How do Marlow and Wren work?",
-    faqA3: "Marlow is your AI Patron agent. Wren represents the Creator. They negotiate deal terms, scope deliverables, agree pricing, and produce a binding brief — automatically. You review and sign off. No awkward back-and-forth.",
+    faqA3:
+      "Marlow is your AI Patron agent. Wren represents the Creator. They negotiate deal terms, scope deliverables, agree pricing, and produce a binding brief — automatically. You review and sign off. No awkward back-and-forth.",
     faqQ4: "How does escrow work?",
-    faqA4: "Your full project budget is locked in escrow at signing. Creators receive payment at each approved milestone. Final IP transfers to you only when you approve delivery and release the final payment.",
+    faqA4:
+      "Your full project budget is locked in escrow at signing. Creators receive payment at each approved milestone. Final IP transfers to you only when you approve delivery and release the final payment.",
     faqQ5: "What are Diamonds?",
-    faqA5: "Diamonds are platform credits that fund Creators' access to Spotlight's AI production tools — video editing, effects, and generative tools in the AIGC Studio. Patrons purchase and allocate them as part of the project budget.",
+    faqA5:
+      "Diamonds are platform credits that fund Creators' access to Spotlight's AI production tools — video editing, effects, and generative tools in the AIGC Studio. Patrons purchase and allocate them as part of the project budget.",
     faqQ6: "Who backs Spotlight?",
-    faqA6: "Spotlight is backed by one of Asia's most respected independent film production groups, with over 20 years of production experience across Hong Kong, Taiwan, and Southeast Asia.",
+    faqA6:
+      "Spotlight is backed by one of Asia's most respected independent film production groups, with over 20 years of production experience across Hong Kong, Taiwan, and Southeast Asia.",
     // Footer
-    footerTagline: "The world's first AI-powered content commissioning platform for Asia's creative industry.",
+    footerTagline:
+      "The world's first AI-powered content commissioning platform for Asia's creative industry.",
     footerPlatform: "Platform",
     footerCompany: "Company",
     footerLegal: "Legal",
@@ -667,7 +734,8 @@ const en = {
     footerIp: "IP Policy",
     footerEscrow: "Escrow Terms",
     footerCopyright: "© 2026 Spotlight. All rights reserved.",
-    footerDisclaimer: "Content commissioning, not investment advice · Escrow services regulated · IP transfer on final payment only",
+    footerDisclaimer:
+      "Content commissioning, not investment advice · Escrow services regulated · IP transfer on final payment only",
     // Sign-up gate toasts (logged-out users acting on CTAs)
     signupToastBrief: "Create an account to post a brief",
     signupToastBrowse: "Create an account to browse creators",
@@ -680,12 +748,15 @@ const en = {
     startCreating: "Start creating",
     startCreatingHint: "Open the AIGC workspace and generate image, video, voiceover, or music.",
     identityTitle: "How will you join Spotlight?",
-    identitySubtitle: "Pick the seat you'll start from. You can switch anytime from the account menu.",
+    identitySubtitle:
+      "Pick the seat you'll start from. You can switch anytime from the account menu.",
     backerTitle: "I'm a Backer",
-    backerDesc: "Commission stories. Brief the creators you love. Run productions end-to-end with escrowed milestones.",
+    backerDesc:
+      "Commission stories. Brief the creators you love. Run productions end-to-end with escrowed milestones.",
     backerCta: "Continue as Backer",
     creatorTitle: "I'm a Creator",
-    creatorDesc: "Make work. Take on briefs that match your craft. Build a body of work the network can see.",
+    creatorDesc:
+      "Make work. Take on briefs that match your craft. Build a body of work the network can see.",
     creatorCta: "Continue as Creator",
     filters: {
       All: "All",
@@ -713,17 +784,21 @@ const en = {
     roleTitle2: "seat.",
     roleSubtitle: "Pick the role you'll play on Spotlight. Swap anytime from the account menu.",
     backerTitle: "I'm a Backer",
-    backerDesc: "Greenlight your next production. Post briefs, set budgets, let Marlow handle the deal. Own the IP outright.",
+    backerDesc:
+      "Greenlight your next production. Post briefs, set budgets, let Marlow handle the deal. Own the IP outright.",
     backerCta: "Continue as Backer",
     creatorTitle: "I'm a Creator",
-    creatorDesc: "Get commissioned. Build your empire. Receive briefs matched to your style — Wren handles the negotiation.",
+    creatorDesc:
+      "Get commissioned. Build your empire. Receive briefs matched to your style — Wren handles the negotiation.",
     creatorCta: "Continue as Creator",
     profileBackerTitle1: "Tell us about",
     profileBackerTitle2: "your brand.",
-    profileBackerSubtitle: "A few details help Marlow find creators who match the work you're commissioning. You can refine anything later.",
+    profileBackerSubtitle:
+      "A few details help Marlow find creators who match the work you're commissioning. You can refine anything later.",
     profileCreatorTitle1: "Tell us about",
     profileCreatorTitle2: "your craft.",
-    profileCreatorSubtitle: "A few details help Wren surface the briefs that fit your style. You can refine anything later.",
+    profileCreatorSubtitle:
+      "A few details help Wren surface the briefs that fit your style. You can refine anything later.",
     // Legacy keys kept for back-compat with anything else referencing them.
     roleTitle: "Take your seat.",
     profileBackerTitle: "Tell us about your brand.",
@@ -743,9 +818,27 @@ const en = {
     fBStyles: "Preferred visual styles",
     fBBio: "Brief intro",
     fBBioPh: "What kind of stories do you want to tell? (optional)",
-    industries: ["Tech", "F&B", "Fashion", "Entertainment", "Education", "Healthcare", "Finance", "Beauty", "Other"],
+    industries: [
+      "Tech",
+      "F&B",
+      "Fashion",
+      "Entertainment",
+      "Education",
+      "Healthcare",
+      "Finance",
+      "Beauty",
+      "Other",
+    ],
     budgetTiers: ["< ¥5k", "¥5k – 20k", "¥20k – 100k", "> ¥100k"],
-    contentTypes: ["Commercial", "Brand Film", "Music Video", "Documentary", "Social Content", "Animation", "Photography"],
+    contentTypes: [
+      "Commercial",
+      "Brand Film",
+      "Music Video",
+      "Documentary",
+      "Social Content",
+      "Animation",
+      "Photography",
+    ],
     backerStyles: ["Cinematic", "Minimal", "Bold", "Editorial", "Lifestyle", "Abstract", "Surreal"],
     // Creator fields
     fCDisplayName: "Display name / Studio",
@@ -761,9 +854,30 @@ const en = {
     fCAvailability: "Availability",
     fCBio: "Short bio",
     fCBioPh: "A line or two about your craft (optional)",
-    specialties: ["Cinematic", "Character", "Architecture", "Abstract", "Nature", "Sci-Fi", "Animation", "Photography", "Illustration", "Motion"],
+    specialties: [
+      "Cinematic",
+      "Character",
+      "Architecture",
+      "Abstract",
+      "Nature",
+      "Sci-Fi",
+      "Animation",
+      "Photography",
+      "Illustration",
+      "Motion",
+    ],
     experienceTiers: ["< 1 year", "1 – 3 years", "3 – 5 years", "5 – 10 years", "10+ years"],
-    creatorStyles: ["Cinematic", "Minimal", "Bold", "Editorial", "Surreal", "Lifestyle", "Abstract", "Documentary", "Vintage"],
+    creatorStyles: [
+      "Cinematic",
+      "Minimal",
+      "Bold",
+      "Editorial",
+      "Surreal",
+      "Lifestyle",
+      "Abstract",
+      "Documentary",
+      "Vintage",
+    ],
     availabilities: ["Open now", "Booking 1 month out", "Limited slots", "Closed"],
     errSpecialtiesMin: "Pick at least one specialty (up to 3)",
     errRequired: "Please complete this field",
@@ -772,7 +886,8 @@ const en = {
     title: "AIGC Studio",
     subtitle: "Generate, iterate, and refine creative assets with AI",
     comingSoon: "Coming Soon",
-    comingSoonDesc: "We're building a powerful AI workspace for storyboarding, shot generation, and rapid iteration. Stay tuned.",
+    comingSoonDesc:
+      "We're building a powerful AI workspace for storyboarding, shot generation, and rapid iteration. Stay tuned.",
     notifyMe: "Notify me at launch",
   },
   aigc: {
@@ -899,7 +1014,8 @@ const en = {
     groupChat: "Group",
     participants: (n: number) => `${n} participants`,
     participantsTitle: "Group members",
-    marlowFunction: "Represents the backer — evaluates fit, proposes opening terms, and negotiates budget.",
+    marlowFunction:
+      "Represents the backer — evaluates fit, proposes opening terms, and negotiates budget.",
     wrenFunction: "Represents the creator — defends the rate floor and creative walk-aways.",
     backerJoinedAt: "Joined",
     backerJoinedAtValue: "Aug 2025",
@@ -941,7 +1057,8 @@ const en = {
     subWait: (stage: string) => `Waiting for the creator to submit ${stage}.`,
     submit: "Submit delivery",
     revTitle: (stage: string) => `Review: ${stage}`,
-    revDesc: (stage: string) => `${stage} has been delivered — approve to release payment or request changes.`,
+    revDesc: (stage: string) =>
+      `${stage} has been delivered — approve to release payment or request changes.`,
     revActor: "Approve to release payment, or request changes.",
     revWait: (stage: string) => `Waiting for the backer to review ${stage}.`,
     approve: (amt: number) => `Approve & release ¥${amt.toLocaleString()}`,
@@ -951,17 +1068,22 @@ const en = {
     revisionTag: (n: number) => `Revision round ${n}`,
     sysInvited: (backer: string, need: string) =>
       `${backer} sent a directed invitation for “${need}”. Awaiting the creator's response.`,
-    sysAccepted: (creator: string) => `${creator} accepted the invitation. Awaiting the contract terms.`,
+    sysAccepted: (creator: string) =>
+      `${creator} accepted the invitation. Awaiting the contract terms.`,
     sysDeclined: (creator: string) => `${creator} declined the invitation.`,
-    sysContractSubmitted: (backer: string) => `${backer} submitted the contract. Awaiting the creator's confirmation.`,
-    sysContractConfirmed: (creator: string) => `${creator} confirmed the contract. Awaiting the deposit to start.`,
+    sysContractSubmitted: (backer: string) =>
+      `${backer} submitted the contract. Awaiting the creator's confirmation.`,
+    sysContractConfirmed: (creator: string) =>
+      `${creator} confirmed the contract. Awaiting the deposit to start.`,
     sysBidAccepted: "Bid accepted — the collaboration is confirmed. Awaiting the contract.",
-    sysContractChanges: (creator: string) => `${creator} requested changes to the contract. Awaiting a revised draft.`,
+    sysContractChanges: (creator: string) =>
+      `${creator} requested changes to the contract. Awaiting a revised draft.`,
     rejTitle: "Invitation declined",
     rejActor: "The creator declined. You can revise and send a new invitation.",
     rejWait: "You declined this invitation.",
     reInvite: "Re-invite",
-    sysDeposit: (amt: number) => `Deposit of ¥${amt.toLocaleString()} paid. The project has officially started.`,
+    sysDeposit: (amt: number) =>
+      `Deposit of ¥${amt.toLocaleString()} paid. The project has officially started.`,
     sysSubmitted: (creator: string, stage: string) =>
       `${creator} submitted ${stage} deliverables. Awaiting review.`,
     sysApproved: (stage: string, amt: number) =>
@@ -988,7 +1110,8 @@ const en = {
     verificationDesc: "Required for withdrawals",
     verified: "Verified",
     bioCreatorDefault: "Award-winning AIGC filmmaker. Previously: Sundance Lab, NVIDIA AI Lab.",
-    bioBackerDefault: "Creative director and founder of NeoVision. Obsessed with where AI meets storytelling.",
+    bioBackerDefault:
+      "Creative director and founder of NeoVision. Obsessed with where AI meets storytelling.",
     accountSection: "Account",
     logoutDesc: "Sign out of your account on this device",
     loggedOutToast: "Signed out",
@@ -996,15 +1119,32 @@ const en = {
   agent: {
     headerTitle: "AI Assistant",
     headerSubtitle: "Powered by Spotlight Agent",
-    greeting: "Hi! I'm your Spotlight AI assistant. Ask me about order status, wallet, or creator recommendations.",
+    greeting:
+      "Hi! I'm your Spotlight AI assistant. Ask me about order status, wallet, or creator recommendations.",
     placeholder: "Ask anything...",
-    fallback: "I can help with order status, wallet balance, creator recommendations, and platform features. Try asking something like 'What's the status of my order?' or 'How do I withdraw?'",
+    fallback:
+      "I can help with order status, wallet balance, creator recommendations, and platform features. Try asking something like 'What's the status of my order?' or 'How do I withdraw?'",
     canned: [
-      { a: "Your active order **ord_001** is in Stage 3 (Draft Cut). Aria has submitted the draft — you have 7 days to review before auto-acceptance on May 24.", link: { label: "View order", href: "/orders/ord_001" } },
-      { a: "Your wallet: **◆ 12,400 Diamond** available · **◆ 420** currently escrowed in ord_001.", link: { label: "Go to wallet", href: "/wallet" } },
-      { a: "You can withdraw your Shell balance anytime. Current withdrawable balance: **◉ 8,650**. Processing time is 1–3 business days via Airwallex.", link: { label: "Withdraw now", href: "/wallet" } },
-      { a: "Based on your project history, I recommend **Aria Song** (98% completion) and **Marco Reyes** (brand film specialist) for your next commercial project.", link: { label: "Browse creators", href: "/market/creators" } },
-      { a: "Your identity verification is **complete** (KYC passed). You have full access to all platform features including withdrawal.", link: null },
+      {
+        a: "Your active order **ord_001** is in Stage 3 (Draft Cut). Aria has submitted the draft — you have 7 days to review before auto-acceptance on May 24.",
+        link: { label: "View order", href: "/orders/ord_001" },
+      },
+      {
+        a: "Your wallet: **◆ 12,400 Diamond** available · **◆ 420** currently escrowed in ord_001.",
+        link: { label: "Go to wallet", href: "/wallet" },
+      },
+      {
+        a: "You can withdraw your Shell balance anytime. Current withdrawable balance: **◉ 8,650**. Processing time is 1–3 business days via Airwallex.",
+        link: { label: "Withdraw now", href: "/wallet" },
+      },
+      {
+        a: "Based on your project history, I recommend **Aria Song** (98% completion) and **Marco Reyes** (brand film specialist) for your next commercial project.",
+        link: { label: "Browse creators", href: "/market/creators" },
+      },
+      {
+        a: "Your identity verification is **complete** (KYC passed). You have full access to all platform features including withdrawal.",
+        link: null,
+      },
     ],
   },
 };
@@ -1083,7 +1223,10 @@ const zhCN: typeof en = {
     features: [
       { title: "分阶段交付", desc: "将项目拆分为里程碑。仅在你审核通过后，资金才会释放。" },
       { title: "资金托管保障", desc: "预算由平台代管。创作者完成验收后才能收款，双方零风险。" },
-      { title: "AI 智能匹配", desc: "Agent 结合风格、历史评价和接单状态，为你的需求推荐最优创作者。" },
+      {
+        title: "AI 智能匹配",
+        desc: "Agent 结合风格、历史评价和接单状态，为你的需求推荐最优创作者。",
+      },
       { title: "面向全球创作", desc: "多币种结算、NDA 支持、版权管理，助力跨境制作。" },
     ],
     ctaTitle: "准备好让创意变现了吗？",
@@ -1188,7 +1331,8 @@ const zhCN: typeof en = {
     submitApplication: "提交申请",
     applicationSubmittedToast: "申请已提交！",
     collaborationConfirmedToast: "合作已确认！合同页面已就绪。",
-    proposalDefault: "我擅长极简电影感叙事。我的方案：以一个视觉隐喻开场，通过节奏推进，最后以产品揭示收尾。可分享参考案例。",
+    proposalDefault:
+      "我擅长极简电影感叙事。我的方案：以一个视觉隐喻开场，通过节奏推进，最后以产品揭示收尾。可分享参考案例。",
     attachments: "附件",
     attachmentsHint: "最多 5 个文件 · 每个可添加备注",
     addAttachment: "添加附件",
@@ -1232,7 +1376,13 @@ const zhCN: typeof en = {
     filterAll: "全部",
     fromLabel: "起价",
     projectsLabel: "个项目",
-    styleFilters: { All: "全部", Cinematic: "电影感", Commercial: "商业", Anime: "动漫", Documentary: "纪录片" } as Record<string, string>,
+    styleFilters: {
+      All: "全部",
+      Cinematic: "电影感",
+      Commercial: "商业",
+      Anime: "动漫",
+      Documentary: "纪录片",
+    } as Record<string, string>,
     priceAll: "全部价格",
     priceLow: "≤ ¥2,500",
     priceMid: "¥2,500–3,500",
@@ -1248,7 +1398,7 @@ const zhCN: typeof en = {
     completionRate: "完成率",
     onTimeDelivery: "准时交付",
     disputeRate: "纠纷率",
-    disputes: (n: number) => n === 0 ? "0 次纠纷" : `${n} 次纠纷`,
+    disputes: (n: number) => (n === 0 ? "0 次纠纷" : `${n} 次纠纷`),
     copyrightIssues: "版权问题",
     cleanRecord: "无违规记录",
     violations: (n: number) => `${n} 次违规`,
@@ -1265,7 +1415,8 @@ const zhCN: typeof en = {
     note: "备注",
     invitedToast: "邀约已发送！",
     inviteProjectOption: (title: string) => `${title}（已发布）`,
-    inviteNoteDefault: (name: string) => `你好 ${name}，我看到了你的作品，觉得非常适合我的项目，希望能聊聊！`,
+    inviteNoteDefault: (name: string) =>
+      `你好 ${name}，我看到了你的作品，觉得非常适合我的项目，希望能聊聊！`,
     editProfile: "编辑名片",
     editDialogTitle: "编辑创作者名片",
     bioLabel: "个人简介",
@@ -1338,7 +1489,8 @@ const zhCN: typeof en = {
     dropFiles: "拖放文件或点击上传",
     fileTypes: "视频、PDF、ZIP · 最大 10 GB",
     readyToSubmit: "待提交",
-    approvedToast: (amount: number) => `阶段已通过！¥${amount.toLocaleString()} 已解付给 Aria Song。`,
+    approvedToast: (amount: number) =>
+      `阶段已通过！¥${amount.toLocaleString()} 已解付给 Aria Song。`,
     submittedToast: "交付物已提交！Backer 已收到通知。",
     downloadToast: "已开始下载",
   },
@@ -1360,7 +1512,8 @@ const zhCN: typeof en = {
     paymentSchedule: "付款计划",
     ofTotal: "% 的总金额",
     total: "合计",
-    escrowNotice: "资金由 Spotlight 代管，仅在你逐阶段审核通过后才释放给创作者。平台可介入争议调解。确认即代表双方同意 Spotlight 创作协议。",
+    escrowNotice:
+      "资金由 Spotlight 代管，仅在你逐阶段审核通过后才释放给创作者。平台可介入争议调解。确认即代表双方同意 Spotlight 创作协议。",
     confirmBtn: "确认并签署合同",
     confirming: "确认中...",
     confirmed: "合同已确认 ✓",
@@ -1429,7 +1582,8 @@ const zhCN: typeof en = {
     cardDefaultSetToast: "已更新默认收款卡",
     cardRemovedToast: "银行卡已解绑",
     unbindTitle: "确认解绑该卡？",
-    unbindMsg: (bank: string, last4: string) => `${bank}（尾号 ${last4}）将从你的账户中移除。已完成的收款不受影响。`,
+    unbindMsg: (bank: string, last4: string) =>
+      `${bank}（尾号 ${last4}）将从你的账户中移除。已完成的收款不受影响。`,
     unbindDefaultTitle: "请先设置其他默认卡",
     unbindDefaultMsg: "该卡为默认收款卡，请先将其他银行卡设为默认后再解绑。",
     unbindBtn: "确认解绑",
@@ -1566,23 +1720,29 @@ const zhCN: typeof en = {
     processTitle1: "从需求到上线",
     processTitle2: "只需三步",
     processStep1Title: "发布你的构想",
-    processStep1Body: "撰写需求或浏览 2,400+ 经过风格、题材、履历筛选的创作者。AI 会为你的项目挑出最匹配的人选。",
+    processStep1Body:
+      "撰写需求或浏览 2,400+ 经过风格、题材、履历筛选的创作者。AI 会为你的项目挑出最匹配的人选。",
     processStep2Title: "让 AI 来谈判",
-    processStep2Body: "Marlow 作为你的 Patron AI 代理，与创作者代理 Wren 协商范围、价格、里程碑、修改次数、版权——你睡觉的时候它已经搞定。",
+    processStep2Body:
+      "Marlow 作为你的 Patron AI 代理，与创作者代理 Wren 协商范围、价格、里程碑、修改次数、版权——你睡觉的时候它已经搞定。",
     processStep3Title: "出资，持有",
     processStep3Body: "按里程碑托管付款，每个阶段审核。终交付 + 付清尾款后版权归你，永久署名。",
     dealLabel: "AI 谈判代理",
     dealTitle1: "你的 AI 团队为你谈判",
     dealTitle2: "在你休息的时候",
-    dealBody: "Spotlight 上每一个项目都由两个 AI 代理处理：Marlow 代表你作为 Patron 一方，Wren 代表 Creator。它们界定工作、谈拢价格、敲定修改条款和版权，并产出一份正式 Brief。你审查、批准、完工。",
+    dealBody:
+      "Spotlight 上每一个项目都由两个 AI 代理处理：Marlow 代表你作为 Patron 一方，Wren 代表 Creator。它们界定工作、谈拢价格、敲定修改条款和版权，并产出一份正式 Brief。你审查、批准、完工。",
     dealCta: "了解工作方式",
     dealSession: "电影感品牌片 — NeoVision AI",
     dealSessionMeta: "群聊 · 4 位成员 · Marlow · Wren",
     dealRoleMarlow: "Marlow · Patron 代理",
     dealRoleWren: "Wren · Creator 代理",
-    dealMsg1: "已审 NeoVision 需求。Aria Song 匹配度 98% — 47 个项目，擅长叙事电影感。同类成交价 ¥3,500–4,200。建议从 ¥3,800 起谈，21 天交付。",
-    dealMsg2: "Aria 底价 ¥4,000。硬条件：里程碑托管、每轮 3 次修改、不接受纯 AI 终交付——必须混合管线。",
-    dealMsg3: "Lucas 可接受 ¥4,200 分 5 个里程碑，每段托管 + 3 次修改。发行市场买断版权；Aria 保留作品集权利。",
+    dealMsg1:
+      "已审 NeoVision 需求。Aria Song 匹配度 98% — 47 个项目，擅长叙事电影感。同类成交价 ¥3,500–4,200。建议从 ¥3,800 起谈，21 天交付。",
+    dealMsg2:
+      "Aria 底价 ¥4,000。硬条件：里程碑托管、每轮 3 次修改、不接受纯 AI 终交付——必须混合管线。",
+    dealMsg3:
+      "Lucas 可接受 ¥4,200 分 5 个里程碑，每段托管 + 3 次修改。发行市场买断版权；Aria 保留作品集权利。",
     dealMsg4: "已接受 — ¥4,200，5 个里程碑，托管，3 次修改，混合管线，保留作品集权利。请双方签字。",
     dealAgreed: "47 分钟达成协议 — Brief 待签字",
     dealAgreedMeta: "¥4,200 · 5 个里程碑 · 21 天交付 · 版权全买断",
@@ -1635,17 +1795,23 @@ const zhCN: typeof en = {
     faqTitle1: "你想了解的",
     faqTitle2: "全部答案",
     faqQ1: "这是像 Fiverr 或 Upwork 那样的平台吗？",
-    faqA1: "不是。Spotlight 是内容委托平台，不是任务市集。你委托完整的制片项目——从 Brief 到广播级交付——并享有 IP 保护和 AI 全流程交付。像监制，而非任务管理。",
+    faqA1:
+      "不是。Spotlight 是内容委托平台，不是任务市集。你委托完整的制片项目——从 Brief 到广播级交付——并享有 IP 保护和 AI 全流程交付。像监制，而非任务管理。",
     faqQ2: "Patron 是做什么的？",
-    faqA2: "Patron 出资并主导项目。发布创意 Brief、设置预算、持有最终作品。Marlow 作为你的 AI 代理处理谈判、范围、Brief 生产。你只需审核与批准。",
+    faqA2:
+      "Patron 出资并主导项目。发布创意 Brief、设置预算、持有最终作品。Marlow 作为你的 AI 代理处理谈判、范围、Brief 生产。你只需审核与批准。",
     faqQ3: "Marlow 和 Wren 怎么工作？",
-    faqA3: "Marlow 是 Patron 的 AI 代理。Wren 代表 Creator。它们协商交易条款、界定交付物、谈拢价格、产出一份具有法律效力的 Brief — 全自动。你审查并签字。无拉锯，无尴尬。",
+    faqA3:
+      "Marlow 是 Patron 的 AI 代理。Wren 代表 Creator。它们协商交易条款、界定交付物、谈拢价格、产出一份具有法律效力的 Brief — 全自动。你审查并签字。无拉锯，无尴尬。",
     faqQ4: "托管资金怎么运作？",
-    faqA4: "项目预算签约后即全额锁入托管。Creator 在每个被批准的里程碑收到付款。仅当你批准最终交付并释放尾款，IP 才转移给你。",
+    faqA4:
+      "项目预算签约后即全额锁入托管。Creator 在每个被批准的里程碑收到付款。仅当你批准最终交付并释放尾款，IP 才转移给你。",
     faqQ5: "Diamond 是什么？",
-    faqA5: "Diamond 是平台积分，用于 Creator 访问 Spotlight 的 AI 制作工具——AIGC 创作台里的视频剪辑、特效、生成式工具。Patron 购买后作为项目预算的一部分分配。",
+    faqA5:
+      "Diamond 是平台积分，用于 Creator 访问 Spotlight 的 AI 制作工具——AIGC 创作台里的视频剪辑、特效、生成式工具。Patron 购买后作为项目预算的一部分分配。",
     faqQ6: "Spotlight 由谁背书？",
-    faqA6: "Spotlight 由亚洲最受尊敬的独立制片集团之一支持，拥有 20 多年香港、台湾、东南亚的制片经验。",
+    faqA6:
+      "Spotlight 由亚洲最受尊敬的独立制片集团之一支持，拥有 20 多年香港、台湾、东南亚的制片经验。",
     footerTagline: "服务亚洲创意产业的全球首个 AI 驱动内容委托平台。",
     footerPlatform: "平台",
     footerCompany: "公司",
@@ -1756,7 +1922,17 @@ const zhCN: typeof en = {
     fCBioPh: "用一两句话介绍你的创作（选填）",
     specialties: ["电影感", "角色", "建筑", "抽象", "自然", "科幻", "动画", "摄影", "插画", "动效"],
     experienceTiers: ["不到 1 年", "1 – 3 年", "3 – 5 年", "5 – 10 年", "10 年以上"],
-    creatorStyles: ["电影感", "极简", "强冲击", "杂志感", "超现实", "生活方式", "抽象", "纪实", "复古"],
+    creatorStyles: [
+      "电影感",
+      "极简",
+      "强冲击",
+      "杂志感",
+      "超现实",
+      "生活方式",
+      "抽象",
+      "纪实",
+      "复古",
+    ],
     availabilities: ["立即可接", "1 个月后", "名额有限", "暂不接单"],
     errSpecialtiesMin: "请至少选 1 个专长（最多 3 个）",
     errRequired: "请填写此项",
@@ -1765,7 +1941,8 @@ const zhCN: typeof en = {
     title: "AIGC 创作台",
     subtitle: "用 AI 生成、迭代并精修你的创意素材",
     comingSoon: "敬请期待",
-    comingSoonDesc: "我们正在打造功能强大的 AI 创作空间，支持分镜生成、镜头创作与快速迭代。敬请关注。",
+    comingSoonDesc:
+      "我们正在打造功能强大的 AI 创作空间，支持分镜生成、镜头创作与快速迭代。敬请关注。",
     notifyMe: "上线时通知我",
   },
   aigc: {
@@ -1936,7 +2113,8 @@ const zhCN: typeof en = {
     doneTitle: "项目已完成",
     doneDesc: "所有阶段均已交付并通过。",
     revisionTag: (n: number) => `第 ${n} 轮修改`,
-    sysInvited: (backer: string, need: string) => `${backer} 发起了「${need}」的定向邀约，等待创作者回应。`,
+    sysInvited: (backer: string, need: string) =>
+      `${backer} 发起了「${need}」的定向邀约，等待创作者回应。`,
     sysAccepted: (creator: string) => `${creator} 已接受邀约，等待制订合同。`,
     sysDeclined: (creator: string) => `${creator} 拒绝了邀约。`,
     sysContractSubmitted: (backer: string) => `${backer} 已提交合同，等待创作者确认。`,
@@ -1948,8 +2126,10 @@ const zhCN: typeof en = {
     rejWait: "你已拒绝该邀约。",
     reInvite: "重新邀约",
     sysDeposit: (amt: number) => `已支付定金 ¥${amt.toLocaleString()}，项目正式启动。`,
-    sysSubmitted: (creator: string, stage: string) => `${creator} 已提交「${stage}」交付物，等待审核。`,
-    sysApproved: (stage: string, amt: number) => `「${stage}」已通过，¥${amt.toLocaleString()} 已放款给创作者。`,
+    sysSubmitted: (creator: string, stage: string) =>
+      `${creator} 已提交「${stage}」交付物，等待审核。`,
+    sysApproved: (stage: string, amt: number) =>
+      `「${stage}」已通过，¥${amt.toLocaleString()} 已放款给创作者。`,
     sysRevision: (stage: string) => `「${stage}」被要求修改，等待重新提交。`,
     sysCompleted: "终交付已通过——项目完成！",
     toastAccepted: "已接受邀约",
@@ -1982,12 +2162,25 @@ const zhCN: typeof en = {
     headerSubtitle: "由 Spotlight Agent 驱动",
     greeting: "你好！我是你的 Spotlight AI 助手，可以帮你查询订单状态、钱包余额或推荐创作者。",
     placeholder: "随时提问...",
-    fallback: "我可以帮你查询订单状态、钱包余额、创作者推荐及平台功能。试试问「我的订单进展如何？」或「如何提现？」",
+    fallback:
+      "我可以帮你查询订单状态、钱包余额、创作者推荐及平台功能。试试问「我的订单进展如何？」或「如何提现？」",
     canned: [
-      { a: "你的当前订单 **ord_001** 处于第 3 阶段（初稿）。Aria 已提交初稿，你有 7 天时间审核，5 月 24 日前如无操作将自动通过。", link: { label: "查看订单", href: "/orders/ord_001" } },
-      { a: "你的钱包：**◆ 12,400 Diamond** 可用 · **◆ 420** 正托管于 ord_001。", link: { label: "前往钱包", href: "/wallet" } },
-      { a: "你可以随时提现 Shell 余额。当前可提现余额：**◉ 8,650**，通过 Airwallex 处理，1–3 个工作日到账。", link: { label: "立即提现", href: "/wallet" } },
-      { a: "根据你的项目历史，推荐 **Aria Song**（完成率 98%）和 **Marco Reyes**（品牌片专家）作为你下一个商业项目的合作人选。", link: { label: "浏览创作者", href: "/market/creators" } },
+      {
+        a: "你的当前订单 **ord_001** 处于第 3 阶段（初稿）。Aria 已提交初稿，你有 7 天时间审核，5 月 24 日前如无操作将自动通过。",
+        link: { label: "查看订单", href: "/orders/ord_001" },
+      },
+      {
+        a: "你的钱包：**◆ 12,400 Diamond** 可用 · **◆ 420** 正托管于 ord_001。",
+        link: { label: "前往钱包", href: "/wallet" },
+      },
+      {
+        a: "你可以随时提现 Shell 余额。当前可提现余额：**◉ 8,650**，通过 Airwallex 处理，1–3 个工作日到账。",
+        link: { label: "立即提现", href: "/wallet" },
+      },
+      {
+        a: "根据你的项目历史，推荐 **Aria Song**（完成率 98%）和 **Marco Reyes**（品牌片专家）作为你下一个商业项目的合作人选。",
+        link: { label: "浏览创作者", href: "/market/creators" },
+      },
       { a: "你的身份认证**已完成**（KYC 通过），可使用全部平台功能，包括提现。", link: null },
     ],
   },
@@ -2067,7 +2260,10 @@ const zhTW: typeof en = {
     features: [
       { title: "分階段交付", desc: "將項目拆分為里程碑。僅在你審核通過後，資金才會釋放。" },
       { title: "資金託管保障", desc: "預算由平台代管。創作者完成驗收後才能收款，雙方零風險。" },
-      { title: "AI 智能配對", desc: "Agent 結合風格、歷史評價和接單狀態，為你的需求推薦最優創作者。" },
+      {
+        title: "AI 智能配對",
+        desc: "Agent 結合風格、歷史評價和接單狀態，為你的需求推薦最優創作者。",
+      },
       { title: "面向全球創作", desc: "多幣種結算、NDA 支持、版權管理，助力跨境製作。" },
     ],
     ctaTitle: "準備好讓創意變現了嗎？",
@@ -2172,7 +2368,8 @@ const zhTW: typeof en = {
     submitApplication: "提交申請",
     applicationSubmittedToast: "申請已提交！",
     collaborationConfirmedToast: "合作已確認！合約頁面已就緒。",
-    proposalDefault: "我擅長極簡電影感敘事。我的方案：以一個視覺隱喻開場，通過節奏推進，最後以產品揭示收尾。可分享參考案例。",
+    proposalDefault:
+      "我擅長極簡電影感敘事。我的方案：以一個視覺隱喻開場，通過節奏推進，最後以產品揭示收尾。可分享參考案例。",
     attachments: "附件",
     attachmentsHint: "最多 5 個檔案 · 每個可新增備註",
     addAttachment: "新增附件",
@@ -2216,7 +2413,13 @@ const zhTW: typeof en = {
     filterAll: "全部",
     fromLabel: "起價",
     projectsLabel: "個項目",
-    styleFilters: { All: "全部", Cinematic: "電影感", Commercial: "商業", Anime: "動漫", Documentary: "紀錄片" } as Record<string, string>,
+    styleFilters: {
+      All: "全部",
+      Cinematic: "電影感",
+      Commercial: "商業",
+      Anime: "動漫",
+      Documentary: "紀錄片",
+    } as Record<string, string>,
     priceAll: "全部價格",
     priceLow: "≤ ¥2,500",
     priceMid: "¥2,500–3,500",
@@ -2232,7 +2435,7 @@ const zhTW: typeof en = {
     completionRate: "完成率",
     onTimeDelivery: "準時交付",
     disputeRate: "糾紛率",
-    disputes: (n: number) => n === 0 ? "0 次糾紛" : `${n} 次糾紛`,
+    disputes: (n: number) => (n === 0 ? "0 次糾紛" : `${n} 次糾紛`),
     copyrightIssues: "版權問題",
     cleanRecord: "無違規記錄",
     violations: (n: number) => `${n} 次違規`,
@@ -2249,7 +2452,8 @@ const zhTW: typeof en = {
     note: "備註",
     invitedToast: "邀約已發送！",
     inviteProjectOption: (title: string) => `${title}（已發布）`,
-    inviteNoteDefault: (name: string) => `你好 ${name}，我看到了你的作品，覺得非常適合我的項目，希望能聊聊！`,
+    inviteNoteDefault: (name: string) =>
+      `你好 ${name}，我看到了你的作品，覺得非常適合我的項目，希望能聊聊！`,
     editProfile: "編輯名片",
     editDialogTitle: "編輯創作者名片",
     bioLabel: "個人簡介",
@@ -2322,7 +2526,8 @@ const zhTW: typeof en = {
     dropFiles: "拖放檔案或點擊上傳",
     fileTypes: "影片、PDF、ZIP · 最大 10 GB",
     readyToSubmit: "待提交",
-    approvedToast: (amount: number) => `階段已通過！¥${amount.toLocaleString()} 已解付給 Aria Song。`,
+    approvedToast: (amount: number) =>
+      `階段已通過！¥${amount.toLocaleString()} 已解付給 Aria Song。`,
     submittedToast: "交付物已提交！Backer 已收到通知。",
     downloadToast: "已開始下載",
   },
@@ -2344,7 +2549,8 @@ const zhTW: typeof en = {
     paymentSchedule: "付款計劃",
     ofTotal: "% 的總金額",
     total: "合計",
-    escrowNotice: "資金由 Spotlight 代管，僅在你逐階段審核通過後才釋放給創作者。平台可介入爭議調解。確認即代表雙方同意 Spotlight 創作協議。",
+    escrowNotice:
+      "資金由 Spotlight 代管，僅在你逐階段審核通過後才釋放給創作者。平台可介入爭議調解。確認即代表雙方同意 Spotlight 創作協議。",
     confirmBtn: "確認並簽署合約",
     confirming: "確認中...",
     confirmed: "合約已確認 ✓",
@@ -2413,7 +2619,8 @@ const zhTW: typeof en = {
     cardDefaultSetToast: "已更新預設收款卡",
     cardRemovedToast: "銀行卡已解綁",
     unbindTitle: "確認解綁該卡？",
-    unbindMsg: (bank: string, last4: string) => `${bank}（尾號 ${last4}）將從你的帳戶中移除。已完成的收款不受影響。`,
+    unbindMsg: (bank: string, last4: string) =>
+      `${bank}（尾號 ${last4}）將從你的帳戶中移除。已完成的收款不受影響。`,
     unbindDefaultTitle: "請先設定其他預設卡",
     unbindDefaultMsg: "該卡為預設收款卡，請先將其他銀行卡設為預設後再解綁。",
     unbindBtn: "確認解綁",
@@ -2550,24 +2757,31 @@ const zhTW: typeof en = {
     processTitle1: "從需求到上線",
     processTitle2: "只需三步",
     processStep1Title: "發佈你的構想",
-    processStep1Body: "撰寫需求或瀏覽 2,400+ 經過風格、題材、履歷篩選的創作者。AI 會為你的專案挑出最匹配的人選。",
+    processStep1Body:
+      "撰寫需求或瀏覽 2,400+ 經過風格、題材、履歷篩選的創作者。AI 會為你的專案挑出最匹配的人選。",
     processStep2Title: "讓 AI 來談判",
-    processStep2Body: "Marlow 作為你的 Patron AI 代理，與創作者代理 Wren 協商範圍、價格、里程碑、修改次數、版權——你睡覺時它已經搞定。",
+    processStep2Body:
+      "Marlow 作為你的 Patron AI 代理，與創作者代理 Wren 協商範圍、價格、里程碑、修改次數、版權——你睡覺時它已經搞定。",
     processStep3Title: "出資，持有",
     processStep3Body: "按里程碑託管付款，每個階段審核。終交付 + 付清尾款後版權歸你，永久署名。",
     dealLabel: "AI 談判代理",
     dealTitle1: "你的 AI 團隊為你談判",
     dealTitle2: "在你休息的時候",
-    dealBody: "Spotlight 上每一個專案都由兩個 AI 代理處理：Marlow 代表你作為 Patron 一方，Wren 代表 Creator。它們界定工作、談攏價格、敲定修改條款和版權，並產出一份正式 Brief。你審查、批准、完工。",
+    dealBody:
+      "Spotlight 上每一個專案都由兩個 AI 代理處理：Marlow 代表你作為 Patron 一方，Wren 代表 Creator。它們界定工作、談攏價格、敲定修改條款和版權，並產出一份正式 Brief。你審查、批准、完工。",
     dealCta: "了解工作方式",
     dealSession: "電影感品牌片 — NeoVision AI",
     dealSessionMeta: "群聊 · 4 位成員 · Marlow · Wren",
     dealRoleMarlow: "Marlow · Patron 代理",
     dealRoleWren: "Wren · Creator 代理",
-    dealMsg1: "已審 NeoVision 需求。Aria Song 匹配度 98% — 47 個專案，擅長敘事電影感。同類成交價 NT$15,000–18,000。建議從 NT$16,000 起談，21 天交付。",
-    dealMsg2: "Aria 底價 NT$17,000。硬條件：里程碑託管、每輪 3 次修改、不接受純 AI 終交付——必須混合管線。",
-    dealMsg3: "Lucas 可接受 NT$18,000 分 5 個里程碑，每段託管 + 3 次修改。發行市場買斷版權；Aria 保留作品集權利。",
-    dealMsg4: "已接受 — NT$18,000，5 個里程碑，託管，3 次修改，混合管線，保留作品集權利。請雙方簽字。",
+    dealMsg1:
+      "已審 NeoVision 需求。Aria Song 匹配度 98% — 47 個專案，擅長敘事電影感。同類成交價 NT$15,000–18,000。建議從 NT$16,000 起談，21 天交付。",
+    dealMsg2:
+      "Aria 底價 NT$17,000。硬條件：里程碑託管、每輪 3 次修改、不接受純 AI 終交付——必須混合管線。",
+    dealMsg3:
+      "Lucas 可接受 NT$18,000 分 5 個里程碑，每段託管 + 3 次修改。發行市場買斷版權；Aria 保留作品集權利。",
+    dealMsg4:
+      "已接受 — NT$18,000，5 個里程碑，託管，3 次修改，混合管線，保留作品集權利。請雙方簽字。",
     dealAgreed: "47 分鐘達成協議 — Brief 待簽字",
     dealAgreedMeta: "NT$18,000 · 5 個里程碑 · 21 天交付 · 版權全買斷",
     dealCardMarlow: "Marlow",
@@ -2619,17 +2833,23 @@ const zhTW: typeof en = {
     faqTitle1: "你想了解的",
     faqTitle2: "全部答案",
     faqQ1: "這是像 Fiverr 或 Upwork 那樣的平台嗎？",
-    faqA1: "不是。Spotlight 是內容委託平台，不是任務市集。你委託完整的製片專案——從 Brief 到廣播級交付——並享有 IP 保護和 AI 全流程交付。像監製，而非任務管理。",
+    faqA1:
+      "不是。Spotlight 是內容委託平台，不是任務市集。你委託完整的製片專案——從 Brief 到廣播級交付——並享有 IP 保護和 AI 全流程交付。像監製，而非任務管理。",
     faqQ2: "Patron 是做什麼的？",
-    faqA2: "Patron 出資並主導專案。發佈創意 Brief、設置預算、持有最終作品。Marlow 作為你的 AI 代理處理談判、範圍、Brief 生產。你只需審核與批准。",
+    faqA2:
+      "Patron 出資並主導專案。發佈創意 Brief、設置預算、持有最終作品。Marlow 作為你的 AI 代理處理談判、範圍、Brief 生產。你只需審核與批准。",
     faqQ3: "Marlow 和 Wren 怎麼工作？",
-    faqA3: "Marlow 是 Patron 的 AI 代理。Wren 代表 Creator。它們協商交易條款、界定交付物、談攏價格、產出一份具有法律效力的 Brief — 全自動。你審查並簽字。無拉鋸，無尷尬。",
+    faqA3:
+      "Marlow 是 Patron 的 AI 代理。Wren 代表 Creator。它們協商交易條款、界定交付物、談攏價格、產出一份具有法律效力的 Brief — 全自動。你審查並簽字。無拉鋸，無尷尬。",
     faqQ4: "託管資金怎麼運作？",
-    faqA4: "專案預算簽約後即全額鎖入託管。Creator 在每個被批准的里程碑收到付款。僅當你批准最終交付並釋放尾款，IP 才轉移給你。",
+    faqA4:
+      "專案預算簽約後即全額鎖入託管。Creator 在每個被批准的里程碑收到付款。僅當你批准最終交付並釋放尾款，IP 才轉移給你。",
     faqQ5: "Diamond 是什麼？",
-    faqA5: "Diamond 是平台積分，用於 Creator 存取 Spotlight 的 AI 製作工具——AIGC 創作台裡的影片剪輯、特效、生成式工具。Patron 購買後作為專案預算的一部分分配。",
+    faqA5:
+      "Diamond 是平台積分，用於 Creator 存取 Spotlight 的 AI 製作工具——AIGC 創作台裡的影片剪輯、特效、生成式工具。Patron 購買後作為專案預算的一部分分配。",
     faqQ6: "Spotlight 由誰背書？",
-    faqA6: "Spotlight 由亞洲最受尊敬的獨立製片集團之一支持，擁有 20 多年香港、台灣、東南亞的製片經驗。",
+    faqA6:
+      "Spotlight 由亞洲最受尊敬的獨立製片集團之一支持，擁有 20 多年香港、台灣、東南亞的製片經驗。",
     footerTagline: "服務亞洲創意產業的全球首個 AI 驅動內容委託平台。",
     footerPlatform: "平台",
     footerCompany: "公司",
@@ -2738,9 +2958,30 @@ const zhTW: typeof en = {
     fCAvailability: "接案狀態",
     fCBio: "簡介",
     fCBioPh: "用一兩句話介紹你的創作（選填）",
-    specialties: ["電影感", "角色", "建築", "抽象", "自然", "科幻", "動畫", "攝影", "插畫", "動態設計"],
+    specialties: [
+      "電影感",
+      "角色",
+      "建築",
+      "抽象",
+      "自然",
+      "科幻",
+      "動畫",
+      "攝影",
+      "插畫",
+      "動態設計",
+    ],
     experienceTiers: ["未滿 1 年", "1 – 3 年", "3 – 5 年", "5 – 10 年", "10 年以上"],
-    creatorStyles: ["電影感", "極簡", "強衝擊", "雜誌感", "超現實", "生活風格", "抽象", "紀實", "復古"],
+    creatorStyles: [
+      "電影感",
+      "極簡",
+      "強衝擊",
+      "雜誌感",
+      "超現實",
+      "生活風格",
+      "抽象",
+      "紀實",
+      "復古",
+    ],
     availabilities: ["立即可接", "1 個月後", "名額有限", "暫不接案"],
     errSpecialtiesMin: "請至少選 1 個專長（最多 3 個）",
     errRequired: "請填寫此項",
@@ -2749,7 +2990,8 @@ const zhTW: typeof en = {
     title: "AIGC 創作台",
     subtitle: "用 AI 生成、迭代並精修你的創意素材",
     comingSoon: "敬請期待",
-    comingSoonDesc: "我們正在打造功能強大的 AI 創作空間，支援分鏡生成、鏡頭創作與快速迭代。敬請關注。",
+    comingSoonDesc:
+      "我們正在打造功能強大的 AI 創作空間，支援分鏡生成、鏡頭創作與快速迭代。敬請關注。",
     notifyMe: "上線時通知我",
   },
   aigc: {
@@ -2920,7 +3162,8 @@ const zhTW: typeof en = {
     doneTitle: "專案已完成",
     doneDesc: "所有階段均已交付並通過。",
     revisionTag: (n: number) => `第 ${n} 輪修改`,
-    sysInvited: (backer: string, need: string) => `${backer} 發起了「${need}」的定向邀約，等待創作者回應。`,
+    sysInvited: (backer: string, need: string) =>
+      `${backer} 發起了「${need}」的定向邀約，等待創作者回應。`,
     sysAccepted: (creator: string) => `${creator} 已接受邀約，等待制訂合約。`,
     sysDeclined: (creator: string) => `${creator} 拒絕了邀約。`,
     sysContractSubmitted: (backer: string) => `${backer} 已提交合約，等待創作者確認。`,
@@ -2932,8 +3175,10 @@ const zhTW: typeof en = {
     rejWait: "你已拒絕該邀約。",
     reInvite: "重新邀約",
     sysDeposit: (amt: number) => `已支付訂金 ¥${amt.toLocaleString()}，專案正式啟動。`,
-    sysSubmitted: (creator: string, stage: string) => `${creator} 已提交「${stage}」交付物，等待審核。`,
-    sysApproved: (stage: string, amt: number) => `「${stage}」已通過，¥${amt.toLocaleString()} 已放款給創作者。`,
+    sysSubmitted: (creator: string, stage: string) =>
+      `${creator} 已提交「${stage}」交付物，等待審核。`,
+    sysApproved: (stage: string, amt: number) =>
+      `「${stage}」已通過，¥${amt.toLocaleString()} 已放款給創作者。`,
     sysRevision: (stage: string) => `「${stage}」被要求修改，等待重新提交。`,
     sysCompleted: "終交付已通過——專案完成！",
     toastAccepted: "已接受邀約",
@@ -2966,12 +3211,25 @@ const zhTW: typeof en = {
     headerSubtitle: "由 Spotlight Agent 驅動",
     greeting: "你好！我是你的 Spotlight AI 助理，可以幫你查詢訂單狀態、錢包餘額或推薦創作者。",
     placeholder: "隨時提問...",
-    fallback: "我可以幫你查詢訂單狀態、錢包餘額、創作者推薦及平台功能。試試問「我的訂單進展如何？」或「如何提現？」",
+    fallback:
+      "我可以幫你查詢訂單狀態、錢包餘額、創作者推薦及平台功能。試試問「我的訂單進展如何？」或「如何提現？」",
     canned: [
-      { a: "你的當前訂單 **ord_001** 處於第 3 階段（初稿）。Aria 已提交初稿，你有 7 天時間審核，5 月 24 日前如無操作將自動通過。", link: { label: "查看訂單", href: "/orders/ord_001" } },
-      { a: "你的錢包：**◆ 12,400 Diamond** 可用 · **◆ 420** 正託管於 ord_001。", link: { label: "前往錢包", href: "/wallet" } },
-      { a: "你可以隨時提現 Shell 餘額。當前可提現餘額：**◉ 8,650**，通過 Airwallex 處理，1–3 個工作日到賬。", link: { label: "立即提現", href: "/wallet" } },
-      { a: "根據你的項目歷史，推薦 **Aria Song**（完成率 98%）和 **Marco Reyes**（品牌片專家）作為你下一個商業項目的合作人選。", link: { label: "瀏覽創作者", href: "/market/creators" } },
+      {
+        a: "你的當前訂單 **ord_001** 處於第 3 階段（初稿）。Aria 已提交初稿，你有 7 天時間審核，5 月 24 日前如無操作將自動通過。",
+        link: { label: "查看訂單", href: "/orders/ord_001" },
+      },
+      {
+        a: "你的錢包：**◆ 12,400 Diamond** 可用 · **◆ 420** 正託管於 ord_001。",
+        link: { label: "前往錢包", href: "/wallet" },
+      },
+      {
+        a: "你可以隨時提現 Shell 餘額。當前可提現餘額：**◉ 8,650**，通過 Airwallex 處理，1–3 個工作日到賬。",
+        link: { label: "立即提現", href: "/wallet" },
+      },
+      {
+        a: "根據你的項目歷史，推薦 **Aria Song**（完成率 98%）和 **Marco Reyes**（品牌片專家）作為你下一個商業項目的合作人選。",
+        link: { label: "瀏覽創作者", href: "/market/creators" },
+      },
       { a: "你的身份驗證**已完成**（KYC 通過），可使用全部平台功能，包括提現。", link: null },
     ],
   },

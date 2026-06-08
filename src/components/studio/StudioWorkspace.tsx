@@ -1,8 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { useStore, type StudioMode, type StudioAssetSettings, type StudioAsset } from "@/lib/store";
-import { useT } from "@/hooks/useT";
-import { MODELS_BY_MODE, DEFAULT_MODEL_BY_MODE, VOICES, type StudioVoice } from "@/lib/studio-mock";
+import { toast } from "sonner";
 import HistoryRail from "./HistoryRail";
 import VisualsCanvas from "./VisualsCanvas";
 import PromptDock from "./PromptDock";
@@ -10,7 +8,9 @@ import ModelPickerDialog from "./ModelPickerDialog";
 import VoiceCatalogDialog from "./VoiceCatalogDialog";
 import ReferenceUploadDialog, { type PromptReference } from "./ReferenceUploadDialog";
 import AssetLightbox from "./AssetLightbox";
-import { toast } from "sonner";
+import { MODELS_BY_MODE, DEFAULT_MODEL_BY_MODE, VOICES, type StudioVoice } from "@/lib/studio-mock";
+import { useT } from "@/hooks/useT";
+import { useStore, type StudioMode, type StudioAssetSettings, type StudioAsset } from "@/lib/store";
 
 const DEFAULT_SETTINGS: Record<StudioMode, StudioAssetSettings> = {
   image: { aspect: "16:9", quality: "2K", count: 1 },
@@ -69,18 +69,20 @@ export default function StudioWorkspace() {
 
   // Per-mode model + settings so switching modes preserves each mode's choices.
   const [modelByMode, setModelByMode] = useState<Record<StudioMode, string>>(DEFAULT_MODEL_BY_MODE);
-  const [settingsByMode, setSettingsByMode] = useState<Record<StudioMode, StudioAssetSettings>>(DEFAULT_SETTINGS);
+  const [settingsByMode, setSettingsByMode] =
+    useState<Record<StudioMode, StudioAssetSettings>>(DEFAULT_SETTINGS);
   const [voice, setVoice] = useState<StudioVoice>(VOICES[0]);
 
   const progressTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const doneTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
-    return () => {
+  useEffect(
+    () => () => {
       if (progressTimer.current) clearInterval(progressTimer.current);
       if (doneTimer.current) clearTimeout(doneTimer.current);
-    };
-  }, []);
+    },
+    []
+  );
 
   const currentSession = studioSessions.find((s) => s.id === currentStudioSessionId) ?? null;
   const modelId = modelByMode[mode];
@@ -171,7 +173,12 @@ export default function StudioWorkspace() {
       createdAt: Date.now(),
     };
     if (references.length > 0) {
-      base.references = references.map((r) => ({ id: r.id, name: r.name, size: r.size, type: r.type }));
+      base.references = references.map((r) => ({
+        id: r.id,
+        name: r.name,
+        size: r.size,
+        type: r.type,
+      }));
     }
     if (sessionMode === "image" || sessionMode === "video") {
       const [w, h] = ASPECT_DIM[settings.aspect ?? "16:9"] ?? [960, 540];
@@ -213,7 +220,7 @@ export default function StudioWorkspace() {
     doneTimer.current = setTimeout(() => {
       if (progressTimer.current) clearInterval(progressTimer.current);
       setProgress(100);
-      const count = mode === "image" ? settings.count ?? 1 : 1;
+      const count = mode === "image" ? (settings.count ?? 1) : 1;
       for (let i = 0; i < count; i++) {
         addStudioAsset(sid!, buildAsset(mode, i));
       }
@@ -234,11 +241,7 @@ export default function StudioWorkspace() {
     // Reuse the current canvas only if it's already a no-group, same-mode,
     // empty session — that's effectively the same state.
     const active = studioSessions.find((s) => s.id === currentStudioSessionId);
-    const reuse =
-      active &&
-      !active.groupId &&
-      active.mode === mode &&
-      active.assets.length === 0;
+    const reuse = active && !active.groupId && active.mode === mode && active.assets.length === 0;
     if (!reuse) {
       newStudioSession(mode, null);
     }
@@ -304,21 +307,21 @@ export default function StudioWorkspace() {
     <div className="max-w-[1500px] mx-auto px-4 md:px-6 pt-6 pb-52">
       <div className="flex gap-5">
         <div className="animate-fade-up" style={{ animationDelay: "60ms" }}>
-        <HistoryRail
-          sessions={studioSessions}
-          groups={studioGroups}
-          currentId={currentStudioSessionId}
-          onSelect={onSelectSession}
-          onNewSession={onNewSession}
-          onNewGroup={onNewGroup}
-          onDeleteSession={deleteStudioSession}
-          onRenameSession={updateStudioSessionTitle}
-          onMoveSession={handleMoveSession}
-          onReorderSession={handleReorderSession}
-          onRenameGroup={renameStudioGroup}
-          onDeleteGroup={deleteStudioGroup}
-          onToggleGroup={toggleStudioGroupCollapsed}
-        />
+          <HistoryRail
+            sessions={studioSessions}
+            groups={studioGroups}
+            currentId={currentStudioSessionId}
+            onSelect={onSelectSession}
+            onNewSession={onNewSession}
+            onNewGroup={onNewGroup}
+            onDeleteSession={deleteStudioSession}
+            onRenameSession={updateStudioSessionTitle}
+            onMoveSession={handleMoveSession}
+            onReorderSession={handleReorderSession}
+            onRenameGroup={renameStudioGroup}
+            onDeleteGroup={deleteStudioGroup}
+            onToggleGroup={toggleStudioGroupCollapsed}
+          />
         </div>
 
         <main className="flex-1 min-w-0 animate-fade-up" style={{ animationDelay: "180ms" }}>
@@ -335,7 +338,10 @@ export default function StudioWorkspace() {
       </div>
 
       {/* Floating dock */}
-      <div className="fixed left-0 right-0 bottom-6 px-4 z-40 pointer-events-none lg:pl-[260px] animate-fade-up" style={{ animationDelay: "320ms" }}>
+      <div
+        className="fixed left-0 right-0 bottom-6 px-4 z-40 pointer-events-none lg:pl-[260px] animate-fade-up"
+        style={{ animationDelay: "320ms" }}
+      >
         <PromptDock
           mode={mode}
           onModeChange={onModeChange}
