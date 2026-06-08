@@ -1,10 +1,10 @@
 "use client";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { ArrowRight, Camera, Megaphone, Check } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { useT } from "@/hooks/useT";
 import SectionLabel from "@/components/home/SectionLabel";
-import { ArrowRight, Camera, Megaphone, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function OnboardingRolePage() {
@@ -107,7 +107,9 @@ function RoleCard({
       onClick={onClick}
       className={cn(
         "group rounded-3xl bg-surface-container-lowest border p-9 text-left transition-all duration-500 hover:-translate-y-1 hover:shadow-[0_30px_70px_rgba(0,0,0,0.5)]",
-        accent === "gold" ? "border-primary/30 hover:border-primary/60" : "border-secondary/30 hover:border-secondary/60"
+        accent === "gold"
+          ? "border-primary/30 hover:border-primary/60"
+          : "border-secondary/30 hover:border-secondary/60"
       )}
     >
       <div
@@ -121,7 +123,9 @@ function RoleCard({
         <Icon className="w-6 h-6" />
       </div>
       <h2 className="font-headline text-[28px] text-on-surface leading-tight mb-3">{title}</h2>
-      <p className="font-body text-sm md:text-[15px] text-on-surface-variant leading-relaxed mb-7">{desc}</p>
+      <p className="font-body text-sm md:text-[15px] text-on-surface-variant leading-relaxed mb-7">
+        {desc}
+      </p>
       <span
         className={cn(
           "inline-flex items-center gap-2 font-label text-[11px] uppercase tracking-[0.24em] transition-transform group-hover:translate-x-1",

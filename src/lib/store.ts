@@ -49,7 +49,8 @@ export type StageView = {
   status: StageStatus;
 };
 
-export const stageAmount = (total: number, idx: number) => Math.round(total * STAGE_META[idx].ratio);
+export const stageAmount = (total: number, idx: number) =>
+  Math.round(total * STAGE_META[idx].ratio);
 
 const NOT_STARTED: FlowPhase[] = ["invitation", "rejected", "contract_draft", "contract_confirm"];
 
@@ -59,7 +60,8 @@ export function flowToStages(flow: SessionFlow | undefined): StageView[] {
     let status: StageStatus = "pending";
     if (flow && !NOT_STARTED.includes(flow.phase)) {
       if (flow.phase === "completed" || idx < flow.stageIndex) status = "accepted";
-      else if (idx === flow.stageIndex) status = flow.phase === "review" ? "submitted" : "in_progress";
+      else if (idx === flow.stageIndex)
+        status = flow.phase === "review" ? "submitted" : "in_progress";
     }
     return { idx, name: m.name, ratio: m.ratio, amountFiat: stageAmount(total, idx), status };
   });
@@ -295,8 +297,18 @@ interface AppState {
   agentOpen: boolean;
   toggleAgent: () => void;
   openAgent: () => void;
-  agentMessages: Array<{ role: "user" | "agent"; text: string; link?: { label: string; href: string } | null }>;
-  appendAgentMessages: (msgs: Array<{ role: "user" | "agent"; text: string; link?: { label: string; href: string } | null }>) => void;
+  agentMessages: Array<{
+    role: "user" | "agent";
+    text: string;
+    link?: { label: string; href: string } | null;
+  }>;
+  appendAgentMessages: (
+    msgs: Array<{
+      role: "user" | "agent";
+      text: string;
+      link?: { label: string; href: string } | null;
+    }>
+  ) => void;
   clearAgentMessages: () => void;
   agentThinking: boolean;
   setAgentThinking: (v: boolean) => void;
@@ -310,16 +322,72 @@ interface AppState {
   addNeed: (need: PostedNeed) => void;
 
   // Per-session messaging
-  sessionExtraMessages: Record<string, Array<{ id: string; senderId: string; senderName: string; senderRole: string; text: string; ts: string; isCard?: boolean }>>;
-  appendSessionMessage: (sessionId: string, msg: { id: string; senderId: string; senderName: string; senderRole: string; text: string; ts: string; isCard?: boolean }) => void;
+  sessionExtraMessages: Record<
+    string,
+    Array<{
+      id: string;
+      senderId: string;
+      senderName: string;
+      senderRole: string;
+      text: string;
+      ts: string;
+      isCard?: boolean;
+    }>
+  >;
+  appendSessionMessage: (
+    sessionId: string,
+    msg: {
+      id: string;
+      senderId: string;
+      senderName: string;
+      senderRole: string;
+      text: string;
+      ts: string;
+      isCard?: boolean;
+    }
+  ) => void;
 
   // Creator profile edits (overlays the mock CREATORS[0] for u_creator_01)
-  creatorEdits: { nickname?: string; bio?: string; specialties?: string[]; rateFrom?: number; activeHours?: string; avatarUrl?: string };
-  updateCreatorEdits: (edits: Partial<{ nickname: string; bio: string; specialties: string[]; rateFrom: number; activeHours: string; avatarUrl: string }>) => void;
+  creatorEdits: {
+    nickname?: string;
+    bio?: string;
+    specialties?: string[];
+    rateFrom?: number;
+    activeHours?: string;
+    avatarUrl?: string;
+  };
+  updateCreatorEdits: (
+    edits: Partial<{
+      nickname: string;
+      bio: string;
+      specialties: string[];
+      rateFrom: number;
+      activeHours: string;
+      avatarUrl: string;
+    }>
+  ) => void;
 
   // Showcase edits (overlays CREATORS[0].showcase when defined)
-  showcaseEdits?: Array<{ id: string; title: string; duration: string; description?: string; fileSource?: "local" | "asset"; fileName?: string; assetId?: string }>;
-  setShowcaseEdits: (items: Array<{ id: string; title: string; duration: string; description?: string; fileSource?: "local" | "asset"; fileName?: string; assetId?: string }>) => void;
+  showcaseEdits?: Array<{
+    id: string;
+    title: string;
+    duration: string;
+    description?: string;
+    fileSource?: "local" | "asset";
+    fileName?: string;
+    assetId?: string;
+  }>;
+  setShowcaseEdits: (
+    items: Array<{
+      id: string;
+      title: string;
+      duration: string;
+      description?: string;
+      fileSource?: "local" | "asset";
+      fileName?: string;
+      assetId?: string;
+    }>
+  ) => void;
 
   // Distribution
   distributionByAsset: Record<string, Distribution>;
@@ -407,9 +475,19 @@ export const useStore = create<AppState>()(
 
       userPreferences: {},
       updateBackerPrefs: (prefs) =>
-        set((s) => ({ userPreferences: { ...s.userPreferences, backer: { ...s.userPreferences.backer, ...prefs } } })),
+        set((s) => ({
+          userPreferences: {
+            ...s.userPreferences,
+            backer: { ...s.userPreferences.backer, ...prefs },
+          },
+        })),
       updateCreatorPrefs: (prefs) =>
-        set((s) => ({ userPreferences: { ...s.userPreferences, creator: { ...s.userPreferences.creator, ...prefs } } })),
+        set((s) => ({
+          userPreferences: {
+            ...s.userPreferences,
+            creator: { ...s.userPreferences.creator, ...prefs },
+          },
+        })),
 
       // AIGC Studio
       studioSessions: [],
@@ -458,11 +536,15 @@ export const useStore = create<AppState>()(
       setStudioGenerating: (v) => set({ studioGenerating: v }),
       updateStudioSessionTitle: (id, title) =>
         set((s) => ({
-          studioSessions: s.studioSessions.map((sess) => (sess.id === id ? { ...sess, title } : sess)),
+          studioSessions: s.studioSessions.map((sess) =>
+            sess.id === id ? { ...sess, title } : sess
+          ),
         })),
       updateStudioSessionMode: (id, mode) =>
         set((s) => ({
-          studioSessions: s.studioSessions.map((sess) => (sess.id === id ? { ...sess, mode } : sess)),
+          studioSessions: s.studioSessions.map((sess) =>
+            sess.id === id ? { ...sess, mode } : sess
+          ),
         })),
       moveStudioSession: (sessionId, groupId) =>
         set((s) => ({
@@ -511,13 +593,19 @@ export const useStore = create<AppState>()(
           }
           if (toMerge.length === 0) return {};
           // Build a fresh sessions array by folding loser assets into keepers.
-          const byId = new Map(s.studioSessions.map((x) => [x.id, { ...x, assets: [...x.assets] }]));
+          const byId = new Map(
+            s.studioSessions.map((x) => [x.id, { ...x, assets: [...x.assets] }])
+          );
           for (const { keeperId, loserId } of toMerge) {
             const keeper = byId.get(keeperId);
             const loser = byId.get(loserId);
             if (!keeper || !loser) continue;
             keeper.assets.push(...loser.assets);
-            if ((!keeper.title || keeper.title === "Untitled session") && loser.title && loser.title !== "Untitled session") {
+            if (
+              (!keeper.title || keeper.title === "Untitled session") &&
+              loser.title &&
+              loser.title !== "Untitled session"
+            ) {
               keeper.title = loser.title;
             }
             byId.delete(loserId);
@@ -529,7 +617,9 @@ export const useStore = create<AppState>()(
             cur = remap ? remap.keeperId : cur;
           }
           return {
-            studioSessions: s.studioSessions.filter((x) => !losers.has(x.id)).map((x) => byId.get(x.id) ?? x),
+            studioSessions: s.studioSessions
+              .filter((x) => !losers.has(x.id))
+              .map((x) => byId.get(x.id) ?? x),
             currentStudioSessionId: cur,
           };
         }),
@@ -622,7 +712,11 @@ export const useStore = create<AppState>()(
                 ...flow,
                 phase: "contract_confirm",
                 total: terms.total,
-                terms: { copyright: terms.copyright, revisionLimit: terms.revisionLimit, autoAcceptDays: terms.autoAcceptDays },
+                terms: {
+                  copyright: terms.copyright,
+                  revisionLimit: terms.revisionLimit,
+                  autoAcceptDays: terms.autoAcceptDays,
+                },
               },
             },
             sessionExtraMessages: appendCard(s, sessionId, f.sysContractSubmitted(backer)),
@@ -669,7 +763,13 @@ export const useStore = create<AppState>()(
           return {
             sessionFlows: {
               ...s.sessionFlows,
-              [sessionId]: { phase: "contract_draft", stageIndex: 0, total, needTitle, revisions: 0 },
+              [sessionId]: {
+                phase: "contract_draft",
+                stageIndex: 0,
+                total,
+                needTitle,
+                revisions: 0,
+              },
             },
             sessionExtraMessages: appendCard(s, sessionId, f.sysBidAccepted),
           };
@@ -694,7 +794,10 @@ export const useStore = create<AppState>()(
           const f = translations[s.locale].flow;
           const amount = stageAmount(flow.total, 0);
           return {
-            sessionFlows: { ...s.sessionFlows, [sessionId]: { ...flow, phase: "submit", stageIndex: 1 } },
+            sessionFlows: {
+              ...s.sessionFlows,
+              [sessionId]: { ...flow, phase: "submit", stageIndex: 1 },
+            },
             backerDiamond: Math.max(0, s.backerDiamond - amount),
             sessionExtraMessages: appendCard(s, sessionId, f.sysDeposit(amount)),
           };
@@ -725,7 +828,12 @@ export const useStore = create<AppState>()(
             ? { ...flow, phase: "completed" }
             : { ...flow, phase: "submit", stageIndex: flow.stageIndex + 1, revisions: 0 };
           let extra = appendCard(s, sessionId, f.sysApproved(stageName, amount));
-          if (isLast) extra = appendCard({ sessionExtraMessages: extra, locale: s.locale }, sessionId, f.sysCompleted);
+          if (isLast)
+            extra = appendCard(
+              { sessionExtraMessages: extra, locale: s.locale },
+              sessionId,
+              f.sysCompleted
+            );
           return {
             sessionFlows: { ...s.sessionFlows, [sessionId]: next },
             creatorShell: s.creatorShell + amount,
@@ -756,13 +864,29 @@ export const useStore = create<AppState>()(
       spendDiamond: (amount) => set((s) => ({ backerDiamond: s.backerDiamond - amount })),
 
       bankCards: [
-        { id: "bc_1", bankCode: "cmb", network: "UnionPay", last4: "8829", holder: "Lucas Chen", isDefault: true },
-        { id: "bc_2", bankCode: "icbc", network: "Visa", last4: "4012", holder: "Lucas Chen", isDefault: false },
+        {
+          id: "bc_1",
+          bankCode: "cmb",
+          network: "UnionPay",
+          last4: "8829",
+          holder: "Lucas Chen",
+          isDefault: true,
+        },
+        {
+          id: "bc_2",
+          bankCode: "icbc",
+          network: "Visa",
+          last4: "4012",
+          holder: "Lucas Chen",
+          isDefault: false,
+        },
       ],
       addBankCard: (card) =>
         set((s) => {
           const isFirst = s.bankCards.length === 0;
-          return { bankCards: [...s.bankCards, { ...card, id: `bc_${Date.now()}`, isDefault: isFirst }] };
+          return {
+            bankCards: [...s.bankCards, { ...card, id: `bc_${Date.now()}`, isDefault: isFirst }],
+          };
         }),
       removeBankCard: (id) => set((s) => ({ bankCards: s.bankCards.filter((c) => c.id !== id) })),
       setDefaultBankCard: (id) =>
@@ -785,7 +909,9 @@ export const useStore = create<AppState>()(
 
       profileEdits: {},
       updateProfile: (role, edits) =>
-        set((s) => ({ profileEdits: { ...s.profileEdits, [role]: { ...s.profileEdits[role], ...edits } } })),
+        set((s) => ({
+          profileEdits: { ...s.profileEdits, [role]: { ...s.profileEdits[role], ...edits } },
+        })),
 
       sessionExtraMessages: {},
       appendSessionMessage: (sessionId, msg) =>

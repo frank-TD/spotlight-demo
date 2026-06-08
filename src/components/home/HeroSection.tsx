@@ -1,9 +1,9 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useStore } from "@/lib/store";
-import { useT } from "@/hooks/useT";
 import { toast } from "sonner";
 import { ArrowRight } from "lucide-react";
+import { useStore } from "@/lib/store";
+import { useT } from "@/hooks/useT";
 
 // Full-bleed cinematic hero. Photography is faked with a layered radial mesh
 // (the existing bg-mesh utility, redefined for dark mode in Phase A) plus a
@@ -103,7 +103,10 @@ export default function HeroSection() {
         >
           <Stat value={t.landing.heroStatCreators} label={t.landing.heroStatCreatorsLabel} />
           <span className="w-px h-10 bg-outline-variant/40" />
-          <Stat value={t.landing.heroStatCommissioned} label={t.landing.heroStatCommissionedLabel} />
+          <Stat
+            value={t.landing.heroStatCommissioned}
+            label={t.landing.heroStatCommissionedLabel}
+          />
           <span className="w-px h-10 bg-outline-variant/40" />
           <Stat value={t.landing.heroStatCompletion} label={t.landing.heroStatCompletionLabel} />
         </div>
@@ -116,7 +119,9 @@ function Stat({ value, label }: { value: string; label: string }) {
   return (
     <div className="flex flex-col items-center text-center">
       <span className="font-headline text-2xl md:text-3xl text-primary">{value}</span>
-      <span className="font-label text-[10px] uppercase tracking-[0.28em] text-on-surface-variant mt-1.5">{label}</span>
+      <span className="font-label text-[10px] uppercase tracking-[0.28em] text-on-surface-variant mt-1.5">
+        {label}
+      </span>
     </div>
   );
 }

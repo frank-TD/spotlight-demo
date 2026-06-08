@@ -1,13 +1,28 @@
 "use client";
 import { use, useState } from "react";
+import Link from "next/link";
+import {
+  ArrowLeft,
+  Upload,
+  Check,
+  X,
+  Download,
+  FileText,
+  Clock,
+  MessageCircle,
+} from "lucide-react";
+import { toast } from "sonner";
 import { useStore, flowToStages } from "@/lib/store";
 import AppShell from "@/components/layout/AppShell";
 import { ORDER_ACTIVE } from "@/lib/mock-data";
-import Link from "next/link";
-import { ArrowLeft, Upload, Check, X, Download, FileText, Clock, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { useT } from "@/hooks/useT";
 
 const STATUS_PILL: Record<string, string> = {
@@ -21,7 +36,8 @@ const STATUS_PILL: Record<string, string> = {
 
 export default function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const { activeRole, sessionFlows, payDeposit, submitDelivery, approveDelivery, requestRevision } = useStore();
+  const { activeRole, sessionFlows, payDeposit, submitDelivery, approveDelivery, requestRevision } =
+    useStore();
   const t = useT();
   const [rejectOpen, setRejectOpen] = useState(false);
   const [submitOpen, setSubmitOpen] = useState(false);
@@ -33,7 +49,10 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
   const orderTotal = flow?.total ?? order.totalFiat;
   const stages = flowToStages(flow);
   // Deliverables (static mock) mapped by stage index → only shown once delivered.
-  const deliverablesByIdx: Record<number, Array<{ id: string; name: string; size: string; type: string; uploadedAt: string }>> = {
+  const deliverablesByIdx: Record<
+    number,
+    Array<{ id: string; name: string; size: string; type: string; uploadedAt: string }>
+  > = {
     1: order.deliverables.stg_002,
     2: order.deliverables.stg_003,
   };
@@ -56,7 +75,9 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
         <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-8 mb-6">
           <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
             <div className="min-w-0">
-              <h1 className="font-headline text-headline-md text-on-surface leading-snug">{order.title}</h1>
+              <h1 className="font-headline text-headline-md text-on-surface leading-snug">
+                {order.title}
+              </h1>
               <p className="font-body text-sm text-on-surface-variant italic mt-1.5">
                 {activeRole === "backer"
                   ? t.orderDetail.withCounterpart(order.creator.nickname)
@@ -104,10 +125,10 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                       s.status === "accepted"
                         ? "bg-primary"
                         : s.status === "submitted"
-                        ? "bg-tertiary"
-                        : s.status === "in_progress"
-                        ? "bg-primary/40"
-                        : "bg-outline-variant/30"
+                          ? "bg-tertiary"
+                          : s.status === "in_progress"
+                            ? "bg-primary/40"
+                            : "bg-outline-variant/30"
                     )}
                   />
                   <span className="font-label text-[9px] uppercase tracking-wider text-on-surface-variant text-center leading-tight">
@@ -142,7 +163,9 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
           <div className="space-y-4">
             {stages.map((stage, idx) => {
               const deliverables =
-                stage.status === "submitted" || stage.status === "accepted" ? deliverablesByIdx[stage.idx] ?? [] : [];
+                stage.status === "submitted" || stage.status === "accepted"
+                  ? (deliverablesByIdx[stage.idx] ?? [])
+                  : [];
               const isActive = stage.status === "submitted" || stage.status === "in_progress";
               return (
                 <div
@@ -160,13 +183,17 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                           stage.status === "accepted" || stage.status === "auto_accepted"
                             ? "bg-tertiary-container text-on-tertiary-container"
                             : stage.status === "submitted"
-                            ? "bg-primary-container text-on-primary-container"
-                            : stage.status === "in_progress"
-                            ? "bg-primary text-on-primary"
-                            : "bg-surface-container text-on-surface-variant"
+                              ? "bg-primary-container text-on-primary-container"
+                              : stage.status === "in_progress"
+                                ? "bg-primary text-on-primary"
+                                : "bg-surface-container text-on-surface-variant"
                         )}
                       >
-                        {stage.status === "accepted" || stage.status === "auto_accepted" ? <Check className="w-4 h-4" /> : idx + 1}
+                        {stage.status === "accepted" || stage.status === "auto_accepted" ? (
+                          <Check className="w-4 h-4" />
+                        ) : (
+                          idx + 1
+                        )}
                       </div>
                       <div>
                         <p className="font-headline text-[18px] text-on-surface">{stage.name}</p>
@@ -181,14 +208,20 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                         STATUS_PILL[stage.status]
                       )}
                     >
-                      {t.orderDetail.statusLabels[stage.status as keyof typeof t.orderDetail.statusLabels]}
+                      {
+                        t.orderDetail.statusLabels[
+                          stage.status as keyof typeof t.orderDetail.statusLabels
+                        ]
+                      }
                     </span>
                   </div>
 
                   {stage.status === "submitted" && activeRole === "backer" && (
                     <div className="flex items-center gap-2 bg-primary-container/40 border-l-4 border-primary rounded-r-lg px-3 py-2 mt-3">
                       <Clock className="w-4 h-4 text-primary" />
-                      <span className="font-body text-xs text-on-primary-container">{t.orderDetail.autoAcceptNotice}</span>
+                      <span className="font-body text-xs text-on-primary-container">
+                        {t.orderDetail.autoAcceptNotice}
+                      </span>
                     </div>
                   )}
 
@@ -200,9 +233,13 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                           className="flex items-center justify-between bg-surface-container rounded-xl px-4 py-2.5"
                         >
                           <div className="flex items-center gap-3">
-                            <span className="text-base">{d.type === "video" ? "🎬" : d.type === "pdf" ? "📄" : "📦"}</span>
+                            <span className="text-base">
+                              {d.type === "video" ? "🎬" : d.type === "pdf" ? "📄" : "📦"}
+                            </span>
                             <div>
-                              <p className="font-body text-sm font-bold text-on-surface">{d.name}</p>
+                              <p className="font-body text-sm font-bold text-on-surface">
+                                {d.name}
+                              </p>
                               <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
                                 {d.size} · {d.uploadedAt}
                               </p>
@@ -221,17 +258,19 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
 
                   <div className="flex gap-2 mt-4">
                     {/* Deposit (stage 0) — backer pays */}
-                    {activeRole === "backer" && stage.idx === 0 && stage.status === "in_progress" && (
-                      <button
-                        onClick={() => {
-                          payDeposit(SESSION_ID);
-                          toast.success(t.flow.toastDeposit);
-                        }}
-                        className="flex items-center gap-1.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-4 py-2 rounded-lg hover:opacity-90"
-                      >
-                        <Check className="w-3.5 h-3.5" /> {t.flow.payDeposit(stage.amountFiat)}
-                      </button>
-                    )}
+                    {activeRole === "backer" &&
+                      stage.idx === 0 &&
+                      stage.status === "in_progress" && (
+                        <button
+                          onClick={() => {
+                            payDeposit(SESSION_ID);
+                            toast.success(t.flow.toastDeposit);
+                          }}
+                          className="flex items-center gap-1.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-4 py-2 rounded-lg hover:opacity-90"
+                        >
+                          <Check className="w-3.5 h-3.5" /> {t.flow.payDeposit(stage.amountFiat)}
+                        </button>
+                      )}
                     {/* Delivery stages — backer reviews */}
                     {activeRole === "backer" && stage.idx >= 1 && stage.status === "submitted" && (
                       <>
@@ -253,14 +292,16 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                       </>
                     )}
                     {/* Delivery stages — creator submits */}
-                    {activeRole === "creator" && stage.idx >= 1 && stage.status === "in_progress" && (
-                      <button
-                        onClick={() => setSubmitOpen(true)}
-                        className="flex items-center gap-1.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-4 py-2 rounded-lg hover:opacity-90"
-                      >
-                        <Upload className="w-3.5 h-3.5" /> {t.orderDetail.submitDeliverable}
-                      </button>
-                    )}
+                    {activeRole === "creator" &&
+                      stage.idx >= 1 &&
+                      stage.status === "in_progress" && (
+                        <button
+                          onClick={() => setSubmitOpen(true)}
+                          className="flex items-center gap-1.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-4 py-2 rounded-lg hover:opacity-90"
+                        >
+                          <Upload className="w-3.5 h-3.5" /> {t.orderDetail.submitDeliverable}
+                        </button>
+                      )}
                   </div>
                 </div>
               );
@@ -298,8 +339,15 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                   {t.orderDetail.totalReleased}
                 </span>
                 <span className="font-headline text-[20px] text-primary">
-                  ¥{order.ledger.filter((e) => e.type === "Release").reduce((a, b) => a + b.amount, 0).toLocaleString()}
-                  <span className="font-body text-sm text-on-surface-variant font-normal"> / ¥{orderTotal.toLocaleString()}</span>
+                  ¥
+                  {order.ledger
+                    .filter((e) => e.type === "Release")
+                    .reduce((a, b) => a + b.amount, 0)
+                    .toLocaleString()}
+                  <span className="font-body text-sm text-on-surface-variant font-normal">
+                    {" "}
+                    / ¥{orderTotal.toLocaleString()}
+                  </span>
                 </span>
               </div>
             </div>
@@ -311,9 +359,15 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       <Dialog open={rejectOpen} onOpenChange={setRejectOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="font-headline text-[20px]">{t.orderDetail.rejectDialogTitle}</DialogTitle>
+            <DialogTitle className="font-headline text-[20px]">
+              {t.orderDetail.rejectDialogTitle}
+            </DialogTitle>
           </DialogHeader>
-          <textarea rows={3} className={cn(inputCls, "resize-none")} placeholder={t.orderDetail.rejectPlaceholder} />
+          <textarea
+            rows={3}
+            className={cn(inputCls, "resize-none")}
+            placeholder={t.orderDetail.rejectPlaceholder}
+          />
           <DialogFooter>
             <button
               onClick={() => setRejectOpen(false)}
@@ -339,7 +393,9 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
       <Dialog open={submitOpen} onOpenChange={setSubmitOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle className="font-headline text-[20px]">{t.orderDetail.submitDialogTitle}</DialogTitle>
+            <DialogTitle className="font-headline text-[20px]">
+              {t.orderDetail.submitDialogTitle}
+            </DialogTitle>
           </DialogHeader>
           <div className="py-2 space-y-3">
             <div className="border-2 border-dashed border-outline-variant rounded-2xl p-8 text-center">

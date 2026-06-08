@@ -2,6 +2,18 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import {
+  Send,
+  Wand2,
+  Paperclip,
+  X,
+  Play,
+  Star,
+  MessageCircle,
+  ArrowUpRight,
+  ArrowRight,
+} from "lucide-react";
+import { toast } from "sonner";
 import AppShell from "@/components/layout/AppShell";
 import MouseGlow from "@/components/home/MouseGlow";
 import SectionLabel from "@/components/home/SectionLabel";
@@ -10,28 +22,117 @@ import { useT } from "@/hooks/useT";
 import { getAgentReply } from "@/lib/agent-response";
 import { CREATORS, findSessionForCounterpart } from "@/lib/mock-data";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Send, Wand2, Paperclip, X, Play, Star, MessageCircle, ArrowUpRight, ArrowRight } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 
 type Aspect = "portrait" | "tall" | "landscape" | "wide" | "square";
-type Item = { id: number; title: string; creator: string; category: string; aspect: Aspect; seed: string };
+type Item = {
+  id: number;
+  title: string;
+  creator: string;
+  category: string;
+  aspect: Aspect;
+  seed: string;
+};
 
 // Discovery feed — 12 curated mock works. Picsum thumbnails seeded by id;
 // the dim cinematic gradient underneath shows through if the network fails.
 const ITEMS: Item[] = [
-  { id: 1, title: "Celestial Entity",  creator: "Aria Song",     category: "Character",    aspect: "portrait",  seed: "celestial" },
-  { id: 2, title: "Neon Rain",         creator: "Marco Reyes",   category: "Cinematic",    aspect: "tall",      seed: "neonrain" },
-  { id: 3, title: "Orbital Zen",       creator: "Yuki Tanaka",   category: "Architecture", aspect: "landscape", seed: "orbital" },
-  { id: 4, title: "Golden Core",       creator: "Sofia Okonkwo", category: "Abstract",     aspect: "portrait",  seed: "goldencore" },
-  { id: 5, title: "Aurora Crystal",    creator: "Aria Song",     category: "Nature",       aspect: "wide",      seed: "aurora" },
-  { id: 6, title: "Cyber Ghost",       creator: "Marco Reyes",   category: "Character",    aspect: "portrait",  seed: "cyberghost" },
-  { id: 7, title: "Biodome Alpha",     creator: "Yuki Tanaka",   category: "Architecture", aspect: "wide",      seed: "biodome" },
-  { id: 8, title: "Dune Metropolis",   creator: "Sofia Okonkwo", category: "Sci-Fi",       aspect: "landscape", seed: "dune" },
-  { id: 9, title: "Techno Ascetic",    creator: "Aria Song",     category: "Character",    aspect: "portrait",  seed: "techno" },
-  { id: 10, title: "Iridescent Flow",  creator: "Marco Reyes",   category: "Abstract",     aspect: "square",    seed: "iridescent" },
-  { id: 11, title: "Glassine Garden",  creator: "Yuki Tanaka",   category: "Nature",       aspect: "tall",      seed: "glassine" },
-  { id: 12, title: "Static Bloom",     creator: "Sofia Okonkwo", category: "Sci-Fi",       aspect: "portrait",  seed: "staticbloom" },
+  {
+    id: 1,
+    title: "Celestial Entity",
+    creator: "Aria Song",
+    category: "Character",
+    aspect: "portrait",
+    seed: "celestial",
+  },
+  {
+    id: 2,
+    title: "Neon Rain",
+    creator: "Marco Reyes",
+    category: "Cinematic",
+    aspect: "tall",
+    seed: "neonrain",
+  },
+  {
+    id: 3,
+    title: "Orbital Zen",
+    creator: "Yuki Tanaka",
+    category: "Architecture",
+    aspect: "landscape",
+    seed: "orbital",
+  },
+  {
+    id: 4,
+    title: "Golden Core",
+    creator: "Sofia Okonkwo",
+    category: "Abstract",
+    aspect: "portrait",
+    seed: "goldencore",
+  },
+  {
+    id: 5,
+    title: "Aurora Crystal",
+    creator: "Aria Song",
+    category: "Nature",
+    aspect: "wide",
+    seed: "aurora",
+  },
+  {
+    id: 6,
+    title: "Cyber Ghost",
+    creator: "Marco Reyes",
+    category: "Character",
+    aspect: "portrait",
+    seed: "cyberghost",
+  },
+  {
+    id: 7,
+    title: "Biodome Alpha",
+    creator: "Yuki Tanaka",
+    category: "Architecture",
+    aspect: "wide",
+    seed: "biodome",
+  },
+  {
+    id: 8,
+    title: "Dune Metropolis",
+    creator: "Sofia Okonkwo",
+    category: "Sci-Fi",
+    aspect: "landscape",
+    seed: "dune",
+  },
+  {
+    id: 9,
+    title: "Techno Ascetic",
+    creator: "Aria Song",
+    category: "Character",
+    aspect: "portrait",
+    seed: "techno",
+  },
+  {
+    id: 10,
+    title: "Iridescent Flow",
+    creator: "Marco Reyes",
+    category: "Abstract",
+    aspect: "square",
+    seed: "iridescent",
+  },
+  {
+    id: 11,
+    title: "Glassine Garden",
+    creator: "Yuki Tanaka",
+    category: "Nature",
+    aspect: "tall",
+    seed: "glassine",
+  },
+  {
+    id: 12,
+    title: "Static Bloom",
+    creator: "Sofia Okonkwo",
+    category: "Sci-Fi",
+    aspect: "portrait",
+    seed: "staticbloom",
+  },
 ];
 
 const FILTERS = ["All", "Character", "Cinematic", "Architecture", "Abstract", "Nature", "Sci-Fi"];
@@ -57,14 +158,8 @@ const ASPECT_DIM: Record<Aspect, [number, number]> = {
 // Reached via the "Discover" nav tab or the homepage "Browse Creators" CTA.
 export default function DiscoveryPage() {
   const router = useRouter();
-  const {
-    isLoggedIn,
-    activeRole,
-    locale,
-    appendAgentMessages,
-    openAgent,
-    setAgentThinking,
-  } = useStore();
+  const { isLoggedIn, activeRole, locale, appendAgentMessages, openAgent, setAgentThinking } =
+    useStore();
   const t = useT();
   const [filter, setFilter] = useState("All");
   const [prompt, setPrompt] = useState("");
@@ -114,11 +209,18 @@ export default function DiscoveryPage() {
   }, [promptExpanded, prompt, files.length]);
 
   const formatSize = (b: number) =>
-    b < 1024 ? `${b} B` : b < 1024 * 1024 ? `${(b / 1024).toFixed(1)} KB` : `${(b / (1024 * 1024)).toFixed(1)} MB`;
+    b < 1024
+      ? `${b} B`
+      : b < 1024 * 1024
+        ? `${(b / 1024).toFixed(1)} KB`
+        : `${(b / (1024 * 1024)).toFixed(1)} MB`;
 
   const onFilePick = (e: React.ChangeEvent<HTMLInputElement>) => {
     const picked = Array.from(e.target.files ?? []).slice(0, 5 - files.length);
-    setFiles((prev) => [...prev, ...picked.map((f) => ({ name: f.name, size: formatSize(f.size) }))]);
+    setFiles((prev) => [
+      ...prev,
+      ...picked.map((f) => ({ name: f.name, size: formatSize(f.size) })),
+    ]);
     e.target.value = "";
   };
 
@@ -201,7 +303,10 @@ export default function DiscoveryPage() {
         </header>
 
         {/* Filter chips */}
-        <div className="flex flex-wrap justify-center gap-2 mb-12 animate-fade-up" style={{ animationDelay: "100ms" }}>
+        <div
+          className="flex flex-wrap justify-center gap-2 mb-12 animate-fade-up"
+          style={{ animationDelay: "100ms" }}
+        >
           {FILTERS.map((f) => (
             <button
               key={f}
@@ -219,7 +324,10 @@ export default function DiscoveryPage() {
         </div>
 
         {/* Masonry — re-keyed on filter so items replay the stagger entrance */}
-        <div key={filter} className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-3 md:gap-4">
+        <div
+          key={filter}
+          className="columns-2 sm:columns-3 lg:columns-4 xl:columns-5 gap-3 md:gap-4"
+        >
           {filtered.map((item, i) => (
             <MasonryCard
               key={item.id}
@@ -235,114 +343,117 @@ export default function DiscoveryPage() {
       {/* Work preview dialog */}
       <Dialog open={!!openItem} onOpenChange={(o) => !o && setOpenItem(null)}>
         <DialogContent className="sm:max-w-5xl p-0 overflow-hidden max-h-[90vh]">
-          {openItem && (() => {
-            const creator = CREATORS.find((c) => c.nickname === openItem.creator);
-            const previewW = 1280;
-            const previewH = Math.round((previewW * 9) / 16);
-            return (
-              <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] max-h-[90vh] overflow-hidden">
-                {/* Left: preview */}
-                <div className="bg-[#08080a] p-6 md:p-7 flex flex-col gap-4 overflow-y-auto">
-                  <div className="aspect-video relative rounded-xl overflow-hidden bg-surface-container group">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={`https://picsum.photos/seed/${openItem.seed}/${previewW}/${previewH}`}
-                      alt={openItem.title}
-                      className="absolute inset-0 w-full h-full object-cover"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => toast.info(t.discovery.playbackToast)}
-                      className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/45 transition-colors"
-                      aria-label="play"
-                    >
-                      <span className="w-16 h-16 rounded-full bg-primary/95 text-on-primary shadow-xl flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <Play className="w-7 h-7 ml-1" fill="currentColor" />
-                      </span>
-                    </button>
-                  </div>
-                  <div>
-                    <span className="font-label text-[10px] uppercase tracking-widest bg-white/10 text-white/80 px-2.5 py-1 rounded">
-                      {t.discovery.filters[openItem.category] ?? openItem.category}
-                    </span>
-                    <h2 className="font-headline italic text-white text-2xl md:text-3xl mt-3 leading-tight">
-                      {openItem.title}
-                    </h2>
-                    <p className="font-label text-white/60 text-[11px] uppercase tracking-widest mt-2">
-                      {t.discovery.by} {openItem.creator}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Right: creator card */}
-                {creator && (
-                  <div className="p-6 md:p-7 flex flex-col overflow-y-auto">
-                    <div className="flex items-center gap-3 mb-4">
-                      <div
-                        className={cn(
-                          "w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold shrink-0",
-                          creator.avatarColor
-                        )}
+          {openItem &&
+            (() => {
+              const creator = CREATORS.find((c) => c.nickname === openItem.creator);
+              const previewW = 1280;
+              const previewH = Math.round((previewW * 9) / 16);
+              return (
+                <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] max-h-[90vh] overflow-hidden">
+                  {/* Left: preview */}
+                  <div className="bg-[#08080a] p-6 md:p-7 flex flex-col gap-4 overflow-y-auto">
+                    <div className="aspect-video relative rounded-xl overflow-hidden bg-surface-container group">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={`https://picsum.photos/seed/${openItem.seed}/${previewW}/${previewH}`}
+                        alt={openItem.title}
+                        className="absolute inset-0 w-full h-full object-cover"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => toast.info(t.discovery.playbackToast)}
+                        className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/45 transition-colors"
+                        aria-label="play"
                       >
-                        {creator.avatar}
-                      </div>
-                      <div className="min-w-0">
-                        <p className="font-headline text-[20px] text-on-surface truncate">{creator.nickname}</p>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                          <Star className="w-3 h-3 fill-primary text-primary" />
-                          <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
-                            {creator.rating} · {creator.orders} {t.creators.projectsLabel}
-                          </span>
+                        <span className="w-16 h-16 rounded-full bg-primary/95 text-on-primary shadow-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                          <Play className="w-7 h-7 ml-1" fill="currentColor" />
+                        </span>
+                      </button>
+                    </div>
+                    <div>
+                      <span className="font-label text-[10px] uppercase tracking-widest bg-white/10 text-white/80 px-2.5 py-1 rounded">
+                        {t.discovery.filters[openItem.category] ?? openItem.category}
+                      </span>
+                      <h2 className="font-headline italic text-white text-2xl md:text-3xl mt-3 leading-tight">
+                        {openItem.title}
+                      </h2>
+                      <p className="font-label text-white/60 text-[11px] uppercase tracking-widest mt-2">
+                        {t.discovery.by} {openItem.creator}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Right: creator card */}
+                  {creator && (
+                    <div className="p-6 md:p-7 flex flex-col overflow-y-auto">
+                      <div className="flex items-center gap-3 mb-4">
+                        <div
+                          className={cn(
+                            "w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold shrink-0",
+                            creator.avatarColor
+                          )}
+                        >
+                          {creator.avatar}
+                        </div>
+                        <div className="min-w-0">
+                          <p className="font-headline text-[20px] text-on-surface truncate">
+                            {creator.nickname}
+                          </p>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <Star className="w-3 h-3 fill-primary text-primary" />
+                            <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                              {creator.rating} · {creator.orders} {t.creators.projectsLabel}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
 
-                    <div className="flex flex-wrap gap-1.5 mb-4">
-                      {creator.specialties.map((s) => (
-                        <span
-                          key={s}
-                          className="font-label text-[10px] uppercase tracking-widest bg-primary-container text-on-primary-container px-2.5 py-1 rounded-full"
-                        >
-                          {s}
+                      <div className="flex flex-wrap gap-1.5 mb-4">
+                        {creator.specialties.map((s) => (
+                          <span
+                            key={s}
+                            className="font-label text-[10px] uppercase tracking-widest bg-primary-container text-on-primary-container px-2.5 py-1 rounded-full"
+                          >
+                            {s}
+                          </span>
+                        ))}
+                      </div>
+
+                      <p className="font-body text-sm text-on-surface-variant leading-relaxed mb-5 line-clamp-4 flex-1">
+                        {creator.bio}
+                      </p>
+
+                      <div className="bg-surface-container rounded-xl p-4 mb-4 flex items-center justify-between">
+                        <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                          {t.creators.fromLabel}
                         </span>
-                      ))}
-                    </div>
+                        <span className="font-headline text-[20px] text-on-surface">
+                          ¥{creator.rateCard.from.toLocaleString()}+
+                        </span>
+                      </div>
 
-                    <p className="font-body text-sm text-on-surface-variant leading-relaxed mb-5 line-clamp-4 flex-1">
-                      {creator.bio}
-                    </p>
-
-                    <div className="bg-surface-container rounded-xl p-4 mb-4 flex items-center justify-between">
-                      <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
-                        {t.creators.fromLabel}
-                      </span>
-                      <span className="font-headline text-[20px] text-on-surface">
-                        ¥{creator.rateCard.from.toLocaleString()}+
-                      </span>
-                    </div>
-
-                    <div className="space-y-2">
-                      {viewerRole === "backer" && (
-                        <button
-                          onClick={() => startConversation(creator.id)}
-                          className="w-full flex items-center justify-center gap-2 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider py-3 rounded-lg hover:opacity-90 active:scale-95 transition-all"
+                      <div className="space-y-2">
+                        {viewerRole === "backer" && (
+                          <button
+                            onClick={() => startConversation(creator.id)}
+                            className="w-full flex items-center justify-center gap-2 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider py-3 rounded-lg hover:opacity-90 active:scale-95 transition-all"
+                          >
+                            <MessageCircle className="w-4 h-4" /> {t.chat.startConversation}
+                          </button>
+                        )}
+                        <Link
+                          href={`/market/creators/${creator.id}`}
+                          onClick={() => setOpenItem(null)}
+                          className="w-full flex items-center justify-center gap-1.5 font-label text-label-md uppercase tracking-wider py-3 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors"
                         >
-                          <MessageCircle className="w-4 h-4" /> {t.chat.startConversation}
-                        </button>
-                      )}
-                      <Link
-                        href={`/market/creators/${creator.id}`}
-                        onClick={() => setOpenItem(null)}
-                        className="w-full flex items-center justify-center gap-1.5 font-label text-label-md uppercase tracking-wider py-3 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors"
-                      >
-                        {t.needDetail.viewProfile} <ArrowUpRight className="w-3.5 h-3.5" />
-                      </Link>
+                          {t.needDetail.viewProfile} <ArrowUpRight className="w-3.5 h-3.5" />
+                        </Link>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            );
-          })()}
+                  )}
+                </div>
+              );
+            })()}
         </DialogContent>
       </Dialog>
 
@@ -378,7 +489,9 @@ export default function DiscoveryPage() {
                 >
                   <Paperclip className="w-3 h-3" />
                   <span className="max-w-[160px] truncate">{f.name}</span>
-                  <span className="opacity-60 font-label text-[9px] uppercase tracking-wider">{f.size}</span>
+                  <span className="opacity-60 font-label text-[9px] uppercase tracking-wider">
+                    {f.size}
+                  </span>
                   <button
                     onClick={(e) => {
                       e.stopPropagation();
@@ -396,7 +509,12 @@ export default function DiscoveryPage() {
 
           {/* Main row */}
           <div className="flex items-end gap-3 px-4 py-3">
-            <Wand2 className={cn("text-primary shrink-0 transition-all duration-300", promptExpanded ? "w-5 h-5 mb-2.5" : "w-5 h-5 mb-1.5")} />
+            <Wand2
+              className={cn(
+                "text-primary shrink-0 transition-all duration-300",
+                promptExpanded ? "w-5 h-5 mb-2.5" : "w-5 h-5 mb-1.5"
+              )}
+            />
             <textarea
               rows={1}
               value={prompt}
@@ -408,7 +526,9 @@ export default function DiscoveryPage() {
                   sendPrompt();
                 }
               }}
-              placeholder={viewerRole === "backer" ? t.discovery.promptBacker : t.discovery.promptCreator}
+              placeholder={
+                viewerRole === "backer" ? t.discovery.promptBacker : t.discovery.promptCreator
+              }
               className={cn(
                 "flex-1 bg-transparent border-none resize-none focus:outline-none focus:ring-0 font-body text-base md:text-lg placeholder:text-on-surface-variant/60 transition-all duration-500 ease-out",
                 promptExpanded ? "min-h-[96px]" : "min-h-[28px]"
@@ -498,7 +618,9 @@ function MasonryCard({
           <Play className="w-3.5 h-3.5 ml-0.5" fill="currentColor" />
         </span>
         <div className="bg-black/30 backdrop-blur-md border border-white/10 rounded-lg p-3 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-          <p className="font-headline italic text-white text-base md:text-lg leading-tight">{item.title}</p>
+          <p className="font-headline italic text-white text-base md:text-lg leading-tight">
+            {item.title}
+          </p>
           <p className="font-label text-white/70 text-[10px] uppercase tracking-widest mt-1">
             {byLabel} {item.creator}
           </p>

@@ -27,14 +27,11 @@ const bebas = Bebas_Neue({
 
 export const metadata: Metadata = {
   title: "Spotlight — Fund it. Own it. Stream it.",
-  description: "The world's first AI-powered content commissioning platform. Your brief. Your IP. Your name on it.",
+  description:
+    "The world's first AI-powered content commissioning platform. Your brief. Your IP. Your name on it.",
 };
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" className={`${cormorant.variable} ${arimo.variable} ${bebas.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-background text-on-surface font-body antialiased">

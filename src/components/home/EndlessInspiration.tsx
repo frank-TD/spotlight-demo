@@ -1,26 +1,117 @@
 "use client";
 import Link from "next/link";
 import { useState } from "react";
+import { ArrowRight } from "lucide-react";
 import { useT } from "@/hooks/useT";
 import { cn } from "@/lib/utils";
-import { ArrowRight } from "lucide-react";
 
 type Aspect = "portrait" | "tall" | "landscape" | "wide" | "square";
-type Item = { id: number; title: string; creator: string; category: string; aspect: Aspect; seed: string };
+type Item = {
+  id: number;
+  title: string;
+  creator: string;
+  category: string;
+  aspect: Aspect;
+  seed: string;
+};
 
 const ITEMS: Item[] = [
-  { id: 1, title: "Celestial Entity",  creator: "Aria Song",     category: "Character",    aspect: "portrait",  seed: "celestial" },
-  { id: 2, title: "Neon Rain",         creator: "Marco Reyes",   category: "Cinematic",    aspect: "tall",      seed: "neonrain" },
-  { id: 3, title: "Orbital Zen",       creator: "Yuki Tanaka",   category: "Architecture", aspect: "landscape", seed: "orbital" },
-  { id: 4, title: "Golden Core",       creator: "Sofia Okonkwo", category: "Abstract",     aspect: "portrait",  seed: "goldencore" },
-  { id: 5, title: "Aurora Crystal",    creator: "Aria Song",     category: "Nature",       aspect: "wide",      seed: "aurora" },
-  { id: 6, title: "Cyber Ghost",       creator: "Marco Reyes",   category: "Character",    aspect: "portrait",  seed: "cyberghost" },
-  { id: 7, title: "Biodome Alpha",     creator: "Yuki Tanaka",   category: "Architecture", aspect: "wide",      seed: "biodome" },
-  { id: 8, title: "Dune Metropolis",   creator: "Sofia Okonkwo", category: "Sci-Fi",       aspect: "landscape", seed: "dune" },
-  { id: 9, title: "Techno Ascetic",    creator: "Aria Song",     category: "Character",    aspect: "portrait",  seed: "techno" },
-  { id: 10, title: "Iridescent Flow",  creator: "Marco Reyes",   category: "Abstract",     aspect: "square",    seed: "iridescent" },
-  { id: 11, title: "Glassine Garden",  creator: "Yuki Tanaka",   category: "Nature",       aspect: "tall",      seed: "glassine" },
-  { id: 12, title: "Static Bloom",     creator: "Sofia Okonkwo", category: "Sci-Fi",       aspect: "portrait",  seed: "staticbloom" },
+  {
+    id: 1,
+    title: "Celestial Entity",
+    creator: "Aria Song",
+    category: "Character",
+    aspect: "portrait",
+    seed: "celestial",
+  },
+  {
+    id: 2,
+    title: "Neon Rain",
+    creator: "Marco Reyes",
+    category: "Cinematic",
+    aspect: "tall",
+    seed: "neonrain",
+  },
+  {
+    id: 3,
+    title: "Orbital Zen",
+    creator: "Yuki Tanaka",
+    category: "Architecture",
+    aspect: "landscape",
+    seed: "orbital",
+  },
+  {
+    id: 4,
+    title: "Golden Core",
+    creator: "Sofia Okonkwo",
+    category: "Abstract",
+    aspect: "portrait",
+    seed: "goldencore",
+  },
+  {
+    id: 5,
+    title: "Aurora Crystal",
+    creator: "Aria Song",
+    category: "Nature",
+    aspect: "wide",
+    seed: "aurora",
+  },
+  {
+    id: 6,
+    title: "Cyber Ghost",
+    creator: "Marco Reyes",
+    category: "Character",
+    aspect: "portrait",
+    seed: "cyberghost",
+  },
+  {
+    id: 7,
+    title: "Biodome Alpha",
+    creator: "Yuki Tanaka",
+    category: "Architecture",
+    aspect: "wide",
+    seed: "biodome",
+  },
+  {
+    id: 8,
+    title: "Dune Metropolis",
+    creator: "Sofia Okonkwo",
+    category: "Sci-Fi",
+    aspect: "landscape",
+    seed: "dune",
+  },
+  {
+    id: 9,
+    title: "Techno Ascetic",
+    creator: "Aria Song",
+    category: "Character",
+    aspect: "portrait",
+    seed: "techno",
+  },
+  {
+    id: 10,
+    title: "Iridescent Flow",
+    creator: "Marco Reyes",
+    category: "Abstract",
+    aspect: "square",
+    seed: "iridescent",
+  },
+  {
+    id: 11,
+    title: "Glassine Garden",
+    creator: "Yuki Tanaka",
+    category: "Nature",
+    aspect: "tall",
+    seed: "glassine",
+  },
+  {
+    id: 12,
+    title: "Static Bloom",
+    creator: "Sofia Okonkwo",
+    category: "Sci-Fi",
+    aspect: "portrait",
+    seed: "staticbloom",
+  },
 ];
 
 const ASPECT_CLASS: Record<Aspect, string> = {
@@ -92,7 +183,9 @@ function MasonryCard({ item, index }: { item: Item; index: number }) {
           {item.category}
         </span>
         <p className="font-headline italic text-white text-base leading-tight">{item.title}</p>
-        <p className="font-label text-white/65 text-[10px] uppercase tracking-[0.2em] mt-1">by {item.creator}</p>
+        <p className="font-label text-white/65 text-[10px] uppercase tracking-[0.2em] mt-1">
+          by {item.creator}
+        </p>
       </figcaption>
     </figure>
   );

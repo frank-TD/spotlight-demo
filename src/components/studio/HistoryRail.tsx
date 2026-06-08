@@ -1,7 +1,5 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import type { StudioGroup, StudioMode, StudioSession } from "@/lib/store";
-import { useT } from "@/hooks/useT";
 import {
   SquarePen,
   FolderPlus,
@@ -17,6 +15,9 @@ import {
   ArrowRightLeft,
   Check,
 } from "lucide-react";
+import { toast } from "sonner";
+import type { StudioGroup, StudioMode, StudioSession } from "@/lib/store";
+import { useT } from "@/hooks/useT";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,7 +26,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 
 const MODE_ICON: Record<StudioMode, typeof ImageIcon> = {
   image: ImageIcon,
@@ -76,7 +76,11 @@ export default function HistoryRail({
   onDeleteSession: (id: string) => void;
   onRenameSession: (id: string, title: string) => void;
   onMoveSession: (sessionId: string, groupId: string | null) => void;
-  onReorderSession: (sessionId: string, targetSessionId: string, position: "before" | "after") => void;
+  onReorderSession: (
+    sessionId: string,
+    targetSessionId: string,
+    position: "before" | "after"
+  ) => void;
   onRenameGroup: (id: string, name: string) => void;
   onDeleteGroup: (id: string) => void;
   onToggleGroup: (id: string) => void;
@@ -191,7 +195,10 @@ export default function HistoryRail({
   };
 
   return (
-    <aside data-testid="studio-rail" className="w-[240px] shrink-0 hidden lg:flex flex-col gap-3 pr-1">
+    <aside
+      data-testid="studio-rail"
+      className="w-[240px] shrink-0 hidden lg:flex flex-col gap-3 pr-1"
+    >
       <div className="flex gap-2">
         <button
           onClick={onNewSession}
@@ -215,7 +222,9 @@ export default function HistoryRail({
 
       <div className="flex-1 overflow-y-auto space-y-3 -mr-1 pr-1">
         {sessions.length === 0 && groups.length === 0 ? (
-          <p className="font-body text-sm text-on-surface-variant/60 px-2 py-3">{t.aigc.noSessions}</p>
+          <p className="font-body text-sm text-on-surface-variant/60 px-2 py-3">
+            {t.aigc.noSessions}
+          </p>
         ) : (
           <>
             {groups.map((g) => {
@@ -322,7 +331,10 @@ function GroupSection({
     <div
       onDragOver={(e) => dragApi.onGroupDragOver(e, group.id)}
       onDrop={(e) => dragApi.onGroupDrop(e, group.id)}
-      className={cn("rounded-lg transition-colors", over && "bg-primary-container/40 ring-1 ring-primary/30")}
+      className={cn(
+        "rounded-lg transition-colors",
+        over && "bg-primary-container/40 ring-1 ring-primary/30"
+      )}
     >
       <div className="group/grp flex items-center gap-1 px-1 py-1 rounded-lg hover:bg-surface-container/60 transition-colors">
         <button
@@ -330,7 +342,11 @@ function GroupSection({
           className="text-on-surface-variant"
           aria-label="toggle group"
         >
-          {collapsed ? <ChevronRight className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+          {collapsed ? (
+            <ChevronRight className="w-3.5 h-3.5" />
+          ) : (
+            <ChevronDown className="w-3.5 h-3.5" />
+          )}
         </button>
         {editingGroup ? (
           <InlineEdit
@@ -358,7 +374,10 @@ function GroupSection({
             <MoreHorizontal className="w-3.5 h-3.5" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-[140px]">
-            <DropdownMenuItem className="gap-2 cursor-pointer" onClick={() => setEditingId(`group:${group.id}`)}>
+            <DropdownMenuItem
+              className="gap-2 cursor-pointer"
+              onClick={() => setEditingId(`group:${group.id}`)}
+            >
               <Pencil className="w-3.5 h-3.5" /> {t.aigc.rename}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
@@ -530,7 +549,9 @@ function SessionRow({
       {showBottomIndicator && (
         <span className="absolute left-0 right-0 -bottom-0.5 h-0.5 bg-primary rounded-full" />
       )}
-      <Icon className={cn("w-3.5 h-3.5 shrink-0", active ? "text-primary" : "text-on-surface-variant")} />
+      <Icon
+        className={cn("w-3.5 h-3.5 shrink-0", active ? "text-primary" : "text-on-surface-variant")}
+      />
       {isEditing ? (
         <InlineEdit
           initial={title}
@@ -581,7 +602,11 @@ function SessionRow({
               onMoveSession(session.id, null);
             }}
           >
-            {!session.groupId ? <Check className="w-3.5 h-3.5 text-primary" /> : <span className="w-3.5 h-3.5" />}
+            {!session.groupId ? (
+              <Check className="w-3.5 h-3.5 text-primary" />
+            ) : (
+              <span className="w-3.5 h-3.5" />
+            )}
             {t.aigc.noGroup}
           </DropdownMenuItem>
           {groups.map((g) => (

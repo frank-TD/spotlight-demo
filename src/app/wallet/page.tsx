@@ -1,13 +1,31 @@
 "use client";
 import { useState } from "react";
+import {
+  ArrowUpRight,
+  ArrowDownLeft,
+  Plus,
+  Minus,
+  CreditCard,
+  Star,
+  Trash2,
+  AlertTriangle,
+  ChevronDown,
+  Check,
+} from "lucide-react";
+import Link from "next/link";
+import { toast } from "sonner";
 import { useStore } from "@/lib/store";
 import AppShell from "@/components/layout/AppShell";
 import { WALLET_TRANSACTIONS, BACKER_WALLET_TRANSACTIONS } from "@/lib/mock-data";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { ArrowUpRight, ArrowDownLeft, Plus, Minus, CreditCard, Star, Trash2, AlertTriangle, ChevronDown, Check } from "lucide-react";
-import Link from "next/link";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
-import { toast } from "sonner";
 import { useT } from "@/hooks/useT";
 import type { BankCard } from "@/lib/store";
 import CountUp from "@/components/common/CountUp";
@@ -15,7 +33,16 @@ import CountUp from "@/components/common/CountUp";
 const AMOUNTS = [1000, 3000, 5000, 10000];
 
 export default function WalletPage() {
-  const { activeRole, backerDiamond, creatorShell, recharge, withdraw, bankCards, removeBankCard, setDefaultBankCard } = useStore();
+  const {
+    activeRole,
+    backerDiamond,
+    creatorShell,
+    recharge,
+    withdraw,
+    bankCards,
+    removeBankCard,
+    setDefaultBankCard,
+  } = useStore();
   const t = useT();
   const [rechargeOpen, setRechargeOpen] = useState(false);
   const [withdrawOpen, setWithdrawOpen] = useState(false);
@@ -63,8 +90,12 @@ export default function WalletPage() {
                 <p className="font-label text-label-md uppercase tracking-widest opacity-70 mb-2">
                   {t.wallet.diamondBalance}
                 </p>
-                <p className="font-headline text-[44px] leading-none">◆ <CountUp value={backerDiamond} /></p>
-                <p className="font-body text-sm opacity-60 mt-2">≈ ¥<CountUp value={backerDiamond} /></p>
+                <p className="font-headline text-[44px] leading-none">
+                  ◆ <CountUp value={backerDiamond} />
+                </p>
+                <p className="font-body text-sm opacity-60 mt-2">
+                  ≈ ¥<CountUp value={backerDiamond} />
+                </p>
                 <p className="font-label text-label-md uppercase tracking-wider opacity-50 mt-4">
                   {t.wallet.diamondNote}
                 </p>
@@ -82,8 +113,12 @@ export default function WalletPage() {
                 <p className="font-label text-label-md uppercase tracking-widest text-on-surface-variant mb-2">
                   {t.wallet.shellBalance}
                 </p>
-                <p className="font-headline text-[44px] leading-none text-on-surface-variant/40">◉ 0</p>
-                <p className="font-body text-sm text-on-surface-variant/60 mt-2">{t.wallet.emptyDash}</p>
+                <p className="font-headline text-[44px] leading-none text-on-surface-variant/40">
+                  ◉ 0
+                </p>
+                <p className="font-body text-sm text-on-surface-variant/60 mt-2">
+                  {t.wallet.emptyDash}
+                </p>
                 <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-4">
                   {t.wallet.backersNoShell}
                 </p>
@@ -95,7 +130,9 @@ export default function WalletPage() {
                 <p className="font-label text-label-md uppercase tracking-widest text-on-surface-variant mb-2">
                   {t.wallet.diamondBalance}
                 </p>
-                <p className="font-headline text-[44px] leading-none text-on-surface-variant/40">◆ 0</p>
+                <p className="font-headline text-[44px] leading-none text-on-surface-variant/40">
+                  ◆ 0
+                </p>
                 <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-4">
                   {t.wallet.creatorsEarnShell}
                 </p>
@@ -104,8 +141,12 @@ export default function WalletPage() {
                 <p className="font-label text-label-md uppercase tracking-widest opacity-70 mb-2">
                   {t.wallet.shellBalance}
                 </p>
-                <p className="font-headline text-[44px] leading-none">◉ <CountUp value={creatorShell} /></p>
-                <p className="font-body text-sm opacity-60 mt-2">≈ ¥<CountUp value={creatorShell} /></p>
+                <p className="font-headline text-[44px] leading-none">
+                  ◉ <CountUp value={creatorShell} />
+                </p>
+                <p className="font-body text-sm opacity-60 mt-2">
+                  ≈ ¥<CountUp value={creatorShell} />
+                </p>
                 <p className="font-label text-label-md uppercase tracking-wider opacity-50 mt-4">
                   {t.wallet.shellNote}
                 </p>
@@ -132,7 +173,9 @@ export default function WalletPage() {
               <h2 className="font-label text-label-md uppercase tracking-[0.2em] text-on-surface-variant flex items-center gap-2">
                 <CreditCard className="w-4 h-4" /> {t.wallet.bankCardsTitle}
               </h2>
-              <p className="font-body text-xs text-on-surface-variant/70 mt-1">{t.wallet.bankCardsManage}</p>
+              <p className="font-body text-xs text-on-surface-variant/70 mt-1">
+                {t.wallet.bankCardsManage}
+              </p>
             </div>
             <Link
               href="/wallet/bank-cards/new"
@@ -142,7 +185,9 @@ export default function WalletPage() {
             </Link>
           </div>
           {bankCards.length === 0 ? (
-            <p className="font-body text-sm text-on-surface-variant text-center py-10">{t.wallet.noCards}</p>
+            <p className="font-body text-sm text-on-surface-variant text-center py-10">
+              {t.wallet.noCards}
+            </p>
           ) : (
             <div className="divide-y divide-outline-variant/30">
               {bankCards.map((card) => (
@@ -152,7 +197,9 @@ export default function WalletPage() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="font-body font-bold text-on-surface text-sm">{bankName(card.bankCode)}</p>
+                      <p className="font-body font-bold text-on-surface text-sm">
+                        {bankName(card.bankCode)}
+                      </p>
                       <span className="font-label text-[10px] uppercase tracking-widest bg-surface-container text-on-surface-variant px-2 py-0.5 rounded">
                         {card.network}
                       </span>
@@ -207,10 +254,16 @@ export default function WalletPage() {
                   <div
                     className={cn(
                       "w-10 h-10 rounded-full flex items-center justify-center shrink-0",
-                      tx.amount > 0 ? "bg-tertiary-container text-on-tertiary-container" : "bg-surface-container text-on-surface-variant"
+                      tx.amount > 0
+                        ? "bg-tertiary-container text-on-tertiary-container"
+                        : "bg-surface-container text-on-surface-variant"
                     )}
                   >
-                    {tx.amount > 0 ? <ArrowDownLeft className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4" />}
+                    {tx.amount > 0 ? (
+                      <ArrowDownLeft className="w-4 h-4" />
+                    ) : (
+                      <ArrowUpRight className="w-4 h-4" />
+                    )}
                   </div>
                   <div>
                     <p className="font-body font-bold text-on-surface text-sm">{tx.note}</p>
@@ -220,7 +273,12 @@ export default function WalletPage() {
                   </div>
                 </div>
                 <div className="text-right">
-                  <p className={cn("font-body font-bold", tx.amount > 0 ? "text-tertiary" : "text-on-surface")}>
+                  <p
+                    className={cn(
+                      "font-body font-bold",
+                      tx.amount > 0 ? "text-tertiary" : "text-on-surface"
+                    )}
+                  >
                     {tx.amount > 0 ? "+" : ""}¥{Math.abs(tx.amount).toLocaleString()}
                   </p>
                   <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-0.5">
@@ -237,7 +295,9 @@ export default function WalletPage() {
       <Dialog open={rechargeOpen} onOpenChange={setRechargeOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle className="font-headline text-[20px]">{t.wallet.rechargeDialog}</DialogTitle>
+            <DialogTitle className="font-headline text-[20px]">
+              {t.wallet.rechargeDialog}
+            </DialogTitle>
           </DialogHeader>
           <div className="py-3 space-y-4">
             <div className="grid grid-cols-4 gap-2">
@@ -288,7 +348,9 @@ export default function WalletPage() {
       <Dialog open={withdrawOpen} onOpenChange={setWithdrawOpen}>
         <DialogContent className="sm:max-w-sm">
           <DialogHeader>
-            <DialogTitle className="font-headline text-[20px]">{t.wallet.withdrawDialog}</DialogTitle>
+            <DialogTitle className="font-headline text-[20px]">
+              {t.wallet.withdrawDialog}
+            </DialogTitle>
           </DialogHeader>
           <div className="py-3 space-y-4">
             <div className="bg-surface-container rounded-lg p-3 flex justify-between text-sm">
@@ -348,7 +410,12 @@ export default function WalletPage() {
                           {t.wallet.defaultBadge}
                         </span>
                       )}
-                      <ChevronDown className={cn("w-4 h-4 text-on-surface-variant ml-auto shrink-0 transition-transform", cardPickerOpen && "rotate-180")} />
+                      <ChevronDown
+                        className={cn(
+                          "w-4 h-4 text-on-surface-variant ml-auto shrink-0 transition-transform",
+                          cardPickerOpen && "rotate-180"
+                        )}
+                      />
                     </button>
                     {cardPickerOpen && (
                       <div className="mt-1.5 border border-outline-variant/60 rounded-xl overflow-hidden divide-y divide-outline-variant/30">
@@ -376,7 +443,9 @@ export default function WalletPage() {
                                   {t.wallet.defaultBadge}
                                 </span>
                               )}
-                              {active && <Check className="w-4 h-4 text-primary ml-auto shrink-0" />}
+                              {active && (
+                                <Check className="w-4 h-4 text-primary ml-auto shrink-0" />
+                              )}
                             </button>
                           );
                         })}
@@ -436,9 +505,12 @@ export default function WalletPage() {
           ) : (
             <>
               <DialogHeader>
-                <DialogTitle className="font-headline text-[20px]">{t.wallet.unbindTitle}</DialogTitle>
+                <DialogTitle className="font-headline text-[20px]">
+                  {t.wallet.unbindTitle}
+                </DialogTitle>
                 <DialogDescription className="font-body text-sm text-on-surface-variant">
-                  {unbindTarget && t.wallet.unbindMsg(bankName(unbindTarget.bankCode), unbindTarget.last4)}
+                  {unbindTarget &&
+                    t.wallet.unbindMsg(bankName(unbindTarget.bankCode), unbindTarget.last4)}
                 </DialogDescription>
               </DialogHeader>
               <DialogFooter>

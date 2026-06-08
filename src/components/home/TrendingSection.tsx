@@ -1,16 +1,56 @@
 "use client";
 import Link from "next/link";
-import { useT } from "@/hooks/useT";
 import { ArrowRight } from "lucide-react";
 import SectionLabel from "./SectionLabel";
 import HorizontalCardRow, { type RowCard } from "./HorizontalCardRow";
+import { useT } from "@/hooks/useT";
 
 const TRENDING: RowCard[] = [
-  { id: "t1", title: "Celestial Entity", creator: "Luna Chen",      city: "Hong Kong", category: "Cinematic",   priceRange: "¥120K–480K",  seed: "celestial" },
-  { id: "t2", title: "Neon Rain",        creator: "NeoFrame Studio",city: "Taipei",    category: "Sci-Fi",      priceRange: "¥200K–650K",  seed: "neonrain" },
-  { id: "t3", title: "Golden Core",      creator: "Aria Song",      city: "Shanghai",  category: "Cinematic",   priceRange: "¥150K–520K",  seed: "goldencore" },
-  { id: "t4", title: "Aurora Crystal",   creator: "Marcus Yip",     city: "Singapore", category: "Documentary", priceRange: "¥80K–320K",   seed: "aurora" },
-  { id: "t5", title: "Cyber Ghost",      creator: "Marco Reyes",    city: "Tokyo",     category: "Sci-Fi",      priceRange: "¥200K–650K",  seed: "cyberghost" },
+  {
+    id: "t1",
+    title: "Celestial Entity",
+    creator: "Luna Chen",
+    city: "Hong Kong",
+    category: "Cinematic",
+    priceRange: "¥120K–480K",
+    seed: "celestial",
+  },
+  {
+    id: "t2",
+    title: "Neon Rain",
+    creator: "NeoFrame Studio",
+    city: "Taipei",
+    category: "Sci-Fi",
+    priceRange: "¥200K–650K",
+    seed: "neonrain",
+  },
+  {
+    id: "t3",
+    title: "Golden Core",
+    creator: "Aria Song",
+    city: "Shanghai",
+    category: "Cinematic",
+    priceRange: "¥150K–520K",
+    seed: "goldencore",
+  },
+  {
+    id: "t4",
+    title: "Aurora Crystal",
+    creator: "Marcus Yip",
+    city: "Singapore",
+    category: "Documentary",
+    priceRange: "¥80K–320K",
+    seed: "aurora",
+  },
+  {
+    id: "t5",
+    title: "Cyber Ghost",
+    creator: "Marco Reyes",
+    city: "Tokyo",
+    category: "Sci-Fi",
+    priceRange: "¥200K–650K",
+    seed: "cyberghost",
+  },
 ];
 
 export default function TrendingSection() {

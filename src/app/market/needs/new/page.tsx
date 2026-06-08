@@ -1,15 +1,26 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import AppShell from "@/components/layout/AppShell";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
+import AppShell from "@/components/layout/AppShell";
 import { useStore } from "@/lib/store";
 import { useT } from "@/hooks/useT";
 import { cn } from "@/lib/utils";
 
-const STYLE_OPTIONS = ["Cinematic", "Minimal", "Tech", "Anime", "Surreal", "Warm", "Commercial", "Documentary", "Abstract", "Neon"];
+const STYLE_OPTIONS = [
+  "Cinematic",
+  "Minimal",
+  "Tech",
+  "Anime",
+  "Surreal",
+  "Warm",
+  "Commercial",
+  "Documentary",
+  "Abstract",
+  "Neon",
+];
 const PLATFORMS = ["YouTube", "TikTok", "Instagram", "Bilibili", "Netflix", "Website", "LinkedIn"];
 
 export default function NewNeedPage() {
@@ -56,7 +67,8 @@ export default function NewNeedPage() {
 
   const inputCls =
     "w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm";
-  const labelCls = "font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2";
+  const labelCls =
+    "font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2";
 
   return (
     <AppShell>
@@ -70,7 +82,9 @@ export default function NewNeedPage() {
 
         <div className="mb-10">
           <h1 className="font-headline text-headline-lg text-on-surface">{t.postNeed.title}</h1>
-          <p className="text-on-surface-variant font-body opacity-80 italic mt-2">{t.postNeed.subtitle}</p>
+          <p className="text-on-surface-variant font-body opacity-80 italic mt-2">
+            {t.postNeed.subtitle}
+          </p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -90,7 +104,11 @@ export default function NewNeedPage() {
             </div>
             <div>
               <label className={labelCls}>{t.postNeed.contentType}</label>
-              <select className={inputCls} value={contentType} onChange={(e) => setContentType(e.target.value)}>
+              <select
+                className={inputCls}
+                value={contentType}
+                onChange={(e) => setContentType(e.target.value)}
+              >
                 {t.postNeed.contentTypes.map((ct) => (
                   <option key={ct}>{ct}</option>
                 ))}
@@ -136,11 +154,21 @@ export default function NewNeedPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={labelCls}>{t.postNeed.duration}</label>
-                <input className={inputCls} type="number" value={duration} onChange={(e) => setDuration(Number(e.target.value) || 0)} />
+                <input
+                  className={inputCls}
+                  type="number"
+                  value={duration}
+                  onChange={(e) => setDuration(Number(e.target.value) || 0)}
+                />
               </div>
               <div>
                 <label className={labelCls}>{t.postNeed.episodesLabel}</label>
-                <input className={inputCls} type="number" value={episodes} onChange={(e) => setEpisodes(Number(e.target.value) || 1)} />
+                <input
+                  className={inputCls}
+                  type="number"
+                  value={episodes}
+                  onChange={(e) => setEpisodes(Number(e.target.value) || 1)}
+                />
               </div>
               <div>
                 <label className={labelCls}>{t.postNeed.aspectRatio}</label>
@@ -186,11 +214,21 @@ export default function NewNeedPage() {
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <label className={labelCls}>{t.postNeed.budget}</label>
-                <input className={inputCls} type="number" value={budget} onChange={(e) => setBudget(Number(e.target.value) || 0)} />
+                <input
+                  className={inputCls}
+                  type="number"
+                  value={budget}
+                  onChange={(e) => setBudget(Number(e.target.value) || 0)}
+                />
               </div>
               <div>
                 <label className={labelCls}>{t.postNeed.deliveryDays}</label>
-                <input className={inputCls} type="number" value={deliveryDays} onChange={(e) => setDeliveryDays(Number(e.target.value) || 0)} />
+                <input
+                  className={inputCls}
+                  type="number"
+                  value={deliveryDays}
+                  onChange={(e) => setDeliveryDays(Number(e.target.value) || 0)}
+                />
               </div>
             </div>
             <div>
@@ -203,7 +241,11 @@ export default function NewNeedPage() {
             </div>
             <div className="flex items-center gap-6 font-body text-sm">
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" defaultChecked className="rounded border-outline-variant accent-primary" />
+                <input
+                  type="checkbox"
+                  defaultChecked
+                  className="rounded border-outline-variant accent-primary"
+                />
                 {t.postNeed.aiAllowed}
               </label>
               <label className="flex items-center gap-2 cursor-pointer">

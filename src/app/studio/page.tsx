@@ -1,13 +1,7 @@
-"use client";
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 
-// The AIGC Studio now lives at /discovery. Keep this legacy route as a redirect
-// so old links/bookmarks still land in the right place.
+// The AIGC Studio workspace now lives at /discovery/workspace. Keep this
+// legacy route as a redirect so old links/bookmarks still land in the right place.
 export default function StudioPage() {
-  const router = useRouter();
-  useEffect(() => {
-    router.replace("/discovery");
-  }, [router]);
-  return null;
+  redirect("/discovery/workspace");
 }

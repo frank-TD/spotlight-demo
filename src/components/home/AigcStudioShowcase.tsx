@@ -1,19 +1,39 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { useT } from "@/hooks/useT";
 import { toast } from "sonner";
-import SectionLabel from "./SectionLabel";
 import { ArrowRight, Play } from "lucide-react";
+import SectionLabel from "./SectionLabel";
+import { useT } from "@/hooks/useT";
 
 export default function AigcStudioShowcase() {
   const t = useT();
   const router = useRouter();
 
   const cards = [
-    { title: t.landing.aigcCard1Title, tags: t.landing.aigcCard1Tags, sub: t.landing.aigcCard1Sub, seed: "glass-strawberry" },
-    { title: t.landing.aigcCard2Title, tags: t.landing.aigcCard2Tags, sub: t.landing.aigcCard2Sub, seed: "golden-hour-coast" },
-    { title: t.landing.aigcCard3Title, tags: t.landing.aigcCard3Tags, sub: t.landing.aigcCard3Sub, seed: "saturn-field" },
-    { title: t.landing.aigcCard4Title, tags: t.landing.aigcCard4Tags, sub: t.landing.aigcCard4Sub, seed: "kaiju-city" },
+    {
+      title: t.landing.aigcCard1Title,
+      tags: t.landing.aigcCard1Tags,
+      sub: t.landing.aigcCard1Sub,
+      seed: "glass-strawberry",
+    },
+    {
+      title: t.landing.aigcCard2Title,
+      tags: t.landing.aigcCard2Tags,
+      sub: t.landing.aigcCard2Sub,
+      seed: "golden-hour-coast",
+    },
+    {
+      title: t.landing.aigcCard3Title,
+      tags: t.landing.aigcCard3Tags,
+      sub: t.landing.aigcCard3Sub,
+      seed: "saturn-field",
+    },
+    {
+      title: t.landing.aigcCard4Title,
+      tags: t.landing.aigcCard4Tags,
+      sub: t.landing.aigcCard4Sub,
+      seed: "kaiju-city",
+    },
   ];
 
   return (
@@ -27,7 +47,9 @@ export default function AigcStudioShowcase() {
           <br />
           <span className="italic text-primary">{t.landing.aigcTitle2}</span>
         </h2>
-        <p className="font-body text-on-surface-variant max-w-2xl mx-auto leading-relaxed">{t.landing.aigcSub}</p>
+        <p className="font-body text-on-surface-variant max-w-2xl mx-auto leading-relaxed">
+          {t.landing.aigcSub}
+        </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-12">
@@ -50,7 +72,9 @@ export default function AigcStudioShowcase() {
               <Play className="w-6 h-6 ml-1" fill="currentColor" />
             </span>
             <figcaption className="absolute inset-x-0 bottom-0 p-4">
-              <p className="font-label text-[10px] uppercase tracking-[0.22em] text-primary/80 mb-1.5">{c.tags}</p>
+              <p className="font-label text-[10px] uppercase tracking-[0.22em] text-primary/80 mb-1.5">
+                {c.tags}
+              </p>
               <h3 className="font-headline italic text-xl text-white leading-tight">{c.title}</h3>
               <p className="font-body text-[12px] text-white/65 mt-1.5">{c.sub}</p>
             </figcaption>

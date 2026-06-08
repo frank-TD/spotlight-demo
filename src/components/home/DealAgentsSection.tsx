@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { useT } from "@/hooks/useT";
-import SectionLabel from "./SectionLabel";
 import { ArrowRight, Check } from "lucide-react";
+import SectionLabel from "./SectionLabel";
+import { useT } from "@/hooks/useT";
 import { cn } from "@/lib/utils";
 
 // The headline moat moment from the design review. The 4-turn negotiation
@@ -15,9 +15,9 @@ export default function DealAgentsSection() {
 
   const bubbles = [
     { who: "marlow" as const, role: t.landing.dealRoleMarlow, text: t.landing.dealMsg1 },
-    { who: "wren"   as const, role: t.landing.dealRoleWren,   text: t.landing.dealMsg2 },
+    { who: "wren" as const, role: t.landing.dealRoleWren, text: t.landing.dealMsg2 },
     { who: "marlow" as const, role: t.landing.dealRoleMarlow, text: t.landing.dealMsg3 },
-    { who: "wren"   as const, role: t.landing.dealRoleWren,   text: t.landing.dealMsg4 },
+    { who: "wren" as const, role: t.landing.dealRoleWren, text: t.landing.dealMsg4 },
   ];
 
   // Use IntersectionObserver so we don't fire until the panel is on-screen,
@@ -100,14 +100,26 @@ export default function DealAgentsSection() {
             <br />
             <span className="italic text-primary">{t.landing.dealTitle2}</span>
           </h2>
-          <p className="font-body text-on-surface-variant leading-relaxed max-w-xl">{t.landing.dealBody}</p>
+          <p className="font-body text-on-surface-variant leading-relaxed max-w-xl">
+            {t.landing.dealBody}
+          </p>
           <button className="inline-flex items-center gap-2 font-label text-[11px] uppercase tracking-[0.24em] text-primary border border-primary/40 px-5 py-3 rounded-full hover:bg-primary/10 transition-colors">
             {t.landing.dealCta} <ArrowRight className="w-3.5 h-3.5" />
           </button>
 
           <div className="grid grid-cols-2 gap-4 pt-4">
-            <AgentCard initial="M" name={t.landing.dealCardMarlow} role={t.landing.dealCardMarlowRole} accent="gold" />
-            <AgentCard initial="W" name={t.landing.dealCardWren} role={t.landing.dealCardWrenRole} accent="blue" />
+            <AgentCard
+              initial="M"
+              name={t.landing.dealCardMarlow}
+              role={t.landing.dealCardMarlowRole}
+              accent="gold"
+            />
+            <AgentCard
+              initial="W"
+              name={t.landing.dealCardWren}
+              role={t.landing.dealCardWrenRole}
+              accent="blue"
+            />
           </div>
         </div>
       </div>
@@ -138,7 +150,9 @@ function Bubble({
       <div
         className={cn(
           "w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0 border",
-          isMarlow ? "border-primary/50 bg-primary/15 text-primary" : "border-secondary/50 bg-secondary/15 text-secondary"
+          isMarlow
+            ? "border-primary/50 bg-primary/15 text-primary"
+            : "border-secondary/50 bg-secondary/15 text-secondary"
         )}
       >
         {isMarlow ? "M" : "W"}
@@ -196,7 +210,9 @@ function AgentCard({
         {initial}
       </div>
       <p className="font-headline text-xl text-on-surface">{name}</p>
-      <p className="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant mt-1.5">{role}</p>
+      <p className="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant mt-1.5">
+        {role}
+      </p>
     </div>
   );
 }
