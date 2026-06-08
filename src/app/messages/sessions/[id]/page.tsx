@@ -9,7 +9,14 @@ import {
   PARTICIPANTS,
   NEEDS,
 } from "@/lib/mock-data";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Send, Paperclip, Star, Film, FileVideo, Bot, Sparkles, Plus, Check } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -20,7 +27,13 @@ import { useT } from "@/hooks/useT";
 const ARIA = CREATORS[0];
 const INDUSTRIES = ["AI Tech", "Brand Film", "Product Launch"];
 
-type ShowcaseItem = { id: string; title: string; duration: string; description?: string; fileName?: string };
+type ShowcaseItem = {
+  id: string;
+  title: string;
+  duration: string;
+  description?: string;
+  fileName?: string;
+};
 
 export default function SessionPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
@@ -69,7 +82,8 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
   const groupMembers = groupMemberIds.map((mid) => PARTICIPANTS[mid]).filter(Boolean);
 
   const roleLabel = (p: (typeof PARTICIPANTS)[string]) => {
-    if (p.isAgent) return p.represents === "backer" ? t.chat.agentRoleBacker : t.chat.agentRoleCreator;
+    if (p.isAgent)
+      return p.represents === "backer" ? t.chat.agentRoleBacker : t.chat.agentRoleCreator;
     return p.role === "backer" ? t.chat.roleBacker : t.chat.roleCreator;
   };
 
@@ -108,25 +122,38 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
 
   // Counterpart full profile data (for dialog)
   const ariaProfile = {
-    name: counterpartIsAria ? (creatorEdits.nickname ?? ARIA.nickname) : cp?.nickname ?? "",
-    avatar: counterpartIsAria ? ARIA.avatar : cp?.avatar ?? "?",
+    name: counterpartIsAria ? (creatorEdits.nickname ?? ARIA.nickname) : (cp?.nickname ?? ""),
+    avatar: counterpartIsAria ? ARIA.avatar : (cp?.avatar ?? "?"),
     avatarUrl: counterpartIsAria ? creatorEdits.avatarUrl : undefined,
-    avatarColor: counterpartIsAria ? ARIA.avatarColor : cp?.avatarColor ?? "",
-    bio: counterpartIsAria ? (creatorEdits.bio ?? ARIA.bio) : CREATORS.find((c) => c.id === counterpartId)?.bio ?? "",
-    specialties: counterpartIsAria ? (creatorEdits.specialties ?? ARIA.specialties) : CREATORS.find((c) => c.id === counterpartId)?.specialties ?? [],
+    avatarColor: counterpartIsAria ? ARIA.avatarColor : (cp?.avatarColor ?? ""),
+    bio: counterpartIsAria
+      ? (creatorEdits.bio ?? ARIA.bio)
+      : (CREATORS.find((c) => c.id === counterpartId)?.bio ?? ""),
+    specialties: counterpartIsAria
+      ? (creatorEdits.specialties ?? ARIA.specialties)
+      : (CREATORS.find((c) => c.id === counterpartId)?.specialties ?? []),
     rating: CREATORS.find((c) => c.id === counterpartId)?.rating ?? 0,
     orders: CREATORS.find((c) => c.id === counterpartId)?.orders ?? 0,
     completion: CREATORS.find((c) => c.id === counterpartId)?.completion ?? 0,
     punctuality: CREATORS.find((c) => c.id === counterpartId)?.punctuality ?? 0,
     rateFrom: counterpartIsAria
       ? (creatorEdits.rateFrom ?? ARIA.rateCard.from)
-      : CREATORS.find((c) => c.id === counterpartId)?.rateCard.from ?? 0,
+      : (CREATORS.find((c) => c.id === counterpartId)?.rateCard.from ?? 0),
     activeHours: counterpartIsAria
       ? (creatorEdits.activeHours ?? ARIA.activeHours)
-      : CREATORS.find((c) => c.id === counterpartId)?.activeHours ?? "",
+      : (CREATORS.find((c) => c.id === counterpartId)?.activeHours ?? ""),
     showcase: counterpartIsAria
-      ? ((showcaseEdits ?? ARIA.showcase.map((s) => ({ id: s.id, title: s.title, duration: s.duration }))) as ShowcaseItem[])
-      : (CREATORS.find((c) => c.id === counterpartId)?.showcase.map((s) => ({ id: s.id, title: s.title, duration: s.duration })) as ShowcaseItem[] | undefined) ?? [],
+      ? ((showcaseEdits ??
+          ARIA.showcase.map((s) => ({
+            id: s.id,
+            title: s.title,
+            duration: s.duration,
+          }))) as ShowcaseItem[])
+      : ((CREATORS.find((c) => c.id === counterpartId)?.showcase.map((s) => ({
+          id: s.id,
+          title: s.title,
+          duration: s.duration,
+        })) as ShowcaseItem[] | undefined) ?? []),
   };
 
   const commissioned = [ORDER_ACTIVE, ORDER_COMPLETED];
@@ -175,7 +202,9 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
             })}
           </div>
           <div>
-            <p className="font-headline text-[18px] text-on-surface leading-tight">{session.subject}</p>
+            <p className="font-headline text-[18px] text-on-surface leading-tight">
+              {session.subject}
+            </p>
             <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-0.5 flex items-center gap-1.5">
               {t.chat.groupChat} · {t.chat.participants(groupMembers.length)}
               <span className="inline-flex items-center gap-0.5 text-primary">
@@ -258,15 +287,27 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                 >
                   {isAriaSender && ariaProfile.avatarUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={ariaProfile.avatarUrl} alt={msg.senderName} className="w-8 h-8 object-cover" />
+                    <img
+                      src={ariaProfile.avatarUrl}
+                      alt={msg.senderName}
+                      className="w-8 h-8 object-cover"
+                    />
                   ) : isAgent ? (
                     <Bot className="w-4 h-4" />
                   ) : (
-                    msg.senderName.split(" ").map((n: string) => n[0]).join("")
+                    msg.senderName
+                      .split(" ")
+                      .map((n: string) => n[0])
+                      .join("")
                   )}
                 </button>
               )}
-              <div className={cn("flex flex-col gap-1 max-w-[72%]", isMe ? "items-end" : "items-start")}>
+              <div
+                className={cn(
+                  "flex flex-col gap-1 max-w-[72%]",
+                  isMe ? "items-end" : "items-start"
+                )}
+              >
                 {!isMe && (
                   <span className="font-label text-label-md uppercase tracking-wider px-1 flex items-center gap-1.5">
                     <span className="text-on-surface-variant">{msg.senderName}</span>
@@ -334,7 +375,9 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
       <Dialog open={inviteOpen} onOpenChange={setInviteOpen}>
         <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="font-headline text-[20px]">{t.chat.inviteDialogTitle}</DialogTitle>
+            <DialogTitle className="font-headline text-[20px]">
+              {t.chat.inviteDialogTitle}
+            </DialogTitle>
             <DialogDescription className="font-body text-sm text-on-surface-variant">
               {t.chat.inviteDialogDesc}
             </DialogDescription>
@@ -346,7 +389,9 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
             </p>
 
             {myNeeds.length === 0 ? (
-              <p className="font-body text-sm text-on-surface-variant py-4 text-center">{t.chat.inviteNoNeeds}</p>
+              <p className="font-body text-sm text-on-surface-variant py-4 text-center">
+                {t.chat.inviteNoNeeds}
+              </p>
             ) : (
               <div className="space-y-2">
                 {myNeeds.map((need) => {
@@ -367,13 +412,17 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                         <span
                           className={cn(
                             "mt-0.5 w-5 h-5 rounded-full border flex items-center justify-center shrink-0",
-                            selected ? "border-primary bg-primary text-on-primary" : "border-outline-variant"
+                            selected
+                              ? "border-primary bg-primary text-on-primary"
+                              : "border-outline-variant"
                           )}
                         >
                           {selected && <Check className="w-3 h-3" />}
                         </span>
                         <div className="min-w-0 flex-1">
-                          <p className="font-body font-bold text-sm text-on-surface leading-snug">{need.title}</p>
+                          <p className="font-body font-bold text-sm text-on-surface leading-snug">
+                            {need.title}
+                          </p>
                           <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                             <span
                               className={cn(
@@ -383,7 +432,9 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                                   : "bg-secondary-container text-on-secondary-container"
                               )}
                             >
-                              {need.status === "open" ? t.chat.inviteNeedStatusOpen : t.chat.inviteNeedStatusInProgress}
+                              {need.status === "open"
+                                ? t.chat.inviteNeedStatusOpen
+                                : t.chat.inviteNeedStatusInProgress}
                             </span>
                             <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
                               {t.chat.inviteBudgetLabel}: ¥{need.budget.toLocaleString()}
@@ -442,9 +493,18 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                 >
                   {showImg ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={ariaProfile.avatarUrl} alt={m.nickname} className="w-10 h-10 rounded-full object-cover shrink-0" />
+                    <img
+                      src={ariaProfile.avatarUrl}
+                      alt={m.nickname}
+                      className="w-10 h-10 rounded-full object-cover shrink-0"
+                    />
                   ) : (
-                    <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0", m.avatarColor)}>
+                    <div
+                      className={cn(
+                        "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0",
+                        m.avatarColor
+                      )}
+                    >
                       {m.isAgent ? <Bot className="w-4 h-4" /> : m.avatar}
                     </div>
                   )}
@@ -464,7 +524,9 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                         {roleLabel(m)}
                       </span>
                       {m.id === myId && (
-                        <span className="font-label text-[10px] uppercase tracking-widest text-primary">· YOU</span>
+                        <span className="font-label text-[10px] uppercase tracking-widest text-primary">
+                          · YOU
+                        </span>
                       )}
                     </div>
                     {m.isAgent && (
@@ -551,9 +613,18 @@ function CreatorProfileBody({ data }: { data: CreatorProfileData }) {
       <div className="flex items-start gap-4">
         {data.avatarUrl ? (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={data.avatarUrl} alt={data.name} className="w-16 h-16 rounded-full object-cover shrink-0" />
+          <img
+            src={data.avatarUrl}
+            alt={data.name}
+            className="w-16 h-16 rounded-full object-cover shrink-0"
+          />
         ) : (
-          <div className={cn("w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold shrink-0", data.avatarColor)}>
+          <div
+            className={cn(
+              "w-16 h-16 rounded-full flex items-center justify-center text-xl font-bold shrink-0",
+              data.avatarColor
+            )}
+          >
             {data.avatar}
           </div>
         )}
@@ -608,19 +679,26 @@ function CreatorProfileBody({ data }: { data: CreatorProfileData }) {
           </p>
           <div className="grid grid-cols-3 gap-3">
             {data.showcase.slice(0, 3).map((work, i) => (
-              <div key={work.id} className="rounded-xl overflow-hidden bg-surface-container border border-outline-variant/30">
+              <div
+                key={work.id}
+                className="rounded-xl overflow-hidden bg-surface-container border border-outline-variant/30"
+              >
                 <div
                   className={cn(
                     "aspect-video flex items-center justify-center bg-gradient-to-br",
                     i % 3 === 0 && "from-primary-container via-primary-fixed to-tertiary-container",
-                    i % 3 === 1 && "from-tertiary-container via-tertiary-fixed to-primary-container",
-                    i % 3 === 2 && "from-secondary-container via-secondary-fixed to-primary-container"
+                    i % 3 === 1 &&
+                      "from-tertiary-container via-tertiary-fixed to-primary-container",
+                    i % 3 === 2 &&
+                      "from-secondary-container via-secondary-fixed to-primary-container"
                   )}
                 >
                   <FileVideo className="w-6 h-6 text-primary opacity-70" />
                 </div>
                 <div className="p-2.5">
-                  <p className="font-body font-bold text-xs text-on-surface truncate">{work.title}</p>
+                  <p className="font-body font-bold text-xs text-on-surface truncate">
+                    {work.title}
+                  </p>
                   <p className="font-label text-[9px] uppercase tracking-wider text-on-surface-variant mt-0.5">
                     {work.duration}
                   </p>
@@ -637,7 +715,14 @@ function CreatorProfileBody({ data }: { data: CreatorProfileData }) {
 function BackerProfileBody({
   data,
 }: {
-  data: { name: string; avatar: string; company: string; bio: string; commissionedCount: number; totalSpent: number };
+  data: {
+    name: string;
+    avatar: string;
+    company: string;
+    bio: string;
+    commissionedCount: number;
+    totalSpent: number;
+  };
 }) {
   const t = useT();
   const commissioned = [ORDER_ACTIVE, ORDER_COMPLETED];
@@ -675,7 +760,10 @@ function BackerProfileBody({
       <p className="font-body text-sm text-on-surface-variant leading-relaxed">{data.bio}</p>
 
       <div className="grid grid-cols-3 gap-3 pt-1">
-        <StatTile label={t.chat.backerProjectsCommissioned} value={String(data.commissionedCount)} />
+        <StatTile
+          label={t.chat.backerProjectsCommissioned}
+          value={String(data.commissionedCount)}
+        />
         <StatTile label={t.chat.backerTotalSpent} value={`¥${data.totalSpent.toLocaleString()}`} />
         <StatTile label={t.chat.backerJoinedAt} value={t.chat.backerJoinedAtValue} />
       </div>
@@ -701,9 +789,12 @@ function BackerProfileBody({
                 <Film className="w-4 h-4 text-primary opacity-70" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="font-body font-bold text-on-surface text-sm truncate">{order.title}</p>
+                <p className="font-body font-bold text-on-surface text-sm truncate">
+                  {order.title}
+                </p>
                 <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-0.5">
-                  {t.projects.counterpartCreator}: {order.creator.nickname} · ¥{order.totalFiat.toLocaleString()}
+                  {t.projects.counterpartCreator}: {order.creator.nickname} · ¥
+                  {order.totalFiat.toLocaleString()}
                 </p>
               </div>
             </div>
@@ -718,7 +809,9 @@ function StatTile({ label, value }: { label: string; value: string }) {
   return (
     <div className="bg-surface-container rounded-xl p-3 text-center">
       <p className="font-headline text-[18px] text-on-surface leading-none">{value}</p>
-      <p className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant mt-1.5">{label}</p>
+      <p className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant mt-1.5">
+        {label}
+      </p>
     </div>
   );
 }

@@ -138,10 +138,17 @@ export default function ReferenceUploadDialog({
           {references.length > 0 ? (
             <div className="grid grid-cols-3 gap-3 mt-5">
               {references.map((r) => (
-                <div key={r.id} className="relative group rounded-xl overflow-hidden bg-surface-container border border-outline-variant/40">
+                <div
+                  key={r.id}
+                  className="relative group rounded-xl overflow-hidden bg-surface-container border border-outline-variant/40"
+                >
                   {r.previewUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={r.previewUrl} alt={r.name} className="w-full aspect-square object-cover" />
+                    <img
+                      src={r.previewUrl}
+                      alt={r.name}
+                      className="w-full aspect-square object-cover"
+                    />
                   ) : (
                     <div className="w-full aspect-square flex items-center justify-center text-on-surface-variant">
                       <FileIcon className="w-8 h-8" />

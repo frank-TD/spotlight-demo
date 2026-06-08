@@ -3,7 +3,13 @@ import Link from "next/link";
 import TopNav from "./TopNav";
 import AgentFloat from "./AgentFloat";
 
-export default function AppShell({ children, hideFooter = false }: { children: React.ReactNode; hideFooter?: boolean }) {
+export default function AppShell({
+  children,
+  hideFooter = false,
+}: {
+  children: React.ReactNode;
+  hideFooter?: boolean;
+}) {
   return (
     <div className="min-h-screen flex flex-col bg-surface text-on-surface">
       <TopNav />
@@ -19,8 +25,12 @@ function Footer() {
     <footer className="w-full py-12 bg-surface-container-lowest border-t border-outline-variant/30 mt-16">
       <div className="flex flex-col md:flex-row justify-between items-center px-12 max-w-[1280px] mx-auto gap-8">
         <div className="flex flex-col items-center md:items-start gap-2">
-          <span className="font-headline text-headline-md text-primary italic font-bold">Spotlight</span>
-          <p className="font-body text-on-surface-variant opacity-80 text-sm">© 2026 Spotlight Technologies</p>
+          <span className="font-headline text-headline-md text-primary italic font-bold">
+            Spotlight
+          </span>
+          <p className="font-body text-on-surface-variant opacity-80 text-sm">
+            © 2026 Spotlight Technologies
+          </p>
         </div>
         <nav className="flex gap-8">
           {["About", "Support", "Terms", "Privacy"].map((label) => (

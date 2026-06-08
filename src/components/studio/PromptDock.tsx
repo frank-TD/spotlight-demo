@@ -75,17 +75,23 @@ export default function PromptDock({
   const model = MODELS_BY_MODE[mode].find((m) => m.id === modelId) ?? MODELS_BY_MODE[mode][0];
 
   const placeholder =
-    mode === "image" ? t.aigc.promptImage
-    : mode === "video" ? t.aigc.promptVideo
-    : mode === "voiceover" ? t.aigc.promptVoiceover
-    : t.aigc.promptMusic;
+    mode === "image"
+      ? t.aigc.promptImage
+      : mode === "video"
+        ? t.aigc.promptVideo
+        : mode === "voiceover"
+          ? t.aigc.promptVoiceover
+          : t.aigc.promptMusic;
 
   // The settings summary chip text varies by mode.
   const summary =
-    mode === "image" ? `${settings.aspect ?? "16:9"} / ${settings.quality ?? "2K"} / ${settings.count ?? 1}`
-    : mode === "video" ? `${settings.aspect ?? "16:9"} / ${settings.duration ?? "5 sec"} / ${settings.resolution ?? "1080p"}`
-    : mode === "voiceover" ? `${settings.language ?? "English"} / ${settings.accent ?? "American"} / ${settings.effect ?? "No Effect"}`
-    : `${settings.genre ?? "Cinematic"} / ${settings.mood ?? "Uplifting"} / ${settings.duration ?? "30 sec"}`;
+    mode === "image"
+      ? `${settings.aspect ?? "16:9"} / ${settings.quality ?? "2K"} / ${settings.count ?? 1}`
+      : mode === "video"
+        ? `${settings.aspect ?? "16:9"} / ${settings.duration ?? "5 sec"} / ${settings.resolution ?? "1080p"}`
+        : mode === "voiceover"
+          ? `${settings.language ?? "English"} / ${settings.accent ?? "American"} / ${settings.effect ?? "No Effect"}`
+          : `${settings.genre ?? "Cinematic"} / ${settings.mood ?? "Uplifting"} / ${settings.duration ?? "30 sec"}`;
 
   const ModeIcon = MODE_META.find((m) => m.id === mode)!.icon;
 
@@ -130,7 +136,9 @@ export default function PromptDock({
                   )}
                 >
                   <ImagePlus className="w-3.5 h-3.5" />
-                  {references.length > 0 ? t.aigc.refCount(references.length) : t.aigc.imageReference}
+                  {references.length > 0
+                    ? t.aigc.refCount(references.length)
+                    : t.aigc.imageReference}
                 </button>
               )}
               {mode === "voiceover" && (

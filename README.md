@@ -31,12 +31,12 @@ Creator creates a project and AI trailer
 
 当前版本主要用于验证：
 
-* Landing Page 与品牌视觉方向
-* Creator 与 Backer 的双边 Marketplace 体验
-* 项目浏览、发现与管理流程
-* Spotlight Agents 的基础产品概念
-* 登录、注册与身份相关页面
-* 移动端导航与基础响应式体验
+- Landing Page 与品牌视觉方向
+- Creator 与 Backer 的双边 Marketplace 体验
+- 项目浏览、发现与管理流程
+- Spotlight Agents 的基础产品概念
+- 登录、注册与身份相关页面
+- 移动端导航与基础响应式体验
 
 > 当前 Repo 为 Demo / Prototype，不代表最终生产版本。部分数据、交互和业务逻辑仍为展示用途，尚未接入正式后端服务。
 
@@ -48,23 +48,23 @@ Creator creates a project and AI trailer
 
 Creator 可以在 Spotlight 中：
 
-* 创建 AI 短片项目
-* 上传或生成 Trailer
-* 完善故事、预算与项目资料
-* 提交项目并进入 Marketplace
-* 获得 Backer 的独家支持
-* 根据 Milestone 推进制作与交付
+- 创建 AI 短片项目
+- 上传或生成 Trailer
+- 完善故事、预算与项目资料
+- 提交项目并进入 Marketplace
+- 获得 Backer 的独家支持
+- 根据 Milestone 推进制作与交付
 
 ### 2.2 Backer
 
 Backer 可以在 Spotlight 中：
 
-* 浏览 AI 短片项目
-* 使用 Discovery 页面发现潜在项目
-* 查看项目资料与 Trailer
-* 关注项目、推进沟通与交易
-* 跟踪已支持项目的交付进度
-* 管理订单、钱包与项目状态
+- 浏览 AI 短片项目
+- 使用 Discovery 页面发现潜在项目
+- 查看项目资料与 Trailer
+- 关注项目、推进沟通与交易
+- 跟踪已支持项目的交付进度
+- 管理订单、钱包与项目状态
 
 ### 2.3 Spotlight Agents
 
@@ -76,11 +76,11 @@ Spotlight Agents 是平台中的 AI 代理系统。
 
 主要职责：
 
-* 学习 Backer 的项目偏好
-* 筛选值得关注的项目
-* 提供项目推荐理由与风险提示
-* 协助整理潜在交易条件
-* 跟踪项目状态与关键节点
+- 学习 Backer 的项目偏好
+- 筛选值得关注的项目
+- 提供项目推荐理由与风险提示
+- 协助整理潜在交易条件
+- 跟踪项目状态与关键节点
 
 #### Wren
 
@@ -88,10 +88,10 @@ Spotlight Agents 是平台中的 AI 代理系统。
 
 主要职责：
 
-* 协助 Creator 完善项目资料
-* 管理项目条款与偏好
-* 辅助沟通与交易推进
-* 跟踪制作 Milestone 与交付状态
+- 协助 Creator 完善项目资料
+- 管理项目条款与偏好
+- 辅助沟通与交易推进
+- 跟踪制作 Milestone 与交付状态
 
 ---
 
@@ -99,17 +99,17 @@ Spotlight Agents 是平台中的 AI 代理系统。
 
 当前项目使用：
 
-* [Next.js](https://nextjs.org/) `16.2.6`
-* [React](https://react.dev/) `19.2.4`
-* [TypeScript](https://www.typescriptlang.org/)
-* [Tailwind CSS](https://tailwindcss.com/) `4.x`
-* [Zustand](https://zustand-demo.pmnd.rs/) `5.x`
-* [shadcn](https://ui.shadcn.com/)
-* [Lucide React](https://lucide.dev/)
-* [Base UI](https://base-ui.com/)
-* [Sonner](https://sonner.emilkowal.ski/)
-* ESLint
-* Vercel
+- [Next.js](https://nextjs.org/) `16.2.6`
+- [React](https://react.dev/) `19.2.4`
+- [TypeScript](https://www.typescriptlang.org/)
+- [Tailwind CSS](https://tailwindcss.com/) `4.x`
+- [Zustand](https://zustand-demo.pmnd.rs/) `5.x`
+- [shadcn](https://ui.shadcn.com/)
+- [Lucide React](https://lucide.dev/)
+- [Base UI](https://base-ui.com/)
+- [Sonner](https://sonner.emilkowal.ski/)
+- ESLint
+- Vercel
 
 ---
 
@@ -173,11 +173,11 @@ npm run lint
 
 ## 5. Available Scripts
 
-| Command         | Description  |
-| --------------- | ------------ |
-| `npm run dev`   | 启动本地开发环境     |
-| `npm run build` | 构建生产版本       |
-| `npm run start` | 启动生产版本       |
+| Command         | Description      |
+| --------------- | ---------------- |
+| `npm run dev`   | 启动本地开发环境 |
+| `npm run build` | 构建生产版本     |
+| `npm run start` | 启动生产版本     |
 | `npm run lint`  | 执行 ESLint 检查 |
 
 ---
@@ -193,7 +193,7 @@ spotlight-demo/
 │   │   ├── account/
 │   │   │   └── profile/     # 账户资料页面
 │   │   ├── assets/          # 页面使用的资源
-│   │   ├── discovery/       # 项目发现页面
+│   │   ├── discovery/       # 项目发现页面与 AIGC 工作台
 │   │   ├── login/           # 登录页面
 │   │   ├── market/          # Marketplace 页面
 │   │   ├── messages/        # 消息页面
@@ -201,7 +201,7 @@ spotlight-demo/
 │   │   │   └── [id]/        # 订单详情动态路由
 │   │   ├── projects/        # 项目相关页面
 │   │   ├── register/        # 注册页面
-│   │   ├── studio/          # Studio 页面
+│   │   ├── studio/          # 旧版 Studio 重定向
 │   │   ├── wallet/          # 钱包页面
 │   │   ├── favicon.ico
 │   │   ├── globals.css      # 全局样式
@@ -229,19 +229,20 @@ spotlight-demo/
 
 ## 7. Main Routes
 
-| Route              | Description  |
-| ------------------ | ------------ |
-| `/`                | Landing Page |
-| `/login`           | 登录           |
-| `/register`        | 注册           |
-| `/market`          | Marketplace  |
-| `/discovery`       | 项目发现         |
-| `/projects`        | 项目列表与管理      |
-| `/messages`        | 消息           |
-| `/orders/[id]`     | 订单详情         |
-| `/studio`          | 创作与项目工作台     |
-| `/wallet`          | 钱包           |
-| `/account/profile` | 账户资料         |
+| Route                  | Description                               |
+| ---------------------- | ----------------------------------------- |
+| `/`                    | Landing Page                              |
+| `/login`               | 登录                                      |
+| `/register`            | 注册                                      |
+| `/market`              | Marketplace                               |
+| `/discovery`           | 项目发现                                  |
+| `/discovery/workspace` | AIGC 创作工作台                           |
+| `/projects`            | 项目列表与管理                            |
+| `/messages`            | 消息                                      |
+| `/orders/[id]`         | 订单详情                                  |
+| `/studio`              | 旧版入口，重定向到 `/discovery/workspace` |
+| `/wallet`              | 钱包                                      |
+| `/account/profile`     | 账户资料                                  |
 
 > 页面路由仍在持续迭代。请以 `src/app/` 下的实际目录为准。
 
@@ -251,35 +252,35 @@ spotlight-demo/
 
 ### Included
 
-* Landing Page
-* Marketplace 页面结构
-* Discovery 页面
-* Projects 页面
-* 登录与注册页面
-* 账户资料页面
-* Messages 页面
-* Orders 页面
-* Studio 页面
-* Wallet 页面
-* 移动端导航
-* 基础响应式适配
-* 基础视觉与交互效果
+- Landing Page
+- Marketplace 页面结构
+- Discovery 页面
+- Projects 页面
+- 登录与注册页面
+- 账户资料页面
+- Messages 页面
+- Orders 页面
+- Studio 页面
+- Wallet 页面
+- 移动端导航
+- 基础响应式适配
+- 基础视觉与交互效果
 
 ### Not Yet Production-Ready
 
-* 正式后端 API
-* 数据库接入
-* 用户身份验证
-* 权限控制
-* Creator / Backer 的完整业务状态流转
-* 正式支付与 Escrow
-* 正式 Wallet 逻辑
-* Agent 对话与自动化能力
-* 埋点与数据分析
-* 完整错误处理
-* 完整 Loading / Empty / Error 状态
-* 正式 SEO 配置
-* 性能优化与安全审查
+- 正式后端 API
+- 数据库接入
+- 用户身份验证
+- 权限控制
+- Creator / Backer 的完整业务状态流转
+- 正式支付与 Escrow
+- 正式 Wallet 逻辑
+- Agent 对话与自动化能力
+- 埋点与数据分析
+- 完整错误处理
+- 完整 Loading / Empty / Error 状态
+- 正式 SEO 配置
+- 性能优化与安全审查
 
 ---
 
@@ -310,10 +311,10 @@ NEXT_PUBLIC_SITE_URL=
 
 注意事项：
 
-* 不要将 `.env.local` 上传至 GitHub
-* 不要提交 API Key、数据库密码或 Token
-* 不要在前端暴露服务端密钥
-* 只有允许公开的变量才能使用 `NEXT_PUBLIC_` 前缀
+- 不要将 `.env.local` 上传至 GitHub
+- 不要提交 API Key、数据库密码或 Token
+- 不要在前端暴露服务端密钥
+- 只有允许公开的变量才能使用 `NEXT_PUBLIC_` 前缀
 
 ---
 
@@ -389,15 +390,15 @@ git commit -m "refactor: split market page into reusable components"
 
 常用前缀：
 
-| Prefix     | Description |
-| ---------- | ----------- |
+| Prefix     | Description    |
+| ---------- | -------------- |
 | `feat`     | 新功能         |
-| `fix`      | 修复问题        |
-| `docs`     | 文档修改        |
-| `style`    | 样式调整        |
-| `refactor` | 代码重构        |
-| `perf`     | 性能优化        |
-| `chore`    | 工程配置或杂项     |
+| `fix`      | 修复问题       |
+| `docs`     | 文档修改       |
+| `style`    | 样式调整       |
+| `refactor` | 代码重构       |
+| `perf`     | 性能优化       |
+| `chore`    | 工程配置或杂项 |
 
 ---
 
@@ -412,15 +413,15 @@ npm run build
 
 同时确认：
 
-* 本地可以正常启动
-* 页面没有明显报错
-* 构建成功
-* 没有误提交 `.env.local`
-* 没有误提交真实 API Key
-* 没有误提交 `node_modules`
-* 新增页面在移动端可以正常访问
-* 路由没有死链
-* 关键交互具备基础状态反馈
+- 本地可以正常启动
+- 页面没有明显报错
+- 构建成功
+- 没有误提交 `.env.local`
+- 没有误提交真实 API Key
+- 没有误提交 `node_modules`
+- 新增页面在移动端可以正常访问
+- 路由没有死链
+- 关键交互具备基础状态反馈
 
 ---
 
@@ -434,10 +435,10 @@ https://spotlight-demo-rosy.vercel.app
 
 后续建议：
 
-* `main` 分支对应 Production
-* Feature Branch 与 Pull Request 使用 Preview Deployment
-* 合并前通过 Preview URL 检查页面表现
-* 正式环境变量统一配置在 Vercel Project Settings 中
+- `main` 分支对应 Production
+- Feature Branch 与 Pull Request 使用 Preview Deployment
+- 合并前通过 Preview URL 检查页面表现
+- 正式环境变量统一配置在 Vercel Project Settings 中
 
 ---
 
@@ -445,10 +446,10 @@ https://spotlight-demo-rosy.vercel.app
 
 当前源码主要用于：
 
-* 产品概念验证
-* 页面结构同步
-* UI 与交互方向展示
-* 开发团队接手与继续迭代
+- 产品概念验证
+- 页面结构同步
+- UI 与交互方向展示
+- 开发团队接手与继续迭代
 
 开发团队接手后，建议优先完成：
 
@@ -469,10 +470,10 @@ https://spotlight-demo-rosy.vercel.app
 
 产品、设计与开发相关修改建议通过以下方式记录：
 
-* GitHub Issue
-* Pull Request
-* 项目协作群
-* 产品文档
+- GitHub Issue
+- Pull Request
+- 项目协作群
+- 产品文档
 
 避免只在聊天记录中确认关键需求。
 

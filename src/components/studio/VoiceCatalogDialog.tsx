@@ -58,7 +58,9 @@ export default function VoiceCatalogDialog({
                   {t.aigc.selectedVoice}
                 </span>
                 <span className="inline-flex items-center gap-2 bg-surface-container rounded-full pl-1.5 pr-3 py-1">
-                  <span className={cn("w-6 h-6 rounded-full bg-gradient-to-br", HUE_BG[selected.hue])} />
+                  <span
+                    className={cn("w-6 h-6 rounded-full bg-gradient-to-br", HUE_BG[selected.hue])}
+                  />
                   <span className="font-body text-sm text-on-surface">{selected.name}</span>
                 </span>
               </div>
@@ -75,18 +77,27 @@ export default function VoiceCatalogDialog({
                   key={v.id}
                   className={cn(
                     "flex items-center gap-4 p-3 rounded-2xl border transition-colors",
-                    isSel ? "border-primary/40 bg-primary-container/30" : "border-outline-variant/40 hover:bg-surface-container"
+                    isSel
+                      ? "border-primary/40 bg-primary-container/30"
+                      : "border-outline-variant/40 hover:bg-surface-container"
                   )}
                 >
                   {/* Thumbnail + play */}
                   <button
                     onClick={() => togglePlay(v.id)}
-                    className={cn("relative w-14 h-14 rounded-xl bg-gradient-to-br shrink-0 flex items-center justify-center group", HUE_BG[v.hue])}
+                    className={cn(
+                      "relative w-14 h-14 rounded-xl bg-gradient-to-br shrink-0 flex items-center justify-center group",
+                      HUE_BG[v.hue]
+                    )}
                     aria-label="preview voice"
                   >
                     <span className="absolute inset-0 rounded-xl bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity" />
                     <span className="relative w-8 h-8 rounded-full bg-white/90 flex items-center justify-center shadow">
-                      {isPlaying ? <Pause className="w-3.5 h-3.5 text-on-surface" /> : <Play className="w-3.5 h-3.5 text-on-surface ml-0.5" fill="currentColor" />}
+                      {isPlaying ? (
+                        <Pause className="w-3.5 h-3.5 text-on-surface" />
+                      ) : (
+                        <Play className="w-3.5 h-3.5 text-on-surface ml-0.5" fill="currentColor" />
+                      )}
                     </span>
                   </button>
 
@@ -98,7 +109,9 @@ export default function VoiceCatalogDialog({
                         <Waveform seed={v.id} bars={40} animated />
                       </div>
                     ) : (
-                      <p className="font-body text-sm text-on-surface-variant truncate">{v.description}</p>
+                      <p className="font-body text-sm text-on-surface-variant truncate">
+                        {v.description}
+                      </p>
                     )}
                   </div>
 
@@ -108,7 +121,10 @@ export default function VoiceCatalogDialog({
                       {v.gender}
                     </span>
                     {v.tags.map((tag) => (
-                      <span key={tag} className="font-label text-[10px] uppercase tracking-widest bg-surface-container-high text-on-surface-variant px-2.5 py-1 rounded-full">
+                      <span
+                        key={tag}
+                        className="font-label text-[10px] uppercase tracking-widest bg-surface-container-high text-on-surface-variant px-2.5 py-1 rounded-full"
+                      >
                         {tag}
                       </span>
                     ))}
@@ -122,7 +138,9 @@ export default function VoiceCatalogDialog({
                     }}
                     className={cn(
                       "shrink-0 inline-flex items-center gap-1.5 font-label text-[10px] uppercase tracking-wider px-4 py-2 rounded-full transition-colors",
-                      isSel ? "bg-primary text-on-primary" : "border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary"
+                      isSel
+                        ? "bg-primary text-on-primary"
+                        : "border border-outline-variant text-on-surface-variant hover:border-primary hover:text-primary"
                     )}
                   >
                     {isSel && <Check className="w-3 h-3" />}

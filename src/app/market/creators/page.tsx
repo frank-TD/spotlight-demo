@@ -95,61 +95,63 @@ export default function CreatorsPage() {
 
         {/* Grid */}
         {filtered.length === 0 ? (
-          <p className="font-body text-sm text-on-surface-variant text-center py-20">{t.creators.noResults}</p>
+          <p className="font-body text-sm text-on-surface-variant text-center py-20">
+            {t.creators.noResults}
+          </p>
         ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {filtered.map((creator) => (
-            <Link key={creator.id} href={`/market/creators/${creator.id}`}>
-              <div className="group bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-6 h-full flex flex-col hover:shadow-md hover:border-primary/40 transition-all">
-                <div className="flex items-start justify-between mb-4">
-                  <div
-                    className={cn(
-                      "w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold",
-                      creator.avatarColor
-                    )}
-                  >
-                    {creator.avatar}
-                  </div>
-                  <span className="w-9 h-9 flex items-center justify-center rounded-full border border-outline-variant text-on-surface-variant group-hover:bg-primary group-hover:text-on-primary group-hover:border-primary transition-all">
-                    <ArrowUpRight className="w-4 h-4" />
-                  </span>
-                </div>
-
-                <p className="font-headline text-[20px] text-on-surface">{creator.nickname}</p>
-                <div className="flex items-center gap-1.5 mt-1 mb-3">
-                  <Star className="w-3 h-3 fill-tertiary text-tertiary" />
-                  <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
-                    {creator.rating} · {creator.orders} {t.creators.projectsLabel}
-                  </span>
-                </div>
-
-                <p className="font-body text-xs text-on-surface-variant leading-relaxed mb-4 flex-1 line-clamp-2">
-                  {creator.bio}
-                </p>
-
-                <div className="flex flex-wrap gap-1.5 mb-4">
-                  {creator.specialties.slice(0, 2).map((s) => (
-                    <span
-                      key={s}
-                      className="font-label text-[10px] uppercase tracking-widest bg-primary-container text-on-primary-container px-2.5 py-0.5 rounded-full"
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {filtered.map((creator) => (
+              <Link key={creator.id} href={`/market/creators/${creator.id}`}>
+                <div className="group bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-6 h-full flex flex-col hover:shadow-md hover:border-primary/40 transition-all">
+                  <div className="flex items-start justify-between mb-4">
+                    <div
+                      className={cn(
+                        "w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold",
+                        creator.avatarColor
+                      )}
                     >
-                      {s}
+                      {creator.avatar}
+                    </div>
+                    <span className="w-9 h-9 flex items-center justify-center rounded-full border border-outline-variant text-on-surface-variant group-hover:bg-primary group-hover:text-on-primary group-hover:border-primary transition-all">
+                      <ArrowUpRight className="w-4 h-4" />
                     </span>
-                  ))}
-                </div>
+                  </div>
 
-                <div className="flex items-center justify-between pt-4 border-t border-outline-variant/30">
-                  <span className="font-label text-label-md uppercase tracking-widest text-on-surface-variant">
-                    {t.creators.fromLabel}
-                  </span>
-                  <span className="font-headline text-[16px] text-on-surface">
-                    ¥{creator.rateCard.from.toLocaleString()}
-                  </span>
+                  <p className="font-headline text-[20px] text-on-surface">{creator.nickname}</p>
+                  <div className="flex items-center gap-1.5 mt-1 mb-3">
+                    <Star className="w-3 h-3 fill-tertiary text-tertiary" />
+                    <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                      {creator.rating} · {creator.orders} {t.creators.projectsLabel}
+                    </span>
+                  </div>
+
+                  <p className="font-body text-xs text-on-surface-variant leading-relaxed mb-4 flex-1 line-clamp-2">
+                    {creator.bio}
+                  </p>
+
+                  <div className="flex flex-wrap gap-1.5 mb-4">
+                    {creator.specialties.slice(0, 2).map((s) => (
+                      <span
+                        key={s}
+                        className="font-label text-[10px] uppercase tracking-widest bg-primary-container text-on-primary-container px-2.5 py-0.5 rounded-full"
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 border-t border-outline-variant/30">
+                    <span className="font-label text-label-md uppercase tracking-widest text-on-surface-variant">
+                      {t.creators.fromLabel}
+                    </span>
+                    <span className="font-headline text-[16px] text-on-surface">
+                      ¥{creator.rateCard.from.toLocaleString()}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </Link>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
         )}
       </div>
     </AppShell>

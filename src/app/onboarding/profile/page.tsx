@@ -116,7 +116,11 @@ function Section({
             {required ? t.onboarding.required : t.onboarding.optional}
           </span>
         </label>
-        {hint && <span className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">{hint}</span>}
+        {hint && (
+          <span className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
+            {hint}
+          </span>
+        )}
       </div>
       {children}
     </div>
@@ -228,7 +232,9 @@ function BackerForm({
   onSubmit,
   onFinish,
 }: {
-  onSubmit: (prefs: Partial<NonNullable<ReturnType<typeof useStore.getState>["userPreferences"]["backer"]>>) => void;
+  onSubmit: (
+    prefs: Partial<NonNullable<ReturnType<typeof useStore.getState>["userPreferences"]["backer"]>>
+  ) => void;
   onFinish: () => void;
 }) {
   const t = useT();
@@ -260,7 +266,11 @@ function BackerForm({
   return (
     <div className="space-y-6">
       <Section label={t.onboarding.fBCompany} required>
-        <TextInput placeholder={t.onboarding.fBCompanyPh} value={company} onChange={(e) => setCompany(e.target.value)} />
+        <TextInput
+          placeholder={t.onboarding.fBCompanyPh}
+          value={company}
+          onChange={(e) => setCompany(e.target.value)}
+        />
       </Section>
       <Section label={t.onboarding.fBIndustry} required>
         <ChipGroup options={t.onboarding.industries} value={industry} onChange={setIndustry} />
@@ -269,13 +279,22 @@ function BackerForm({
         <ChipGroup options={t.onboarding.budgetTiers} value={budgetTier} onChange={setBudgetTier} />
       </Section>
       <Section label={t.onboarding.fBContentTypes}>
-        <ChipGroup options={t.onboarding.contentTypes} value={contentTypes} onChange={setContentTypes} multi />
+        <ChipGroup
+          options={t.onboarding.contentTypes}
+          value={contentTypes}
+          onChange={setContentTypes}
+          multi
+        />
       </Section>
       <Section label={t.onboarding.fBStyles}>
         <ChipGroup options={t.onboarding.backerStyles} value={styles} onChange={setStyles} multi />
       </Section>
       <Section label={t.onboarding.fBBio}>
-        <Textarea placeholder={t.onboarding.fBBioPh} value={bio} onChange={(e) => setBio(e.target.value)} />
+        <Textarea
+          placeholder={t.onboarding.fBBioPh}
+          value={bio}
+          onChange={(e) => setBio(e.target.value)}
+        />
       </Section>
       <FormActions
         canSubmit={canSubmit}
@@ -294,7 +313,9 @@ function CreatorForm({
   onSubmit,
   onFinish,
 }: {
-  onSubmit: (prefs: Partial<NonNullable<ReturnType<typeof useStore.getState>["userPreferences"]["creator"]>>) => void;
+  onSubmit: (
+    prefs: Partial<NonNullable<ReturnType<typeof useStore.getState>["userPreferences"]["creator"]>>
+  ) => void;
   onFinish: () => void;
 }) {
   const t = useT();
@@ -314,7 +335,9 @@ function CreatorForm({
 
   const submit = () => {
     if (!canSubmit) {
-      toast.error(specialties.length === 0 ? t.onboarding.errSpecialtiesMin : t.onboarding.errRequired);
+      toast.error(
+        specialties.length === 0 ? t.onboarding.errSpecialtiesMin : t.onboarding.errRequired
+      );
       return;
     }
     onSubmit({
@@ -340,10 +363,20 @@ function CreatorForm({
         />
       </Section>
       <Section label={t.onboarding.fCSpecialties} required hint={t.onboarding.fCSpecialtiesHint}>
-        <ChipGroup options={t.onboarding.specialties} value={specialties} onChange={setSpecialties} multi max={3} />
+        <ChipGroup
+          options={t.onboarding.specialties}
+          value={specialties}
+          onChange={setSpecialties}
+          multi
+          max={3}
+        />
       </Section>
       <Section label={t.onboarding.fCExperience} required>
-        <ChipGroup options={t.onboarding.experienceTiers} value={experience} onChange={setExperience} />
+        <ChipGroup
+          options={t.onboarding.experienceTiers}
+          value={experience}
+          onChange={setExperience}
+        />
       </Section>
       <Section label={t.onboarding.fCRate} required>
         <TextInput
@@ -365,10 +398,18 @@ function CreatorForm({
         <ChipGroup options={t.onboarding.creatorStyles} value={styles} onChange={setStyles} multi />
       </Section>
       <Section label={t.onboarding.fCAvailability}>
-        <ChipGroup options={t.onboarding.availabilities} value={availability} onChange={setAvailability} />
+        <ChipGroup
+          options={t.onboarding.availabilities}
+          value={availability}
+          onChange={setAvailability}
+        />
       </Section>
       <Section label={t.onboarding.fCBio}>
-        <Textarea placeholder={t.onboarding.fCBioPh} value={bio} onChange={(e) => setBio(e.target.value)} />
+        <Textarea
+          placeholder={t.onboarding.fCBioPh}
+          value={bio}
+          onChange={(e) => setBio(e.target.value)}
+        />
       </Section>
       <FormActions
         canSubmit={canSubmit}

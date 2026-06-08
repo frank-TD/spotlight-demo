@@ -22,11 +22,16 @@ function gradientFor(seed: string): string {
 
 function aspectClass(aspect?: string): string {
   switch (aspect) {
-    case "1:1": return "aspect-square";
-    case "4:3": return "aspect-[4/3]";
-    case "9:16": return "aspect-[9/16]";
-    case "21:9": return "aspect-[21/9]";
-    default: return "aspect-video";
+    case "1:1":
+      return "aspect-square";
+    case "4:3":
+      return "aspect-[4/3]";
+    case "9:16":
+      return "aspect-[9/16]";
+    case "21:9":
+      return "aspect-[21/9]";
+    default:
+      return "aspect-video";
   }
 }
 
@@ -62,7 +67,15 @@ export default function AssetCard({
   // Video — poster + play overlay. The whole card opens the lightbox;
   // the play button inside the overlay still triggers the playback toast.
   if (asset.mode === "video") {
-    return <VisualCard asset={asset} onDownload={onDownload} onPlay={onPlay} isVideo onOpen={openLightbox} />;
+    return (
+      <VisualCard
+        asset={asset}
+        onDownload={onDownload}
+        onPlay={onPlay}
+        isVideo
+        onOpen={openLightbox}
+      />
+    );
   }
 
   // Voiceover / Music — waveform card
@@ -74,7 +87,11 @@ export default function AssetCard({
           {isMusic ? <Music2 className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
         </span>
         <p className="font-body text-sm text-on-surface line-clamp-1 flex-1">{asset.prompt}</p>
-        <button onClick={onDownload} className="text-on-surface-variant hover:text-primary transition-colors" aria-label="download">
+        <button
+          onClick={onDownload}
+          className="text-on-surface-variant hover:text-primary transition-colors"
+          aria-label="download"
+        >
           <Download className="w-4 h-4" />
         </button>
       </div>
@@ -85,12 +102,23 @@ export default function AssetCard({
           className="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center shrink-0 hover:opacity-90 active:scale-95 transition-all"
           aria-label="play"
         >
-          {playing ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4 ml-0.5" fill="currentColor" />}
+          {playing ? (
+            <Pause className="w-4 h-4" />
+          ) : (
+            <Play className="w-4 h-4 ml-0.5" fill="currentColor" />
+          )}
         </button>
         <div className="flex-1 h-9">
-          <Waveform seed={asset.waveformSeed ?? asset.id} bars={56} animated={playing} progress={playing ? 0.5 : undefined} />
+          <Waveform
+            seed={asset.waveformSeed ?? asset.id}
+            bars={56}
+            animated={playing}
+            progress={playing ? 0.5 : undefined}
+          />
         </div>
-        <span className="font-mono text-xs text-on-surface-variant shrink-0">{fmtDuration(asset.durationSec)}</span>
+        <span className="font-mono text-xs text-on-surface-variant shrink-0">
+          {fmtDuration(asset.durationSec)}
+        </span>
       </div>
 
       {/* Metadata chips */}
@@ -116,7 +144,11 @@ export default function AssetCard({
 
 function Chip({ children }: { children: React.ReactNode }) {
   return (
-    <span className={cn("font-label text-[10px] uppercase tracking-widest bg-surface-container text-on-surface-variant px-2.5 py-1 rounded-full")}>
+    <span
+      className={cn(
+        "font-label text-[10px] uppercase tracking-widest bg-surface-container text-on-surface-variant px-2.5 py-1 rounded-full"
+      )}
+    >
       {children}
     </span>
   );

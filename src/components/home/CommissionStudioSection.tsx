@@ -6,11 +6,51 @@ import SectionLabel from "./SectionLabel";
 import HorizontalCardRow, { type RowCard } from "./HorizontalCardRow";
 
 const STUDIO: RowCard[] = [
-  { id: "s1", title: "Dune Metropolis", creator: "Aria Song",      city: "Shanghai", category: "Brand Film",  priceRange: "¥150K–520K", seed: "dune" },
-  { id: "s2", title: "Static Bloom II", creator: "Sofia Okonkwo",  city: "Seoul",    category: "Commercial",  priceRange: "¥90K–280K",  seed: "staticbloom2" },
-  { id: "s3", title: "Biodome Alpha",   creator: "Yuki Tanaka",    city: "Osaka",    category: "Architecture",priceRange: "¥130K–400K", seed: "biodome" },
-  { id: "s4", title: "Iridescent Flow", creator: "Marco Reyes",    city: "Tokyo",    category: "Abstract",    priceRange: "¥160K–500K", seed: "iridescent" },
-  { id: "s5", title: "Glassine Garden", creator: "Yuki Tanaka",    city: "Osaka",    category: "Nature",      priceRange: "¥80K–320K",  seed: "glassine" },
+  {
+    id: "s1",
+    title: "Dune Metropolis",
+    creator: "Aria Song",
+    city: "Shanghai",
+    category: "Brand Film",
+    priceRange: "¥150K–520K",
+    seed: "dune",
+  },
+  {
+    id: "s2",
+    title: "Static Bloom II",
+    creator: "Sofia Okonkwo",
+    city: "Seoul",
+    category: "Commercial",
+    priceRange: "¥90K–280K",
+    seed: "staticbloom2",
+  },
+  {
+    id: "s3",
+    title: "Biodome Alpha",
+    creator: "Yuki Tanaka",
+    city: "Osaka",
+    category: "Architecture",
+    priceRange: "¥130K–400K",
+    seed: "biodome",
+  },
+  {
+    id: "s4",
+    title: "Iridescent Flow",
+    creator: "Marco Reyes",
+    city: "Tokyo",
+    category: "Abstract",
+    priceRange: "¥160K–500K",
+    seed: "iridescent",
+  },
+  {
+    id: "s5",
+    title: "Glassine Garden",
+    creator: "Yuki Tanaka",
+    city: "Osaka",
+    category: "Nature",
+    priceRange: "¥80K–320K",
+    seed: "glassine",
+  },
 ];
 
 export default function CommissionStudioSection() {

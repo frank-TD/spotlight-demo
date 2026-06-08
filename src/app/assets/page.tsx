@@ -35,17 +35,30 @@ export default function AssetsPage() {
       queue: t.distribute.statusQueue,
       live: t.distribute.statusLive,
       takedown: t.distribute.statusTakedown,
-    }[s]);
+    })[s];
 
-  const STAGES: DistStatus[] = ["metadata", "platforms", "payment", "neowow_review", "platform_review", "queue", "live"];
+  const STAGES: DistStatus[] = [
+    "metadata",
+    "platforms",
+    "payment",
+    "neowow_review",
+    "platform_review",
+    "queue",
+    "live",
+  ];
 
   return (
     <AppShell>
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 pt-10 pb-16">
-        <div className="animate-fade-up flex items-end justify-between mb-12" style={{ animationDelay: "0ms" }}>
+        <div
+          className="animate-fade-up flex items-end justify-between mb-12"
+          style={{ animationDelay: "0ms" }}
+        >
           <div>
             <h1 className="font-headline text-headline-lg text-on-surface">{t.assets.title}</h1>
-            <p className="text-on-surface-variant mt-2 font-body opacity-80 italic">{t.assets.subtitle}</p>
+            <p className="text-on-surface-variant mt-2 font-body opacity-80 italic">
+              {t.assets.subtitle}
+            </p>
           </div>
           {tab === "created" && (
             <button
@@ -58,7 +71,10 @@ export default function AssetsPage() {
         </div>
 
         {/* Tabs */}
-        <div className="animate-fade-up flex border-b border-outline-variant/30 mb-8 gap-2" style={{ animationDelay: "100ms" }}>
+        <div
+          className="animate-fade-up flex border-b border-outline-variant/30 mb-8 gap-2"
+          style={{ animationDelay: "100ms" }}
+        >
           {(["created", "purchased"] as const).map((tabKey) => (
             <button
               key={tabKey}
@@ -83,7 +99,8 @@ export default function AssetsPage() {
               const dist = distributionByAsset[asset.id];
               const stageIdx = dist ? STAGES.indexOf(dist.status) : -1;
               const isLive = dist?.status === "live";
-              const isInReview = dist && ["neowow_review", "platform_review", "queue"].includes(dist.status);
+              const isInReview =
+                dist && ["neowow_review", "platform_review", "queue"].includes(dist.status);
               const isTakedown = dist?.status === "takedown";
               const hasDraft = dist && ["metadata", "platforms", "payment"].includes(dist.status);
               return (
@@ -95,17 +112,24 @@ export default function AssetsPage() {
                   <div
                     className={cn(
                       "aspect-video bg-gradient-to-br flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-500",
-                      i % 3 === 0 && "from-primary-container via-primary-fixed to-tertiary-container",
-                      i % 3 === 1 && "from-tertiary-container via-tertiary-fixed to-primary-container",
-                      i % 3 === 2 && "from-secondary-container via-secondary-fixed to-primary-container"
+                      i % 3 === 0 &&
+                        "from-primary-container via-primary-fixed to-tertiary-container",
+                      i % 3 === 1 &&
+                        "from-tertiary-container via-tertiary-fixed to-primary-container",
+                      i % 3 === 2 &&
+                        "from-secondary-container via-secondary-fixed to-primary-container"
                     )}
                   >
                     <Film className="w-10 h-10 text-primary opacity-70" />
                   </div>
                   <div className="p-5 flex-1 flex flex-col">
                     <div className="flex items-start justify-between gap-2 mb-2">
-                      <p className="font-headline text-[18px] text-on-surface leading-snug">{asset.title}</p>
-                      {asset.showcased && <Star className="w-4 h-4 fill-tertiary text-tertiary shrink-0 mt-1" />}
+                      <p className="font-headline text-[18px] text-on-surface leading-snug">
+                        {asset.title}
+                      </p>
+                      {asset.showcased && (
+                        <Star className="w-4 h-4 fill-tertiary text-tertiary shrink-0 mt-1" />
+                      )}
                     </div>
                     <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mb-1">
                       {asset.size} · {asset.duration}
@@ -222,7 +246,8 @@ export default function AssetsPage() {
               const dist = distributionByAsset[asset.id];
               const stageIdx = dist ? STAGES.indexOf(dist.status) : -1;
               const isLive = dist?.status === "live";
-              const isInReview = dist && ["neowow_review", "platform_review", "queue"].includes(dist.status);
+              const isInReview =
+                dist && ["neowow_review", "platform_review", "queue"].includes(dist.status);
               const isTakedown = dist?.status === "takedown";
               const hasDraft = dist && ["metadata", "platforms", "payment"].includes(dist.status);
               return (
@@ -234,9 +259,12 @@ export default function AssetsPage() {
                   <div
                     className={cn(
                       "aspect-video bg-gradient-to-br flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-500",
-                      i % 3 === 0 && "from-primary-container via-primary-fixed to-tertiary-container",
-                      i % 3 === 1 && "from-tertiary-container via-tertiary-fixed to-primary-container",
-                      i % 3 === 2 && "from-secondary-container via-secondary-fixed to-primary-container"
+                      i % 3 === 0 &&
+                        "from-primary-container via-primary-fixed to-tertiary-container",
+                      i % 3 === 1 &&
+                        "from-tertiary-container via-tertiary-fixed to-primary-container",
+                      i % 3 === 2 &&
+                        "from-secondary-container via-secondary-fixed to-primary-container"
                     )}
                   >
                     <Film className="w-10 h-10 text-primary opacity-70" />

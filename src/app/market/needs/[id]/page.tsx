@@ -6,10 +6,27 @@ import { useEffect, useRef, useState } from "react";
 import AppShell from "@/components/layout/AppShell";
 import { NEEDS, BIDS_NEED_001 } from "@/lib/mock-data";
 import Link from "next/link";
-import { ArrowLeft, Clock, DollarSign, Film, Star, Check, X, ChevronRight, Paperclip, Trash2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Clock,
+  DollarSign,
+  Film,
+  Star,
+  Check,
+  X,
+  ChevronRight,
+  Paperclip,
+  Trash2,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { useT } from "@/hooks/useT";
 
 export default function NeedDetailPage({ params }: { params: Promise<{ id: string }> }) {
@@ -21,7 +38,9 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
   const [manageOpen, setManageOpen] = useState(false);
   const [acceptedBid, setAcceptedBid] = useState<string | null>(null);
   const [declinedBids, setDeclinedBids] = useState<string[]>([]);
-  const [attachments, setAttachments] = useState<Array<{ id: string; name: string; size: string; note: string }>>([]);
+  const [attachments, setAttachments] = useState<
+    Array<{ id: string; name: string; size: string; note: string }>
+  >([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -62,7 +81,8 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
 
   const updateAttachmentNote = (id: string, note: string) =>
     setAttachments((prev) => prev.map((a) => (a.id === id ? { ...a, note } : a)));
-  const removeAttachment = (id: string) => setAttachments((prev) => prev.filter((a) => a.id !== id));
+  const removeAttachment = (id: string) =>
+    setAttachments((prev) => prev.filter((a) => a.id !== id));
   const resetBidForm = () => setAttachments([]);
 
   if (!hasHydrated || !isLoggedIn) return null;
@@ -89,9 +109,13 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
                   <span className="font-label text-[10px] uppercase tracking-widest bg-secondary-container text-on-secondary-container px-2.5 py-1 rounded">
                     {need.contentType}
                   </span>
-                  <h1 className="font-headline text-headline-md text-on-surface leading-snug mt-3">{need.title}</h1>
+                  <h1 className="font-headline text-headline-md text-on-surface leading-snug mt-3">
+                    {need.title}
+                  </h1>
                   <p className="font-body text-sm text-on-surface-variant mt-1 italic">
-                    {t.needDetail.postedBy} <span className="font-bold not-italic">{need.backerNickname}</span> · {need.publishedAt}
+                    {t.needDetail.postedBy}{" "}
+                    <span className="font-bold not-italic">{need.backerNickname}</span> ·{" "}
+                    {need.publishedAt}
                   </p>
                 </div>
                 <span
@@ -108,12 +132,23 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                 {[
-                  { icon: DollarSign, label: t.needDetail.budget, value: `¥${need.budget.toLocaleString()}` },
-                  { icon: Clock, label: t.needDetail.deliveryLabel, value: `${need.deliveryDays} ${t.common.days}` },
+                  {
+                    icon: DollarSign,
+                    label: t.needDetail.budget,
+                    value: `¥${need.budget.toLocaleString()}`,
+                  },
+                  {
+                    icon: Clock,
+                    label: t.needDetail.deliveryLabel,
+                    value: `${need.deliveryDays} ${t.common.days}`,
+                  },
                   { icon: Film, label: t.needDetail.duration, value: `${need.durationSec}s` },
                   { icon: Film, label: t.needDetail.episodes, value: `${need.episodes} ep` },
                 ].map(({ icon: Icon, label, value }) => (
-                  <div key={label} className="bg-surface-container rounded-xl px-4 py-3 flex items-center gap-3">
+                  <div
+                    key={label}
+                    className="bg-surface-container rounded-xl px-4 py-3 flex items-center gap-3"
+                  >
                     <Icon className="w-4 h-4 text-on-surface-variant shrink-0" />
                     <div>
                       <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
@@ -131,7 +166,9 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
               <h2 className="font-label text-label-md uppercase tracking-[0.2em] text-on-surface-variant mb-4">
                 {t.needDetail.projectBrief}
               </h2>
-              <p className="font-body text-sm text-on-surface-variant leading-relaxed">{need.brief}</p>
+              <p className="font-body text-sm text-on-surface-variant leading-relaxed">
+                {need.brief}
+              </p>
               <div className="mt-5 flex flex-wrap gap-2">
                 {need.styles.map((s) => (
                   <span
@@ -152,14 +189,22 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
               <div className="space-y-3">
                 {[
                   [t.needDetail.copyright, need.copyright],
-                  [t.needDetail.aiGeneration, need.allowAI ? t.needDetail.allowed : t.needDetail.notAllowed],
+                  [
+                    t.needDetail.aiGeneration,
+                    need.allowAI ? t.needDetail.allowed : t.needDetail.notAllowed,
+                  ],
                   [t.needDetail.ndaRequired, need.nda ? t.needDetail.yes : t.needDetail.no],
-                  [t.needDetail.revisionLimit, `${need.modifyLimit} ${t.needDetail.roundsPerStage}`],
+                  [
+                    t.needDetail.revisionLimit,
+                    `${need.modifyLimit} ${t.needDetail.roundsPerStage}`,
+                  ],
                   [t.needDetail.aspectRatio, need.aspectRatio],
                   [t.needDetail.platforms, need.platforms.join(", ")],
                 ].map(([k, v]) => (
                   <div key={k} className="flex justify-between font-body text-sm">
-                    <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">{k}</span>
+                    <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                      {k}
+                    </span>
                     <span className="font-bold text-on-surface">{v}</span>
                   </div>
                 ))}
@@ -171,7 +216,9 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
           <div className="space-y-4">
             <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-6 sticky top-24">
               <div className="text-center mb-5">
-                <p className="font-headline text-[36px] text-on-surface leading-none">¥{need.budget.toLocaleString()}</p>
+                <p className="font-headline text-[36px] text-on-surface leading-none">
+                  ¥{need.budget.toLocaleString()}
+                </p>
                 <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-2">
                   {t.needDetail.projectBudget}
                 </p>
@@ -191,7 +238,9 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
                       <span className="font-label text-[11px] uppercase tracking-widest bg-primary-container text-on-primary-container px-3 py-1 rounded-full inline-block">
                         {t.needDetail.applicationSubmitted}
                       </span>
-                      <p className="font-body text-xs text-on-surface-variant mt-2">{t.needDetail.waitingDecision}</p>
+                      <p className="font-body text-xs text-on-surface-variant mt-2">
+                        {t.needDetail.waitingDecision}
+                      </p>
                     </div>
                   )}
                 </>
@@ -214,7 +263,9 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
                   [t.common.delivery, `${need.deliveryDays} ${t.common.days}`],
                 ].map(([k, v]) => (
                   <div key={k} className="flex justify-between">
-                    <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">{k}</span>
+                    <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                      {k}
+                    </span>
                     <span className="font-body font-bold text-on-surface text-sm">{v}</span>
                   </div>
                 ))}
@@ -228,7 +279,9 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
       <Dialog open={manageOpen} onOpenChange={setManageOpen}>
         <DialogContent className="sm:max-w-2xl max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="font-headline text-[22px]">{t.needDetail.applicationsTitle(bids.length)}</DialogTitle>
+            <DialogTitle className="font-headline text-[22px]">
+              {t.needDetail.applicationsTitle(bids.length)}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-3 py-2">
             {bids.length === 0 ? (
@@ -240,11 +293,18 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
                 <div key={bid.id} className="border border-outline-variant/40 rounded-2xl p-5">
                   <div className="flex items-start justify-between gap-3">
                     <div className="flex items-center gap-3">
-                      <div className={cn("w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold", bid.creator.avatarColor)}>
+                      <div
+                        className={cn(
+                          "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold",
+                          bid.creator.avatarColor
+                        )}
+                      >
                         {bid.creator.avatar}
                       </div>
                       <div>
-                        <p className="font-headline text-[16px] text-on-surface">{bid.creator.nickname}</p>
+                        <p className="font-headline text-[16px] text-on-surface">
+                          {bid.creator.nickname}
+                        </p>
                         <div className="flex items-center gap-1.5 mt-0.5">
                           <Star className="w-3 h-3 fill-tertiary text-tertiary" />
                           <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
@@ -254,13 +314,17 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="font-headline text-[18px] text-on-surface">¥{bid.quote.toLocaleString()}</p>
+                      <p className="font-headline text-[18px] text-on-surface">
+                        ¥{bid.quote.toLocaleString()}
+                      </p>
                       <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-0.5">
                         {bid.submittedAt}
                       </p>
                     </div>
                   </div>
-                  <p className="font-body text-xs text-on-surface-variant mt-3 leading-relaxed">{bid.note}</p>
+                  <p className="font-body text-xs text-on-surface-variant mt-3 leading-relaxed">
+                    {bid.note}
+                  </p>
                   <div className="flex gap-2 mt-4">
                     {acceptedBid === bid.id ? (
                       <span className="font-label text-[11px] uppercase tracking-widest bg-tertiary-container text-on-tertiary-container px-3 py-1.5 rounded-full">
@@ -321,7 +385,9 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
       >
         <DialogContent className="sm:max-w-lg max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="font-headline text-[22px]">{t.needDetail.bidDialogTitle}</DialogTitle>
+            <DialogTitle className="font-headline text-[22px]">
+              {t.needDetail.bidDialogTitle}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
@@ -334,7 +400,11 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
               <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2">
                 {t.needDetail.proposal}
               </label>
-              <textarea rows={4} className={cn(inputCls, "resize-none")} defaultValue={t.needDetail.proposalDefault} />
+              <textarea
+                rows={4}
+                className={cn(inputCls, "resize-none")}
+                defaultValue={t.needDetail.proposalDefault}
+              />
             </div>
 
             <div>
@@ -346,18 +416,31 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
                   {attachments.length}/5
                 </span>
               </div>
-              <p className="font-body text-xs text-on-surface-variant mb-2">{t.needDetail.attachmentsHint}</p>
+              <p className="font-body text-xs text-on-surface-variant mb-2">
+                {t.needDetail.attachmentsHint}
+              </p>
 
-              <input ref={fileInputRef} type="file" multiple className="hidden" onChange={handleFilePick} />
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                className="hidden"
+                onChange={handleFilePick}
+              />
 
               {attachments.length > 0 && (
                 <div className="mt-3 space-y-2">
                   {attachments.map((a) => (
-                    <div key={a.id} className="border border-outline-variant/40 rounded-xl p-3 bg-surface-container-low">
+                    <div
+                      key={a.id}
+                      className="border border-outline-variant/40 rounded-xl p-3 bg-surface-container-low"
+                    >
                       <div className="flex items-start gap-2">
                         <Paperclip className="w-4 h-4 text-on-surface-variant shrink-0 mt-0.5" />
                         <div className="flex-1 min-w-0">
-                          <p className="font-body text-xs font-bold text-on-surface truncate">{a.name}</p>
+                          <p className="font-body text-xs font-bold text-on-surface truncate">
+                            {a.name}
+                          </p>
                           <p className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant mt-0.5">
                             {a.size}
                           </p>

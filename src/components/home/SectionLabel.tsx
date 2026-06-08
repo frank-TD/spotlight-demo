@@ -1,6 +1,12 @@
 // Tiny shared anchor for every section: `— SMALL UPPERCASE LABEL` in gold.
 // Matches the netlify sample's section-tagging motif.
-export default function SectionLabel({ children, accent = "gold" }: { children: React.ReactNode; accent?: "gold" | "muted" }) {
+export default function SectionLabel({
+  children,
+  accent = "gold",
+}: {
+  children: React.ReactNode;
+  accent?: "gold" | "muted";
+}) {
   return (
     <p
       className={
@@ -8,7 +14,11 @@ export default function SectionLabel({ children, accent = "gold" }: { children: 
         (accent === "gold" ? "text-primary" : "text-on-surface-variant")
       }
     >
-      <span className={accent === "gold" ? "h-px w-8 bg-primary/70" : "h-px w-8 bg-on-surface-variant/40"} />
+      <span
+        className={
+          accent === "gold" ? "h-px w-8 bg-primary/70" : "h-px w-8 bg-on-surface-variant/40"
+        }
+      />
       {children}
     </p>
   );

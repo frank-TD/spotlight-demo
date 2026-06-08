@@ -27,7 +27,10 @@ export default function LoginPage() {
     <div className="min-h-screen bg-surface flex">
       {/* Left brand panel — cinematic dark with a soft gold mesh wash */}
       <div className="hidden lg:flex lg:w-1/2 bg-surface-container-lowest text-on-surface flex-col justify-between p-12 relative overflow-hidden bg-mesh">
-        <Link href="/" className="font-headline text-[32px] italic font-bold leading-none text-primary">
+        <Link
+          href="/"
+          className="font-headline text-[32px] italic font-bold leading-none text-primary"
+        >
           Spotlight
         </Link>
         <div className="relative z-10">
@@ -46,17 +49,24 @@ export default function LoginPage() {
             </div>
           </div>
         </div>
-        <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">{t.login.copyright}</p>
+        <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+          {t.login.copyright}
+        </p>
       </div>
 
       {/* Right form panel */}
       <div className="flex-1 flex items-center justify-center p-8">
         <div className="w-full max-w-sm">
-          <Link href="/" className="lg:hidden font-headline text-[28px] italic font-bold text-on-surface block mb-10">
+          <Link
+            href="/"
+            className="lg:hidden font-headline text-[28px] italic font-bold text-on-surface block mb-10"
+          >
             Spotlight
           </Link>
 
-          <h1 className="font-headline text-[40px] text-on-surface mb-2 leading-tight">{t.login.welcomeBack}</h1>
+          <h1 className="font-headline text-[40px] text-on-surface mb-2 leading-tight">
+            {t.login.welcomeBack}
+          </h1>
           <p className="text-on-surface-variant font-body italic mb-8">{t.login.subtitle}</p>
 
           <form onSubmit={handleLogin} className="space-y-4">

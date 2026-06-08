@@ -211,7 +211,9 @@
   }
   body {
     @apply bg-background text-foreground antialiased;
-    font-feature-settings: "rlig" 1, "calt" 1;
+    font-feature-settings:
+      "rlig" 1,
+      "calt" 1;
   }
   html {
     @apply font-sans;
@@ -235,14 +237,24 @@
   text-rendering: optimizeLegibility;
   -moz-osx-font-smoothing: grayscale;
   font-feature-settings: "liga";
-  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 24;
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
   vertical-align: middle;
 }
 
 /* ─── Animations + decorative backgrounds ───────────────────────────────── */
 @keyframes hero-reveal {
-  from { opacity: 0; transform: translateY(30px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .animate-hero-reveal {
   opacity: 0;
@@ -250,8 +262,13 @@
 }
 
 @keyframes subtle-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 .animate-subtle-float {
   animation: subtle-float 6s ease-in-out infinite;
@@ -268,13 +285,21 @@
     radial-gradient(at 0% 100%, hsla(220, 25%, 9%, 0.55) 0px, transparent 50%);
 }
 
-.glow-hover { transition: box-shadow 0.3s ease, transform 0.3s ease; }
-.glow-hover:hover { box-shadow: 0 0 24px rgba(212, 175, 55, 0.35); }
+.glow-hover {
+  transition:
+    box-shadow 0.3s ease,
+    transform 0.3s ease;
+}
+.glow-hover:hover {
+  box-shadow: 0 0 24px rgba(212, 175, 55, 0.35);
+}
 
 .scroll-reveal {
   opacity: 0;
   transform: translateY(20px);
-  transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  transition:
+    opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1),
+    transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .scroll-reveal.visible {
   opacity: 1;
@@ -284,8 +309,14 @@
 /* Mount-time fade-up — used by page sections / cards so each tab switch
    replays the reveal. Set per-element delay via inline style animationDelay. */
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 .animate-fade-up {
   opacity: 0;
@@ -295,8 +326,12 @@
 /* Opacity-only fade for inline text where transform would force inline-block
    and clip italic overhangs (e.g. the gradient brand word). */
 @keyframes fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 .animate-fade-in {
   opacity: 0;
@@ -305,8 +340,12 @@
 
 /* Image shimmer placeholder — sweeps across the gradient while the picture loads */
 @keyframes shimmer {
-  0% { transform: translateX(-100%); }
-  100% { transform: translateX(100%); }
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
 }
 .shimmer-overlay {
   position: absolute;
@@ -329,8 +368,16 @@
 
 /* Three-dot typing indicator for the agent reply */
 @keyframes typing-dot {
-  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
-  40% { transform: translateY(-4px); opacity: 1; }
+  0%,
+  80%,
+  100% {
+    transform: translateY(0);
+    opacity: 0.4;
+  }
+  40% {
+    transform: translateY(-4px);
+    opacity: 1;
+  }
 }
 .typing-dot {
   display: inline-block;
@@ -344,15 +391,31 @@
 
 /* Live pulse halo — slow breathing ring used by status dots */
 @keyframes live-pulse {
-  0% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.55); }
-  70% { box-shadow: 0 0 0 8px rgba(212, 175, 55, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(212, 175, 55, 0); }
+  0% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.55);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(212, 175, 55, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+  }
 }
 .live-dot {
   animation: live-pulse 1.8s ease-out infinite;
 }
 
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: var(--md-outline-variant); border-radius: 3px; }
-::-webkit-scrollbar-thumb:hover { background: var(--md-outline); }
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--md-outline-variant);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--md-outline);
+}

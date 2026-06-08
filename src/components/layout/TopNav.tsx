@@ -12,7 +12,18 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Globe, Sparkles, Wallet, ChevronDown, User, FolderOpen, LogOut, Check, Menu, X } from "lucide-react";
+import {
+  Globe,
+  Sparkles,
+  Wallet,
+  ChevronDown,
+  User,
+  FolderOpen,
+  LogOut,
+  Check,
+  Menu,
+  X,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Locale } from "@/lib/i18n";
 
@@ -25,7 +36,17 @@ const LOCALES: { value: Locale; label: string; short: string }[] = [
 export default function TopNav() {
   const pathname = usePathname();
   const router = useRouter();
-  const { isLoggedIn, activeRole, backerDiamond, creatorShell, locale, setLocale, logout, toggleAgent, switchRole } = useStore();
+  const {
+    isLoggedIn,
+    activeRole,
+    backerDiamond,
+    creatorShell,
+    locale,
+    setLocale,
+    logout,
+    toggleAgent,
+    switchRole,
+  } = useStore();
   const t = useT();
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -36,7 +57,11 @@ export default function TopNav() {
   const NAV_ITEMS = [
     { label: t.nav.discover, href: "/discovery", match: (p: string) => p === "/discovery" },
     { label: t.nav.marketplace, href: "/market", match: (p: string) => p.startsWith("/market") },
-    { label: t.nav.studio, href: "/discovery/workspace", match: (p: string) => p.startsWith("/discovery/workspace") },
+    {
+      label: t.nav.studio,
+      href: "/discovery/workspace",
+      match: (p: string) => p.startsWith("/discovery/workspace"),
+    },
     { label: t.nav.myProjects, href: "/projects", match: (p: string) => p.startsWith("/projects") },
     { label: t.nav.messages, href: "/messages", match: (p: string) => p.startsWith("/messages") },
   ];
@@ -50,7 +75,10 @@ export default function TopNav() {
     <header className="fixed top-0 left-0 right-0 h-[80px] z-50 bg-surface/60 backdrop-blur-[30px] border-b border-outline-variant/10 shadow-[0_4px_30px_rgba(0,0,0,0.06)]">
       <div className="flex justify-between items-center px-4 md:px-12 w-full max-w-[1280px] mx-auto h-full">
         <div className="flex items-center gap-8">
-          <Link href="/" className="font-headline text-[28px] md:text-[32px] text-primary italic font-bold leading-none whitespace-nowrap">
+          <Link
+            href="/"
+            className="font-headline text-[28px] md:text-[32px] text-primary italic font-bold leading-none whitespace-nowrap"
+          >
             Spotlight
           </Link>
           {isLoggedIn && (
@@ -80,7 +108,9 @@ export default function TopNav() {
           <DropdownMenu>
             <DropdownMenuTrigger className="flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider px-2 py-1.5 rounded-lg text-on-surface-variant hover:text-on-surface transition-colors">
               <Globe className="w-4 h-4" />
-              <span className="hidden sm:inline">{LOCALES.find((l) => l.value === locale)?.short ?? "EN"}</span>
+              <span className="hidden sm:inline">
+                {LOCALES.find((l) => l.value === locale)?.short ?? "EN"}
+              </span>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-36">
               {LOCALES.map((l) => (
@@ -118,7 +148,9 @@ export default function TopNav() {
               >
                 <Wallet className="w-4 h-4" />
                 <span className="font-mono text-sm">
-                  {activeRole === "backer" ? `◆ ${backerDiamond.toLocaleString()}` : `◉ ${creatorShell.toLocaleString()}`}
+                  {activeRole === "backer"
+                    ? `◆ ${backerDiamond.toLocaleString()}`
+                    : `◉ ${creatorShell.toLocaleString()}`}
                 </span>
               </Link>
 
@@ -131,7 +163,9 @@ export default function TopNav() {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end" className="w-52">
                   <div className="px-2 py-1.5">
-                    <p className="text-sm font-bold text-on-surface">{activeRole === "backer" ? "Lucas Chen" : "Aria Song"}</p>
+                    <p className="text-sm font-bold text-on-surface">
+                      {activeRole === "backer" ? "Lucas Chen" : "Aria Song"}
+                    </p>
                     <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-0.5">
                       {activeRole === "backer" ? t.market.roleBacker : t.market.roleCreator}
                     </p>
@@ -146,22 +180,38 @@ export default function TopNav() {
                       onClick={() => switchRole(r)}
                       className={cn("gap-2 cursor-pointer", activeRole === r && "text-primary")}
                     >
-                      {activeRole === r ? <Check className="w-4 h-4" /> : <span className="w-4 h-4" />}
+                      {activeRole === r ? (
+                        <Check className="w-4 h-4" />
+                      ) : (
+                        <span className="w-4 h-4" />
+                      )}
                       {r === "backer" ? t.market.roleBacker : t.market.roleCreator}
                     </DropdownMenuItem>
                   ))}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => router.push("/account/profile")} className="gap-2 cursor-pointer">
+                  <DropdownMenuItem
+                    onClick={() => router.push("/account/profile")}
+                    className="gap-2 cursor-pointer"
+                  >
                     <User className="w-4 h-4" /> {t.nav.profile}
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push("/wallet")} className="gap-2 cursor-pointer">
+                  <DropdownMenuItem
+                    onClick={() => router.push("/wallet")}
+                    className="gap-2 cursor-pointer"
+                  >
                     <Wallet className="w-4 h-4" /> {t.nav.wallet}
                   </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => router.push("/projects")} className="gap-2 cursor-pointer">
+                  <DropdownMenuItem
+                    onClick={() => router.push("/projects")}
+                    className="gap-2 cursor-pointer"
+                  >
                     <FolderOpen className="w-4 h-4" /> {t.nav.myProjects}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="text-error gap-2 cursor-pointer">
+                  <DropdownMenuItem
+                    onClick={handleLogout}
+                    className="text-error gap-2 cursor-pointer"
+                  >
                     <LogOut className="w-4 h-4" /> {t.nav.signOut}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
@@ -204,7 +254,9 @@ export default function TopNav() {
             )}
           >
             <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant/30">
-              <span className="font-headline text-2xl italic font-bold text-on-surface">Spotlight</span>
+              <span className="font-headline text-2xl italic font-bold text-on-surface">
+                Spotlight
+              </span>
               <button
                 onClick={() => setMobileOpen(false)}
                 className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-surface-container text-on-surface-variant"
@@ -252,7 +304,9 @@ export default function TopNav() {
                   <Wallet className="w-4 h-4" /> {t.nav.wallet}
                 </span>
                 <span className="font-mono text-sm text-on-surface">
-                  {activeRole === "backer" ? `◆ ${backerDiamond.toLocaleString()}` : `◉ ${creatorShell.toLocaleString()}`}
+                  {activeRole === "backer"
+                    ? `◆ ${backerDiamond.toLocaleString()}`
+                    : `◉ ${creatorShell.toLocaleString()}`}
                 </span>
               </Link>
             </div>

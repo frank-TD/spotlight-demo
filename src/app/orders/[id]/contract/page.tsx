@@ -25,7 +25,9 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
   const isDraft = flow?.phase === "contract_draft";
   const isConfirm = flow?.phase === "contract_confirm";
   // Contract is fully signed once the flow has moved past the contract phases.
-  const contractDone = !!flow && !["invitation", "rejected", "contract_draft", "contract_confirm"].includes(flow.phase);
+  const contractDone =
+    !!flow &&
+    !["invitation", "rejected", "contract_draft", "contract_confirm"].includes(flow.phase);
   // Reached the contract page before it has been drafted (e.g. during invitation).
   const beforeContract = !flow || flow.phase === "invitation" || flow.phase === "rejected";
 
@@ -38,10 +40,10 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
   const [agreed, setAgreed] = useState(false);
 
   // Display values: draft uses live edits, others use stored flow terms.
-  const dTotal = isDraft ? total : flow?.total ?? order.totalFiat;
-  const dCopyright = isDraft ? copyright : flow?.terms?.copyright ?? order.copyright;
-  const dRevisions = isDraft ? revisionLimit : flow?.terms?.revisionLimit ?? 3;
-  const dDays = isDraft ? autoAcceptDays : flow?.terms?.autoAcceptDays ?? 7;
+  const dTotal = isDraft ? total : (flow?.total ?? order.totalFiat);
+  const dCopyright = isDraft ? copyright : (flow?.terms?.copyright ?? order.copyright);
+  const dRevisions = isDraft ? revisionLimit : (flow?.terms?.revisionLimit ?? 3);
+  const dDays = isDraft ? autoAcceptDays : (flow?.terms?.autoAcceptDays ?? 7);
 
   const backerSigned = isConfirm || contractDone; // backer signs by submitting the draft
   const creatorSigned = contractDone; // creator signs by confirming
@@ -68,14 +70,18 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
     router.push(`/messages/sessions/${sessionId}`);
   };
 
-  const headerTitle = isDraft ? t.contract.draftTitle : isConfirm ? t.contract.confirmTitle : t.contract.title;
+  const headerTitle = isDraft
+    ? t.contract.draftTitle
+    : isConfirm
+      ? t.contract.confirmTitle
+      : t.contract.title;
   const headerSub = isDraft
     ? t.contract.draftSubtitle
     : isConfirm
-    ? t.contract.confirmSubtitle
-    : beforeContract
-    ? t.contract.notDrafted
-    : t.contract.subtitle;
+      ? t.contract.confirmSubtitle
+      : beforeContract
+        ? t.contract.notDrafted
+        : t.contract.subtitle;
   const backHref = isDraft || isConfirm ? `/messages/sessions/${sessionId}` : `/orders/${id}`;
   const backLabel = isDraft || isConfirm ? t.contract.backToConversation : t.contract.backToOrder;
 
@@ -109,15 +115,30 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {[
-              { label: t.projects.counterpartBacker, name: order.backer.nickname, avatar: order.backer.avatar, signed: backerSigned },
-              { label: t.projects.counterpartCreator, name: order.creator.nickname, avatar: order.creator.avatar, signed: creatorSigned },
+              {
+                label: t.projects.counterpartBacker,
+                name: order.backer.nickname,
+                avatar: order.backer.avatar,
+                signed: backerSigned,
+              },
+              {
+                label: t.projects.counterpartCreator,
+                name: order.creator.nickname,
+                avatar: order.creator.avatar,
+                signed: creatorSigned,
+              },
             ].map((p) => (
-              <div key={p.label} className="flex items-center gap-3 p-4 rounded-xl bg-surface-container">
+              <div
+                key={p.label}
+                className="flex items-center gap-3 p-4 rounded-xl bg-surface-container"
+              >
                 <div className="w-10 h-10 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center text-sm font-bold">
                   {p.avatar}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">{p.label}</p>
+                  <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                    {p.label}
+                  </p>
                   <p className="font-body font-bold text-on-surface text-sm truncate">{p.name}</p>
                 </div>
                 {p.signed ? (
@@ -141,23 +162,40 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
           </h2>
           <div className="space-y-3 font-body text-sm">
             <div className="flex justify-between items-center">
-              <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">{t.contract.projectLabel}</span>
+              <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                {t.contract.projectLabel}
+              </span>
               <span className="font-bold text-on-surface text-right ml-4">{order.title}</span>
             </div>
             <div className="flex justify-between items-center">
-              <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">{t.contract.totalAmount}</span>
+              <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                {t.contract.totalAmount}
+              </span>
               {isDraft ? (
-                <input type="number" value={total} onChange={(e) => setTotal(Math.max(0, Number(e.target.value)))} className={fieldCls} />
+                <input
+                  type="number"
+                  value={total}
+                  onChange={(e) => setTotal(Math.max(0, Number(e.target.value)))}
+                  className={fieldCls}
+                />
               ) : (
                 <span className="font-bold text-on-surface">¥{dTotal.toLocaleString()}</span>
               )}
             </div>
             <div className="flex justify-between items-center">
-              <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">{t.contract.copyrightLabel}</span>
+              <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                {t.contract.copyrightLabel}
+              </span>
               {isDraft ? (
-                <select value={copyright} onChange={(e) => setCopyright(e.target.value)} className={fieldCls + " cursor-pointer"}>
+                <select
+                  value={copyright}
+                  onChange={(e) => setCopyright(e.target.value)}
+                  className={fieldCls + " cursor-pointer"}
+                >
                   {COPYRIGHT_CHOICES.map((c) => (
-                    <option key={c} value={c}>{c}</option>
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
                   ))}
                 </select>
               ) : (
@@ -165,25 +203,47 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
               )}
             </div>
             <div className="flex justify-between items-center">
-              <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">{t.contract.revisionLimit}</span>
+              <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                {t.contract.revisionLimit}
+              </span>
               {isDraft ? (
                 <div className="flex items-center gap-2">
-                  <input type="number" value={revisionLimit} onChange={(e) => setRevisionLimit(Math.max(0, Number(e.target.value)))} className={fieldCls + " w-20"} />
-                  <span className="text-on-surface-variant text-xs">{t.contract.revisionsPerStage}</span>
+                  <input
+                    type="number"
+                    value={revisionLimit}
+                    onChange={(e) => setRevisionLimit(Math.max(0, Number(e.target.value)))}
+                    className={fieldCls + " w-20"}
+                  />
+                  <span className="text-on-surface-variant text-xs">
+                    {t.contract.revisionsPerStage}
+                  </span>
                 </div>
               ) : (
-                <span className="font-bold text-on-surface">{dRevisions} {t.contract.revisionsPerStage}</span>
+                <span className="font-bold text-on-surface">
+                  {dRevisions} {t.contract.revisionsPerStage}
+                </span>
               )}
             </div>
             <div className="flex justify-between items-center">
-              <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">{t.contract.autoAcceptance}</span>
+              <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                {t.contract.autoAcceptance}
+              </span>
               {isDraft ? (
                 <div className="flex items-center gap-2">
-                  <input type="number" value={autoAcceptDays} onChange={(e) => setAutoAcceptDays(Math.max(1, Number(e.target.value)))} className={fieldCls + " w-20"} />
-                  <span className="text-on-surface-variant text-xs">{t.contract.daysAfterSubmission}</span>
+                  <input
+                    type="number"
+                    value={autoAcceptDays}
+                    onChange={(e) => setAutoAcceptDays(Math.max(1, Number(e.target.value)))}
+                    className={fieldCls + " w-20"}
+                  />
+                  <span className="text-on-surface-variant text-xs">
+                    {t.contract.daysAfterSubmission}
+                  </span>
                 </div>
               ) : (
-                <span className="font-bold text-on-surface">{dDays} {t.contract.daysAfterSubmission}</span>
+                <span className="font-bold text-on-surface">
+                  {dDays} {t.contract.daysAfterSubmission}
+                </span>
               )}
             </div>
           </div>
@@ -196,19 +256,31 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
           </h2>
           <div className="space-y-2">
             {STAGE_META.map((stage, i) => (
-              <div key={stage.name} className="flex items-center justify-between py-3 border-b border-outline-variant/30 last:border-0">
+              <div
+                key={stage.name}
+                className="flex items-center justify-between py-3 border-b border-outline-variant/30 last:border-0"
+              >
                 <div>
-                  <p className="font-body font-bold text-on-surface text-sm">{t.flow.stageNames[i]}</p>
+                  <p className="font-body font-bold text-on-surface text-sm">
+                    {t.flow.stageNames[i]}
+                  </p>
                   <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-0.5">
-                    {Math.round(stage.ratio * 100)}{t.contract.ofTotal}
+                    {Math.round(stage.ratio * 100)}
+                    {t.contract.ofTotal}
                   </p>
                 </div>
-                <p className="font-headline text-[18px] text-on-surface">¥{stageAmount(dTotal, i).toLocaleString()}</p>
+                <p className="font-headline text-[18px] text-on-surface">
+                  ¥{stageAmount(dTotal, i).toLocaleString()}
+                </p>
               </div>
             ))}
             <div className="flex justify-between pt-3">
-              <span className="font-label text-label-md uppercase tracking-wider text-on-surface">{t.contract.total}</span>
-              <span className="font-headline text-[20px] text-primary">¥{dTotal.toLocaleString()}</span>
+              <span className="font-label text-label-md uppercase tracking-wider text-on-surface">
+                {t.contract.total}
+              </span>
+              <span className="font-headline text-[20px] text-primary">
+                ¥{dTotal.toLocaleString()}
+              </span>
             </div>
           </div>
         </div>
@@ -216,7 +288,9 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
         {/* Escrow notice */}
         <div className="bg-primary-container/40 border-l-4 border-primary p-5 rounded-r-xl flex gap-3 mb-8">
           <Shield className="w-5 h-5 text-primary shrink-0 mt-0.5" />
-          <p className="font-body text-sm text-on-primary-container leading-relaxed">{t.contract.escrowNotice}</p>
+          <p className="font-body text-sm text-on-primary-container leading-relaxed">
+            {t.contract.escrowNotice}
+          </p>
         </div>
 
         {(isDraft || isConfirm) && (
@@ -233,7 +307,9 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
             >
               {agreed && <Check className="w-3.5 h-3.5" />}
             </span>
-            <span className="font-body text-sm text-on-surface-variant leading-relaxed">{t.contract.agreeLabel}</span>
+            <span className="font-body text-sm text-on-surface-variant leading-relaxed">
+              {t.contract.agreeLabel}
+            </span>
           </button>
         )}
         {isDraft && (

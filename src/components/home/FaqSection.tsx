@@ -28,7 +28,9 @@ export default function FaqSection() {
         {items.map(({ q, a }) => (
           <div key={q} className="space-y-3 border-t border-outline-variant/30 pt-7">
             <h3 className="font-headline text-xl text-on-surface leading-snug">{q}</h3>
-            <p className="font-body text-on-surface-variant leading-relaxed text-sm md:text-base">{a}</p>
+            <p className="font-body text-on-surface-variant leading-relaxed text-sm md:text-base">
+              {a}
+            </p>
           </div>
         ))}
       </div>

@@ -29,14 +29,19 @@ export default function AssetLightbox({
   const settingsLine = (() => {
     const s = asset.settings;
     if (asset.mode === "image") return [s.aspect, s.quality].filter(Boolean).join(" · ");
-    if (asset.mode === "video") return [s.aspect, s.duration, s.resolution].filter(Boolean).join(" · ");
-    if (asset.mode === "voiceover") return [s.voiceName, s.language, s.accent, s.effect].filter(Boolean).join(" · ");
+    if (asset.mode === "video")
+      return [s.aspect, s.duration, s.resolution].filter(Boolean).join(" · ");
+    if (asset.mode === "voiceover")
+      return [s.voiceName, s.language, s.accent, s.effect].filter(Boolean).join(" · ");
     return [s.genre, s.mood, s.duration].filter(Boolean).join(" · ");
   })();
 
   return (
     <Dialog open={!!asset} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-5xl p-0 overflow-hidden max-h-[92vh] bg-surface" showCloseButton>
+      <DialogContent
+        className="sm:max-w-5xl p-0 overflow-hidden max-h-[92vh] bg-surface"
+        showCloseButton
+      >
         <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] max-h-[92vh]">
           {/* Left: preview */}
           <div className="bg-[#0f0d0c] p-6 flex items-center justify-center min-h-[300px] max-h-[92vh] overflow-hidden relative">
@@ -94,7 +99,10 @@ export default function AssetLightbox({
               {asset.durationSec !== undefined && (
                 <Row label={t.aigc.duration}>
                   <span className="font-mono text-on-surface-variant">
-                    {Math.floor(asset.durationSec / 60)}:{Math.round(asset.durationSec % 60).toString().padStart(2, "0")}
+                    {Math.floor(asset.durationSec / 60)}:
+                    {Math.round(asset.durationSec % 60)
+                      .toString()
+                      .padStart(2, "0")}
                   </span>
                 </Row>
               )}

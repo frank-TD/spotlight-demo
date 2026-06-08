@@ -40,7 +40,10 @@ export default function MarketPage() {
   return (
     <AppShell>
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 pt-10 pb-16">
-        <header className="animate-fade-up flex flex-col md:flex-row justify-between md:items-end gap-6 mb-12" style={{ animationDelay: "0ms" }}>
+        <header
+          className="animate-fade-up flex flex-col md:flex-row justify-between md:items-end gap-6 mb-12"
+          style={{ animationDelay: "0ms" }}
+        >
           <div>
             <h1 className="font-headline text-headline-lg text-on-surface">{t.market.title}</h1>
             <p className="text-on-surface-variant mt-2 font-body opacity-80 italic">
@@ -261,7 +264,9 @@ function QuickActionCard({
         <Icon className={cn("w-8 h-8 mb-6", styles.iconCls)} />
         <h3 className="font-headline text-headline-md mb-2">{title}</h3>
         <p className={cn("font-body mb-8", styles.descCls)}>{desc}</p>
-        <ArrowRight className={cn("w-5 h-5 group-hover:translate-x-2 transition-transform", styles.arrowCls)} />
+        <ArrowRight
+          className={cn("w-5 h-5 group-hover:translate-x-2 transition-transform", styles.arrowCls)}
+        />
       </div>
       {Decor && (
         <div className="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
@@ -293,7 +298,9 @@ function ActiveOrderSection() {
                   {t.market.stageOf(3, 5)}
                 </span>
               </div>
-              <p className="font-body text-on-surface-variant opacity-80 italic">{t.market.activeOrderWith}</p>
+              <p className="font-body text-on-surface-variant opacity-80 italic">
+                {t.market.activeOrderWith}
+              </p>
             </div>
             <Link
               href="/orders/ord_001"
@@ -335,14 +342,21 @@ function StageTracker() {
         {stages.map((label, i) => {
           const done = i < currentIndex;
           const active = i === currentIndex;
-          const IconNode = done ? Check : active ? Clock : i === stages.length - 1 ? CheckCheck : Hourglass;
+          const IconNode = done
+            ? Check
+            : active
+              ? Clock
+              : i === stages.length - 1
+                ? CheckCheck
+                : Hourglass;
           return (
             <div key={label} className="flex flex-col items-center">
               <div
                 className={cn(
                   "rounded-full flex items-center justify-center border-4 border-surface shadow-sm",
                   done && "w-10 h-10 bg-primary text-on-primary",
-                  active && "w-12 h-12 -mt-1 bg-primary-container text-primary shadow-md ring-2 ring-primary/20",
+                  active &&
+                    "w-12 h-12 -mt-1 bg-primary-container text-primary shadow-md ring-2 ring-primary/20",
                   !done && !active && "w-10 h-10 bg-surface-container text-outline-variant"
                 )}
               >
@@ -351,7 +365,11 @@ function StageTracker() {
               <span
                 className={cn(
                   "mt-2 font-label text-[10px] uppercase tracking-widest text-center",
-                  active ? "text-primary font-bold" : done ? "text-on-surface-variant" : "text-on-surface-variant/40"
+                  active
+                    ? "text-primary font-bold"
+                    : done
+                      ? "text-on-surface-variant"
+                      : "text-on-surface-variant/40"
                 )}
               >
                 {label}
@@ -408,7 +426,9 @@ function PostedNeedRow({
           <h4 className="font-headline text-[20px] text-on-surface mb-1 truncate">{title}</h4>
           <div className="flex flex-wrap gap-x-6 gap-y-1 font-body text-on-surface-variant text-[14px] opacity-70">
             <span>¥{budget.toLocaleString()}</span>
-            <span>{bids} {t.common.bids}</span>
+            <span>
+              {bids} {t.common.bids}
+            </span>
             <span>{date}</span>
           </div>
         </div>

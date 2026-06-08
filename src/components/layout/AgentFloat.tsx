@@ -22,7 +22,10 @@ export default function AgentFloat() {
   const [input, setInput] = useState("");
 
   // Greeting is always rendered in the current language; persisted history follows.
-  const display = [{ role: "agent" as const, text: t.agent.greeting, link: null }, ...agentMessages];
+  const display = [
+    { role: "agent" as const, text: t.agent.greeting, link: null },
+    ...agentMessages,
+  ];
 
   if (!isLoggedIn) return null;
 
@@ -60,7 +63,9 @@ export default function AgentFloat() {
                 <Sparkles className="w-4 h-4 text-on-primary" />
               </div>
               <div>
-                <p className="font-headline text-[16px] text-on-surface leading-none">{t.agent.headerTitle}</p>
+                <p className="font-headline text-[16px] text-on-surface leading-none">
+                  {t.agent.headerTitle}
+                </p>
                 <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-1">
                   {t.agent.headerSubtitle}
                 </p>
@@ -77,7 +82,10 @@ export default function AgentFloat() {
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               )}
-              <button onClick={toggleAgent} className="text-on-surface-variant hover:text-on-surface">
+              <button
+                onClick={toggleAgent}
+                className="text-on-surface-variant hover:text-on-surface"
+              >
                 <X className="w-4 h-4" />
               </button>
             </div>
@@ -86,7 +94,10 @@ export default function AgentFloat() {
           {/* Messages */}
           <div className="flex-1 overflow-y-auto p-4 space-y-3">
             {display.map((m, i) => (
-              <div key={i} className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}>
+              <div
+                key={i}
+                className={cn("flex", m.role === "user" ? "justify-end" : "justify-start")}
+              >
                 <div
                   className={cn(
                     "max-w-[85%] rounded-2xl px-3.5 py-2.5 font-body text-xs leading-relaxed",
@@ -95,7 +106,11 @@ export default function AgentFloat() {
                       : "bg-surface-container text-on-surface rounded-bl-sm"
                   )}
                 >
-                  <span dangerouslySetInnerHTML={{ __html: m.text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>") }} />
+                  <span
+                    dangerouslySetInnerHTML={{
+                      __html: m.text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>"),
+                    }}
+                  />
                   {m.link && (
                     <a
                       href={m.link.href}

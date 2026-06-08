@@ -70,7 +70,12 @@ function Card({ item, delayMs }: { item: RowCard; delayMs: number }) {
 
       {/* Bottom info */}
       <figcaption className="absolute inset-x-0 bottom-0 p-4 flex flex-col gap-2">
-        <span className={cn("self-start font-label text-[10px] uppercase tracking-[0.2em] px-2 py-1 rounded", chip)}>
+        <span
+          className={cn(
+            "self-start font-label text-[10px] uppercase tracking-[0.2em] px-2 py-1 rounded",
+            chip
+          )}
+        >
           {item.category}
         </span>
         <h3 className="font-headline italic text-white text-xl leading-tight">{item.title}</h3>

@@ -3,11 +3,36 @@ import { use, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/lib/store";
 import AppShell from "@/components/layout/AppShell";
-import { CREATORS, PRESET_SPECIALTY_TAGS, MY_ASSETS_CREATED, findSessionForCounterpart } from "@/lib/mock-data";
+import {
+  CREATORS,
+  PRESET_SPECIALTY_TAGS,
+  MY_ASSETS_CREATED,
+  findSessionForCounterpart,
+} from "@/lib/mock-data";
 import Link from "next/link";
-import { ArrowLeft, Star, MessageCircle, Pencil, X, Plus, GripVertical, Trash2, Camera, Check, Upload, FolderOpen, FileVideo } from "lucide-react";
+import {
+  ArrowLeft,
+  Star,
+  MessageCircle,
+  Pencil,
+  X,
+  Plus,
+  GripVertical,
+  Trash2,
+  Camera,
+  Check,
+  Upload,
+  FolderOpen,
+  FileVideo,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { useT } from "@/hooks/useT";
 
@@ -27,7 +52,8 @@ type EditField = "nickname" | "bio" | "tags" | "rate" | "hours" | null;
 
 export default function CreatorProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const { activeRole, creatorEdits, updateCreatorEdits, showcaseEdits, setShowcaseEdits } = useStore();
+  const { activeRole, creatorEdits, updateCreatorEdits, showcaseEdits, setShowcaseEdits } =
+    useStore();
   const router = useRouter();
   const t = useT();
   const [showcaseOpen, setShowcaseOpen] = useState(false);
@@ -46,7 +72,8 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
     title: s.title,
     duration: s.duration,
   }));
-  const showcase: ShowcaseItem[] = isOwnProfile && showcaseEdits ? showcaseEdits : baseShowcaseAsItems;
+  const showcase: ShowcaseItem[] =
+    isOwnProfile && showcaseEdits ? showcaseEdits : baseShowcaseAsItems;
   const creator = isOwnProfile
     ? {
         ...baseCreator,
@@ -54,7 +81,10 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
         avatarUrl: creatorEdits.avatarUrl,
         bio: creatorEdits.bio ?? baseCreator.bio,
         specialties: creatorEdits.specialties ?? baseCreator.specialties,
-        rateCard: { ...baseCreator.rateCard, from: creatorEdits.rateFrom ?? baseCreator.rateCard.from },
+        rateCard: {
+          ...baseCreator.rateCard,
+          from: creatorEdits.rateFrom ?? baseCreator.rateCard.from,
+        },
         activeHours: creatorEdits.activeHours ?? baseCreator.activeHours,
         showcase,
       }
@@ -84,10 +114,12 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
   const cancelField = () => setEditingField(null);
 
   const saveField = () => {
-    if (editingField === "nickname") updateCreatorEdits({ nickname: draftNickname.trim() || baseCreator.nickname });
+    if (editingField === "nickname")
+      updateCreatorEdits({ nickname: draftNickname.trim() || baseCreator.nickname });
     if (editingField === "bio") updateCreatorEdits({ bio: draftBio.trim() });
     if (editingField === "tags") updateCreatorEdits({ specialties: draftTags });
-    if (editingField === "rate") updateCreatorEdits({ rateFrom: Number(draftRate) || baseCreator.rateCard.from });
+    if (editingField === "rate")
+      updateCreatorEdits({ rateFrom: Number(draftRate) || baseCreator.rateCard.from });
     if (editingField === "hours") updateCreatorEdits({ activeHours: draftHours.trim() });
     setEditingField(null);
     toast.success(t.creatorProfile.savedToast);
@@ -129,13 +161,19 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
   const addShowcaseItem = () =>
     setFormShowcase((prev) => [
       ...prev,
-      { id: `sc_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`, title: "", duration: "", description: "" },
+      {
+        id: `sc_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+        title: "",
+        duration: "",
+        description: "",
+      },
     ]);
 
   const updateShowcaseField = (i: number, field: keyof ShowcaseItem, value: string) =>
     setFormShowcase((prev) => prev.map((s, idx) => (idx === i ? { ...s, [field]: value } : s)));
 
-  const removeShowcaseItem = (i: number) => setFormShowcase((prev) => prev.filter((_, idx) => idx !== i));
+  const removeShowcaseItem = (i: number) =>
+    setFormShowcase((prev) => prev.filter((_, idx) => idx !== i));
 
   const formatDuration = (seconds: number) => {
     if (!Number.isFinite(seconds) || seconds <= 0) return "";
@@ -185,7 +223,8 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
       )
     );
     const dur = await detectVideoDuration(file);
-    if (dur) setFormShowcase((prev) => prev.map((s, idx) => (idx === i ? { ...s, duration: dur } : s)));
+    if (dur)
+      setFormShowcase((prev) => prev.map((s, idx) => (idx === i ? { ...s, duration: dur } : s)));
   };
 
   const pickAsset = (asset: (typeof MY_ASSETS_CREATED)[number]) => {
@@ -193,7 +232,14 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
     setFormShowcase((prev) =>
       prev.map((s, idx) =>
         idx === assetPickerForIdx
-          ? { ...s, fileSource: "asset", assetId: asset.id, fileName: asset.title, title: s.title || asset.title, duration: asset.duration ?? "" }
+          ? {
+              ...s,
+              fileSource: "asset",
+              assetId: asset.id,
+              fileName: asset.title,
+              title: s.title || asset.title,
+              duration: asset.duration ?? "",
+            }
           : s
       )
     );
@@ -300,9 +346,18 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
               <div className="relative shrink-0">
                 {creator.avatarUrl ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={creator.avatarUrl} alt={creator.nickname} className="w-20 h-20 rounded-full object-cover" />
+                  <img
+                    src={creator.avatarUrl}
+                    alt={creator.nickname}
+                    className="w-20 h-20 rounded-full object-cover"
+                  />
                 ) : (
-                  <div className={cn("w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold", creator.avatarColor)}>
+                  <div
+                    className={cn(
+                      "w-20 h-20 rounded-full flex items-center justify-center text-2xl font-bold",
+                      creator.avatarColor
+                    )}
+                  >
                     {creator.avatar}
                   </div>
                 )}
@@ -319,7 +374,13 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                         {t.creatorProfile.uploadAvatar}
                       </span>
                     </button>
-                    <input ref={avatarInputRef} type="file" accept="image/*" className="hidden" onChange={handleAvatarPick} />
+                    <input
+                      ref={avatarInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleAvatarPick}
+                    />
                   </>
                 )}
               </div>
@@ -388,7 +449,9 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                         {t.creatorProfile.specialtiesPicked}
                       </p>
                       <div className="flex flex-wrap gap-1.5">
-                        {draftTags.length === 0 && <span className="font-body text-xs text-on-surface-variant">—</span>}
+                        {draftTags.length === 0 && (
+                          <span className="font-body text-xs text-on-surface-variant">—</span>
+                        )}
                         {draftTags.map((tag) => (
                           <button
                             key={tag}
@@ -407,16 +470,18 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                         {t.creatorProfile.specialtiesSuggested}
                       </p>
                       <div className="flex flex-wrap gap-1.5">
-                        {PRESET_SPECIALTY_TAGS.filter((tag) => !draftTags.includes(tag)).map((tag) => (
-                          <button
-                            key={tag}
-                            type="button"
-                            onClick={() => toggleTag(tag)}
-                            className="inline-flex items-center gap-1 font-label text-[11px] uppercase tracking-wider border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:border-primary/40 hover:text-on-surface px-3 py-1 rounded-full transition-colors"
-                          >
-                            <Plus className="w-3 h-3" /> {tag}
-                          </button>
-                        ))}
+                        {PRESET_SPECIALTY_TAGS.filter((tag) => !draftTags.includes(tag)).map(
+                          (tag) => (
+                            <button
+                              key={tag}
+                              type="button"
+                              onClick={() => toggleTag(tag)}
+                              className="inline-flex items-center gap-1 font-label text-[11px] uppercase tracking-wider border border-outline-variant bg-surface-container-lowest text-on-surface-variant hover:border-primary/40 hover:text-on-surface px-3 py-1 rounded-full transition-colors"
+                            >
+                              <Plus className="w-3 h-3" /> {tag}
+                            </button>
+                          )
+                        )}
                       </div>
                     </div>
                     <div className="flex gap-2">
@@ -473,7 +538,9 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
               </div>
             ) : (
               <div className="mt-5 flex items-start gap-1">
-                <p className="font-body text-sm text-on-surface-variant leading-relaxed flex-1">{creator.bio}</p>
+                <p className="font-body text-sm text-on-surface-variant leading-relaxed flex-1">
+                  {creator.bio}
+                </p>
                 {editIcon("bio")}
               </div>
             )}
@@ -521,7 +588,9 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
               ) : (
                 <span className="flex items-center font-label text-label-md uppercase tracking-wider text-on-surface-variant">
                   {t.creators.fromLabel}{" "}
-                  <span className="font-body font-bold text-on-surface mx-1">¥{creator.rateCard.from.toLocaleString()}+</span>{" "}
+                  <span className="font-body font-bold text-on-surface mx-1">
+                    ¥{creator.rateCard.from.toLocaleString()}+
+                  </span>{" "}
                   {t.creatorProfile.fromPerProject}
                   {editIcon("rate")}
                 </span>
@@ -560,15 +629,20 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                     <div
                       className={cn(
                         "aspect-video flex items-center justify-center bg-gradient-to-br",
-                        i % 3 === 0 && "from-primary-container via-primary-fixed to-tertiary-container",
-                        i % 3 === 1 && "from-tertiary-container via-tertiary-fixed to-primary-container",
-                        i % 3 === 2 && "from-secondary-container via-secondary-fixed to-primary-container"
+                        i % 3 === 0 &&
+                          "from-primary-container via-primary-fixed to-tertiary-container",
+                        i % 3 === 1 &&
+                          "from-tertiary-container via-tertiary-fixed to-primary-container",
+                        i % 3 === 2 &&
+                          "from-secondary-container via-secondary-fixed to-primary-container"
                       )}
                     >
                       <FileVideo className="w-7 h-7 text-primary opacity-70" />
                     </div>
                     <div className="p-4">
-                      <p className="font-headline text-[16px] text-on-surface truncate">{work.title}</p>
+                      <p className="font-headline text-[16px] text-on-surface truncate">
+                        {work.title}
+                      </p>
                       <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-1">
                         {work.duration}
                       </p>
@@ -595,7 +669,9 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
       <Dialog open={showcaseOpen} onOpenChange={setShowcaseOpen}>
         <DialogContent className="sm:max-w-5xl max-h-[88vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="font-headline text-[22px]">{t.creatorProfile.editShowcaseTitle}</DialogTitle>
+            <DialogTitle className="font-headline text-[22px]">
+              {t.creatorProfile.editShowcaseTitle}
+            </DialogTitle>
           </DialogHeader>
           <div className="py-2">
             <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mb-4 flex items-center gap-1.5">
@@ -620,7 +696,10 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                   )}
                 >
                   <div className="flex items-center justify-between px-3 py-2 border-b border-outline-variant/30">
-                    <div className="cursor-grab active:cursor-grabbing text-on-surface-variant" title="drag">
+                    <div
+                      className="cursor-grab active:cursor-grabbing text-on-surface-variant"
+                      title="drag"
+                    >
                       <GripVertical className="w-4 h-4" />
                     </div>
                     <button
@@ -638,16 +717,26 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                       {work.fileName ? (
                         <>
                           <FileVideo className="w-7 h-7 text-primary mb-2" />
-                          <p className="font-body text-xs font-bold text-on-surface truncate max-w-full">{work.fileName}</p>
+                          <p className="font-body text-xs font-bold text-on-surface truncate max-w-full">
+                            {work.fileName}
+                          </p>
                           <span className="mt-2 inline-flex items-center gap-1 font-label text-[10px] uppercase tracking-widest bg-primary-container text-on-primary-container px-2 py-0.5 rounded-full">
-                            {work.fileSource === "asset" ? <FolderOpen className="w-2.5 h-2.5" /> : <Upload className="w-2.5 h-2.5" />}
-                            {work.fileSource === "asset" ? t.creatorProfile.sourceAsset : t.creatorProfile.sourceLocal}
+                            {work.fileSource === "asset" ? (
+                              <FolderOpen className="w-2.5 h-2.5" />
+                            ) : (
+                              <Upload className="w-2.5 h-2.5" />
+                            )}
+                            {work.fileSource === "asset"
+                              ? t.creatorProfile.sourceAsset
+                              : t.creatorProfile.sourceLocal}
                           </span>
                         </>
                       ) : (
                         <>
                           <FileVideo className="w-7 h-7 text-on-surface-variant/60 mb-2" />
-                          <p className="font-body text-xs text-on-surface-variant">{t.creatorProfile.noAttachedFile}</p>
+                          <p className="font-body text-xs text-on-surface-variant">
+                            {t.creatorProfile.noAttachedFile}
+                          </p>
                         </>
                       )}
                     </div>
@@ -693,7 +782,9 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                       <div>
                         <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-1.5 flex items-center gap-1">
                           {t.creatorProfile.workDuration}
-                          <span className="font-label text-[9px] text-primary/70 normal-case">· {t.creatorProfile.workDurationAutoHint}</span>
+                          <span className="font-label text-[9px] text-primary/70 normal-case">
+                            · {t.creatorProfile.workDurationAutoHint}
+                          </span>
                         </label>
                         <input
                           value={work.duration}
@@ -726,7 +817,9 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                 className="border-2 border-dashed border-outline-variant rounded-2xl flex flex-col items-center justify-center text-on-surface-variant hover:border-primary/40 hover:text-primary transition-colors py-16"
               >
                 <Plus className="w-7 h-7 mb-2" />
-                <span className="font-label text-label-md uppercase tracking-wider">{t.creatorProfile.addWork}</span>
+                <span className="font-label text-label-md uppercase tracking-wider">
+                  {t.creatorProfile.addWork}
+                </span>
               </button>
             </div>
           </div>
@@ -756,7 +849,9 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
       >
         <DialogContent className="sm:max-w-md max-h-[80vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle className="font-headline text-[20px]">{t.creatorProfile.pickAssetTitle}</DialogTitle>
+            <DialogTitle className="font-headline text-[20px]">
+              {t.creatorProfile.pickAssetTitle}
+            </DialogTitle>
           </DialogHeader>
           <div className="space-y-2 py-2">
             {MY_ASSETS_CREATED.map((asset) => (
@@ -770,7 +865,9 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                   <FileVideo className="w-4 h-4" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-body text-sm font-bold text-on-surface truncate">{asset.title}</p>
+                  <p className="font-body text-sm font-bold text-on-surface truncate">
+                    {asset.title}
+                  </p>
                   <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-0.5">
                     {asset.size} · {asset.createdAt}
                   </p>
@@ -788,7 +885,6 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
           </DialogFooter>
         </DialogContent>
       </Dialog>
-
     </AppShell>
   );
 }

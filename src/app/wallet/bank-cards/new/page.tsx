@@ -45,7 +45,7 @@ export default function AddBankCardPage() {
   const detected = digits.length >= 6;
   const bankCode = detected ? detectBank(digits) : "";
   const network = detected ? detectNetwork(digits) : "";
-  const bankLabel = detected ? t.wallet.bankNames[bankCode] ?? t.wallet.bankNames.generic : "";
+  const bankLabel = detected ? (t.wallet.bankNames[bankCode] ?? t.wallet.bankNames.generic) : "";
 
   const cardValid = digits.length >= 12 && digits.length <= 19 && !!network;
   const phoneValid = phone.replace(/\D/g, "").length >= 11;
@@ -59,7 +59,11 @@ export default function AddBankCardPage() {
   }, [resendIn]);
 
   const formatCard = (v: string) =>
-    v.replace(/\D/g, "").slice(0, 19).replace(/(.{4})/g, "$1 ").trim();
+    v
+      .replace(/\D/g, "")
+      .slice(0, 19)
+      .replace(/(.{4})/g, "$1 ")
+      .trim();
 
   const sendCode = () => {
     if (!phoneValid || resendIn > 0) return;
@@ -76,7 +80,8 @@ export default function AddBankCardPage() {
 
   const fieldCls =
     "w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm disabled:opacity-50 disabled:cursor-not-allowed";
-  const labelCls = "font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2";
+  const labelCls =
+    "font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2";
 
   return (
     <AppShell>

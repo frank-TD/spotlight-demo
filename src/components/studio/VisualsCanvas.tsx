@@ -31,16 +31,22 @@ export default function VisualsCanvas({
   const isAudio = mode === "voiceover" || mode === "music";
 
   const emptySub =
-    mode === "image" ? t.aigc.canvasEmptySubImage
-    : mode === "video" ? t.aigc.canvasEmptySubVideo
-    : mode === "voiceover" ? t.aigc.canvasEmptySubVoiceover
-    : t.aigc.canvasEmptySubMusic;
+    mode === "image"
+      ? t.aigc.canvasEmptySubImage
+      : mode === "video"
+        ? t.aigc.canvasEmptySubVideo
+        : mode === "voiceover"
+          ? t.aigc.canvasEmptySubVoiceover
+          : t.aigc.canvasEmptySubMusic;
 
   const generatingLabel =
-    mode === "image" ? t.aigc.generatingImage
-    : mode === "video" ? t.aigc.generatingVideo
-    : mode === "voiceover" ? t.aigc.generatingVoiceover
-    : t.aigc.generatingMusic;
+    mode === "image"
+      ? t.aigc.generatingImage
+      : mode === "video"
+        ? t.aigc.generatingVideo
+        : mode === "voiceover"
+          ? t.aigc.generatingVoiceover
+          : t.aigc.generatingMusic;
 
   const hasContent = generating || assets.length > 0;
 
@@ -73,7 +79,9 @@ export default function VisualsCanvas({
             <div className="w-16 h-16 rounded-2xl bg-surface-container flex items-center justify-center mb-5 text-on-surface-variant">
               <Icon className="w-7 h-7" />
             </div>
-            <h3 className="font-headline text-2xl text-on-surface mb-2">{t.aigc.canvasEmptyTitle}</h3>
+            <h3 className="font-headline text-2xl text-on-surface mb-2">
+              {t.aigc.canvasEmptyTitle}
+            </h3>
             <p className="font-body text-sm text-on-surface-variant">{emptySub}</p>
           </div>
         ) : (
@@ -88,10 +96,19 @@ export default function VisualsCanvas({
                     <div className="flex-1">
                       <div className="h-9 flex items-center gap-[2px]">
                         {Array.from({ length: 48 }).map((_, i) => (
-                          <span key={i} className="flex-1 bg-primary/25 rounded-full animate-pulse" style={{ height: `${20 + ((i * 7) % 70)}%`, animationDelay: `${(i % 8) * 90}ms` }} />
+                          <span
+                            key={i}
+                            className="flex-1 bg-primary/25 rounded-full animate-pulse"
+                            style={{
+                              height: `${20 + ((i * 7) % 70)}%`,
+                              animationDelay: `${(i % 8) * 90}ms`,
+                            }}
+                          />
                         ))}
                       </div>
-                      <p className="font-body text-xs text-on-surface-variant mt-2">{generatingLabel} {progress}%</p>
+                      <p className="font-body text-xs text-on-surface-variant mt-2">
+                        {generatingLabel} {progress}%
+                      </p>
                     </div>
                   </div>
                 ) : (
@@ -99,7 +116,9 @@ export default function VisualsCanvas({
                     <span className="shimmer-overlay" />
                     <div className="relative z-10 flex flex-col items-center gap-3">
                       <div className="w-12 h-12 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
-                      <p className="font-body text-sm text-on-surface-variant">{generatingLabel} ({progress}%)</p>
+                      <p className="font-body text-sm text-on-surface-variant">
+                        {generatingLabel} ({progress}%)
+                      </p>
                     </div>
                   </div>
                 )}

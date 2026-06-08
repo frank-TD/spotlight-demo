@@ -22,11 +22,16 @@ export default function RegisterPage() {
   return (
     <div className="min-h-screen bg-surface flex items-center justify-center p-8">
       <div className="w-full max-w-sm">
-        <Link href="/" className="font-headline text-[28px] italic font-bold text-on-surface block mb-10">
+        <Link
+          href="/"
+          className="font-headline text-[28px] italic font-bold text-on-surface block mb-10"
+        >
           Spotlight
         </Link>
 
-        <h1 className="font-headline text-[40px] text-on-surface mb-2 leading-tight">{t.register.title}</h1>
+        <h1 className="font-headline text-[40px] text-on-surface mb-2 leading-tight">
+          {t.register.title}
+        </h1>
         <p className="text-on-surface-variant font-body italic mb-8">{t.register.subtitle}</p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
