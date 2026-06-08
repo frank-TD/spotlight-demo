@@ -32,7 +32,7 @@ export default function StatCountUp({
 
   return (
     <span className={className}>
-      <CountUp value={target} duration={1400} format={format} />
+      <CountUp value={target} duration={1900} format={format} />
     </span>
   );
 }

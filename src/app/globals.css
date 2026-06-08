@@ -295,14 +295,27 @@
 }
 
 /* Scroll-triggered entrance. Animation-based (not transition-based) so it never
-   clobbers an element's own `transition`/`transition-all` hover styles. Reuses
-   the fade-up keyframe for visual parity with the mount-time reveals. The global
-   ScrollReveal observer toggles `.visible`; stagger via inline animationDelay. */
+   clobbers an element's own `transition`/`transition-all` hover styles. The
+   global ScrollReveal observer toggles `.visible`; stagger via inline
+   animationDelay. Pronounced rise + soft blur so the entrance reads clearly. */
 .scroll-reveal {
   opacity: 0;
 }
 .scroll-reveal.visible {
-  animation: fade-up 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
+  animation: reveal-rise 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes reveal-rise {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
 }
 
 /* Reduced-motion: skip the entrance entirely so content is shown immediately. */
