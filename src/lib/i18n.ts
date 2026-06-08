@@ -714,6 +714,11 @@ const en = {
     // Endless inspiration
     inspirationTitle: "Endless inspiration, one platform",
     inspirationExplore: "Explore all",
+    // Niche showcase
+    nicheLabel: "Built for every genre",
+    nicheTitle: "Built for every genre. Trusted by visionaries.",
+    nicheSubtitle:
+      "From cinematic spots to sci-fi worlds — Spotlight's creators deliver across every style.",
     // FAQ
     faqLabel: "Common Questions",
     faqTitle1: "Everything you",
@@ -1830,6 +1835,10 @@ const zhCN: typeof en = {
     aigcCard4Sub: "AI 超现实奇幻 · AIGC 创作台",
     inspirationTitle: "无限灵感，同一平台",
     inspirationExplore: "查看全部",
+    // Niche showcase
+    nicheLabel: "覆盖每一种类型",
+    nicheTitle: "适配每一种创作类型，赢得远见者的信任。",
+    nicheSubtitle: "从电影感广告到科幻世界——Spotlight 的创作者覆盖每一种风格。",
     faqLabel: "常见问题",
     faqTitle1: "你想了解的",
     faqTitle2: "全部答案",
@@ -2886,6 +2895,10 @@ const zhTW: typeof en = {
     aigcCard4Sub: "AI 超現實奇幻 · AIGC 創作台",
     inspirationTitle: "無限靈感，同一平台",
     inspirationExplore: "查看全部",
+    // Niche showcase
+    nicheLabel: "涵蓋每一種類型",
+    nicheTitle: "適配每一種創作類型，贏得遠見者的信任。",
+    nicheSubtitle: "從電影感廣告到科幻世界——Spotlight 的創作者涵蓋每一種風格。",
     faqLabel: "常見問題",
     faqTitle1: "你想了解的",
     faqTitle2: "全部答案",
