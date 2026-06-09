@@ -108,7 +108,11 @@ function CardSwapStack({ steps }: { steps: Step[] }) {
 
   return (
     <div
-      className="scroll-reveal hidden md:flex justify-center mt-4"
+      // NB: use a mount-time animation (not `scroll-reveal`) — this deck is
+      // mounted after `animated` flips, by which point the global ScrollReveal
+      // IntersectionObserver has already scanned the DOM and would never add
+      // `.visible`, leaving the cards stuck at opacity:0.
+      className="animate-fade-up hidden md:flex justify-center mt-4"
       style={{ perspective: "1100px" }}
       onMouseEnter={() => setPaused(true)}
       onMouseLeave={() => setPaused(false)}
