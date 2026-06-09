@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { ArrowRight, Check, Quote } from "lucide-react";
 import SectionLabel from "./SectionLabel";
+import BorderGlow from "./BorderGlow";
 import { useT } from "@/hooks/useT";
 import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,22 @@ export default function DealAgentsSection() {
   const sectionRef = useRef<HTMLElement | null>(null);
   const [revealed, setRevealed] = useState(0);
   const [openAgent, setOpenAgent] = useState<AgentKind | null>(null);
+
+  // The BorderGlow treatment is desktop + motion only; phones (no hover) and
+  // reduced-motion users get the plain card so the click just opens the dialog.
+  const [enhanced, setEnhanced] = useState(false);
+  useEffect(() => {
+    const wide = window.matchMedia("(min-width: 768px)");
+    const rm = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const decide = () => setEnhanced(wide.matches && !rm.matches);
+    decide();
+    wide.addEventListener("change", decide);
+    rm.addEventListener("change", decide);
+    return () => {
+      wide.removeEventListener("change", decide);
+      rm.removeEventListener("change", decide);
+    };
+  }, []);
 
   // "See how it works" CTA. Anonymous users go through register → onboarding;
   // signed-in users land in their messages (where the live agent threads are).
@@ -90,7 +107,13 @@ export default function DealAgentsSection() {
           {/* Bubbles area */}
           <div className="px-5 py-6 space-y-5 min-h-[420px]">
             {bubbles.map((b, i) => (
-              <Bubble key={i} role={b.who} label={b.role} text={b.text} visible={i < revealed} />
+              <Bubble
+                key={b.text}
+                role={b.who}
+                label={b.role}
+                text={b.text}
+                visible={i < revealed}
+              />
             ))}
             {revealed < bubbles.length && (
               <div className="flex items-center gap-2 text-on-surface-variant/60 pl-12">
@@ -138,20 +161,27 @@ export default function DealAgentsSection() {
           </button>
 
           <div className="grid grid-cols-2 gap-4 pt-4">
-            <AgentCard
-              initial="M"
-              name={t.landing.dealCardMarlow}
-              role={t.landing.dealCardMarlowRole}
-              accent="gold"
-              onOpen={() => setOpenAgent("marlow")}
-            />
-            <AgentCard
-              initial="W"
-              name={t.landing.dealCardWren}
-              role={t.landing.dealCardWrenRole}
-              accent="blue"
-              onOpen={() => setOpenAgent("wren")}
-            />
+            {(() => {
+              const Comp = enhanced ? GlowAgentCard : AgentCard;
+              return (
+                <>
+                  <Comp
+                    initial="M"
+                    name={t.landing.dealCardMarlow}
+                    role={t.landing.dealCardMarlowRole}
+                    accent="gold"
+                    onOpen={() => setOpenAgent("marlow")}
+                  />
+                  <Comp
+                    initial="W"
+                    name={t.landing.dealCardWren}
+                    role={t.landing.dealCardWrenRole}
+                    accent="blue"
+                    onOpen={() => setOpenAgent("wren")}
+                  />
+                </>
+              );
+            })()}
           </div>
         </div>
       </div>
@@ -258,6 +288,70 @@ function AgentCard({
         {role}
       </p>
     </button>
+  );
+}
+
+// Enhanced agent card: BorderGlow border/edge-glow follows the cursor, and a
+// click fires the sweep as feedback before the intro dialog opens. Colour is
+// tuned per agent (Marlow gold, Wren slate-blue).
+function GlowAgentCard({
+  initial,
+  name,
+  role,
+  accent,
+  onOpen,
+}: {
+  initial: string;
+  name: string;
+  role: string;
+  accent: "gold" | "blue";
+  onOpen: () => void;
+}) {
+  const [sweep, setSweep] = useState(0);
+  const isGold = accent === "gold";
+  const glow = isGold
+    ? { glowColor: "46 70 52", colors: ["#d4af37", "#f3d57f", "#5a4515"] }
+    : { glowColor: "211 55 78", colors: ["#a8c4e5", "#c5d6e8", "#1c2a3a"] };
+
+  const handleClick = () => {
+    setSweep((s) => s + 1);
+    // Let the sweep register as click feedback before the modal covers the card.
+    window.setTimeout(onOpen, 420);
+  };
+
+  return (
+    <BorderGlow
+      sweep={sweep}
+      glowColor={glow.glowColor}
+      colors={glow.colors}
+      backgroundColor="#0c0c0e"
+      borderRadius={24}
+      glowRadius={32}
+      glowIntensity={isGold ? 1 : 0.95}
+      className="h-full"
+    >
+      <button
+        type="button"
+        onClick={handleClick}
+        aria-label={`${name} — ${role}`}
+        className="w-full text-left p-5 rounded-[24px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+      >
+        <div
+          className={cn(
+            "w-11 h-11 rounded-full flex items-center justify-center font-bold mb-4 border",
+            isGold
+              ? "border-primary/50 bg-primary/15 text-primary"
+              : "border-secondary/50 bg-secondary/15 text-secondary"
+          )}
+        >
+          {initial}
+        </div>
+        <p className="font-headline text-xl text-on-surface">{name}</p>
+        <p className="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant mt-1.5">
+          {role}
+        </p>
+      </button>
+    </BorderGlow>
   );
 }
 
