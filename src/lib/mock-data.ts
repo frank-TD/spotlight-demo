@@ -234,6 +234,47 @@ export const NEEDS = [
   },
 ];
 
+// ── Featured projects (homepage "In the Spotlight" curation) ─────────────────
+// Curated slate shown on the marketing homepage. Titles stay untranslated
+// (film brand names); loglines/meta live in i18n keyed by `copyKey`.
+
+export type FeaturedStatus = "funding" | "production" | "released";
+
+export const FEATURED_PROJECTS = [
+  {
+    id: "feat_celestial",
+    title: "Celestial Entity",
+    seed: "celestial",
+    status: "funding" as FeaturedStatus,
+    fundedPct: 72,
+    copyKey: 1,
+    lead: true,
+  },
+  {
+    id: "feat_neon",
+    title: "Neon Rain",
+    seed: "neonrain",
+    status: "production" as FeaturedStatus,
+    copyKey: 2,
+    nowShowing: true,
+  },
+  {
+    id: "feat_golden",
+    title: "Golden Core",
+    seed: "goldencore",
+    status: "funding" as FeaturedStatus,
+    fundedPct: 41,
+    copyKey: 3,
+  },
+  {
+    id: "feat_aurora",
+    title: "Aurora Crystal",
+    seed: "aurora",
+    status: "released" as FeaturedStatus,
+    copyKey: 4,
+  },
+];
+
 // ── Bids on need_001 ──────────────────────────────────────────────────────────
 
 export const BIDS_NEED_001 = [

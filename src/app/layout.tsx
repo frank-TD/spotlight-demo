@@ -28,7 +28,7 @@ const bebas = Bebas_Neue({
 export const metadata: Metadata = {
   title: "Spotlight — Fund it. Own it. Stream it.",
   description:
-    "The world's first AI-powered content commissioning platform. Your brief. Your IP. Your name on it.",
+    "Discover AI-powered films, back the stories you believe in — and let AI distribute them to the world.",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
