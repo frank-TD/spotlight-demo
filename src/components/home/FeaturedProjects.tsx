@@ -7,8 +7,10 @@ import { cn } from "@/lib/utils";
 import { useT } from "@/hooks/useT";
 
 // "In the Spotlight" — the editorial heart of the homepage. One lead project
-// gets a full magazine spread (wide still + status + logline + backing
-// progress); three more run as a quiet poster row. Max 4 cards, no marquee.
+// gets a full magazine spread (wide still + status + logline + the creator
+// behind it); three more run as a quiet poster row. Max 4 cards, no marquee.
+// Spotlight commissions creators, so cards foreground who is making each film
+// and whether it is open to back — never crowdfunding metrics.
 export default function FeaturedProjects() {
   const t = useT();
   const lead = FEATURED_PROJECTS.find((p) => p.lead) ?? FEATURED_PROJECTS[0];
@@ -49,7 +51,7 @@ export default function FeaturedProjects() {
           <div className="absolute inset-0 bg-[linear-gradient(160deg,rgba(212,175,55,0.08),transparent_38%,rgba(8,8,10,0.45)_95%)] pointer-events-none" />
         </div>
         <div>
-          <StatusBadge status={lead.status} fundedPct={lead.fundedPct} />
+          <StatusBadge status={lead.status} />
           <h2 className="font-headline text-4xl md:text-6xl text-on-surface leading-[1.05] mt-6">
             {lead.title}
           </h2>
@@ -59,19 +61,19 @@ export default function FeaturedProjects() {
           <p className="font-body text-on-surface-variant leading-relaxed mt-5 max-w-md">
             {t.homeV2.leadLogline}
           </p>
-          <div className="mt-8 max-w-sm">
-            <div className="h-0.5 bg-on-surface/15 rounded-full overflow-hidden">
-              <div
-                className="h-full bg-gradient-to-r from-primary to-on-primary-container"
-                style={{ width: `${lead.fundedPct ?? 100}%` }}
-              />
-            </div>
-            <p className="font-label text-[10px] uppercase tracking-[0.24em] text-on-surface-variant/70 mt-3">
-              {t.homeV2.leadPMeta}
+          <div className="mt-8 pt-6 border-t border-outline-variant/40 max-w-sm space-y-1.5">
+            <p className="font-label text-[12px] uppercase tracking-[0.26em] text-on-surface">
+              {t.homeV2.filmBy} {lead.creator}
+              {lead.city ? ` · ${lead.city}` : ""}
             </p>
+            {lead.status === "open" && (
+              <p className="font-label text-[10.5px] uppercase tracking-[0.24em] text-on-surface-variant/70">
+                {t.homeV2.leadSeeking}
+              </p>
+            )}
           </div>
           <span className="inline-block font-label text-[12px] uppercase tracking-[0.24em] text-on-surface border-b border-primary/70 pb-1.5 mt-9 group-hover:text-primary transition-colors">
-            {t.homeV2.viewProject} →
+            {(lead.status === "open" ? t.homeV2.backProject : t.homeV2.viewProject)} →
           </span>
         </div>
       </Link>
@@ -94,14 +96,19 @@ export default function FeaturedProjects() {
               />
               <div className="absolute inset-0 bg-[linear-gradient(160deg,rgba(212,175,55,0.07),transparent_38%,rgba(8,8,10,0.4)_95%)] pointer-events-none" />
             </div>
-            <div className="pt-5 space-y-2.5">
+            <div className="pt-5 space-y-2">
               <h3 className="font-headline text-2xl text-on-surface group-hover:text-primary transition-colors">
                 {p.title}
               </h3>
+              <p className="font-label text-[10.5px] uppercase tracking-[0.26em] text-primary/90">
+                {t.homeV2.filmBy} {p.creator}
+              </p>
               <p className="font-label text-[10.5px] uppercase tracking-[0.26em] text-on-surface-variant/70">
                 {metaByKey[p.copyKey]}
               </p>
-              <StatusBadge status={p.status} fundedPct={p.fundedPct} small />
+              <div className="pt-1">
+                <StatusBadge status={p.status} small />
+              </div>
             </div>
           </Link>
         ))}
@@ -119,19 +126,11 @@ export default function FeaturedProjects() {
   );
 }
 
-function StatusBadge({
-  status,
-  fundedPct,
-  small = false,
-}: {
-  status: FeaturedStatus;
-  fundedPct?: number;
-  small?: boolean;
-}) {
+function StatusBadge({ status, small = false }: { status: FeaturedStatus; small?: boolean }) {
   const t = useT();
   const config: Record<FeaturedStatus, { label: string; classes: string; dot: string }> = {
-    funding: {
-      label: t.homeV2.statusFunding,
+    open: {
+      label: t.homeV2.statusOpen,
       classes: "text-on-primary-container border-primary/45 bg-primary/10",
       dot: "bg-primary",
     },
@@ -157,7 +156,6 @@ function StatusBadge({
     >
       <span className={cn("w-1.5 h-1.5 rounded-full", dot)} />
       {label}
-      {status === "funding" && fundedPct != null && <span>— {fundedPct}%</span>}
     </span>
   );
 }

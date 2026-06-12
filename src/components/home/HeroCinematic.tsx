@@ -33,7 +33,7 @@ export default function HeroCinematic() {
 
   const nowShowing = FEATURED_PROJECTS.find((p) => p.nowShowing) ?? FEATURED_PROJECTS[0];
   const statusLabel = {
-    funding: t.homeV2.statusFunding,
+    open: t.homeV2.statusOpen,
     production: t.homeV2.statusProduction,
     released: t.homeV2.statusReleased,
   }[nowShowing.status];
