@@ -75,9 +75,13 @@ export default function HeroCinematic() {
           playing={heroInView && pageVisible}
         />
       )}
+      {/* Flat grade first: the source clips are bright daylight footage, so a
+          constant dim keeps them a moody texture and the transparent nav +
+          headline legible no matter which frame is on screen. */}
+      <div className="absolute inset-0 bg-surface/50 pointer-events-none" />
       {/* Editorial scrims: darken left for the copy block, fade bottom to black. */}
-      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,8,10,0.86)_0%,rgba(8,8,10,0.46)_36%,rgba(8,8,10,0.08)_64%)] pointer-events-none" />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,8,10,0.55)_0%,rgba(8,8,10,0.08)_32%,rgba(8,8,10,0.28)_62%,rgba(8,8,10,0.97)_100%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,8,10,0.78)_0%,rgba(8,8,10,0.38)_36%,rgba(8,8,10,0.05)_64%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,8,10,0.66)_0%,rgba(8,8,10,0.10)_34%,rgba(8,8,10,0.30)_62%,rgba(8,8,10,0.97)_100%)] pointer-events-none" />
 
       <div className="relative h-full max-w-[1280px] mx-auto px-6 md:px-12 flex flex-col justify-center">
         <h1 className="font-headline text-[64px] sm:text-[84px] md:text-[104px] leading-[1.02] tracking-tight text-on-surface">
