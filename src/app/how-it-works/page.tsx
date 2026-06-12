@@ -64,7 +64,7 @@ export default function HowItWorksPage() {
       </div>
 
       {/* Marlow / Wren negotiation replay (moved from the homepage) */}
-      <div className="max-w-[1280px] mx-auto px-2 md:px-6">
+      <div id="agents" className="max-w-[1280px] mx-auto px-2 md:px-6 scroll-mt-24">
         <DealAgentsSection />
       </div>
 

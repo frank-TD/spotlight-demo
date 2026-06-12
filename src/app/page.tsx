@@ -5,6 +5,7 @@ import HeroCinematic from "@/components/home/HeroCinematic";
 import TrustStrip from "@/components/home/TrustStrip";
 import FeaturedProjects from "@/components/home/FeaturedProjects";
 import HowItWorksBand from "@/components/home/HowItWorksBand";
+import AgentShowcase from "@/components/home/AgentShowcase";
 import DistributionSection from "@/components/home/DistributionSection";
 import CreatorCallout from "@/components/home/CreatorCallout";
 import SiteFooter from "@/components/home/SiteFooter";
@@ -23,6 +24,7 @@ export default function HomePage() {
       <TrustStrip />
       <FeaturedProjects />
       <HowItWorksBand />
+      <AgentShowcase />
       <DistributionSection />
       <CreatorCallout />
       <SiteFooter />
