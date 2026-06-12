@@ -5,20 +5,9 @@ import { toast } from "sonner";
 import { ArrowRight } from "lucide-react";
 import StatCountUp from "./StatCountUp";
 import MobileHeroVideo from "./MobileHeroVideo";
+import { HERO_VIDEO_CLIPS, HERO_VIDEO_POSTER } from "@/lib/mock-data";
 import { useStore } from "@/lib/store";
 import { useT } from "@/hooks/useT";
-
-const HERO_VIDEOS = [
-  "/videos/hero/optimized/16022209_hero.mp4",
-  "/videos/hero/optimized/16049416_hero.mp4",
-  "/videos/hero/optimized/16079919_hero.mp4",
-  "/videos/hero/optimized/16107702_hero.mp4",
-];
-
-// Tiny dark poster (matches --md-surface) so each cell paints instantly as a
-// solid panel instead of flashing black/blank while the clip buffers.
-const HERO_POSTER =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='8' height='8' fill='%2308080a'/%3E%3C/svg%3E";
 
 // Full-bleed cinematic hero with the user's selected footage combined into a
 // moving background collage.
@@ -117,11 +106,7 @@ export default function HeroSection() {
       className="relative bg-mesh -mx-6 md:-mx-12 px-6 md:px-12 pt-28 md:pt-36 pb-24 md:pb-32 overflow-hidden"
     >
       {motionAllowed && !isDesktop && (
-        <MobileHeroVideo
-          clips={HERO_VIDEOS}
-          poster={HERO_POSTER}
-          playing={heroInView && pageVisible}
-        />
+        <MobileHeroVideo clips={HERO_VIDEO_CLIPS} playing={heroInView && pageVisible} />
       )}
       {motionAllowed && isDesktop && (
         <div
@@ -131,9 +116,9 @@ export default function HeroSection() {
           // and keep its painting contained to its own box.
           style={{ transform: "translateZ(0)", contain: "paint" }}
         >
-          {HERO_VIDEOS.map((src) => (
+          {HERO_VIDEO_CLIPS.map((clip) => (
             <div
-              key={src}
+              key={clip.id}
               className="relative overflow-hidden border border-on-surface/5 bg-surface"
             >
               {/* Only mount (and therefore fetch/decode) the clips once the hero
@@ -148,7 +133,7 @@ export default function HeroSection() {
                   // blend modes (those repaint every frame and caused the jank).
                   // The Ken Burns drift is a cheap GPU transform, not a repaint.
                   style={{ backfaceVisibility: "hidden" }}
-                  poster={HERO_POSTER}
+                  poster={HERO_VIDEO_POSTER}
                   autoPlay={pageVisible}
                   muted
                   loop
@@ -156,7 +141,7 @@ export default function HeroSection() {
                   preload="metadata"
                   disablePictureInPicture
                 >
-                  <source src={src} type="video/mp4" />
+                  <source src={clip.src} type="video/mp4" />
                 </video>
               )}
             </div>

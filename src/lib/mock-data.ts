@@ -1,3 +1,5 @@
+import { mediaUrl } from "./media";
+
 export type StageStatus =
   | "pending"
   | "in_progress"
@@ -233,6 +235,31 @@ export const NEEDS = [
     matchScore: 0,
   },
 ];
+
+// ── Hero background reel ─────────────────────────────────────────────────────
+// Cinematic clips behind the homepage hero. Placeholder footage ships from
+// /public today; when the backend takes over, swap this list (or hydrate it
+// from an API) and/or set NEXT_PUBLIC_VIDEO_CDN — consumers read {id,src,poster}
+// and never change. `poster` is a per-clip first-frame placeholder for now,
+// ready to hold real thumbnails later.
+export interface VideoClip {
+  id: string;
+  src: string;
+  poster: string;
+}
+
+// Tiny dark SVG (matches --md-surface) so each layer paints as a solid panel
+// instead of flashing blank while the clip buffers.
+export const HERO_VIDEO_POSTER =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='8' height='8' fill='%2308080a'/%3E%3C/svg%3E";
+
+const HERO_CLIP_IDS = ["16022209", "16049416", "16079919", "16107702"];
+
+export const HERO_VIDEO_CLIPS: VideoClip[] = HERO_CLIP_IDS.map((id) => ({
+  id,
+  src: mediaUrl(`/videos/hero/optimized/${id}_hero.mp4`),
+  poster: HERO_VIDEO_POSTER,
+}));
 
 // ── Featured projects (homepage "In the Spotlight" curation) ─────────────────
 // Curated slate shown on the marketing homepage. Titles stay untranslated
