@@ -1,5 +1,5 @@
 "use client";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import SectionLabel from "./SectionLabel";
@@ -33,6 +33,55 @@ export default function FeaturedProjects() {
     if (!el) return;
     el.scrollBy({ left: dir * el.clientWidth * 0.8, behavior: "smooth" });
   };
+
+  // Auto-advance the rail one card at a time, ping-ponging at the ends so it
+  // never hard-rewinds. Pauses on hover/touch, when scrolled off-screen, when
+  // the tab is hidden, and under reduced-motion — so it's ambient, not pushy.
+  useEffect(() => {
+    const el = railRef.current;
+    if (!el) return;
+
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let dir = 1;
+    let paused = false;
+    let visible = true;
+
+    const pause = () => {
+      paused = true;
+    };
+    const resume = () => {
+      paused = false;
+    };
+    el.addEventListener("pointerenter", pause);
+    el.addEventListener("pointerleave", resume);
+    el.addEventListener("pointerdown", pause);
+    el.addEventListener("pointerup", resume);
+
+    const io = new IntersectionObserver(([entry]) => (visible = entry.isIntersecting), {
+      threshold: 0.25,
+    });
+    io.observe(el);
+
+    const id = window.setInterval(() => {
+      if (paused || !visible || document.hidden || reduce.matches) return;
+      const maxScroll = el.scrollWidth - el.clientWidth;
+      if (maxScroll < 10) return;
+      if (dir === 1 && el.scrollLeft >= maxScroll - 2) dir = -1;
+      else if (dir === -1 && el.scrollLeft <= 2) dir = 1;
+      const card = el.querySelector<HTMLElement>("[data-rail-card]");
+      const step = card ? card.offsetWidth + 24 : el.clientWidth * 0.6;
+      el.scrollBy({ left: dir * step, behavior: "smooth" });
+    }, 4000);
+
+    return () => {
+      window.clearInterval(id);
+      io.disconnect();
+      el.removeEventListener("pointerenter", pause);
+      el.removeEventListener("pointerleave", resume);
+      el.removeEventListener("pointerdown", pause);
+      el.removeEventListener("pointerup", resume);
+    };
+  }, []);
 
   return (
     <section className="max-w-[1280px] mx-auto px-6 md:px-12 py-24 md:py-32">
@@ -111,7 +160,8 @@ export default function FeaturedProjects() {
             <Link
               key={p.id}
               href="/discovery"
-              className="scroll-reveal group relative shrink-0 w-[78vw] sm:w-[300px] md:w-[332px] snap-start"
+              data-rail-card
+              className="scroll-reveal group relative shrink-0 w-[70vw] sm:w-[260px] md:w-[288px] snap-start"
               style={{ animationDelay: `${i * 70}ms` }}
             >
               <div className="relative aspect-[2/3] rounded-md overflow-hidden bg-surface-container-low ring-1 ring-outline-variant/40 group-hover:ring-primary/50 transition-all duration-500">
@@ -126,8 +176,8 @@ export default function FeaturedProjects() {
                 <div className="absolute top-3.5 left-3.5">
                   <StatusBadge status={p.status} small overlay />
                 </div>
-                <div className="absolute inset-x-0 bottom-0 p-5">
-                  <h3 className="font-headline text-[26px] leading-tight text-on-surface">
+                <div className="absolute inset-x-0 bottom-0 p-4">
+                  <h3 className="font-headline text-[23px] leading-tight text-on-surface">
                     {p.title}
                   </h3>
                   <p className="font-label text-[10px] uppercase tracking-[0.24em] text-primary/95 mt-2">
