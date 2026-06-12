@@ -361,6 +361,16 @@
   box-shadow: 0 0 24px rgba(212, 175, 55, 0.35);
 }
 
+/* Hide the scrollbar on horizontal rails (featured posters) while keeping the
+   element scrollable via trackpad / drag / arrow buttons. */
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 /* Scroll-triggered entrance. Animation-based (not transition-based) so it never
    clobbers an element's own `transition`/`transition-all` hover styles. The
    global ScrollReveal observer toggles `.visible`; stagger via inline

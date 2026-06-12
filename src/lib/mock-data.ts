@@ -234,6 +234,83 @@ export const NEEDS = [
   },
 ];
 
+// ── Featured projects (homepage "In the Spotlight" curation) ─────────────────
+// Curated slate shown on the marketing homepage. Titles stay untranslated
+// (film brand names); loglines/meta live in i18n keyed by `copyKey`. Spotlight
+// is a commissioning marketplace — a backer funds a creator to make the film —
+// so projects move through: open (seeking a backer) → production (commissioned,
+// being made) → released. There is no crowdfunding goal/backer-count/countdown.
+
+export type FeaturedStatus = "open" | "production" | "released";
+
+export const FEATURED_PROJECTS = [
+  {
+    id: "feat_celestial",
+    title: "Celestial Entity",
+    creator: "Aria Song",
+    city: "Seoul",
+    seed: "celestial",
+    status: "open" as FeaturedStatus,
+    copyKey: 1,
+    lead: true,
+  },
+  {
+    id: "feat_neon",
+    title: "Neon Rain",
+    creator: "Yuki Tanaka",
+    city: "Osaka",
+    seed: "neonrain",
+    status: "production" as FeaturedStatus,
+    copyKey: 2,
+  },
+  {
+    id: "feat_golden",
+    title: "Golden Core",
+    creator: "Marco Reyes",
+    city: "Tokyo",
+    seed: "goldencore",
+    status: "open" as FeaturedStatus,
+    copyKey: 3,
+  },
+  {
+    id: "feat_aurora",
+    title: "Aurora Crystal",
+    creator: "Sofia Okonkwo",
+    city: "Seoul",
+    seed: "aurora",
+    status: "released" as FeaturedStatus,
+    copyKey: 4,
+    nowShowing: true,
+  },
+  {
+    id: "feat_crimson",
+    title: "Crimson Mirage",
+    creator: "Liang Wei",
+    city: "Taipei",
+    seed: "crimsonmirage",
+    status: "open" as FeaturedStatus,
+    copyKey: 5,
+  },
+  {
+    id: "feat_lanterns",
+    title: "Paper Lanterns",
+    creator: "Mei Lin",
+    city: "Hangzhou",
+    seed: "paperlanterns",
+    status: "released" as FeaturedStatus,
+    copyKey: 6,
+  },
+  {
+    id: "feat_eighthday",
+    title: "The Eighth Day",
+    creator: "Dilan Cruz",
+    city: "Manila",
+    seed: "eighthday",
+    status: "production" as FeaturedStatus,
+    copyKey: 7,
+  },
+];
+
 // ── Bids on need_001 ──────────────────────────────────────────────────────────
 
 export const BIDS_NEED_001 = [
