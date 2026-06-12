@@ -282,6 +282,33 @@ export const FEATURED_PROJECTS = [
     copyKey: 4,
     nowShowing: true,
   },
+  {
+    id: "feat_crimson",
+    title: "Crimson Mirage",
+    creator: "Liang Wei",
+    city: "Taipei",
+    seed: "crimsonmirage",
+    status: "open" as FeaturedStatus,
+    copyKey: 5,
+  },
+  {
+    id: "feat_lanterns",
+    title: "Paper Lanterns",
+    creator: "Mei Lin",
+    city: "Hangzhou",
+    seed: "paperlanterns",
+    status: "released" as FeaturedStatus,
+    copyKey: 6,
+  },
+  {
+    id: "feat_eighthday",
+    title: "The Eighth Day",
+    creator: "Dilan Cruz",
+    city: "Manila",
+    seed: "eighthday",
+    status: "production" as FeaturedStatus,
+    copyKey: 7,
+  },
 ];
 
 // ── Bids on need_001 ──────────────────────────────────────────────────────────
