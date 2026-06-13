@@ -1,7 +1,6 @@
 "use client";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import SectionLabel from "./SectionLabel";
 import ReleaseSlateCard from "./ReleaseSlateCard";
 import { useT } from "@/hooks/useT";
 
@@ -13,8 +12,7 @@ export default function DistributionSection() {
     <section className="border-y border-outline-variant/30 bg-surface-container-lowest">
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 py-24 md:py-28 grid md:grid-cols-[5fr_6fr] gap-12 md:gap-20 items-center">
         <div className="scroll-reveal">
-          <SectionLabel>{t.homeV2.distLabel}</SectionLabel>
-          <h2 className="font-headline text-4xl md:text-[56px] text-on-surface leading-[1.08] mt-6">
+          <h2 className="font-headline text-5xl md:text-7xl text-on-surface leading-[1.05]">
             {t.homeV2.distTitle1}
             <br />
             <span
@@ -29,7 +27,7 @@ export default function DistributionSection() {
               {t.homeV2.distTitle2}
             </span>
           </h2>
-          <p className="font-body text-on-surface-variant leading-relaxed mt-6 max-w-md">
+          <p className="font-body text-lg text-on-surface-variant leading-relaxed mt-7 max-w-md">
             {t.homeV2.distBody}
           </p>
           <Link

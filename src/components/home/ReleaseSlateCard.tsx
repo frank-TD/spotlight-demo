@@ -16,10 +16,10 @@ export default function ReleaseSlateCard() {
   return (
     <div className="border border-outline-variant rounded-xl bg-surface-container-low p-6 md:p-8 shadow-[0_30px_80px_rgba(0,0,0,0.45)]">
       <div className="flex items-center justify-between pb-5">
-        <span className="font-label text-[12px] uppercase tracking-[0.3em] text-on-surface-variant/70">
+        <span className="font-label text-[12px] uppercase tracking-[0.2em] text-on-surface-variant">
           {t.homeV2.slateLabel}
         </span>
-        <span className="inline-flex items-center gap-2 font-label text-[11px] uppercase tracking-[0.24em] text-primary">
+        <span className="inline-flex items-center gap-2 font-label text-[12px] uppercase tracking-[0.18em] text-primary">
           <span className="relative inline-flex w-1.5 h-1.5">
             <span className="absolute inline-flex w-full h-full rounded-full bg-primary opacity-50 animate-ping" />
             <span className="relative inline-flex w-1.5 h-1.5 rounded-full bg-primary" />
@@ -33,12 +33,12 @@ export default function ReleaseSlateCard() {
           className="grid grid-cols-[1fr_auto] md:grid-cols-[1.1fr_1.6fr_auto] gap-x-4 gap-y-1.5 items-center py-5 border-t border-outline-variant/60"
         >
           <span className="font-headline text-xl md:text-2xl text-on-surface">{r.film}</span>
-          <span className="font-label text-[10.5px] uppercase tracking-[0.22em] text-on-surface-variant/70 col-span-2 md:col-span-1 row-start-2 md:row-start-auto">
+          <span className="font-label text-[12px] uppercase tracking-[0.22em] text-on-surface-variant col-span-2 md:col-span-1 row-start-2 md:row-start-auto">
             {r.plat}
           </span>
           <span
             className={cn(
-              "font-label text-[11.5px] uppercase tracking-[0.18em] border rounded-full px-3.5 py-1.5 justify-self-end",
+              "font-label text-[12px] uppercase tracking-[0.18em] border rounded-full px-3.5 py-1.5 justify-self-end",
               r.tone === "gold" && "text-on-primary-container border-primary/45",
               r.tone === "live" && "text-tertiary border-tertiary/45",
               r.tone === "dim" && "text-on-surface-variant border-outline-variant"
@@ -48,7 +48,7 @@ export default function ReleaseSlateCard() {
           </span>
         </div>
       ))}
-      <div className="pt-5 border-t border-outline-variant/60 text-center font-label text-[10px] uppercase tracking-[0.3em] text-on-surface-variant/60">
+      <div className="pt-5 border-t border-outline-variant/60 text-center font-label text-[12px] uppercase tracking-[0.2em] text-on-surface-variant">
         {t.homeV2.slateFoot}
       </div>
     </div>

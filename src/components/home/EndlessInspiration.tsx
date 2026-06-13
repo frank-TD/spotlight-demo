@@ -142,7 +142,7 @@ export default function EndlessInspiration() {
         </h2>
         <Link
           href="/market/creators"
-          className="font-label text-[11px] uppercase tracking-[0.24em] text-on-surface-variant hover:text-primary transition-colors inline-flex items-center gap-2"
+          className="font-label text-[12px] uppercase tracking-[0.18em] text-on-surface-variant hover:text-primary transition-colors inline-flex items-center gap-2"
         >
           {t.landing.inspirationExplore} <ArrowRight className="w-3 h-3" />
         </Link>
@@ -183,11 +183,11 @@ function MasonryCard({ item, index, onOpen }: { item: Item; index: number; onOpe
       />
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/0 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       <figcaption className="absolute inset-x-0 bottom-0 p-3 opacity-0 group-hover:opacity-100 transition-opacity">
-        <span className="font-label text-[10px] uppercase tracking-[0.22em] text-primary/90 mb-1.5 block">
+        <span className="font-label text-[12px] uppercase tracking-[0.22em] text-primary/90 mb-1.5 block">
           {item.category}
         </span>
         <p className="font-headline italic text-white text-base leading-tight">{item.title}</p>
-        <p className="font-label text-white/65 text-[10px] uppercase tracking-[0.2em] mt-1">
+        <p className="font-label text-white/65 text-[12px] uppercase tracking-[0.2em] mt-1">
           by {item.creator}
         </p>
       </figcaption>

@@ -83,13 +83,13 @@ export default function CreatorPreviewDialog({
                 </button>
               </div>
               <div>
-                <span className="font-label text-[10px] uppercase tracking-widest bg-white/10 text-white/80 px-2.5 py-1 rounded">
+                <span className="font-label text-[12px] uppercase tracking-widest bg-white/10 text-white/80 px-2.5 py-1 rounded">
                   {t.discovery.filters[item.category] ?? item.category}
                 </span>
                 <h2 className="font-headline italic text-white text-2xl md:text-3xl mt-3 leading-tight">
                   {item.title}
                 </h2>
-                <p className="font-label text-white/60 text-[11px] uppercase tracking-widest mt-2">
+                <p className="font-label text-white/60 text-[12px] uppercase tracking-widest mt-2">
                   {t.discovery.by} {item.creator}
                 </p>
               </div>
@@ -124,7 +124,7 @@ export default function CreatorPreviewDialog({
                   {creator.specialties.map((s) => (
                     <span
                       key={s}
-                      className="font-label text-[10px] uppercase tracking-widest bg-primary-container text-on-primary-container px-2.5 py-1 rounded-full"
+                      className="font-label text-[12px] uppercase tracking-widest bg-primary-container text-on-primary-container px-2.5 py-1 rounded-full"
                     >
                       {s}
                     </span>

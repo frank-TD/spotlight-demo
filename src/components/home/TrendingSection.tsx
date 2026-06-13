@@ -71,7 +71,7 @@ export default function TrendingSection() {
         </div>
         <Link
           href="/market/creators"
-          className="font-label text-[11px] uppercase tracking-[0.24em] text-on-surface-variant hover:text-primary transition-colors inline-flex items-center gap-2"
+          className="font-label text-[12px] uppercase tracking-[0.18em] text-on-surface-variant hover:text-primary transition-colors inline-flex items-center gap-2"
         >
           {t.landing.trendingSeeAll} <ArrowRight className="w-3 h-3" />
         </Link>

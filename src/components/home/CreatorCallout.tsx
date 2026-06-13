@@ -21,10 +21,10 @@ export default function CreatorCallout() {
       <div className="absolute inset-0 bg-[linear-gradient(160deg,rgba(212,175,55,0.08),transparent_45%)] pointer-events-none" />
 
       <div className="scroll-reveal relative text-center px-6">
-        <p className="font-label text-[12px] uppercase tracking-[0.34em] text-primary">
+        <p className="font-label text-[12px] uppercase tracking-[0.2em] text-primary">
           {t.homeV2.creatorLabel}
         </p>
-        <h2 className="font-headline text-4xl md:text-6xl text-on-surface mt-5">
+        <h2 className="font-headline text-5xl md:text-7xl text-on-surface mt-5 leading-[1.05]">
           {t.homeV2.creatorTitle1}{" "}
           <span
             className="italic"
@@ -38,7 +38,7 @@ export default function CreatorCallout() {
             {t.homeV2.creatorTitle2}
           </span>
         </h2>
-        <p className="font-body text-on-surface-variant mt-4">{t.homeV2.creatorSub}</p>
+        <p className="font-body text-lg text-on-surface-variant mt-5">{t.homeV2.creatorSub}</p>
         <button
           type="button"
           onClick={submit}

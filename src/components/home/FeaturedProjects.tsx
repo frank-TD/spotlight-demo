@@ -2,7 +2,6 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { ArrowRight, ChevronLeft, ChevronRight, Play } from "lucide-react";
-import SectionLabel from "./SectionLabel";
 import {
   FEATURED_PROJECTS,
   VIDEO_CLIP_BY_ID,
@@ -93,13 +92,13 @@ export default function FeaturedProjects() {
 
   return (
     <section className="max-w-[1280px] mx-auto px-6 md:px-12 py-24 md:py-32">
-      <div className="flex items-center justify-between gap-6 mb-14 md:mb-20">
-        <div className="scroll-reveal">
-          <SectionLabel>{t.homeV2.featuredLabel}</SectionLabel>
-        </div>
+      <div className="flex items-end justify-between gap-6 mb-14 md:mb-20">
+        <h2 className="scroll-reveal font-headline text-5xl md:text-7xl text-on-surface leading-[1.0]">
+          {t.homeV2.featuredLabel}
+        </h2>
         <Link
           href="/discovery"
-          className="scroll-reveal hidden md:inline-flex items-center gap-2 font-label text-[11px] uppercase tracking-[0.24em] text-on-surface-variant hover:text-primary transition-colors"
+          className="scroll-reveal hidden md:inline-flex items-center gap-2 shrink-0 pb-2 font-label text-[12px] uppercase tracking-[0.18em] text-on-surface-variant hover:text-primary transition-colors"
         >
           {t.homeV2.exploreAll} <ArrowRight className="w-3 h-3" />
         </Link>
@@ -123,24 +122,24 @@ export default function FeaturedProjects() {
           <h2 className="font-headline text-4xl md:text-6xl text-on-surface leading-[1.05] mt-6">
             {lead.title}
           </h2>
-          <p className="font-label text-[12px] uppercase tracking-[0.3em] text-primary mt-4">
+          <p className="font-label text-[12px] uppercase tracking-[0.2em] text-primary mt-4">
             {metaByKey[lead.copyKey]}
           </p>
           <p className="font-body text-on-surface-variant leading-relaxed mt-5 max-w-md">
             {t.homeV2.leadLogline}
           </p>
           <div className="mt-8 pt-6 border-t border-outline-variant/40 max-w-sm space-y-1.5">
-            <p className="font-label text-[12px] uppercase tracking-[0.26em] text-on-surface">
+            <p className="font-label text-[12px] uppercase tracking-[0.18em] text-on-surface">
               {t.homeV2.filmBy} {lead.creator}
               {lead.city ? ` · ${lead.city}` : ""}
             </p>
             {lead.status === "open" && (
-              <p className="font-label text-[10.5px] uppercase tracking-[0.24em] text-on-surface-variant/70">
+              <p className="font-label text-[12px] uppercase tracking-[0.18em] text-on-surface-variant">
                 {t.homeV2.leadSeeking}
               </p>
             )}
           </div>
-          <span className="inline-block font-label text-[12px] uppercase tracking-[0.24em] text-on-surface border-b border-primary/70 pb-1.5 mt-9 group-hover:text-primary transition-colors">
+          <span className="inline-block font-label text-[12px] uppercase tracking-[0.18em] text-on-surface border-b border-primary/70 pb-1.5 mt-9 group-hover:text-primary transition-colors">
             {(lead.status === "open" ? t.homeV2.backProject : t.homeV2.viewProject)} →
           </span>
         </div>
@@ -150,7 +149,7 @@ export default function FeaturedProjects() {
           Captions sit on the artwork so each card reads as a film poster. */}
       <div className="relative mt-20 md:mt-28">
         <div className="scroll-reveal flex items-center justify-between gap-4 mb-6">
-          <p className="font-label text-[11px] uppercase tracking-[0.26em] text-on-surface-variant/60">
+          <p className="font-label text-[12px] uppercase tracking-[0.18em] text-on-surface-variant">
             {t.homeV2.dragHint}
           </p>
           <div className="hidden md:flex gap-2">
@@ -164,7 +163,7 @@ export default function FeaturedProjects() {
           className="flex gap-4 md:gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory -mx-6 px-6 md:-mx-12 md:px-12 pb-2"
         >
           {rail.map((p, i) => (
-            <RailCard key={p.id} project={p} meta={metaByKey[p.copyKey]} index={i} />
+            <RailCard key={p.id} project={p} index={i} />
           ))}
         </div>
       </div>
@@ -172,7 +171,7 @@ export default function FeaturedProjects() {
       <div className="scroll-reveal text-center mt-16 md:mt-20">
         <Link
           href="/discovery"
-          className="inline-block font-label text-[13px] uppercase tracking-[0.26em] text-primary border-b border-primary/60 pb-2 hover:text-on-primary-container transition-colors"
+          className="inline-block font-label text-[13px] uppercase tracking-[0.18em] text-primary border-b border-primary/60 pb-2 hover:text-on-primary-container transition-colors"
         >
           {t.homeV2.exploreAll} →
         </Link>
@@ -218,11 +217,9 @@ function LeadMedia({ clip, seed, alt }: { clip?: VideoClip; seed: string; alt: s
 // shows its poster frame otherwise; without a clip it falls back to a still.
 function RailCard({
   project,
-  meta,
   index,
 }: {
   project: (typeof FEATURED_PROJECTS)[number];
-  meta: string;
   index: number;
 }) {
   const t = useT();
@@ -277,15 +274,12 @@ function RailCard({
         <div className="absolute top-3.5 left-3.5">
           <StatusBadge status={project.status} small overlay />
         </div>
-        <div className="absolute inset-x-0 bottom-0 p-4">
-          <h3 className="font-headline text-[23px] leading-tight text-on-surface">{project.title}</h3>
-          <p className="font-label text-[10px] uppercase tracking-[0.24em] text-primary/95 mt-2">
+        <div className="absolute inset-x-0 bottom-0 p-5">
+          <h3 className="font-headline text-[28px] leading-tight text-on-surface">{project.title}</h3>
+          <p className="font-label text-[12px] uppercase tracking-[0.18em] text-primary/95 mt-2.5">
             {t.homeV2.filmBy} {project.creator}
           </p>
-          <p className="font-label text-[10px] uppercase tracking-[0.22em] text-on-surface-variant/80 mt-1">
-            {meta}
-          </p>
-          <span className="flex items-center gap-1.5 font-label text-[10px] uppercase tracking-[0.24em] text-on-surface mt-3 opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+          <span className="flex items-center gap-1.5 font-label text-[12px] uppercase tracking-[0.18em] text-on-surface mt-3 opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
             {project.status === "open" ? t.homeV2.backProject : t.homeV2.viewProject}
             <ArrowRight className="w-3 h-3" />
           </span>
@@ -350,7 +344,7 @@ function StatusBadge({
     <span
       className={cn(
         "inline-flex items-center gap-2 font-label uppercase border rounded-full",
-        small ? "text-[10px] tracking-[0.18em] px-2.5 py-1" : "text-[11px] tracking-[0.2em] px-3.5 py-1.5",
+        small ? "text-[12px] tracking-[0.18em] px-2.5 py-1" : "text-[12px] tracking-[0.2em] px-3.5 py-1.5",
         text,
         border,
         overlay ? "bg-surface/70 backdrop-blur-sm" : "bg-primary/10"

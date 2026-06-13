@@ -102,13 +102,13 @@ export default function DistributionPage() {
                 className="inline-flex items-center gap-2.5 border border-outline-variant rounded-full px-5 py-2.5 font-body text-sm text-on-surface"
               >
                 {p.name}
-                <span className="font-label text-[9px] uppercase tracking-[0.2em] text-on-surface-variant/60">
+                <span className="font-label text-[12px] uppercase tracking-[0.2em] text-on-surface-variant">
                   {p.region}
                 </span>
               </span>
             ))}
           </div>
-          <p className="font-label text-[11px] uppercase tracking-[0.26em] text-on-surface-variant/70 mt-10">
+          <p className="font-label text-[12px] uppercase tracking-[0.18em] text-on-surface-variant mt-10">
             {t.distribution.regionsTitle}
           </p>
           <div className="flex flex-wrap gap-x-6 gap-y-2 mt-4">

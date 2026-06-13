@@ -54,7 +54,7 @@ export default function CapabilitiesGrid() {
             {badge && (
               <span
                 className={cn(
-                  "absolute top-5 right-5 font-label text-[10px] uppercase tracking-[0.18em] px-2.5 py-1 rounded-full",
+                  "absolute top-5 right-5 font-label text-[12px] uppercase tracking-[0.18em] px-2.5 py-1 rounded-full",
                   badge === "new"
                     ? "bg-primary text-on-primary"
                     : "border border-outline text-on-surface-variant"

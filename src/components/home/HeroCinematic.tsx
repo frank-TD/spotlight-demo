@@ -124,10 +124,10 @@ export default function HeroCinematic() {
         className="absolute left-6 md:left-12 bottom-6 md:bottom-10 inline-flex items-center gap-3 border border-on-surface/20 bg-surface/40 backdrop-blur-sm rounded-sm px-4 py-2.5 hover:border-primary/60 transition-colors animate-fade-up"
         style={{ animationDelay: "700ms" }}
       >
-        <span className="font-label text-[11px] uppercase tracking-[0.3em] text-primary">
+        <span className="font-label text-[12px] uppercase tracking-[0.2em] text-primary">
           {t.homeV2.nowShowing}
         </span>
-        <span className="hidden sm:inline font-label text-[11px] uppercase tracking-[0.24em] text-on-surface/80">
+        <span className="hidden sm:inline font-label text-[12px] uppercase tracking-[0.18em] text-on-surface/90">
           {nowShowing.title} · {statusLabel}
         </span>
       </Link>

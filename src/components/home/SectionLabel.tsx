@@ -9,7 +9,7 @@ export default function SectionLabel({
 }) {
   return (
     <p
-      className={`font-label text-[11px] uppercase tracking-[0.28em] flex items-center gap-3 ${
+      className={`font-label text-[12px] uppercase tracking-[0.2em] flex items-center gap-3 ${
         accent === "gold" ? "text-primary" : "text-on-surface-variant"
       }`}
     >
