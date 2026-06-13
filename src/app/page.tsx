@@ -8,14 +8,15 @@ import HowItWorksBand from "@/components/home/HowItWorksBand";
 import AgentShowcase from "@/components/home/AgentShowcase";
 import DistributionSection from "@/components/home/DistributionSection";
 import CreatorCallout from "@/components/home/CreatorCallout";
+import ClosingFaq from "@/components/home/ClosingFaq";
 import SiteFooter from "@/components/home/SiteFooter";
 
 // Spotlight marketing homepage — editorial showcase: cinematic hero
 // (Fund/Own/Stream + Explore/Submit CTAs), a trust strip of volume +
 // escrow/backing credibility signals, curated featured projects, three-step
-// how-it-works band, AI distribution pillar, creator callout. Platform
-// mechanics (agents, escrow detail, FAQ) live on /how-it-works and /about;
-// the full feed lives at /discovery.
+// how-it-works band, AI agent showcase, AI distribution pillar, creator
+// callout, and a bold FAQ + oversized-wordmark footer as the closing sign-off.
+// The full feed lives at /discovery.
 export default function HomePage() {
   return (
     <AppShell hideFooter heroUnderNav>
@@ -27,7 +28,8 @@ export default function HomePage() {
       <AgentShowcase />
       <DistributionSection />
       <CreatorCallout />
-      <SiteFooter />
+      <ClosingFaq />
+      <SiteFooter oversized />
     </AppShell>
   );
 }
