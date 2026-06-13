@@ -1,11 +1,19 @@
 "use client";
 import { useEffect, useRef } from "react";
 import Link from "next/link";
-import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight, Play } from "lucide-react";
 import SectionLabel from "./SectionLabel";
-import { FEATURED_PROJECTS, type FeaturedStatus } from "@/lib/mock-data";
+import {
+  FEATURED_PROJECTS,
+  VIDEO_CLIP_BY_ID,
+  type FeaturedStatus,
+  type VideoClip,
+} from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import { useT } from "@/hooks/useT";
+
+const prefersReducedMotion = () =>
+  typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 // "In the Spotlight" — the editorial heart of the homepage. One lead project
 // gets a full magazine spread (wide still + status + logline + the creator
@@ -103,11 +111,10 @@ export default function FeaturedProjects() {
         className="scroll-reveal group grid md:grid-cols-[7fr_5fr] gap-8 md:gap-16 items-center"
       >
         <div className="relative aspect-[3/2] rounded-md overflow-hidden bg-surface-container-low ring-1 ring-outline-variant/40 group-hover:ring-primary/50 transition-all duration-500">
-          <img
-            src={`https://picsum.photos/seed/${lead.seed}/1200/800`}
+          <LeadMedia
+            clip={lead.clipId ? VIDEO_CLIP_BY_ID[lead.clipId] : undefined}
+            seed={lead.seed}
             alt={lead.title}
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]"
-            loading="lazy"
           />
           <div className="absolute inset-0 bg-[linear-gradient(160deg,rgba(212,175,55,0.08),transparent_38%,rgba(8,8,10,0.45)_95%)] pointer-events-none" />
         </div>
@@ -157,42 +164,7 @@ export default function FeaturedProjects() {
           className="flex gap-4 md:gap-6 overflow-x-auto no-scrollbar snap-x snap-mandatory -mx-6 px-6 md:-mx-12 md:px-12 pb-2"
         >
           {rail.map((p, i) => (
-            <Link
-              key={p.id}
-              href="/discovery"
-              data-rail-card
-              className="scroll-reveal group relative shrink-0 w-[70vw] sm:w-[260px] md:w-[288px] snap-start"
-              style={{ animationDelay: `${i * 70}ms` }}
-            >
-              <div className="relative aspect-[2/3] rounded-md overflow-hidden bg-surface-container-low ring-1 ring-outline-variant/40 group-hover:ring-primary/50 transition-all duration-500">
-                <img
-                  src={`https://picsum.photos/seed/${p.seed}/600/900`}
-                  alt={p.title}
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
-                  loading="lazy"
-                />
-                {/* Legibility scrim — deepens on hover. */}
-                <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,8,10,0.08)_0%,transparent_28%,rgba(8,8,10,0.32)_60%,rgba(8,8,10,0.92)_100%)] group-hover:bg-[linear-gradient(180deg,rgba(8,8,10,0.3)_0%,rgba(8,8,10,0.12)_30%,rgba(8,8,10,0.5)_62%,rgba(8,8,10,0.96)_100%)] transition-[background] duration-500 pointer-events-none" />
-                <div className="absolute top-3.5 left-3.5">
-                  <StatusBadge status={p.status} small overlay />
-                </div>
-                <div className="absolute inset-x-0 bottom-0 p-4">
-                  <h3 className="font-headline text-[23px] leading-tight text-on-surface">
-                    {p.title}
-                  </h3>
-                  <p className="font-label text-[10px] uppercase tracking-[0.24em] text-primary/95 mt-2">
-                    {t.homeV2.filmBy} {p.creator}
-                  </p>
-                  <p className="font-label text-[10px] uppercase tracking-[0.22em] text-on-surface-variant/80 mt-1">
-                    {metaByKey[p.copyKey]}
-                  </p>
-                  <span className="flex items-center gap-1.5 font-label text-[10px] uppercase tracking-[0.24em] text-on-surface mt-3 opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
-                    {p.status === "open" ? t.homeV2.backProject : t.homeV2.viewProject}
-                    <ArrowRight className="w-3 h-3" />
-                  </span>
-                </div>
-              </div>
-            </Link>
+            <RailCard key={p.id} project={p} meta={metaByKey[p.copyKey]} index={i} />
           ))}
         </div>
       </div>
@@ -206,6 +178,120 @@ export default function FeaturedProjects() {
         </Link>
       </div>
     </section>
+  );
+}
+
+// Lead spread media: a clip autoplays (muted, looped) once scrolled into view,
+// otherwise a seeded still. Pauses when off-screen and under reduced-motion.
+function LeadMedia({ clip, seed, alt }: { clip?: VideoClip; seed: string; alt: string }) {
+  const ref = useRef<HTMLVideoElement>(null);
+  useEffect(() => {
+    const v = ref.current;
+    if (!v || prefersReducedMotion()) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) void v.play().catch(() => {});
+        else v.pause();
+      },
+      { threshold: 0.35 }
+    );
+    io.observe(v);
+    return () => io.disconnect();
+  }, [clip]);
+
+  const cls =
+    "absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.03]";
+  if (!clip) {
+    // eslint-disable-next-line @next/next/no-img-element
+    return (
+      <img src={`https://picsum.photos/seed/${seed}/1200/800`} alt={alt} className={cls} loading="lazy" />
+    );
+  }
+  return (
+    <video ref={ref} className={cls} poster={clip.poster} muted loop playsInline preload="metadata">
+      <source src={clip.src} type="video/mp4" />
+    </video>
+  );
+}
+
+// One rail card. If the project has a clip, it plays on hover (desktop) and
+// shows its poster frame otherwise; without a clip it falls back to a still.
+function RailCard({
+  project,
+  meta,
+  index,
+}: {
+  project: (typeof FEATURED_PROJECTS)[number];
+  meta: string;
+  index: number;
+}) {
+  const t = useT();
+  const clip = project.clipId ? VIDEO_CLIP_BY_ID[project.clipId] : undefined;
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  const play = () => {
+    const v = videoRef.current;
+    if (v && !prefersReducedMotion()) void v.play().catch(() => {});
+  };
+  const stop = () => {
+    const v = videoRef.current;
+    if (v) {
+      v.pause();
+      v.currentTime = 0;
+    }
+  };
+
+  const mediaCls =
+    "absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]";
+
+  return (
+    <Link
+      href="/discovery"
+      data-rail-card
+      onMouseEnter={play}
+      onMouseLeave={stop}
+      className="scroll-reveal group relative shrink-0 w-[70vw] sm:w-[260px] md:w-[288px] snap-start"
+      style={{ animationDelay: `${index * 70}ms` }}
+    >
+      <div className="relative aspect-[2/3] rounded-md overflow-hidden bg-surface-container-low ring-1 ring-outline-variant/40 group-hover:ring-primary/50 transition-all duration-500">
+        {clip ? (
+          <video className={mediaCls} poster={clip.poster} muted loop playsInline preload="none">
+            <source src={clip.src} type="video/mp4" />
+          </video>
+        ) : (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            src={`https://picsum.photos/seed/${project.seed}/600/900`}
+            alt={project.title}
+            className={mediaCls}
+            loading="lazy"
+          />
+        )}
+        {clip && (
+          <span className="absolute top-3.5 right-3.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-surface/60 backdrop-blur-sm text-on-surface opacity-80 group-hover:opacity-0 transition-opacity duration-300">
+            <Play className="w-3 h-3 fill-current" />
+          </span>
+        )}
+        {/* Legibility scrim — deepens on hover. */}
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,8,10,0.08)_0%,transparent_28%,rgba(8,8,10,0.32)_60%,rgba(8,8,10,0.92)_100%)] group-hover:bg-[linear-gradient(180deg,rgba(8,8,10,0.3)_0%,rgba(8,8,10,0.12)_30%,rgba(8,8,10,0.5)_62%,rgba(8,8,10,0.96)_100%)] transition-[background] duration-500 pointer-events-none" />
+        <div className="absolute top-3.5 left-3.5">
+          <StatusBadge status={project.status} small overlay />
+        </div>
+        <div className="absolute inset-x-0 bottom-0 p-4">
+          <h3 className="font-headline text-[23px] leading-tight text-on-surface">{project.title}</h3>
+          <p className="font-label text-[10px] uppercase tracking-[0.24em] text-primary/95 mt-2">
+            {t.homeV2.filmBy} {project.creator}
+          </p>
+          <p className="font-label text-[10px] uppercase tracking-[0.22em] text-on-surface-variant/80 mt-1">
+            {meta}
+          </p>
+          <span className="flex items-center gap-1.5 font-label text-[10px] uppercase tracking-[0.24em] text-on-surface mt-3 opacity-0 -translate-y-1 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300">
+            {project.status === "open" ? t.homeV2.backProject : t.homeV2.viewProject}
+            <ArrowRight className="w-3 h-3" />
+          </span>
+        </div>
+      </div>
+    </Link>
   );
 }
 

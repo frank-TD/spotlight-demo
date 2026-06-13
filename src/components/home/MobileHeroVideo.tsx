@@ -1,20 +1,20 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import type { VideoClip } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 
-// Mobile hero background: the four portrait clips play ONE at a time, full
-// bleed. When the active clip ends we cross-fade to the next and cycle 0→3→0.
-// Two stacked <video> layers handle the crossfade — the hidden layer always
-// holds the upcoming clip preloaded, so the swap is seamless. Muted autoplay
+// Mobile hero background: the portrait clips play ONE at a time, full bleed.
+// When the active clip ends we cross-fade to the next and cycle 0→n→0. Two
+// stacked <video> layers handle the crossfade — the hidden layer always holds
+// the upcoming clip preloaded, so the swap is seamless. Muted autoplay
 // (required on mobile); the parent pauses us when the hero scrolls off-screen
-// or the tab is hidden.
+// or the tab is hidden. Clips arrive as {id,src,poster} so the source can be
+// swapped from the data layer / CDN without touching this player.
 export default function MobileHeroVideo({
   clips,
-  poster,
   playing,
 }: {
-  clips: string[];
-  poster: string;
+  clips: VideoClip[];
   playing: boolean;
 }) {
   const layer0 = useRef<HTMLVideoElement | null>(null);
@@ -64,8 +64,8 @@ export default function MobileHeroVideo({
         <video
           key={layer}
           ref={refs[layer]}
-          src={clips[layerClip[layer]]}
-          poster={poster}
+          src={clips[layerClip[layer]].src}
+          poster={clips[layerClip[layer]].poster}
           muted
           playsInline
           preload="auto"

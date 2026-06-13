@@ -4,17 +4,14 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { ArrowRight, Play, Pause } from "lucide-react";
 import SectionLabel from "./SectionLabel";
+import { HERO_VIDEO_CLIPS } from "@/lib/mock-data";
 import { useT } from "@/hooks/useT";
 import { cn } from "@/lib/utils";
 
-// Reuse the optimized hero clips as the showcase footage (the only real video
+// Reuse the centralized hero clips as showcase footage (the only real video
 // assets we ship). Each card embeds its own <video> and plays inline on click.
-const SHOWCASE_CLIPS = [
-  "/videos/hero/optimized/16079919_hero.mp4",
-  "/videos/hero/optimized/16022209_hero.mp4",
-  "/videos/hero/optimized/16107702_hero.mp4",
-  "/videos/hero/optimized/16049416_hero.mp4",
-];
+// Source is resolved through the data layer / CDN, so this needs no URLs.
+const SHOWCASE_CLIPS = HERO_VIDEO_CLIPS.map((clip) => clip.src);
 
 export default function AigcStudioShowcase() {
   const t = useT();

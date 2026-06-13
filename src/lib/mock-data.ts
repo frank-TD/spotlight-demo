@@ -1,3 +1,5 @@
+import { mediaUrl } from "./media";
+
 export type StageStatus =
   | "pending"
   | "in_progress"
@@ -234,12 +236,43 @@ export const NEEDS = [
   },
 ];
 
+// ── Hero / showcase reel ─────────────────────────────────────────────────────
+// Cinematic clips used behind the homepage hero AND as featured-project preview
+// videos. Web-optimized placeholders ship from /public today; when the backend
+// takes over, swap this list (or hydrate it from an API) and/or set
+// NEXT_PUBLIC_VIDEO_CDN — consumers read {id,src,poster} and never change. Each
+// clip carries a real first-frame poster so cards show a still before playback.
+export interface VideoClip {
+  id: string;
+  src: string;
+  poster: string;
+}
+
+// Fallback dark SVG (matches --md-surface) for any clip without a real poster.
+export const HERO_VIDEO_POSTER =
+  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='8' height='8' fill='%2308080a'/%3E%3C/svg%3E";
+
+const HERO_CLIP_IDS = ["3917525", "8059683", "7596081", "3917513"];
+
+export const HERO_VIDEO_CLIPS: VideoClip[] = HERO_CLIP_IDS.map((id) => ({
+  id,
+  src: mediaUrl(`/videos/clips/${id}.mp4`),
+  poster: mediaUrl(`/videos/clips/${id}.jpg`),
+}));
+
+// Lookup so featured projects can reference a clip by id for their preview.
+export const VIDEO_CLIP_BY_ID: Record<string, VideoClip> = Object.fromEntries(
+  HERO_VIDEO_CLIPS.map((clip) => [clip.id, clip])
+);
+
 // ── Featured projects (homepage "In the Spotlight" curation) ─────────────────
 // Curated slate shown on the marketing homepage. Titles stay untranslated
 // (film brand names); loglines/meta live in i18n keyed by `copyKey`. Spotlight
 // is a commissioning marketplace — a backer funds a creator to make the film —
 // so projects move through: open (seeking a backer) → production (commissioned,
 // being made) → released. There is no crowdfunding goal/backer-count/countdown.
+// `clipId` (optional) gives a card a preview video; the rest fall back to a
+// seeded still.
 
 export type FeaturedStatus = "open" | "production" | "released";
 
@@ -250,6 +283,7 @@ export const FEATURED_PROJECTS = [
     creator: "Aria Song",
     city: "Seoul",
     seed: "celestial",
+    clipId: "3917525",
     status: "open" as FeaturedStatus,
     copyKey: 1,
     lead: true,
@@ -260,6 +294,7 @@ export const FEATURED_PROJECTS = [
     creator: "Yuki Tanaka",
     city: "Osaka",
     seed: "neonrain",
+    clipId: "8059683",
     status: "production" as FeaturedStatus,
     copyKey: 2,
   },
@@ -269,6 +304,7 @@ export const FEATURED_PROJECTS = [
     creator: "Marco Reyes",
     city: "Tokyo",
     seed: "goldencore",
+    clipId: "7596081",
     status: "open" as FeaturedStatus,
     copyKey: 3,
   },
@@ -278,6 +314,7 @@ export const FEATURED_PROJECTS = [
     creator: "Sofia Okonkwo",
     city: "Seoul",
     seed: "aurora",
+    clipId: "3917513",
     status: "released" as FeaturedStatus,
     copyKey: 4,
     nowShowing: true,

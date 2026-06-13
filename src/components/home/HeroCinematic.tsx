@@ -3,21 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import MobileHeroVideo from "./MobileHeroVideo";
-import { FEATURED_PROJECTS } from "@/lib/mock-data";
+import { FEATURED_PROJECTS, HERO_VIDEO_CLIPS } from "@/lib/mock-data";
 import { useSubmitProject } from "@/hooks/useSubmitProject";
 import { useT } from "@/hooks/useT";
-
-const HERO_VIDEOS = [
-  "/videos/hero/optimized/16022209_hero.mp4",
-  "/videos/hero/optimized/16049416_hero.mp4",
-  "/videos/hero/optimized/16079919_hero.mp4",
-  "/videos/hero/optimized/16107702_hero.mp4",
-];
-
-// Tiny dark poster (matches --md-surface) so the video layer paints instantly
-// as a solid panel instead of flashing black/blank while the clip buffers.
-const HERO_POSTER =
-  "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='8' height='8' fill='%2308080a'/%3E%3C/svg%3E";
 
 // Editorial full-bleed hero: ONE clip plays at a time (cross-fading through
 // the pool) instead of the old 4-up collage, so the frame keeps a single
@@ -69,11 +57,7 @@ export default function HeroCinematic() {
       className="relative bg-mesh overflow-hidden min-h-[640px] h-[92svh] md:h-screen"
     >
       {motionAllowed && (
-        <MobileHeroVideo
-          clips={HERO_VIDEOS}
-          poster={HERO_POSTER}
-          playing={heroInView && pageVisible}
-        />
+        <MobileHeroVideo clips={HERO_VIDEO_CLIPS} playing={heroInView && pageVisible} />
       )}
       {/* Flat grade first: the source clips are bright daylight footage, so a
           constant dim keeps them a moody texture and the transparent nav +
