@@ -189,7 +189,7 @@ export default function NicheShowcase() {
                   "font-headline leading-tight transition-colors duration-300",
                   i === active
                     ? "text-on-surface text-2xl"
-                    : "text-on-surface-variant/40 text-xl hover:text-on-surface-variant/70"
+                    : "text-on-surface-variant/40 text-xl hover:text-on-surface-variant"
                 )}
               >
                 {t.discovery.filters[n.key] ?? n.key}
@@ -244,7 +244,7 @@ function CenterColumn({
           );
         })}
       </ul>
-      <div className="mt-7 font-mono text-[11px] tracking-[0.3em] text-on-surface-variant/50">
+      <div className="mt-7 font-mono text-[12px] tracking-[0.2em] text-on-surface-variant/80">
         {String(active + 1).padStart(2, "0")} / {String(NICHES.length).padStart(2, "0")}
       </div>
     </div>
@@ -270,14 +270,14 @@ function SideCard({ work, onOpen }: { work: CreatorPreviewItem; onOpen: () => vo
         <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent" />
         <div className="absolute inset-x-3 bottom-3 flex justify-start">
           <div className="flex items-center gap-2 rounded-full bg-black/45 backdrop-blur-md border border-white/15 px-2.5 py-1.5 max-w-full">
-            <span className="grid place-items-center w-6 h-6 shrink-0 rounded-full bg-primary/90 text-on-primary text-[10px] font-bold">
+            <span className="grid place-items-center w-6 h-6 shrink-0 rounded-full bg-primary/90 text-on-primary text-[12px] font-bold">
               {initials(work.creator)}
             </span>
-            <span className="font-label text-white text-[11px] tracking-wide truncate">
+            <span className="font-label text-white text-[12px] tracking-wide truncate">
               {work.creator}
             </span>
             <span className="text-white/35">·</span>
-            <span className="font-label text-white/70 text-[11px] truncate">{work.title}</span>
+            <span className="font-label text-white/70 text-[12px] truncate">{work.title}</span>
           </div>
         </div>
       </div>

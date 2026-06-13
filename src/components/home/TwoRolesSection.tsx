@@ -113,7 +113,7 @@ function RoleCard({
       <div className="p-7 md:p-9">
         <span
           className={cn(
-            "inline-flex items-center font-label text-[10px] uppercase tracking-[0.22em] px-2.5 py-1.5 rounded mb-5",
+            "inline-flex items-center font-label text-[12px] uppercase tracking-[0.22em] px-2.5 py-1.5 rounded mb-5",
             chipColor === "gold"
               ? "bg-primary/15 text-primary border border-primary/30"
               : "bg-secondary/15 text-secondary border border-secondary/30"
@@ -145,7 +145,7 @@ function RoleCard({
         </ul>
         <span
           className={cn(
-            "inline-flex items-center gap-2 font-label text-[11px] uppercase tracking-[0.24em] transition-transform group-hover:translate-x-1",
+            "inline-flex items-center gap-2 font-label text-[12px] uppercase tracking-[0.18em] transition-transform group-hover:translate-x-1",
             chipColor === "gold" ? "text-primary" : "text-secondary"
           )}
         >

@@ -25,7 +25,7 @@ export default function TrustStrip() {
                   value={s.value}
                   className="font-headline text-3xl md:text-4xl text-primary"
                 />
-                <span className="font-label text-[10px] uppercase tracking-[0.28em] text-on-surface-variant mt-1.5">
+                <span className="font-label text-[12px] uppercase tracking-[0.2em] text-on-surface-variant mt-1.5">
                   {s.label}
                 </span>
               </div>
@@ -37,12 +37,12 @@ export default function TrustStrip() {
         </div>
 
         <div className="scroll-reveal flex flex-wrap items-center justify-center gap-x-8 gap-y-3 mt-9">
-          <span className="inline-flex items-center gap-2 font-label text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
+          <span className="inline-flex items-center gap-2 font-label text-[12px] uppercase tracking-[0.18em] text-on-surface-variant">
             <ShieldCheck className="w-3.5 h-3.5 text-primary/80" />
             {t.homeV2.trustEscrow}
           </span>
           <span className="hidden sm:block w-px h-4 bg-outline-variant/40" />
-          <span className="inline-flex items-center gap-2 font-label text-[11px] uppercase tracking-[0.24em] text-on-surface-variant">
+          <span className="inline-flex items-center gap-2 font-label text-[12px] uppercase tracking-[0.18em] text-on-surface-variant">
             <Landmark className="w-3.5 h-3.5 text-primary/80" />
             {t.homeV2.trustBacked}
           </span>

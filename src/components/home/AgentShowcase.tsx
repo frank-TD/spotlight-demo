@@ -2,7 +2,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ArrowRight, Repeat2 } from "lucide-react";
-import SectionLabel from "./SectionLabel";
 import { cn } from "@/lib/utils";
 import { useT } from "@/hooks/useT";
 
@@ -19,8 +18,7 @@ export default function AgentShowcase() {
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 py-24 md:py-28 grid md:grid-cols-[6fr_5fr] gap-14 md:gap-20 items-center">
         {/* Slogan + CTA */}
         <div className="scroll-reveal">
-          <SectionLabel>{t.homeV2.agentLabel}</SectionLabel>
-          <h2 className="font-headline text-4xl md:text-[56px] text-on-surface leading-[1.1] mt-6">
+          <h2 className="font-headline text-5xl md:text-7xl text-on-surface leading-[1.05]">
             {t.homeV2.agentTitle1}
             <br />
             <span
@@ -35,7 +33,7 @@ export default function AgentShowcase() {
               {t.homeV2.agentTitle2}
             </span>
           </h2>
-          <p className="font-body text-on-surface-variant leading-relaxed mt-6 max-w-md">
+          <p className="font-body text-lg text-on-surface-variant leading-relaxed mt-7 max-w-md">
             {t.homeV2.agentSub}
           </p>
           <Link
@@ -80,7 +78,7 @@ export default function AgentShowcase() {
               />
             </div>
           </button>
-          <p className="flex items-center justify-center gap-2 font-label text-[10.5px] uppercase tracking-[0.26em] text-on-surface-variant/60 mt-6">
+          <p className="flex items-center justify-center gap-2 font-label text-[12px] uppercase tracking-[0.18em] text-on-surface-variant mt-6">
             <Repeat2 className="w-3.5 h-3.5" />
             {t.homeV2.agentHint}
           </p>
@@ -138,7 +136,7 @@ function AgentFace({
 
       {/* duty chip */}
       <span
-        className="absolute top-4 left-4 inline-flex items-center gap-2 font-label text-[9.5px] uppercase tracking-[0.24em] rounded-full border px-3 py-1.5"
+        className="absolute top-4 left-4 inline-flex items-center gap-2 font-label text-[12px] uppercase tracking-[0.18em] rounded-full border px-3 py-1.5"
         style={{ color: accent, borderColor: `${accentSoft}0.4)` }}
       >
         <span className="relative inline-flex w-1.5 h-1.5">
@@ -185,7 +183,7 @@ function AgentFace({
       <div className="absolute inset-x-0 bottom-0 px-7 pb-7 text-center">
         <p className="font-headline text-3xl text-on-surface">{name}</p>
         <p
-          className="font-label text-[10px] uppercase tracking-[0.3em] mt-1.5"
+          className="font-label text-[12px] uppercase tracking-[0.2em] mt-1.5"
           style={{ color: accent }}
         >
           {role}

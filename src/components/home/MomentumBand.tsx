@@ -55,7 +55,7 @@ export default function MomentumBand() {
                 value={s.value}
                 className="font-headline text-2xl md:text-4xl text-primary"
               />
-              <span className="font-label text-[10px] uppercase tracking-[0.28em] text-on-surface-variant mt-2">
+              <span className="font-label text-[12px] uppercase tracking-[0.2em] text-on-surface-variant mt-2">
                 {s.label}
               </span>
             </div>

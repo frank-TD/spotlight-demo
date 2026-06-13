@@ -80,7 +80,7 @@ export default function AboutPage() {
           {stats.map((s) => (
             <div key={s.label}>
               <p className="font-headline text-3xl md:text-4xl text-primary">{s.value}</p>
-              <p className="font-label text-[10px] uppercase tracking-[0.26em] text-on-surface-variant mt-2">
+              <p className="font-label text-[12px] uppercase tracking-[0.18em] text-on-surface-variant mt-2">
                 {s.label}
               </p>
             </div>
@@ -117,7 +117,7 @@ export default function AboutPage() {
           </Link>
         </div>
 
-        <p className="font-label text-[10px] uppercase tracking-[0.22em] text-on-surface-variant/50 text-center mt-20">
+        <p className="font-label text-[12px] uppercase tracking-[0.22em] text-on-surface-variant/80 text-center mt-20">
           {t.landing.footerDisclaimer}
         </p>
       </div>

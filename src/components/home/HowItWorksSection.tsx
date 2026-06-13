@@ -177,7 +177,7 @@ function StepList({
           );
         })}
       </ul>
-      <div className="mt-8 font-mono text-[11px] tracking-[0.3em] text-on-surface-variant/50">
+      <div className="mt-8 font-mono text-[12px] tracking-[0.2em] text-on-surface-variant/80">
         {String(active + 1).padStart(2, "0")} / {String(total).padStart(2, "0")}
       </div>
     </div>

@@ -98,7 +98,7 @@ export default function DealAgentsSection() {
             </div>
             <div className="min-w-0">
               <p className="font-body text-sm text-on-surface truncate">{t.landing.dealSession}</p>
-              <p className="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant mt-0.5 truncate">
+              <p className="font-label text-[12px] uppercase tracking-[0.2em] text-on-surface-variant mt-0.5 truncate">
                 {t.landing.dealSessionMeta}
               </p>
             </div>
@@ -116,7 +116,7 @@ export default function DealAgentsSection() {
               />
             ))}
             {revealed < bubbles.length && (
-              <div className="flex items-center gap-2 text-on-surface-variant/60 pl-12">
+              <div className="flex items-center gap-2 text-on-surface-variant pl-12">
                 <span className="typing-dot" />
                 <span className="typing-dot" style={{ animationDelay: "0.15s" }} />
                 <span className="typing-dot" style={{ animationDelay: "0.3s" }} />
@@ -131,10 +131,10 @@ export default function DealAgentsSection() {
               dealDone ? "bg-primary/10 opacity-100" : "opacity-40"
             )}
           >
-            <p className="font-label text-[11px] uppercase tracking-[0.2em] text-primary inline-flex items-center gap-2">
+            <p className="font-label text-[12px] uppercase tracking-[0.2em] text-primary inline-flex items-center gap-2">
               <Check className="w-3.5 h-3.5" /> {t.landing.dealAgreed}
             </p>
-            <p className="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant">
+            <p className="font-label text-[12px] uppercase tracking-[0.2em] text-on-surface-variant">
               {t.landing.dealAgreedMeta}
             </p>
           </footer>
@@ -154,7 +154,7 @@ export default function DealAgentsSection() {
           <button
             type="button"
             onClick={handleCta}
-            className="group inline-flex items-center gap-2 font-label text-[11px] uppercase tracking-[0.24em] text-primary border border-primary/40 px-5 py-3 rounded-full hover:bg-primary/10 transition-colors"
+            className="group inline-flex items-center gap-2 font-label text-[12px] uppercase tracking-[0.18em] text-primary border border-primary/40 px-5 py-3 rounded-full hover:bg-primary/10 transition-colors"
           >
             {t.landing.dealCta}{" "}
             <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />
@@ -227,7 +227,7 @@ function Bubble({
       <div className={cn("max-w-[78%] space-y-1.5", isMarlow ? "" : "items-end flex flex-col")}>
         <p
           className={cn(
-            "font-label text-[9px] uppercase tracking-[0.22em]",
+            "font-label text-[12px] uppercase tracking-[0.22em]",
             isMarlow ? "text-primary" : "text-secondary"
           )}
         >
@@ -284,7 +284,7 @@ function AgentCard({
         {initial}
       </div>
       <p className="font-headline text-xl text-on-surface">{name}</p>
-      <p className="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant mt-1.5">
+      <p className="font-label text-[12px] uppercase tracking-[0.2em] text-on-surface-variant mt-1.5">
         {role}
       </p>
     </button>
@@ -347,7 +347,7 @@ function GlowAgentCard({
           {initial}
         </div>
         <p className="font-headline text-xl text-on-surface">{name}</p>
-        <p className="font-label text-[10px] uppercase tracking-[0.2em] text-on-surface-variant mt-1.5">
+        <p className="font-label text-[12px] uppercase tracking-[0.2em] text-on-surface-variant mt-1.5">
           {role}
         </p>
       </button>
@@ -419,7 +419,7 @@ function AgentIntroDialog({
               </div>
               <div className="min-w-0">
                 <p className="font-headline text-2xl text-on-surface">{data.name}</p>
-                <p className="font-label text-[10px] uppercase tracking-[0.22em] text-on-surface-variant mt-1">
+                <p className="font-label text-[12px] uppercase tracking-[0.22em] text-on-surface-variant mt-1">
                   {data.role}
                 </p>
               </div>
@@ -460,7 +460,7 @@ function AgentIntroDialog({
                     data.accent === "gold" ? "text-primary" : "text-secondary"
                   )}
                 />
-                <span className="font-label text-[9px] uppercase tracking-[0.24em] text-on-surface-variant">
+                <span className="font-label text-[12px] uppercase tracking-[0.18em] text-on-surface-variant">
                   {data.quoteLabel}
                 </span>
               </div>

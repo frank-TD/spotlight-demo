@@ -107,7 +107,7 @@ function Card({
       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
 
       {/* Pricing pill — top right */}
-      <span className="absolute top-3 right-3 font-label text-[10px] uppercase tracking-[0.2em] bg-black/55 text-primary px-2.5 py-1 rounded">
+      <span className="absolute top-3 right-3 font-label text-[12px] uppercase tracking-[0.2em] bg-black/55 text-primary px-2.5 py-1 rounded">
         {item.priceRange}
       </span>
 
@@ -115,21 +115,21 @@ function Card({
       <span className="absolute inset-x-0 bottom-0 p-4 flex flex-col gap-2">
         <span
           className={cn(
-            "self-start font-label text-[10px] uppercase tracking-[0.2em] px-2 py-1 rounded",
+            "self-start font-label text-[12px] uppercase tracking-[0.2em] px-2 py-1 rounded",
             chip
           )}
         >
           {item.category}
         </span>
         <span className="font-headline italic text-white text-xl leading-tight">{item.title}</span>
-        <span className="font-label text-[10px] uppercase tracking-[0.18em] text-white/65">
+        <span className="font-label text-[12px] uppercase tracking-[0.18em] text-white/65">
           {item.creator} · {item.city}
         </span>
       </span>
 
       {/* Hover CTA */}
       <span className="absolute inset-x-0 bottom-0 p-4 bg-gradient-to-t from-black via-black/85 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end">
-        <span className="font-label text-[10px] uppercase tracking-[0.24em] text-primary inline-flex items-center gap-1.5">
+        <span className="font-label text-[12px] uppercase tracking-[0.18em] text-primary inline-flex items-center gap-1.5">
           {t.landing.cardCommission} <ArrowRight className="w-3 h-3" />
         </span>
       </span>

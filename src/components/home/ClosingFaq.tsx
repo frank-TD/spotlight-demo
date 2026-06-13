@@ -2,7 +2,6 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Plus, ArrowRight } from "lucide-react";
-import SectionLabel from "./SectionLabel";
 import { cn } from "@/lib/utils";
 import { useT } from "@/hooks/useT";
 
@@ -25,9 +24,8 @@ export default function ClosingFaq() {
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 py-24 md:py-32 grid md:grid-cols-[5fr_7fr] gap-12 md:gap-16">
         {/* Left — oversized anchor */}
         <div className="scroll-reveal md:sticky md:top-28 self-start">
-          <SectionLabel>{t.landing.faqLabel}</SectionLabel>
           <h2
-            className="font-label leading-[0.8] text-transparent select-none mt-6 text-[120px] md:text-[180px]"
+            className="font-label leading-[0.8] text-transparent select-none text-[120px] md:text-[200px]"
             style={{ WebkitTextStroke: "1.5px rgba(212,175,55,0.55)" }}
             aria-hidden="true"
           >
@@ -38,7 +36,7 @@ export default function ClosingFaq() {
           </p>
           <Link
             href="/how-it-works"
-            className="group inline-flex items-center gap-2 font-label text-[11px] uppercase tracking-[0.24em] text-on-surface-variant hover:text-primary transition-colors mt-7"
+            className="group inline-flex items-center gap-2 font-label text-[12px] uppercase tracking-[0.18em] text-on-surface-variant hover:text-primary transition-colors mt-7"
           >
             {t.homeV2.stepsDetail}
             <ArrowRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-1" />

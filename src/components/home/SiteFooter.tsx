@@ -27,13 +27,13 @@ export default function SiteFooter({ oversized = false }: { oversized?: boolean 
             <Link
               key={l.label}
               href={l.href}
-              className="font-label text-[11px] uppercase tracking-[0.22em] text-on-surface-variant hover:text-primary transition-colors"
+              className="font-label text-[12px] uppercase tracking-[0.22em] text-on-surface-variant hover:text-primary transition-colors"
             >
               {l.label}
             </Link>
           ))}
         </nav>
-        <p className="font-label text-[10px] uppercase tracking-[0.22em] text-on-surface-variant/60">
+        <p className="font-label text-[12px] uppercase tracking-[0.22em] text-on-surface-variant">
           {t.landing.footerCopyright}
         </p>
       </div>

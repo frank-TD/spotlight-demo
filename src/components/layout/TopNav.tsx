@@ -171,7 +171,7 @@ export default function TopNav() {
                       </p>
                     </div>
                     <DropdownMenuSeparator />
-                    <div className="px-2 py-1 font-label text-[10px] uppercase tracking-wider text-on-surface-variant">
+                    <div className="px-2 py-1 font-label text-[12px] uppercase tracking-wider text-on-surface-variant">
                       {t.nav.viewAs}
                     </div>
                     {(["backer", "creator"] as const).map((r) => (
