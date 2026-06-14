@@ -38,6 +38,9 @@ export default function FeaturedCoverflow({ projects }: { projects: Project[] })
   const wrapRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ startX: number; startActive: number; w: number; value: number } | null>(null);
   const movedRef = useRef(false);
+  const rafRef = useRef(0);
+  const inViewRef = useRef(true);
+  const imgPoolRef = useRef<HTMLImageElement[]>([]);
 
   // Cards sit on a concave arc (a cylinder seen from the front) so they abut
   // edge-to-edge with no overlap: the centred card faces the viewer and is the
@@ -79,11 +82,22 @@ export default function FeaturedCoverflow({ projects }: { projects: Project[] })
     if (Math.abs(dx) > 5) movedRef.current = true;
     // ~match the on-screen horizontal step between cards on the arc.
     d.value = -dx / (d.w * 0.85);
-    setDrag(d.value);
+    // Coalesce pointermove into one state update per frame: a 120Hz pointer
+    // otherwise fires several 7-card re-renders inside a single frame.
+    if (!rafRef.current) {
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = 0;
+        if (dragRef.current) setDrag(dragRef.current.value);
+      });
+    }
   };
   const onEnd = () => {
     const d = dragRef.current;
     if (!d) return;
+    if (rafRef.current) {
+      cancelAnimationFrame(rafRef.current);
+      rafRef.current = 0;
+    }
     setActive(Math.round(d.startActive + d.value)); // unbounded — wraps freely
     setDrag(0);
     setDragging(false);
@@ -109,11 +123,35 @@ export default function FeaturedCoverflow({ projects }: { projects: Project[] })
   useEffect(() => {
     if (prefersReducedMotion()) return;
     const id = window.setInterval(() => {
-      if (hover || dragRef.current || dialog || document.hidden) return;
+      if (hover || dragRef.current || dialog || document.hidden || !inViewRef.current) return;
       setActive((a) => a + 1);
     }, 3800);
     return () => window.clearInterval(id);
   }, [hover, dialog]);
+
+  // Pause auto-advance when the carousel is off-screen, and warm every poster
+  // the first time it nears the viewport so a card entering the window never
+  // blocks on a network fetch or a synchronous decode (the first-loop hitch).
+  useEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        inViewRef.current = entry.isIntersecting;
+        if (entry.isIntersecting && imgPoolRef.current.length === 0) {
+          imgPoolRef.current = projects.map((p) => {
+            const img = new Image();
+            img.decoding = "async";
+            img.src = posterOf(p);
+            return img;
+          });
+        }
+      },
+      { rootMargin: "300px", threshold: 0.01 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [projects]);
 
   const onCardClick = (k: number, p: Project) => {
     if (movedRef.current) return; // it was a drag, not a tap
@@ -266,6 +304,7 @@ function CoverCard({
         className="absolute inset-0 w-full h-full object-cover pointer-events-none"
         draggable={false}
         loading="lazy"
+        decoding="async"
       />
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,8,10,0.1)_0%,transparent_30%,rgba(8,8,10,0.4)_62%,rgba(8,8,10,0.93)_100%)] pointer-events-none" />
 
