@@ -16,7 +16,7 @@ const prefersReducedMotion = () =>
 const posterOf = (p: Project) =>
   p.clipId && VIDEO_CLIP_BY_ID[p.clipId]
     ? VIDEO_CLIP_BY_ID[p.clipId].poster
-    : `https://picsum.photos/seed/${p.seed}/600/900`;
+    : p.poster ?? `https://picsum.photos/seed/${p.seed}/600/900`;
 
 // 3D coverflow for the featured slate: the centred card faces the viewer, the
 // flanking cards rotate back into a perspective arc and dim. It loops forever —
