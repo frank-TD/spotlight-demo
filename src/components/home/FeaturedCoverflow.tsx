@@ -37,6 +37,23 @@ export default function FeaturedCoverflow({ projects }: { projects: Project[] })
   const movedRef = useRef(false);
   const dirRef = useRef(1);
 
+  // Cards sit on a concave arc (a cylinder seen from the front) so they abut
+  // edge-to-edge with no overlap: the centred card faces the viewer and is the
+  // furthest/sharpest, the flanking cards fold toward you, growing and tilting.
+  // STEP is the angle between adjacent cards — bigger = a more pronounced curve.
+  const STEP = 0.74; // radians (~42°)
+  const [cardW, setCardW] = useState(300);
+  const radius = cardW / STEP; // edge-to-edge: arc length per card == card width
+  useEffect(() => {
+    const sync = () => {
+      const w = window.innerWidth;
+      setCardW(w < 480 ? 208 : w < 768 ? 248 : 300);
+    };
+    sync();
+    window.addEventListener("resize", sync);
+    return () => window.removeEventListener("resize", sync);
+  }, []);
+
   const meta = (p: Project) =>
     [
       t.homeV2.featMeta1,
@@ -56,7 +73,8 @@ export default function FeaturedCoverflow({ projects }: { projects: Project[] })
     if (!d) return;
     const dx = e.clientX - d.startX;
     if (Math.abs(dx) > 5) movedRef.current = true;
-    d.value = -dx / (d.w * 0.62);
+    // ~match the on-screen horizontal step between cards on the arc.
+    d.value = -dx / (d.w * 0.85);
     setDrag(d.value);
   };
   const onEnd = () => {
@@ -119,14 +137,17 @@ export default function FeaturedCoverflow({ projects }: { projects: Project[] })
         {projects.map((p, i) => {
           const off = i - active - drag;
           const abs = Math.abs(off);
-          if (abs > 3.3) return null;
-          const c = Math.max(-3, Math.min(3, off));
-          const tx = c * 56; // % of card width
-          const ry = -c * 34; // deg
-          const tz = -abs * 140; // px
-          const scale = Math.max(0.6, 1 - abs * 0.13);
-          const op = Math.max(0, 1 - abs * 0.32);
+          if (abs > 2.7) return null;
+          const theta = off * STEP; // angle along the arc
+          const tx = radius * Math.sin(theta); // px
+          const tz = -radius * Math.cos(theta); // px — centre furthest back
+          const ry = (-theta * 180) / Math.PI; // deg — each card stays tangent
+          const op = Math.max(0, 1 - abs * 0.34);
           const isCenter = abs < 0.5;
+          // Depth-of-field: the focused card is sharp, the folding sides soften
+          // and dim. Skip the blur mid-drag so the gesture stays smooth.
+          const blur = dragging || abs < 0.5 ? 0 : Math.min(5, (abs - 0.5) * 3.2);
+          const bright = abs < 0.5 ? 1 : Math.max(0.5, 1 - (abs - 0.5) * 0.34);
           return (
             <div
               key={p.id}
@@ -142,14 +163,16 @@ export default function FeaturedCoverflow({ projects }: { projects: Project[] })
                   else setActive(i);
                 }
               }}
-              className="absolute top-1/2 left-1/2 w-[210px] sm:w-[260px] md:w-[300px] aspect-[2/3] outline-none"
+              className="absolute top-1/2 left-1/2 aspect-[2/3] outline-none"
               style={{
-                transform: `translate(-50%,-50%) translateX(${tx}%) translateZ(${tz}px) rotateY(${ry}deg) scale(${scale})`,
+                width: cardW,
+                transform: `translate(-50%,-50%) translateX(${tx}px) translateZ(${tz}px) rotateY(${ry}deg)`,
                 opacity: op,
+                filter: `blur(${blur}px) brightness(${bright})`,
                 zIndex: 100 - Math.round(abs * 10),
                 transition: dragging
                   ? "none"
-                  : "transform 600ms cubic-bezier(0.22,0.61,0.36,1), opacity 600ms",
+                  : "transform 600ms cubic-bezier(0.22,0.61,0.36,1), opacity 600ms, filter 600ms",
                 pointerEvents: op < 0.25 ? "none" : "auto",
               }}
             >
