@@ -165,8 +165,9 @@ export default function FeaturedCoverflow({ projects }: { projects: Project[] })
             const op = abs <= 2 ? 1 - abs * 0.1 : Math.max(0, (3 - abs) * 0.8);
             const isCenter = abs < 0.5;
             // Depth-of-field: the focused card is sharp, the folding sides soften
-            // and dim. Skip the blur mid-drag so the gesture stays smooth.
-            const blur = dragging || abs < 0.5 ? 0 : Math.min(4, (abs - 0.5) * 2.4);
+            // and dim. Kept shallow (≤2.5px) and never animated — a transitioned
+            // blur re-rasterises every frame, which is the carousel's worst cost.
+            const blur = dragging || abs < 0.5 ? 0 : Math.min(2.5, (abs - 0.5) * 1.5);
             const bright = abs < 0.5 ? 1 : Math.max(0.58, 1 - (abs - 0.5) * 0.26);
             return (
               <div
@@ -190,9 +191,13 @@ export default function FeaturedCoverflow({ projects }: { projects: Project[] })
                   opacity: op,
                   filter: `blur(${blur}px) brightness(${bright})`,
                   zIndex: 100 - Math.round(abs * 10),
+                  willChange: "transform, opacity",
+                  // Animate only compositor-friendly props; blur/brightness snap
+                  // to their target (masked by the slide) rather than being
+                  // re-rasterised for 600ms every step — the main perf win.
                   transition: dragging
                     ? "none"
-                    : "transform 600ms cubic-bezier(0.22,0.61,0.36,1), opacity 600ms, filter 600ms",
+                    : "transform 600ms cubic-bezier(0.22,0.61,0.36,1), opacity 600ms",
                   pointerEvents: op < 0.25 ? "none" : "auto",
                 }}
               >
@@ -271,7 +276,7 @@ function CoverCard({
       {/* open affordance on the focused card */}
       <span
         className={cn(
-          "absolute top-3.5 right-3.5 inline-flex items-center justify-center w-8 h-8 rounded-full bg-surface/60 backdrop-blur-sm text-on-surface transition-opacity duration-300",
+          "absolute top-3.5 right-3.5 inline-flex items-center justify-center w-8 h-8 rounded-full bg-surface/75 text-on-surface transition-opacity duration-300",
           center ? "opacity-90" : "opacity-0"
         )}
       >

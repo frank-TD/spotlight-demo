@@ -45,7 +45,7 @@ export default function StatusBadge({
         small ? "text-[12px] tracking-[0.18em] px-2.5 py-1" : "text-[12px] tracking-[0.2em] px-3.5 py-1.5",
         text,
         border,
-        overlay ? "bg-surface/70 backdrop-blur-sm" : "bg-primary/10"
+        overlay ? "bg-surface/85" : "bg-primary/10"
       )}
     >
       <span className={cn("w-1.5 h-1.5 rounded-full", dot)} />
