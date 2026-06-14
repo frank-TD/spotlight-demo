@@ -18,14 +18,17 @@ const posterOf = (p: Project) =>
     ? VIDEO_CLIP_BY_ID[p.clipId].poster
     : `https://picsum.photos/seed/${p.seed}/600/900`;
 
-// 3D coverflow for the featured slate: the centered card faces the viewer, the
-// flanking cards rotate back into a perspective arc and dim. Drag, the arrows,
-// or the dots move the focus; clicking a side card brings it to centre, and
-// clicking the centred card opens its project in a dialog (where the clip
-// plays). Cards never autoplay in the carousel itself.
+// 3D coverflow for the featured slate: the centred card faces the viewer, the
+// flanking cards rotate back into a perspective arc and dim. It loops forever —
+// drag, the arrows, or the dots move the focus; clicking a side card brings it
+// to centre, and clicking the centred card opens its project in a dialog (where
+// the clip plays). Cards never autoplay in the carousel itself.
 export default function FeaturedCoverflow({ projects }: { projects: Project[] }) {
   const t = useT();
   const n = projects.length;
+  // `active` is an unbounded virtual index: the carousel loops forever, so there
+  // is no first/last card to clamp against. The project shown in any slot k is
+  // projects[k mod n]; scrolling past the end seamlessly continues from the start.
   const [active, setActive] = useState(Math.floor((n - 1) / 2));
   const [drag, setDrag] = useState(0);
   const [dragging, setDragging] = useState(false);
@@ -35,19 +38,19 @@ export default function FeaturedCoverflow({ projects }: { projects: Project[] })
   const wrapRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ startX: number; startActive: number; w: number; value: number } | null>(null);
   const movedRef = useRef(false);
-  const dirRef = useRef(1);
 
   // Cards sit on a concave arc (a cylinder seen from the front) so they abut
   // edge-to-edge with no overlap: the centred card faces the viewer and is the
   // furthest/sharpest, the flanking cards fold toward you, growing and tilting.
-  // STEP is the angle between adjacent cards — bigger = a more pronounced curve.
-  const STEP = 0.74; // radians (~42°)
-  const [cardW, setCardW] = useState(300);
+  // STEP (the angle between adjacent cards) is kept gentle so ~5 cards stay in
+  // view; paired with cardW it lands the off=±2 cards at the 1280 content edges.
+  const STEP = 0.43; // radians (~25°)
+  const [cardW, setCardW] = useState(336);
   const radius = cardW / STEP; // edge-to-edge: arc length per card == card width
   useEffect(() => {
     const sync = () => {
       const w = window.innerWidth;
-      setCardW(w < 480 ? 208 : w < 768 ? 248 : 300);
+      setCardW(w < 480 ? 230 : w < 768 ? 288 : w < 1280 ? 336 : 384);
     };
     sync();
     window.addEventListener("resize", sync);
@@ -65,7 +68,8 @@ export default function FeaturedCoverflow({ projects }: { projects: Project[] })
       t.homeV2.featMeta7,
     ][p.copyKey - 1] ?? "";
 
-  const clamp = (v: number) => Math.max(0, Math.min(n - 1, v));
+  // Wrap a virtual slot index into a real project (the infinite loop).
+  const projAt = (k: number) => projects[((k % n) + n) % n];
 
   // ── drag (pointer) ──────────────────────────────────────────────────────
   const onMove = (e: PointerEvent) => {
@@ -80,7 +84,7 @@ export default function FeaturedCoverflow({ projects }: { projects: Project[] })
   const onEnd = () => {
     const d = dragRef.current;
     if (!d) return;
-    setActive(clamp(Math.round(d.startActive + d.value)));
+    setActive(Math.round(d.startActive + d.value)); // unbounded — wraps freely
     setDrag(0);
     setDragging(false);
     dragRef.current = null;
@@ -101,109 +105,124 @@ export default function FeaturedCoverflow({ projects }: { projects: Project[] })
     window.addEventListener("pointerup", onEnd);
   };
 
-  // ── ambient auto-advance, ping-ponging at the ends ──────────────────────
+  // ── ambient auto-advance — one direction, forever (the loop has no end) ──
   useEffect(() => {
     if (prefersReducedMotion()) return;
     const id = window.setInterval(() => {
       if (hover || dragRef.current || dialog || document.hidden) return;
-      setActive((a) => {
-        let d = dirRef.current;
-        if (a >= n - 1) d = -1;
-        else if (a <= 0) d = 1;
-        dirRef.current = d;
-        return clamp(a + d);
-      });
+      setActive((a) => a + 1);
     }, 3800);
     return () => window.clearInterval(id);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hover, dialog, n]);
+  }, [hover, dialog]);
 
-  const onCardClick = (i: number, p: Project) => {
+  const onCardClick = (k: number, p: Project) => {
     if (movedRef.current) return; // it was a drag, not a tap
-    if (i === active) setDialog(p);
-    else setActive(i);
+    if (k === Math.round(active)) setDialog(p);
+    else setActive(k);
   };
+
+  // Dot → jump to the nearest instance of project i on the ring.
+  const goToProject = (i: number) => {
+    const cur = ((active % n) + n) % n;
+    let d = (i - cur) % n;
+    if (d > n / 2) d -= n;
+    if (d < -n / 2) d += n;
+    setActive(active + d);
+  };
+
+  // Render a fixed window of virtual slots around the continuous position. The
+  // outermost pair rides the edges at opacity 0, so cards fade in/out there and
+  // the wrap is seamless — with a 7-slot window over n projects, the one repeat
+  // is always the invisible edge pair, so no project is ever shown twice.
+  const pos = active + drag;
+  const center = Math.round(pos);
+  const HALF = 3;
+  const slots = Array.from({ length: HALF * 2 + 1 }, (_, idx) => center - HALF + idx);
+  const activeIdx = ((Math.round(active) % n) + n) % n;
 
   return (
     <div className="relative mt-20 md:mt-28">
-      <div
-        ref={wrapRef}
-        className="relative h-[420px] sm:h-[480px] md:h-[540px] select-none touch-pan-y cursor-grab active:cursor-grabbing"
-        style={{ perspective: "1700px" }}
-        onPointerDown={onDown}
-        onMouseEnter={() => setHover(true)}
-        onMouseLeave={() => setHover(false)}
-      >
-        {projects.map((p, i) => {
-          const off = i - active - drag;
-          const abs = Math.abs(off);
-          if (abs > 2.7) return null;
-          const theta = off * STEP; // angle along the arc
-          const tx = radius * Math.sin(theta); // px
-          const tz = -radius * Math.cos(theta); // px — centre furthest back
-          const ry = (-theta * 180) / Math.PI; // deg — each card stays tangent
-          const op = Math.max(0, 1 - abs * 0.34);
-          const isCenter = abs < 0.5;
-          // Depth-of-field: the focused card is sharp, the folding sides soften
-          // and dim. Skip the blur mid-drag so the gesture stays smooth.
-          const blur = dragging || abs < 0.5 ? 0 : Math.min(5, (abs - 0.5) * 3.2);
-          const bright = abs < 0.5 ? 1 : Math.max(0.5, 1 - (abs - 0.5) * 0.34);
-          return (
-            <div
-              key={p.id}
-              data-cf-card
-              role="button"
-              tabIndex={op > 0.4 ? 0 : -1}
-              aria-label={p.title}
-              onClick={() => onCardClick(i, p)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  e.preventDefault();
-                  if (i === active) setDialog(p);
-                  else setActive(i);
-                }
-              }}
-              className="absolute top-1/2 left-1/2 aspect-[2/3] outline-none"
-              style={{
-                width: cardW,
-                transform: `translate(-50%,-50%) translateX(${tx}px) translateZ(${tz}px) rotateY(${ry}deg)`,
-                opacity: op,
-                filter: `blur(${blur}px) brightness(${bright})`,
-                zIndex: 100 - Math.round(abs * 10),
-                transition: dragging
-                  ? "none"
-                  : "transform 600ms cubic-bezier(0.22,0.61,0.36,1), opacity 600ms, filter 600ms",
-                pointerEvents: op < 0.25 ? "none" : "auto",
-              }}
-            >
-              <CoverCard project={p} center={isCenter} t={t} />
-            </div>
-          );
-        })}
+      {/* Break out of the section's px-6/px-12 padding so the arc spans the full
+          1280 content area and the off=±2 cards reach its edges. */}
+      <div className="-mx-6 md:-mx-12 overflow-x-clip">
+        <div
+          ref={wrapRef}
+          className="relative h-[440px] sm:h-[500px] md:h-[580px] select-none touch-pan-y cursor-grab active:cursor-grabbing"
+          style={{ perspective: "1700px" }}
+          onPointerDown={onDown}
+          onMouseEnter={() => setHover(true)}
+          onMouseLeave={() => setHover(false)}
+        >
+          {slots.map((k) => {
+            const p = projAt(k);
+            const off = k - pos;
+            const abs = Math.abs(off);
+            const theta = off * STEP; // angle along the arc
+            const tx = radius * Math.sin(theta); // px
+            const tz = -radius * Math.cos(theta); // px — centre furthest back
+            const ry = (-theta * 180) / Math.PI; // deg — each card stays tangent
+            // ~5 cards stay legible; the 6th/7th slots ride the edges at op 0.
+            const op = abs <= 2 ? 1 - abs * 0.1 : Math.max(0, (3 - abs) * 0.8);
+            const isCenter = abs < 0.5;
+            // Depth-of-field: the focused card is sharp, the folding sides soften
+            // and dim. Skip the blur mid-drag so the gesture stays smooth.
+            const blur = dragging || abs < 0.5 ? 0 : Math.min(4, (abs - 0.5) * 2.4);
+            const bright = abs < 0.5 ? 1 : Math.max(0.58, 1 - (abs - 0.5) * 0.26);
+            return (
+              <div
+                key={k}
+                data-cf-card
+                role="button"
+                tabIndex={op > 0.5 ? 0 : -1}
+                aria-label={p.title}
+                onClick={() => onCardClick(k, p)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    if (k === Math.round(active)) setDialog(p);
+                    else setActive(k);
+                  }
+                }}
+                className="absolute top-1/2 left-1/2 aspect-[2/3] outline-none"
+                style={{
+                  width: cardW,
+                  transform: `translate(-50%,-50%) translateX(${tx}px) translateZ(${tz}px) rotateY(${ry}deg)`,
+                  opacity: op,
+                  filter: `blur(${blur}px) brightness(${bright})`,
+                  zIndex: 100 - Math.round(abs * 10),
+                  transition: dragging
+                    ? "none"
+                    : "transform 600ms cubic-bezier(0.22,0.61,0.36,1), opacity 600ms, filter 600ms",
+                  pointerEvents: op < 0.25 ? "none" : "auto",
+                }}
+              >
+                <CoverCard project={p} center={isCenter} t={t} />
+              </div>
+            );
+          })}
+        </div>
       </div>
 
-      {/* Controls — arrows + dots. */}
+      {/* Controls — arrows + dots (loop-aware, never disabled). */}
       <div className="flex items-center justify-center gap-6 mt-8">
-        <CarouselArrow dir="prev" onClick={() => setActive(clamp(active - 1))} disabled={active === 0} />
+        <CarouselArrow dir="prev" onClick={() => setActive(active - 1)} />
         <div className="flex items-center gap-2.5">
           {projects.map((p, i) => (
             <button
               key={p.id}
               type="button"
               aria-label={`Show ${p.title}`}
-              onClick={() => setActive(i)}
+              onClick={() => goToProject(i)}
               className={cn(
                 "h-1.5 rounded-full transition-all duration-300",
-                i === active ? "w-7 bg-primary" : "w-1.5 bg-on-surface-variant/40 hover:bg-on-surface-variant"
+                i === activeIdx
+                  ? "w-7 bg-primary"
+                  : "w-1.5 bg-on-surface-variant/40 hover:bg-on-surface-variant"
               )}
             />
           ))}
         </div>
-        <CarouselArrow
-          dir="next"
-          onClick={() => setActive(clamp(active + 1))}
-          disabled={active === n - 1}
-        />
+        <CarouselArrow dir="next" onClick={() => setActive(active + 1)} />
       </div>
 
       <ProjectDialog
