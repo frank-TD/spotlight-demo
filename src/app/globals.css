@@ -499,6 +499,34 @@
   animation: fade-in 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
+/* Mouse-follow spotlight for cards: a soft radial glow tracks the cursor and
+   fades in on hover/focus. Position is fed via --mouse-x / --mouse-y (px) from
+   the component's onMouseMove. */
+.spotlight-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    300px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
+    var(--spotlight-color, rgba(212, 175, 55, 0.22)),
+    transparent 72%
+  );
+  opacity: 0;
+  transition: opacity 0.45s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+.spotlight-card:hover::before,
+.spotlight-card:focus-within::before {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .spotlight-card::before {
+    transition: none;
+  }
+}
+
 /* Image shimmer placeholder — sweeps across the gradient while the picture loads */
 @keyframes shimmer {
   0% {
