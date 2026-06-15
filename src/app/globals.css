@@ -450,9 +450,22 @@
 .frame-float {
   animation: frame-float var(--float-dur, 9s) ease-in-out infinite;
 }
+@keyframes wall-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-16px, -10px, 0);
+  }
+}
+.wall-drift {
+  animation: wall-drift 18s ease-in-out infinite;
+}
 @media (prefers-reduced-motion: reduce) {
   .spotlight-breathe,
-  .frame-float {
+  .frame-float,
+  .wall-drift {
     animation: none;
   }
 }
