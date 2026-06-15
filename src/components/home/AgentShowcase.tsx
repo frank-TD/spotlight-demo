@@ -1,22 +1,46 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
-import { ArrowRight, Repeat2 } from "lucide-react";
+import { ArrowRight, Check, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useT } from "@/hooks/useT";
 
-// "Your agent closes the deal — while you sleep." Left: slogan + CTA into the
-// full negotiation demo on /how-it-works. Right: a tarot-style agent portrait
-// that flips on click between Marlow (gold, backer's agent) and Wren (blue,
-// creator's agent) — one card, both sides of the deal.
+type Side = "marlow" | "wren";
+
+// "Agents negotiate. You stay in control." Marlow represents backers, Wren
+// represents creators — they align the terms and prepare a deal summary, but
+// the human always gives the final approval. Right: a product deal card that
+// flips between the two agents (toggle / card tap), never claiming to close a
+// deal on its own.
 export default function AgentShowcase() {
   const t = useT();
-  const [side, setSide] = useState<"marlow" | "wren">("marlow");
+  const [side, setSide] = useState<Side>("marlow");
+  const cardRef = useRef<HTMLDivElement>(null);
+  const [inView, setInView] = useState(false);
+
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          io.disconnect();
+        }
+      },
+      { threshold: 0.3 }
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  const toggle = () => setSide((s) => (s === "marlow" ? "wren" : "marlow"));
+  const otherName = side === "marlow" ? "Wren" : "Marlow";
 
   return (
     <section className="border-t border-outline-variant/30">
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 py-24 md:py-28 grid md:grid-cols-[6fr_5fr] gap-14 md:gap-20 items-center">
-        {/* Slogan + CTA */}
+        {/* Slogan + CTAs */}
         <div className="scroll-reveal">
           <h2 className="font-headline text-5xl md:text-7xl text-on-surface leading-[1.05]">
             {t.homeV2.agentTitle1}
@@ -36,161 +60,247 @@ export default function AgentShowcase() {
           <p className="font-body text-lg text-on-surface-variant leading-relaxed mt-7 max-w-md">
             {t.homeV2.agentSub}
           </p>
-          <Link
-            href="/how-it-works#agents"
-            className="group inline-flex items-center gap-2.5 font-label text-label-md uppercase tracking-widest text-on-primary-container border border-primary/60 px-7 py-4 rounded-full hover:bg-primary/10 transition-colors mt-10"
-          >
-            {t.homeV2.agentCta}
-            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 mt-10">
+            <Link
+              href="/register"
+              className="group inline-flex items-center justify-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-7 py-4 rounded-full hover:opacity-90 active:scale-95 transition-all shadow-[0_8px_30px_rgba(212,175,55,0.25)]"
+            >
+              {t.homeV2.agentCtaPrimary}
+              <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+            </Link>
+            <Link
+              href="/how-it-works#agents"
+              className="inline-flex items-center justify-center font-label text-label-md uppercase tracking-widest text-on-primary-container border border-primary/55 px-7 py-4 rounded-full hover:bg-primary/10 transition-colors"
+            >
+              {t.homeV2.agentCta}
+            </Link>
+          </div>
         </div>
 
-        {/* Flip-card portrait */}
-        <div className="scroll-reveal" style={{ animationDelay: "120ms" }}>
+        {/* Agent deal card */}
+        <div ref={cardRef} className="w-full max-w-[380px] mx-auto">
+          {/* Role toggle */}
+          <div className="flex justify-center mb-6">
+            <div
+              role="group"
+              aria-label="Choose agent"
+              className="inline-flex items-center gap-1 rounded-full border border-outline-variant/50 bg-surface-container-lowest p-1"
+            >
+              <ToggleButton active={side === "marlow"} accent="#d4af37" onClick={() => setSide("marlow")}>
+                {t.homeV2.agentToggleBackers}
+              </ToggleButton>
+              <ToggleButton active={side === "wren"} accent="#a8c4e5" onClick={() => setSide("wren")}>
+                {t.homeV2.agentToggleCreators}
+              </ToggleButton>
+            </div>
+          </div>
+
+          {/* Flip card */}
+          <div
+            className={cn(
+              "group transition-[transform,opacity] duration-700 ease-out motion-reduce:transition-none",
+              inView ? "opacity-100 scale-100" : "opacity-0 scale-95"
+            )}
+            style={{ perspective: "1600px" }}
+          >
+            <button
+              type="button"
+              onClick={toggle}
+              aria-label={`${t.homeV2.agentSwitchTo} ${otherName}`}
+              className="block w-full text-left cursor-pointer rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-primary/60 transition-transform duration-300 group-hover:-translate-y-1.5 group-hover:shadow-[0_34px_70px_rgba(212,175,55,0.16)]"
+            >
+              <div
+                className="relative aspect-[3/4] transition-transform duration-700 ease-[cubic-bezier(0.2,0.8,0.2,1)] motion-reduce:transition-none"
+                style={{
+                  transformStyle: "preserve-3d",
+                  transform: side === "wren" ? "rotateY(180deg)" : "rotateY(0deg)",
+                }}
+              >
+                <DealCardFace
+                  kind="marlow"
+                  name="Marlow"
+                  role={t.homeV2.agentBackerRole}
+                  duty={t.homeV2.agentDuty}
+                  tags={[
+                    t.homeV2.agentTagBudget,
+                    t.homeV2.agentTagRights,
+                    t.homeV2.agentTagMilestones,
+                    t.homeV2.agentTagEscrow,
+                  ]}
+                  dealReady={t.homeV2.agentDealReady}
+                  summary={t.homeV2.agentDealSummaryMarlow}
+                  awaiting={t.homeV2.agentAwaitingApproval}
+                  inView={inView}
+                />
+                <DealCardFace
+                  kind="wren"
+                  name="Wren"
+                  role={t.homeV2.agentCreatorRole}
+                  duty={t.homeV2.agentDuty}
+                  tags={[
+                    t.homeV2.agentTagBudget,
+                    t.homeV2.agentTagRights,
+                    t.homeV2.agentTagMilestones,
+                    t.homeV2.agentTagEscrow,
+                  ]}
+                  dealReady={t.homeV2.agentDealReady}
+                  summary={t.homeV2.agentDealSummaryWren}
+                  awaiting={t.homeV2.agentAwaitingApproval}
+                  inView={inView}
+                  back
+                />
+              </div>
+            </button>
+          </div>
+
+          {/* Switch microcopy */}
           <button
             type="button"
-            onClick={() => setSide(side === "marlow" ? "wren" : "marlow")}
-            aria-label={t.homeV2.agentHint}
-            className="block w-full max-w-[380px] mx-auto cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-primary/60 rounded-2xl"
-            style={{ perspective: "1400px" }}
+            onClick={toggle}
+            className="flex items-center justify-center gap-2 mx-auto font-label text-[12px] uppercase tracking-[0.16em] text-on-surface-variant hover:text-primary transition-colors mt-6"
           >
-            <div
-              className="relative aspect-[3/4] transition-transform duration-700 ease-[cubic-bezier(0.2,0.8,0.2,1)]"
-              style={{
-                transformStyle: "preserve-3d",
-                transform: side === "wren" ? "rotateY(180deg)" : "rotateY(0deg)",
-              }}
-            >
-              <AgentFace
-                kind="marlow"
-                name={t.landing.dealCardMarlow}
-                role={t.landing.dealCardMarlowRole}
-                quote={t.landing.agentIntroMarlowQuote}
-                duty={t.homeV2.agentDuty}
-              />
-              <AgentFace
-                kind="wren"
-                name={t.landing.dealCardWren}
-                role={t.landing.dealCardWrenRole}
-                quote={t.landing.agentIntroWrenQuote}
-                duty={t.homeV2.agentDuty}
-                back
-              />
-            </div>
+            <RefreshCw className="w-3.5 h-3.5" />
+            {t.homeV2.agentSwitchTo} {otherName}
+            <ArrowRight className="w-3.5 h-3.5" />
           </button>
-          <p className="flex items-center justify-center gap-2 font-label text-[12px] uppercase tracking-[0.18em] text-on-surface-variant mt-6">
-            <Repeat2 className="w-3.5 h-3.5" />
-            {t.homeV2.agentHint}
-          </p>
         </div>
       </div>
     </section>
   );
 }
 
-// One face of the card: deco arc backdrop, giant serif monogram, geometric
-// steward bust in the agent's accent colour, name plate + signature line.
-function AgentFace({
+function ToggleButton({
+  active,
+  accent,
+  onClick,
+  children,
+}: {
+  active: boolean;
+  accent: string;
+  onClick: () => void;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-pressed={active}
+      className={cn(
+        "px-4 py-2 rounded-full font-label text-[11px] uppercase tracking-[0.16em] transition-colors",
+        active ? "text-on-surface" : "text-on-surface-variant hover:text-on-surface"
+      )}
+      style={active ? { background: `${accent}26` } : undefined}
+    >
+      {children}
+    </button>
+  );
+}
+
+// One face of the agent deal card: status badge + monogram, name + role, the
+// aligned term tags (revealed in sequence), a ready deal summary, and the
+// human-approval status — never "closed", always "awaiting your approval".
+function DealCardFace({
   kind,
   name,
   role,
-  quote,
   duty,
+  tags,
+  dealReady,
+  summary,
+  awaiting,
+  inView,
   back = false,
 }: {
-  kind: "marlow" | "wren";
+  kind: Side;
   name: string;
   role: string;
-  quote: string;
   duty: string;
+  tags: string[];
+  dealReady: string;
+  summary: string;
+  awaiting: string;
+  inView: boolean;
   back?: boolean;
 }) {
   const gold = kind === "marlow";
   const accent = gold ? "#d4af37" : "#a8c4e5";
-  const accentSoft = gold ? "rgba(212,175,55," : "rgba(168,196,229,";
+  const soft = gold ? "rgba(212,175,55," : "rgba(168,196,229,";
 
   return (
     <div
-      className="absolute inset-0 rounded-2xl overflow-hidden border bg-surface-container-lowest"
+      className="absolute inset-0 rounded-2xl border bg-surface-container-lowest p-6 md:p-7 flex flex-col"
       style={{
-        borderColor: `${accentSoft}0.35)`,
+        borderColor: `${soft}0.35)`,
         backfaceVisibility: "hidden",
         transform: back ? "rotateY(180deg)" : undefined,
-        boxShadow: `0 30px 80px rgba(0,0,0,0.5), 0 0 60px ${accentSoft}0.07)`,
+        boxShadow: `0 30px 80px rgba(0,0,0,0.5), 0 0 50px ${soft}0.06)`,
       }}
     >
-      {/* glow + giant monogram backdrop */}
       <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: `radial-gradient(ellipse 75% 55% at 50% 30%, ${accentSoft}0.13), transparent 75%)`,
-        }}
+        className="absolute inset-0 rounded-2xl pointer-events-none"
+        style={{ background: `radial-gradient(ellipse 80% 50% at 50% 0%, ${soft}0.1), transparent 70%)` }}
       />
-      <span
-        aria-hidden="true"
-        className="absolute left-1/2 top-[4%] -translate-x-1/2 font-headline italic select-none pointer-events-none"
-        style={{ fontSize: "190px", lineHeight: 1, color: `${accentSoft}0.10)` }}
-      >
-        {gold ? "M" : "W"}
-      </span>
 
-      {/* duty chip */}
-      <span
-        className="absolute top-4 left-4 inline-flex items-center gap-2 font-label text-[12px] uppercase tracking-[0.18em] rounded-full border px-3 py-1.5"
-        style={{ color: accent, borderColor: `${accentSoft}0.4)` }}
-      >
-        <span className="relative inline-flex w-1.5 h-1.5">
-          <span
-            className="absolute inline-flex w-full h-full rounded-full opacity-50 animate-ping"
-            style={{ background: accent }}
-          />
-          <span className="relative inline-flex w-1.5 h-1.5 rounded-full" style={{ background: accent }} />
-        </span>
-        {duty}
-      </span>
-
-      {/* steward bust */}
-      <svg
-        viewBox="0 0 200 200"
-        aria-hidden="true"
-        className="absolute left-1/2 top-[16%] -translate-x-1/2 w-[62%]"
-      >
-        {/* deco arcs behind the head */}
-        <circle cx="100" cy="74" r="56" fill="none" stroke={accent} strokeOpacity="0.18" />
-        <circle cx="100" cy="74" r="72" fill="none" stroke={accent} strokeOpacity="0.10" />
-        <circle cx="100" cy="74" r="88" fill="none" stroke={accent} strokeOpacity="0.05" />
-        {/* bust silhouette */}
-        <path
-          d="M30 186 Q36 132 80 118 L84 104 A30 30 0 1 1 116 104 L120 118 Q164 132 170 186 Z"
-          fill="#101014"
-          stroke={accent}
-          strokeOpacity="0.5"
-          strokeWidth="1.6"
-        />
-        {/* shirt + lapels */}
-        <path d="M88 118 L100 142 L112 118 Z" fill="#e8e8ee" fillOpacity="0.88" />
-        <path d="M88 118 L100 142 L78 132 Z" fill={accent} fillOpacity="0.28" />
-        <path d="M112 118 L100 142 L122 132 Z" fill={accent} fillOpacity="0.28" />
-        {/* bow tie */}
-        <path d="M100 124 L86 117 L86 131 Z" fill={accent} />
-        <path d="M100 124 L114 117 L114 131 Z" fill={accent} />
-        <circle cx="100" cy="124" r="2.6" fill={accent} />
-        {/* pocket square */}
-        <path d="M128 156 L138 156 L133 147 Z" fill={accent} fillOpacity="0.8" />
-      </svg>
-
-      {/* name plate */}
-      <div className="absolute inset-x-0 bottom-0 px-7 pb-7 text-center">
-        <p className="font-headline text-3xl text-on-surface">{name}</p>
-        <p
-          className="font-label text-[12px] uppercase tracking-[0.2em] mt-1.5"
-          style={{ color: accent }}
+      {/* header — status + monogram */}
+      <div className="relative flex items-start justify-between">
+        <span
+          className="inline-flex items-center gap-2 font-label text-[11px] uppercase tracking-[0.16em] rounded-full border px-2.5 py-1"
+          style={{ color: accent, borderColor: `${soft}0.4)` }}
         >
-          {role}
-        </p>
-        <div className="mx-auto w-10 h-px my-4" style={{ background: `${accentSoft}0.45)` }} />
-        <p className="font-headline italic text-sm text-on-surface-variant leading-relaxed line-clamp-2">
-          “{quote}”
+          <span className="relative inline-flex w-1.5 h-1.5">
+            <span
+              className="absolute inline-flex w-full h-full rounded-full opacity-50 animate-ping"
+              style={{ background: accent }}
+            />
+            <span className="relative inline-flex w-1.5 h-1.5 rounded-full" style={{ background: accent }} />
+          </span>
+          {duty}
+        </span>
+        <span
+          className="inline-flex items-center justify-center w-11 h-11 rounded-xl border font-headline text-xl"
+          style={{ color: accent, borderColor: `${soft}0.4)`, background: `${soft}0.06)` }}
+        >
+          {gold ? "M" : "W"}
+        </span>
+      </div>
+
+      {/* name + role */}
+      <h3 className="relative font-headline text-3xl md:text-4xl text-on-surface mt-5">{name}</h3>
+      <p className="relative font-label text-[12px] uppercase tracking-[0.2em] mt-1.5" style={{ color: accent }}>
+        {role}
+      </p>
+
+      {/* aligned term tags — appear in sequence */}
+      <div className="relative flex flex-wrap gap-2 mt-5">
+        {tags.map((tag, i) => (
+          <span
+            key={tag}
+            className={cn(
+              "font-label text-[11px] uppercase tracking-[0.13em] text-on-surface-variant border rounded-full px-3 py-1 transition-all duration-500 ease-out motion-reduce:transition-none motion-reduce:opacity-100 motion-reduce:translate-y-0",
+              inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1.5"
+            )}
+            style={{ borderColor: `${soft}0.3)`, transitionDelay: inView ? `${320 + i * 100}ms` : "0ms" }}
+          >
+            {tag}
+          </span>
+        ))}
+      </div>
+
+      {/* deal summary — ready, pending approval */}
+      <div className="relative mt-auto pt-5">
+        <div className="rounded-lg border p-4" style={{ borderColor: `${soft}0.25)`, background: `${soft}0.04)` }}>
+          <p
+            className="flex items-center gap-2 font-label text-[12px] uppercase tracking-[0.16em]"
+            style={{ color: accent }}
+          >
+            <Check className="w-3.5 h-3.5" />
+            {dealReady}
+          </p>
+          <p className="font-body text-sm text-on-surface-variant leading-relaxed mt-2">{summary}</p>
+        </div>
+        <p className="flex items-center gap-2 font-label text-[12px] uppercase tracking-[0.16em] text-on-surface-variant mt-3">
+          <span className="w-1.5 h-1.5 rounded-full" style={{ background: accent }} />
+          {awaiting}
         </p>
       </div>
     </div>
