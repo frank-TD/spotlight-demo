@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
-import { ArrowUpRight } from "lucide-react";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { RELEASED_SHOWCASE } from "@/lib/mock-data";
 
@@ -10,18 +9,22 @@ const prefersReducedMotion = () =>
 
 type Film = (typeof RELEASED_SHOWCASE.films)[number];
 
-// Released Film Performance Showcase — a premium proof panel. The card stays
-// minimal: three released films as poster thumbnails (title + release date).
-// Clicking one zooms it open into a focused detail dialog where its full
-// post-release metrics count up. All figures are placeholder demo data (see
-// RELEASED_SHOWCASE) — no revenue, no trend charts — built to swap for real
-// released-film data later.
+// Released Film Performance Showcase — a premium proof panel. The card holds a
+// minimal slate of three released films (poster + title + release date).
+// Tapping one expands the card downward and zooms that film into a focus view
+// where its full post-release metrics count up; the other two recede to a
+// dimmed switcher. No modal — it all happens in place. All figures are
+// placeholder demo data (see RELEASED_SHOWCASE), built to swap for real data.
 export default function ReleasePerformanceShowcase() {
   const { films, capabilities } = RELEASED_SHOWCASE;
   const rootRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const active = films.find((f) => f.id === activeId) ?? null;
+  // `shownId` lags `activeId` on close so the focus view can fade out with its
+  // content intact (no animation library / presence handling available).
+  const [shownId, setShownId] = useState<string | null>(null);
+  const [originIdx, setOriginIdx] = useState(1);
+  const closeTimer = useRef(0);
 
   useEffect(() => {
     const el = rootRef.current;
@@ -38,6 +41,27 @@ export default function ReleasePerformanceShowcase() {
     io.observe(el);
     return () => io.disconnect();
   }, []);
+
+  const open = (id: string) => {
+    window.clearTimeout(closeTimer.current);
+    setOriginIdx(films.findIndex((f) => f.id === id));
+    setShownId(id);
+    setActiveId(id);
+  };
+  const close = () => {
+    setActiveId(null);
+    closeTimer.current = window.setTimeout(() => setShownId(null), 450);
+  };
+
+  useEffect(() => {
+    if (!activeId) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && close();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [activeId]);
+
+  const shownFilm = films.find((f) => f.id === shownId) ?? null;
+  const originClass = ["origin-left", "origin-center", "origin-right"][originIdx] ?? "origin-center";
 
   return (
     <div
@@ -58,20 +82,51 @@ export default function ReleasePerformanceShowcase() {
         </span>
       </div>
 
-      {/* Poster slate — tap a film to zoom into its full report */}
-      <div className="grid grid-cols-3 gap-3 md:gap-4">
-        {films.map((f, i) => (
-          <PosterCard
-            key={f.id}
-            film={f}
-            inView={inView}
-            delay={i * 110}
-            onOpen={() => setActiveId(f.id)}
-          />
-        ))}
+      {/* Stage — grows downward from slate to focus, in place */}
+      <div
+        className={cn(
+          "relative transition-[height] duration-500 ease-[cubic-bezier(0.22,0.61,0.36,1)] motion-reduce:transition-none",
+          activeId ? "h-[470px] sm:h-[340px]" : "h-[164px] sm:h-[292px]"
+        )}
+      >
+        {/* Slate layer */}
+        <div
+          className={cn(
+            "absolute inset-0 grid grid-cols-3 gap-3 md:gap-4 transition-[opacity,transform] duration-[450ms] ease-out motion-reduce:transition-none",
+            activeId ? "opacity-0 scale-[0.98] pointer-events-none" : "opacity-100 scale-100"
+          )}
+        >
+          {films.map((f, i) => (
+            <SlatePoster key={f.id} film={f} inView={inView} delay={i * 110} onOpen={() => open(f.id)} />
+          ))}
+        </div>
+
+        {/* Focus layer — zooms from the tapped poster */}
+        <div
+          className={cn(
+            "absolute inset-0 transition-[opacity,transform] duration-[450ms] ease-[cubic-bezier(0.22,0.61,0.36,1)] motion-reduce:transition-none",
+            originClass,
+            activeId ? "opacity-100 scale-100" : "opacity-0 scale-95 pointer-events-none"
+          )}
+        >
+          {shownFilm && (
+            <FocusView
+              key={shownFilm.id}
+              film={shownFilm}
+              others={films.filter((f) => f.id !== shownFilm.id)}
+              onSwitch={open}
+              onClose={close}
+            />
+          )}
+        </div>
       </div>
 
-      <p className="font-label text-[11px] uppercase tracking-[0.16em] text-on-surface-variant/60 mt-4">
+      <p
+        className={cn(
+          "font-label text-[11px] uppercase tracking-[0.16em] text-on-surface-variant/60 mt-4 transition-opacity duration-300",
+          activeId ? "opacity-0" : "opacity-100"
+        )}
+      >
         Tap a film for its distribution report
       </p>
 
@@ -86,15 +141,12 @@ export default function ReleasePerformanceShowcase() {
           </span>
         ))}
       </div>
-
-      <FilmReportDialog film={active} onOpenChange={(open) => !open && setActiveId(null)} />
     </div>
   );
 }
 
-// Compact poster thumbnail: real film still, title + release date overlaid, a
-// Released pill, and a gold glow on hover. Staggers in on viewport entry.
-function PosterCard({
+// Slate thumbnail: real film still, title + release date overlaid, Released pill.
+function SlatePoster({
   film,
   inView,
   delay,
@@ -112,8 +164,8 @@ function PosterCard({
       aria-label={`${film.title} — open distribution report`}
       style={{ transitionDelay: inView ? `${delay}ms` : "0ms" }}
       className={cn(
-        "group/card relative block aspect-[2/3] rounded-lg overflow-hidden text-left ring-1 ring-outline-variant/50 shadow-[0_12px_30px_rgba(0,0,0,0.4)] transition-all duration-500 ease-out outline-none",
-        "hover:ring-primary/55 hover:shadow-[0_0_44px_rgba(212,175,55,0.22)] focus-visible:ring-primary/70 active:scale-[0.98]",
+        "group/card relative block h-full w-full rounded-lg overflow-hidden text-left ring-1 ring-outline-variant/50 shadow-[0_12px_30px_rgba(0,0,0,0.4)] transition-all duration-500 ease-out outline-none",
+        "hover:ring-primary/55 hover:shadow-[0_0_44px_rgba(212,175,55,0.22)] focus-visible:ring-primary/70",
         "motion-reduce:transition-none motion-reduce:opacity-100 motion-reduce:translate-y-0",
         inView ? "opacity-100 translate-y-0" : "opacity-0 translate-y-3"
       )}
@@ -128,7 +180,6 @@ function PosterCard({
         decoding="async"
       />
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,8,10,0.05)_0%,transparent_34%,rgba(8,8,10,0.55)_70%,rgba(8,8,10,0.95)_100%)]" />
-
       <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 font-label text-[9px] sm:text-[10px] uppercase tracking-[0.14em] text-on-primary-container bg-surface/70 border border-primary/40 rounded-full px-2 py-0.5">
         <span className="relative inline-flex w-1.5 h-1.5">
           <span className="absolute inline-flex w-full h-full rounded-full bg-primary opacity-40 animate-ping [animation-duration:2.4s]" />
@@ -136,85 +187,98 @@ function PosterCard({
         </span>
         Released
       </span>
-
       <div className="absolute inset-x-0 bottom-0 p-2.5 sm:p-3">
         <h3 className="font-headline text-base sm:text-lg leading-tight text-on-surface">{film.title}</h3>
         <p className="font-label text-[10px] uppercase tracking-[0.14em] text-on-surface-variant mt-1">
           {film.releaseDate}
         </p>
       </div>
-
-      {/* zoom affordance */}
-      <span className="absolute top-2.5 right-2.5 inline-flex items-center justify-center w-7 h-7 rounded-full bg-surface/60 text-on-surface opacity-0 group-hover/card:opacity-90 transition-opacity duration-300">
-        <ArrowUpRight className="w-3.5 h-3.5" />
-      </span>
     </button>
   );
 }
 
-// Focused detail — the poster zooms open here, full metrics counting up beside
-// the enlarged still. Background dims (dialog backdrop).
-function FilmReportDialog({
+// Focus view — the tapped film, enlarged, with its metrics counting up. The
+// other two sit below as a dimmed switcher.
+function FocusView({
   film,
-  onOpenChange,
+  others,
+  onSwitch,
+  onClose,
 }: {
-  film: Film | null;
-  onOpenChange: (open: boolean) => void;
+  film: Film;
+  others: Film[];
+  onSwitch: (id: string) => void;
+  onClose: () => void;
 }) {
   return (
-    <Dialog open={!!film} onOpenChange={onOpenChange}>
-      {film && (
-        <DialogContent
-          key={film.id}
-          className="sm:max-w-2xl p-0 overflow-hidden bg-surface-container-lowest ring-outline-variant/40"
-        >
-          <DialogTitle className="sr-only">{film.title}</DialogTitle>
-          <div className="grid sm:grid-cols-[5fr_4fr]">
-            <div className="relative aspect-[3/4] sm:aspect-auto sm:min-h-[380px] bg-surface-container-low">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={film.poster}
-                alt={film.title}
-                className="absolute inset-0 w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-[linear-gradient(160deg,rgba(212,175,55,0.08),transparent_42%,rgba(8,8,10,0.45)_96%)]" />
-              <span className="absolute top-3.5 left-3.5 inline-flex items-center gap-1.5 font-label text-[10px] uppercase tracking-[0.16em] text-on-primary-container bg-surface/70 border border-primary/40 rounded-full px-2.5 py-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary" />
-                Released · {film.releaseDate}
-              </span>
-            </div>
+    <div className="absolute inset-0 flex flex-col gap-3 sm:gap-4">
+      <div className="flex flex-col sm:flex-row gap-3 sm:gap-5 flex-1 min-h-0">
+        {/* enlarged still */}
+        <div className="relative shrink-0 w-full sm:w-[38%] h-[150px] sm:h-auto rounded-lg overflow-hidden ring-1 ring-primary/45 shadow-[0_0_50px_rgba(212,175,55,0.2)]">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={film.poster} alt={film.title} className="absolute inset-0 w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-[linear-gradient(160deg,rgba(212,175,55,0.08),transparent_45%,rgba(8,8,10,0.4)_96%)]" />
+          <span className="absolute top-2.5 left-2.5 inline-flex items-center gap-1.5 font-label text-[10px] uppercase tracking-[0.14em] text-on-primary-container bg-surface/70 border border-primary/40 rounded-full px-2 py-0.5">
+            <span className="w-1.5 h-1.5 rounded-full bg-primary" />
+            Released · {film.releaseDate}
+          </span>
+        </div>
 
-            <div className="p-7 md:p-8 flex flex-col">
-              <h3 className="font-headline text-3xl md:text-4xl text-on-surface leading-[1.05]">
-                {film.title}
-              </h3>
-              <p className="font-label text-[12px] uppercase tracking-[0.18em] text-primary/90 mt-3">
-                {film.type}
-              </p>
-              <p className="font-label text-[12px] uppercase tracking-[0.14em] text-on-surface-variant mt-3 leading-relaxed">
-                {film.distribution}
-              </p>
-
-              <div className="grid grid-cols-2 gap-x-6 gap-y-6 mt-7 pt-6 border-t border-outline-variant/40">
-                {film.metrics.map((m) => (
-                  <Metric
-                    key={m.label}
-                    value={m.value}
-                    suffix={m.suffix}
-                    decimals={m.decimals}
-                    label={m.label}
-                  />
-                ))}
-              </div>
-            </div>
+        {/* detail */}
+        <div className="relative flex-1 min-w-0 pr-8">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close report"
+            className="absolute -top-1 right-0 w-8 h-8 rounded-full border border-outline-variant/60 flex items-center justify-center text-on-surface-variant hover:text-primary hover:border-primary/60 active:scale-95 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+          <h3 className="font-headline text-2xl md:text-3xl text-on-surface leading-[1.05] pr-6">
+            {film.title}
+          </h3>
+          <p className="font-label text-[11px] uppercase tracking-[0.16em] text-primary/90 mt-2">
+            {film.type}
+          </p>
+          <p className="font-label text-[11px] uppercase tracking-[0.13em] text-on-surface-variant mt-2 leading-relaxed">
+            {film.distribution}
+          </p>
+          <div className="grid grid-cols-2 gap-x-5 gap-y-4 mt-4 sm:mt-5 pt-4 border-t border-outline-variant/40">
+            {film.metrics.map((m) => (
+              <Metric key={m.label} value={m.value} suffix={m.suffix} decimals={m.decimals} label={m.label} />
+            ))}
           </div>
-        </DialogContent>
-      )}
-    </Dialog>
+        </div>
+      </div>
+
+      {/* dimmed switcher — the other two released titles */}
+      <div className="flex items-stretch gap-2.5 shrink-0 pt-3 border-t border-outline-variant/40">
+        {others.map((o) => (
+          <button
+            key={o.id}
+            type="button"
+            onClick={() => onSwitch(o.id)}
+            aria-label={`Switch to ${o.title}`}
+            className="group/sw flex items-center gap-2.5 min-w-0 flex-1 rounded-md p-1.5 opacity-55 hover:opacity-100 transition-opacity outline-none"
+          >
+            <span className="relative shrink-0 w-9 h-12 rounded overflow-hidden ring-1 ring-outline-variant/50 group-hover/sw:ring-primary/50 transition-colors">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={o.poster} alt="" className="absolute inset-0 w-full h-full object-cover" />
+            </span>
+            <span className="min-w-0 text-left">
+              <span className="block font-headline text-sm text-on-surface truncate">{o.title}</span>
+              <span className="block font-label text-[10px] uppercase tracking-[0.14em] text-on-surface-variant">
+                {o.releaseDate}
+              </span>
+            </span>
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }
 
-// One large metric that counts up from 0 → target on mount (dialog open).
+// One large metric that counts up from 0 → target on mount.
 function Metric({
   value,
   suffix,
@@ -229,7 +293,7 @@ function Metric({
   const display = useCountUp(value, decimals);
   return (
     <div>
-      <div className="font-headline text-3xl md:text-4xl text-on-surface leading-none tabular-nums">
+      <div className="font-headline text-[28px] md:text-4xl text-on-surface leading-none tabular-nums">
         {display}
         <span className="text-primary">{suffix}</span>
       </div>
