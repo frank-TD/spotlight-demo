@@ -351,6 +351,32 @@ export const FEATURED_PROJECTS = [
   },
 ];
 
+// ── Released-film performance showcase (homepage Distribution section) ────────
+// PLACEHOLDER DEMO DATA — these titles and numbers are NOT real, verified
+// performance. They are mock proof points for the marketing showcase, shaped to
+// be swapped 1:1 with real released-film distribution data later. No revenue.
+export const RELEASED_SHOWCASE = {
+  featured: {
+    title: "Neon Rain",
+    type: "AI Short Film · Released Globally",
+    distribution: "5 Platforms · 31 Regions · 28-Day Release Window",
+    status: "Released",
+  },
+  // Large post-release proof points (audience/distribution only — no revenue).
+  // `value` is animated as a count-up; `suffix`/`decimals` shape the display.
+  metrics: [
+    { value: 2.4, suffix: "M", decimals: 1, label: "Total Views" },
+    { value: 68, suffix: "%", decimals: 0, label: "Avg. Completion" },
+    { value: 142, suffix: "K", decimals: 0, label: "Audience Actions" },
+    { value: 31, suffix: "", decimals: 0, label: "Regions" },
+  ],
+  others: [
+    { title: "Golden Core", detail: "812K views · Festival Circuit · 6 submissions" },
+    { title: "Aurora Crystal", detail: "1.1M views · Streaming · 12 regions" },
+  ],
+  capabilities: ["Streaming", "Festival", "Social Cuts", "Regional Release"],
+} as const;
+
 // ── Bids on need_001 ──────────────────────────────────────────────────────────
 
 export const BIDS_NEED_001 = [
