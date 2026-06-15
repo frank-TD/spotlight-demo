@@ -28,9 +28,6 @@ export default function DistributionSection() {
               {t.homeV2.distTitle2}
             </span>
           </h2>
-          <p className="font-body text-lg text-on-surface-variant leading-relaxed mt-7 max-w-md">
-            {t.homeV2.distBody}
-          </p>
           <Link
             href="/distribution"
             className="group inline-flex items-center gap-2.5 font-label text-label-md uppercase tracking-widest text-on-primary-container border border-primary/60 px-7 py-4 rounded-full hover:bg-primary/10 transition-colors mt-10"

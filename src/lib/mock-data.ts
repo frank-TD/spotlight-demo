@@ -352,27 +352,56 @@ export const FEATURED_PROJECTS = [
 ];
 
 // ── Released-film performance showcase (homepage Distribution section) ────────
-// PLACEHOLDER DEMO DATA — these titles and numbers are NOT real, verified
+// PLACEHOLDER DEMO DATA — these titles, dates and numbers are NOT real, verified
 // performance. They are mock proof points for the marketing showcase, shaped to
 // be swapped 1:1 with real released-film distribution data later. No revenue.
+// Each film shows as a poster card; clicking it zooms to its full metrics.
 export const RELEASED_SHOWCASE = {
-  featured: {
-    title: "Neon Rain",
-    type: "AI Short Film · Released Globally",
-    distribution: "5 Platforms · 31 Regions · 28-Day Release Window",
-    status: "Released",
-  },
-  // Large post-release proof points (audience/distribution only — no revenue).
-  // `value` is animated as a count-up; `suffix`/`decimals` shape the display.
-  metrics: [
-    { value: 2.4, suffix: "M", decimals: 1, label: "Total Views" },
-    { value: 68, suffix: "%", decimals: 0, label: "Avg. Completion" },
-    { value: 142, suffix: "K", decimals: 0, label: "Audience Actions" },
-    { value: 31, suffix: "", decimals: 0, label: "Regions" },
-  ],
-  others: [
-    { title: "Golden Core", detail: "812K views · Festival Circuit · 6 submissions" },
-    { title: "Aurora Crystal", detail: "1.1M views · Streaming · 12 regions" },
+  films: [
+    {
+      id: "neon-rain",
+      title: "Neon Rain",
+      poster: mediaUrl("/posters/neon-rain.jpg"),
+      releaseDate: "May 2026",
+      type: "AI Short Film · Released Globally",
+      distribution: "5 Platforms · 31 Regions · 28-Day Release Window",
+      // Large post-release proof points (audience/distribution only — no revenue).
+      // `value` animates as a count-up; `suffix`/`decimals` shape the display.
+      metrics: [
+        { value: 2.4, suffix: "M", decimals: 1, label: "Total Views" },
+        { value: 68, suffix: "%", decimals: 0, label: "Avg. Completion" },
+        { value: 142, suffix: "K", decimals: 0, label: "Audience Actions" },
+        { value: 31, suffix: "", decimals: 0, label: "Regions" },
+      ],
+    },
+    {
+      id: "golden-core",
+      title: "Golden Core",
+      poster: mediaUrl("/posters/golden-core.jpg"),
+      releaseDate: "Apr 2026",
+      type: "AI Short Film · Festival Circuit",
+      distribution: "Festival Circuit · 6 Submissions · 3 Selections",
+      metrics: [
+        { value: 812, suffix: "K", decimals: 0, label: "Total Views" },
+        { value: 74, suffix: "%", decimals: 0, label: "Avg. Completion" },
+        { value: 53, suffix: "K", decimals: 0, label: "Audience Actions" },
+        { value: 18, suffix: "", decimals: 0, label: "Regions" },
+      ],
+    },
+    {
+      id: "aurora-crystal",
+      title: "Aurora Crystal",
+      poster: mediaUrl("/posters/aurora-crystal.jpg"),
+      releaseDate: "Mar 2026",
+      type: "AI Short Film · Streaming",
+      distribution: "Streaming · 4 Platforms · 12 Regions",
+      metrics: [
+        { value: 1.1, suffix: "M", decimals: 1, label: "Total Views" },
+        { value: 71, suffix: "%", decimals: 0, label: "Avg. Completion" },
+        { value: 96, suffix: "K", decimals: 0, label: "Audience Actions" },
+        { value: 12, suffix: "", decimals: 0, label: "Regions" },
+      ],
+    },
   ],
   capabilities: ["Streaming", "Festival", "Social Cuts", "Regional Release"],
 } as const;
