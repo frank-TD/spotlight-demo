@@ -1,81 +1,64 @@
 "use client";
-import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { mediaUrl } from "@/lib/media";
 import { useT } from "@/hooks/useT";
 import { useSubmitProject } from "@/hooks/useSubmitProject";
 
-// A receding wall of real film posters — Spotlight's marketplace seen in
-// perspective. Repeated to fill the wall; order avoids obvious neighbours.
-const WALL = [
-  "neon-rain",
-  "aurora-crystal",
-  "paper-lanterns",
-  "golden-core",
-  "the-eighth-day",
-  "crimson-mirage",
-  "aurora-crystal",
-  "neon-rain",
-  "golden-core",
-  "paper-lanterns",
-  "crimson-mirage",
-  "the-eighth-day",
-].map((s, i) => ({ key: `${s}-${i}`, src: mediaUrl(`/posters/${s}.jpg`) }));
+// End-credit role labels rolling slowly up the cinema screen behind the call.
+const CREDITS = [
+  "Created By",
+  "Funded By",
+  "Distributed By",
+  "Backed By",
+  "Directed By",
+  "Owned By",
+  "Spotlight Originals",
+  "AI Film Slate",
+  "Global Release",
+];
+// Doubled so the -50% scroll loops seamlessly; stable keys precomputed here.
+const CREDITS_LOOP = [...CREDITS, ...CREDITS].map((text, i) => ({ key: `${text}-${i}`, text }));
 
-// "Your film belongs here." — a cinematic submission portal: the filmmaker's
-// pitch on the left, a perspective wall of films (the marketplace they're
-// entering) receding into gold-lit depth on the right.
+// The 2026 slate — real film stills as the open-call cast.
+const SLATE = ["neon-rain", "golden-core", "aurora-crystal", "crimson-mirage", "paper-lanterns"].map(
+  (s) => ({ key: s, src: mediaUrl(`/posters/${s}.jpg`) })
+);
+
+// Closing Credits Hero — the homepage's last frame. The credits roll on a black
+// stage; an open call to the next slate of creators stands centred in the gold
+// spotlight, with one final action. (Submit routing is shared with the main
+// hero via useSubmitProject.)
 export default function CreatorCallout() {
   const t = useT();
   const submit = useSubmitProject();
 
   return (
-    <section className="relative overflow-hidden border-t border-outline-variant/30 min-h-[600px] md:min-h-[700px] flex items-center">
-      {/* ── Background: perspective poster wall + light ─────────────────── */}
+    <section className="relative overflow-hidden border-t border-outline-variant/30 min-h-[660px] md:min-h-[760px] flex items-center">
+      {/* ── Cinema stage background ─────────────────────────────────────── */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-        {/* receding poster wall (desktop) */}
-        <div
-          className="hidden sm:block absolute inset-y-0 right-0 w-[72%] md:w-[62%]"
-          style={{ perspective: "1500px" }}
-        >
-          <div className="wall-drift absolute inset-0 flex items-center justify-end">
-            <div
-              className="grid grid-cols-3 gap-3.5 w-[600px] md:w-[660px] shrink-0"
-              style={{ transform: "rotateY(-31deg) rotateX(5deg)", transformOrigin: "right center" }}
-            >
-              {WALL.map((p) => (
-                <div
-                  key={p.key}
-                  className="aspect-[2/3] rounded-md overflow-hidden ring-1 ring-primary/20 shadow-[0_28px_60px_rgba(0,0,0,0.6)]"
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={p.src}
-                    alt=""
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full h-full object-cover"
-                    style={{ filter: "brightness(0.9) saturate(0.98)" }}
-                  />
-                </div>
-              ))}
-            </div>
+        {/* rolling end credits */}
+        <div className="absolute inset-0 flex justify-center">
+          <div className="credits-roll absolute top-0 flex flex-col items-center gap-9 md:gap-14">
+            {CREDITS_LOOP.map((c) => (
+              <span
+                key={c.key}
+                className="font-headline uppercase tracking-[0.12em] text-[40px] md:text-7xl leading-none whitespace-nowrap text-on-surface/[0.055]"
+              >
+                {c.text}
+              </span>
+            ))}
           </div>
         </div>
 
-        {/* left darkening for the headline + wall depth dim (its back is on the
-            left, so this also sinks the far posters into shadow) */}
-        <div className="absolute inset-0 bg-[linear-gradient(90deg,#08080a_0%,rgba(8,8,10,0.92)_30%,rgba(8,8,10,0.45)_50%,transparent_72%)]" />
-        {/* top/bottom cinematic feather so the wall bleeds into black */}
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,8,10,0.78)_0%,transparent_22%,transparent_72%,rgba(8,8,10,0.88)_100%)]" />
-        {/* far-right edge feather */}
-        <div className="absolute inset-y-0 right-0 w-[14%] bg-[linear-gradient(90deg,transparent,rgba(8,8,10,0.55))]" />
-
-        {/* breathing gold spotlight beam, raking the wall */}
+        {/* breathing gold spotlight from above */}
         <div
-          className="absolute right-[8%] -top-[26%] w-[56%] h-[150%] spotlight-breathe"
-          style={{ background: "radial-gradient(ellipse 44% 42% at 50% 0%, rgba(212,175,55,0.24), transparent 64%)" }}
+          className="absolute left-1/2 -top-[24%] -translate-x-1/2 w-[80%] md:w-[55%] h-[130%] spotlight-breathe"
+          style={{ background: "radial-gradient(ellipse 46% 44% at 50% 0%, rgba(212,175,55,0.2), transparent 64%)" }}
         />
+
+        {/* vignette to keep the centre readable + bleed the credits into black */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_62%_at_50%_48%,rgba(8,8,10,0.55),rgba(8,8,10,0.95)_92%)]" />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,#08080a_0%,transparent_18%,transparent_82%,#08080a_100%)]" />
 
         {/* film grain */}
         <div
@@ -87,13 +70,35 @@ export default function CreatorCallout() {
         />
       </div>
 
-      {/* ── Content (left) ─────────────────────────────────────────────── */}
-      <div className="relative w-full max-w-[1280px] mx-auto px-6 md:px-12 py-20 md:py-0">
-        <div className="scroll-reveal max-w-xl">
-          <p className="font-label text-[12px] uppercase tracking-[0.2em] text-primary">
-            {t.homeV2.creatorLabel}
-          </p>
-          <h2 className="font-headline text-5xl md:text-7xl text-on-surface mt-5 leading-[1.05]">
+      {/* ── Centred open call ───────────────────────────────────────────── */}
+      <div className="relative w-full max-w-[1280px] mx-auto px-6 md:px-12 py-24 text-center">
+        <div className="max-w-2xl mx-auto">
+          {/* open-call slate badge */}
+          <div className="scroll-reveal">
+            <p className="font-label text-[12px] uppercase tracking-[0.24em] text-primary">
+              {t.homeV2.creatorLabel}
+            </p>
+            <div className="flex justify-center -space-x-3 mt-5">
+              {SLATE.map((a) => (
+                <span
+                  key={a.key}
+                  className="w-12 h-12 md:w-14 md:h-14 rounded-full overflow-hidden ring-2 ring-primary/45 ring-offset-2 ring-offset-surface shadow-[0_8px_24px_rgba(0,0,0,0.6)]"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={a.src} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                </span>
+              ))}
+            </div>
+            <p className="font-label text-[12px] uppercase tracking-[0.18em] text-on-surface-variant mt-4">
+              {t.homeV2.creatorSlateYear} · {t.homeV2.creatorSlateAccepting}
+            </p>
+          </div>
+
+          {/* oversized headline */}
+          <h2
+            className="scroll-reveal font-headline text-[44px] sm:text-6xl md:text-7xl text-on-surface leading-[1.04] mt-9"
+            style={{ animationDelay: "100ms" }}
+          >
             {t.homeV2.creatorTitle1}{" "}
             <span
               className="italic"
@@ -107,24 +112,25 @@ export default function CreatorCallout() {
               {t.homeV2.creatorTitle2}
             </span>
           </h2>
-          <p className="font-body text-lg text-on-surface-variant leading-relaxed mt-6 max-w-md">
+
+          {/* supporting copy */}
+          <p
+            className="scroll-reveal font-body text-lg text-on-surface-variant leading-relaxed mt-6 max-w-xl mx-auto"
+            style={{ animationDelay: "180ms" }}
+          >
             {t.homeV2.creatorSub}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 mt-10">
+
+          {/* final action */}
+          <div className="scroll-reveal mt-10" style={{ animationDelay: "260ms" }}>
             <button
               type="button"
               onClick={submit}
-              className="group inline-flex items-center justify-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-7 py-4 rounded-full transition-all hover:-translate-y-0.5 hover:shadow-[0_14px_44px_rgba(212,175,55,0.4)] active:scale-95 shadow-[0_8px_30px_rgba(212,175,55,0.25)]"
+              className="group inline-flex items-center justify-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-8 py-4 rounded-full transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_50px_rgba(212,175,55,0.45)] active:scale-95 shadow-[0_8px_30px_rgba(212,175,55,0.28)]"
             >
               {t.homeV2.creatorSubmitCta}
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
             </button>
-            <Link
-              href="/how-it-works"
-              className="inline-flex items-center justify-center font-label text-label-md uppercase tracking-widest text-on-surface border border-on-surface/35 px-7 py-4 rounded-full hover:border-primary/60 hover:text-primary transition-colors"
-            >
-              {t.homeV2.creatorFlowCta}
-            </Link>
           </div>
         </div>
       </div>

@@ -462,10 +462,24 @@
 .wall-drift {
   animation: wall-drift 18s ease-in-out infinite;
 }
+/* Closing-credits hero: an end-credit roll scrolling slowly upward. The list is
+   rendered twice, so -50% wraps seamlessly. */
+@keyframes credits-roll {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+.credits-roll {
+  animation: credits-roll 60s linear infinite;
+}
 @media (prefers-reduced-motion: reduce) {
   .spotlight-breathe,
   .frame-float,
-  .wall-drift {
+  .wall-drift,
+  .credits-roll {
     animation: none;
   }
 }
