@@ -121,8 +121,20 @@ function StepCard({
   line: string;
   anchor: ReactNode;
 }) {
+  const ref = useRef<HTMLDivElement>(null);
   return (
-    <div className="group relative h-full rounded-xl border border-outline-variant/50 bg-surface-container-lowest/55 p-7 md:p-8 overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/45 hover:bg-surface-container-lowest/90 hover:shadow-[0_0_55px_rgba(212,175,55,0.14)]">
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions
+    <div
+      ref={ref}
+      onMouseMove={(e) => {
+        const el = ref.current;
+        if (!el) return;
+        const r = el.getBoundingClientRect();
+        el.style.setProperty("--mouse-x", `${e.clientX - r.left}px`);
+        el.style.setProperty("--mouse-y", `${e.clientY - r.top}px`);
+      }}
+      className="group spotlight-card relative h-full rounded-xl border border-outline-variant/50 bg-surface-container-lowest/55 p-7 md:p-8 overflow-hidden transition-all duration-300 hover:-translate-y-1.5 hover:border-primary/45"
+    >
       {/* watermark number */}
       <span
         aria-hidden
