@@ -1,11 +1,28 @@
 "use client";
-import { useEffect, useRef, useState, type ReactNode } from "react";
+import { useEffect, useRef, useState, type CSSProperties, type ReactNode } from "react";
 import Link from "next/link";
 import { ArrowRight, Check, RefreshCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useT } from "@/hooks/useT";
 
 type Side = "marlow" | "wren";
+
+// Feed the border glow: --cursor-angle (which edge to light) and
+// --edge-proximity (how close the cursor is to an edge → how bright).
+function setBorderGlow(el: HTMLElement, clientX: number, clientY: number) {
+  const rect = el.getBoundingClientRect();
+  const cx = rect.width / 2;
+  const cy = rect.height / 2;
+  const dx = clientX - rect.left - cx;
+  const dy = clientY - rect.top - cy;
+  const kx = dx !== 0 ? cx / Math.abs(dx) : Infinity;
+  const ky = dy !== 0 ? cy / Math.abs(dy) : Infinity;
+  const edge = Math.min(Math.max(1 / Math.min(kx, ky), 0), 1);
+  let deg = Math.atan2(dy, dx) * (180 / Math.PI) + 90;
+  if (deg < 0) deg += 360;
+  el.style.setProperty("--edge-proximity", (edge * 100).toFixed(2));
+  el.style.setProperty("--cursor-angle", `${deg.toFixed(2)}deg`);
+}
 
 // "Agents negotiate. You stay in control." Marlow represents backers, Wren
 // represents creators — they align the terms and prepare a deal summary, but
@@ -106,8 +123,10 @@ export default function AgentShowcase() {
             <button
               type="button"
               onClick={toggle}
+              onPointerMove={(e) => setBorderGlow(e.currentTarget, e.clientX, e.clientY)}
               aria-label={`${t.homeV2.agentSwitchTo} ${otherName}`}
-              className="block w-full text-left cursor-pointer rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-primary/60 transition-transform duration-300 group-hover:-translate-y-1.5 group-hover:shadow-[0_34px_70px_rgba(212,175,55,0.16)]"
+              style={{ "--glow-color": side === "marlow" ? "#f3d57f" : "#a8c4e5" } as CSSProperties}
+              className="border-glow-card block w-full text-left cursor-pointer rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-primary/60 transition-transform duration-300 group-hover:-translate-y-1.5"
             >
               <div
                 className="relative aspect-[3/4] transition-transform duration-700 ease-[cubic-bezier(0.2,0.8,0.2,1)] motion-reduce:transition-none"

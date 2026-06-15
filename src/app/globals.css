@@ -527,6 +527,47 @@
   }
 }
 
+/* Cursor-following border glow: a bright arc of light rides the card's edge at
+   the cursor's angle and intensifies as the cursor nears an edge. Fed via
+   --cursor-angle (deg) and --edge-proximity (0–100) from onPointerMove; the
+   conic gradient is masked to the border ring, with a soft drop-shadow bloom. */
+.border-glow-card::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(
+    from calc(var(--cursor-angle, 90deg) - 28deg) at 50% 50%,
+    transparent 0deg,
+    var(--glow-color, #f3d57f) 28deg,
+    transparent 56deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  filter: drop-shadow(0 0 6px var(--glow-color, #f3d57f))
+    drop-shadow(0 0 14px var(--glow-color, #f3d57f));
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+  z-index: 2;
+}
+.border-glow-card:hover::before,
+.border-glow-card:focus-within::before {
+  opacity: calc(0.4 + var(--edge-proximity, 0) / 100 * 0.6);
+}
+@media (prefers-reduced-motion: reduce) {
+  .border-glow-card::before {
+    transition: none;
+  }
+}
+
 /* Image shimmer placeholder — sweeps across the gradient while the picture loads */
 @keyframes shimmer {
   0% {
