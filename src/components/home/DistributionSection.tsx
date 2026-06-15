@@ -1,11 +1,12 @@
 "use client";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import ReleaseSlateCard from "./ReleaseSlateCard";
+import ReleasePerformanceShowcase from "./ReleasePerformanceShowcase";
 import { useT } from "@/hooks/useT";
 
 // AI Distribution — the platform's second pillar gets its own viewport:
-// editorial copy left, release-slate artifact right, one dedicated CTA.
+// editorial copy left, a released-film performance showcase right (proof that
+// films have shipped and reached audiences), one dedicated CTA.
 export default function DistributionSection() {
   const t = useT();
   return (
@@ -27,9 +28,6 @@ export default function DistributionSection() {
               {t.homeV2.distTitle2}
             </span>
           </h2>
-          <p className="font-body text-lg text-on-surface-variant leading-relaxed mt-7 max-w-md">
-            {t.homeV2.distBody}
-          </p>
           <Link
             href="/distribution"
             className="group inline-flex items-center gap-2.5 font-label text-label-md uppercase tracking-widest text-on-primary-container border border-primary/60 px-7 py-4 rounded-full hover:bg-primary/10 transition-colors mt-10"
@@ -39,7 +37,7 @@ export default function DistributionSection() {
           </Link>
         </div>
         <div className="scroll-reveal" style={{ animationDelay: "120ms" }}>
-          <ReleaseSlateCard />
+          <ReleasePerformanceShowcase />
         </div>
       </div>
     </section>
