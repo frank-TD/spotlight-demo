@@ -1238,9 +1238,7 @@ const en = {
     leadLogline:
       "A deep-space salvage crew finds something that has been waiting longer than the stars themselves.",
     leadSeeking: "Seeking a backer · Est. ¥120K–480K",
-    stepsLabel: "Create. Fund. Distribute.",
-    stepsSubtitle:
-      "Spotlight connects AI creators, backers, and distribution channels into one cinematic production pipeline.",
+    stepsLabel: "Create.|Fund.|Distribute.",
     step1Word: "Create",
     step1Line:
       "Turn ideas into pitch-ready AI films with trailers, story packages, budgets, and production assets.",
@@ -2443,9 +2441,7 @@ const zhCN: typeof en = {
     featMeta7: "剧情 · 剧集 · 8 集",
     leadLogline: "一支深空打捞队发现了某种存在——它等待的时间，比星辰更久远。",
     leadSeeking: "寻找出资人 · 预算约 ¥120K–480K",
-    stepsLabel: "创作 · 出资 · 发行",
-    stepsSubtitle:
-      "Spotlight 把 AI 创作者、出资人与发行渠道连成一条完整的电影制作流水线。",
+    stepsLabel: "创作|出资|发行",
     step1Word: "创作",
     step1Line: "把想法变成可路演的 AI 影片——预告、故事包、预算与制作素材一应俱全。",
     step2Word: "出资",
@@ -3651,9 +3647,7 @@ const zhTW: typeof en = {
     featMeta7: "劇情 · 劇集 · 8 集",
     leadLogline: "一支深空打撈隊發現了某種存在——它等待的時間，比星辰更久遠。",
     leadSeeking: "尋找出資人 · 預算約 NT$520K–2M",
-    stepsLabel: "創作 · 出資 · 發行",
-    stepsSubtitle:
-      "Spotlight 把 AI 創作者、出資人與發行通路連成一條完整的電影製作流水線。",
+    stepsLabel: "創作|出資|發行",
     step1Word: "創作",
     step1Line: "把想法變成可路演的 AI 影片——預告、故事包、預算與製作素材一應俱全。",
     step2Word: "出資",

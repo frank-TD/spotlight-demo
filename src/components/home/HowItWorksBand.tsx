@@ -38,17 +38,15 @@ export default function HowItWorksBand() {
   return (
     <section className="border-t border-outline-variant/30">
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 py-24 md:py-28">
-        {/* Title + subtitle */}
+        {/* Title — three-line, three-segment */}
         <div className="text-center max-w-2xl mx-auto">
-          <h2 className="scroll-reveal font-headline text-5xl md:text-7xl text-on-surface leading-[1.04]">
-            {t.homeV2.stepsLabel}
+          <h2 className="scroll-reveal font-headline text-5xl md:text-7xl text-on-surface leading-[0.95]">
+            {t.homeV2.stepsLabel.split("|").map((seg) => (
+              <span key={seg} className="block">
+                {seg}
+              </span>
+            ))}
           </h2>
-          <p
-            className="scroll-reveal font-body text-lg text-on-surface-variant leading-relaxed mt-6"
-            style={{ animationDelay: "110ms" }}
-          >
-            {t.homeV2.stepsSubtitle}
-          </p>
         </div>
 
         {/* Pipeline cards */}
