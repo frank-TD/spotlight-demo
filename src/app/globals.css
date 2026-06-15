@@ -527,40 +527,36 @@
   }
 }
 
-/* Cursor-following border glow: a bright arc of light rides the card's edge at
-   the cursor's angle and intensifies as the cursor nears an edge. Fed via
-   --cursor-angle (deg) and --edge-proximity (0–100) from onPointerMove; the
-   conic gradient is masked to the border ring, with a soft drop-shadow bloom. */
+/* Cursor-following border glow: a soft arc of light blooms along the card's
+   edge at the cursor's angle and brightens as the cursor nears an edge. A
+   blurred conic gradient sits *behind* the (opaque) card — fed via
+   --cursor-angle and --edge-proximity from onPointerMove — so only its edges
+   read as a glow. `isolation` scopes the z-index:-1 so the 3D card never
+   composites over it. */
+.border-glow-card {
+  position: relative;
+  isolation: isolate;
+}
 .border-glow-card::before {
   content: "";
   position: absolute;
-  inset: -1px;
+  inset: -3px;
   border-radius: inherit;
-  padding: 1.5px;
   background: conic-gradient(
-    from calc(var(--cursor-angle, 90deg) - 28deg) at 50% 50%,
+    from calc(var(--cursor-angle, 90deg) - 30deg) at 50% 50%,
     transparent 0deg,
-    var(--glow-color, #f3d57f) 28deg,
-    transparent 56deg
+    var(--glow-color, #f3d57f) 30deg,
+    transparent 60deg
   );
-  -webkit-mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask:
-    linear-gradient(#000 0 0) content-box,
-    linear-gradient(#000 0 0);
-  mask-composite: exclude;
-  filter: drop-shadow(0 0 6px var(--glow-color, #f3d57f))
-    drop-shadow(0 0 14px var(--glow-color, #f3d57f));
+  filter: blur(7px);
   opacity: 0;
   transition: opacity 0.35s ease;
+  z-index: -1;
   pointer-events: none;
-  z-index: 2;
 }
 .border-glow-card:hover::before,
 .border-glow-card:focus-within::before {
-  opacity: calc(0.4 + var(--edge-proximity, 0) / 100 * 0.6);
+  opacity: calc(0.55 + var(--edge-proximity, 0) / 100 * 0.45);
 }
 @media (prefers-reduced-motion: reduce) {
   .border-glow-card::before {
