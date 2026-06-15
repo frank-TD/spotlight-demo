@@ -422,6 +422,68 @@
   animation: fade-up 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
+/* Submission-portal hero: a gold spotlight beam that gently breathes and
+   background poster frames that drift, for a layered cinematic depth. */
+@keyframes spotlight-breathe {
+  0%,
+  100% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.82;
+    transform: scale(1.05);
+  }
+}
+@keyframes frame-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-14px);
+  }
+}
+.spotlight-breathe {
+  animation: spotlight-breathe 7s ease-in-out infinite;
+}
+.frame-float {
+  animation: frame-float var(--float-dur, 9s) ease-in-out infinite;
+}
+@keyframes wall-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0);
+  }
+  50% {
+    transform: translate3d(-16px, -10px, 0);
+  }
+}
+.wall-drift {
+  animation: wall-drift 18s ease-in-out infinite;
+}
+/* Closing-credits hero: an end-credit roll scrolling slowly upward. The list is
+   rendered twice, so -50% wraps seamlessly. */
+@keyframes credits-roll {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-50%);
+  }
+}
+.credits-roll {
+  animation: credits-roll 60s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .spotlight-breathe,
+  .frame-float,
+  .wall-drift,
+  .credits-roll {
+    animation: none;
+  }
+}
+
 /* Opacity-only fade for inline text where transform would force inline-block
    and clip italic overhangs (e.g. the gradient brand word). */
 @keyframes fade-in {
