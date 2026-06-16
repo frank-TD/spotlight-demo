@@ -527,6 +527,39 @@
   }
 }
 
+/* Cursor-following border glow. The glow is a real element placed *first* in
+   the card, so DOM paint order keeps it behind the opaque, 3D-transformed
+   faces — only its blurred edges read as a border glow. No negative z-index /
+   mask / isolation, which can drop out under GPU compositing of the 3D card.
+   Fed via --cursor-angle / --edge-proximity (+ --glow-color) from onPointerMove. */
+.border-glow-card {
+  position: relative;
+}
+.border-glow {
+  position: absolute;
+  inset: -4px;
+  border-radius: inherit;
+  background: conic-gradient(
+    from calc(var(--cursor-angle, 90deg) - 30deg) at 50% 50%,
+    transparent 0deg,
+    var(--glow-color, #f3d57f) 30deg,
+    transparent 60deg
+  );
+  filter: blur(8px);
+  opacity: 0;
+  transition: opacity 0.35s ease;
+  pointer-events: none;
+}
+.border-glow-card:hover > .border-glow,
+.border-glow-card:focus-within > .border-glow {
+  opacity: calc(0.6 + var(--edge-proximity, 0) / 100 * 0.4);
+}
+@media (prefers-reduced-motion: reduce) {
+  .border-glow {
+    transition: none;
+  }
+}
+
 /* Image shimmer placeholder — sweeps across the gradient while the picture loads */
 @keyframes shimmer {
   0% {
