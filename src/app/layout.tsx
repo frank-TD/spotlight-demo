@@ -36,6 +36,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="en" className={`${cormorant.variable} ${arimo.variable} ${bebas.variable} h-full`}>
       <body className="min-h-full flex flex-col bg-background text-on-surface font-body antialiased">
         {children}
+        <div className="film-grain" aria-hidden="true" />
         <Toaster position="top-center" />
       </body>
     </html>

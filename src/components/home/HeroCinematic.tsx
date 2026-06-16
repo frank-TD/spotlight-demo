@@ -3,14 +3,13 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import MobileHeroVideo from "./MobileHeroVideo";
-import { FEATURED_PROJECTS, HERO_VIDEO_CLIPS } from "@/lib/mock-data";
+import { HERO_VIDEO_CLIPS } from "@/lib/mock-data";
 import { useSubmitProject } from "@/hooks/useSubmitProject";
 import { useT } from "@/hooks/useT";
 
 // Editorial full-bleed hero: ONE clip plays at a time (cross-fading through
 // the pool) instead of the old 4-up collage, so the frame keeps a single
-// visual focus and decodes a quarter of the video. Copy block sits left,
-// "Now Showing" film-credit chip bottom-left.
+// visual focus and decodes a quarter of the video. Copy block sits left.
 export default function HeroCinematic() {
   const t = useT();
   const submit = useSubmitProject();
@@ -18,13 +17,6 @@ export default function HeroCinematic() {
   const [motionAllowed, setMotionAllowed] = useState(false);
   const [heroInView, setHeroInView] = useState(false);
   const [pageVisible, setPageVisible] = useState(true);
-
-  const nowShowing = FEATURED_PROJECTS.find((p) => p.nowShowing) ?? FEATURED_PROJECTS[0];
-  const statusLabel = {
-    open: t.homeV2.statusOpen,
-    production: t.homeV2.statusProduction,
-    released: t.homeV2.statusReleased,
-  }[nowShowing.status];
 
   useEffect(() => {
     const media = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -117,20 +109,6 @@ export default function HeroCinematic() {
           </button>
         </div>
       </div>
-
-      {/* Film-credit chip — curation signal, links into the slate. */}
-      <Link
-        href="/discovery"
-        className="absolute left-6 md:left-12 bottom-6 md:bottom-10 inline-flex items-center gap-3 border border-on-surface/20 bg-surface/40 backdrop-blur-sm rounded-sm px-4 py-2.5 hover:border-primary/60 transition-colors animate-fade-up"
-        style={{ animationDelay: "700ms" }}
-      >
-        <span className="font-label text-[12px] uppercase tracking-[0.2em] text-primary">
-          {t.homeV2.nowShowing}
-        </span>
-        <span className="hidden sm:inline font-label text-[12px] uppercase tracking-[0.18em] text-on-surface/90">
-          {nowShowing.title} · {statusLabel}
-        </span>
-      </Link>
     </section>
   );
 }

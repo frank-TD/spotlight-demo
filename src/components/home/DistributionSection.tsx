@@ -10,7 +10,12 @@ import { useT } from "@/hooks/useT";
 export default function DistributionSection() {
   const t = useT();
   return (
-    <section className="border-y border-outline-variant/30 bg-surface-container-lowest">
+    <section
+      style={{
+        background:
+          "linear-gradient(180deg, #13100b 0%, #2a2114 200px, #2a2114 calc(100% - 200px), #08080a 100%)",
+      }}
+    >
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 py-24 md:py-28 grid md:grid-cols-[5fr_6fr] gap-12 md:gap-20 items-center">
         <div className="scroll-reveal">
           <h2 className="font-headline text-5xl md:text-7xl text-on-surface leading-[1.05]">

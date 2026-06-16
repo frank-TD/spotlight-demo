@@ -20,7 +20,12 @@ export default function ClosingFaq() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section className="border-t border-outline-variant/30">
+    <section
+      style={{
+        background:
+          "linear-gradient(180deg, #08080a 0%, #1e1912 200px, #1e1912 calc(100% - 200px), #08080a 100%)",
+      }}
+    >
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 py-24 md:py-32 grid md:grid-cols-[5fr_7fr] gap-12 md:gap-16">
         {/* Left — oversized anchor */}
         <div className="scroll-reveal md:sticky md:top-28 self-start">

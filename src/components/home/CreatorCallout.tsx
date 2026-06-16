@@ -1,33 +1,19 @@
 "use client";
 import { ArrowRight } from "lucide-react";
+import DarkVeil from "./DarkVeil";
 import { mediaUrl } from "@/lib/media";
 import { useT } from "@/hooks/useT";
 import { useSubmitProject } from "@/hooks/useSubmitProject";
-
-// End-credit role labels rolling slowly up the cinema screen behind the call.
-const CREDITS = [
-  "Created By",
-  "Funded By",
-  "Distributed By",
-  "Backed By",
-  "Directed By",
-  "Owned By",
-  "Spotlight Originals",
-  "AI Film Slate",
-  "Global Release",
-];
-// Doubled so the -50% scroll loops seamlessly; stable keys precomputed here.
-const CREDITS_LOOP = [...CREDITS, ...CREDITS].map((text, i) => ({ key: `${text}-${i}`, text }));
 
 // The 2026 slate — real film stills as the open-call cast.
 const SLATE = ["neon-rain", "golden-core", "aurora-crystal", "crimson-mirage", "paper-lanterns"].map(
   (s) => ({ key: s, src: mediaUrl(`/posters/${s}.jpg`) })
 );
 
-// Closing Credits Hero — the homepage's last frame. The credits roll on a black
-// stage; an open call to the next slate of creators stands centred in the gold
-// spotlight, with one final action. (Submit routing is shared with the main
-// hero via useSubmitProject.)
+// Closing Hero — the homepage's last frame. A molten black-gold veil plays as
+// the stage; an open call to the next slate of creators stands centred in the
+// gold spotlight, with one final action. (Submit routing is shared with the
+// main hero via useSubmitProject.)
 export default function CreatorCallout() {
   const t = useT();
   const submit = useSubmitProject();
@@ -36,29 +22,20 @@ export default function CreatorCallout() {
     <section className="relative overflow-hidden border-t border-outline-variant/30 min-h-[660px] md:min-h-[760px] flex items-center">
       {/* ── Cinema stage background ─────────────────────────────────────── */}
       <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
-        {/* rolling end credits */}
-        <div className="absolute inset-0 flex justify-center">
-          <div className="credits-roll absolute top-0 flex flex-col items-center gap-9 md:gap-14">
-            {CREDITS_LOOP.map((c) => (
-              <span
-                key={c.key}
-                className="font-headline uppercase tracking-[0.12em] text-[40px] md:text-7xl leading-none whitespace-nowrap text-on-surface/[0.055]"
-              >
-                {c.text}
-              </span>
-            ))}
-          </div>
-        </div>
+        {/* molten black-gold veil — the animated stage */}
+        <DarkVeil />
 
         {/* breathing gold spotlight from above */}
         <div
           className="absolute left-1/2 -top-[24%] -translate-x-1/2 w-[80%] md:w-[55%] h-[130%] spotlight-breathe"
-          style={{ background: "radial-gradient(ellipse 46% 44% at 50% 0%, rgba(212,175,55,0.2), transparent 64%)" }}
+          style={{ background: "radial-gradient(ellipse 46% 44% at 50% 0%, rgba(212,175,55,0.18), transparent 64%)" }}
         />
 
-        {/* vignette to keep the centre readable + bleed the credits into black */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_62%_at_50%_48%,rgba(8,8,10,0.55),rgba(8,8,10,0.95)_92%)]" />
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,#08080a_0%,transparent_18%,transparent_82%,#08080a_100%)]" />
+        {/* centred readability scrim — darken behind the text column, fade out
+            so the molten veil stays visible across the margins and corners */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_58%_84%_at_50%_50%,rgba(8,8,10,0.66),rgba(8,8,10,0.30)_52%,transparent_80%)]" />
+        {/* top/bottom bleed to black so the section joins its neighbours seamlessly */}
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,#08080a_0%,transparent_16%,transparent_84%,#08080a_100%)]" />
 
         {/* film grain */}
         <div
