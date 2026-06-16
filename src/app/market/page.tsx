@@ -15,6 +15,9 @@ import {
   Users,
   UserPlus,
   ArrowUpRight,
+  X,
+  Check,
+  Plus,
 } from "lucide-react";
 import { useStore } from "@/lib/store";
 import AppShell from "@/components/layout/AppShell";
@@ -74,6 +77,18 @@ const AVAILABILITY: Record<string, { label: string; open: boolean }> = {
 };
 const availabilityFor = (id: string) => AVAILABILITY[id] ?? { label: "Available", open: true };
 
+// Reel still per creator — the card's hero. Uses the local cinematic poster
+// assets so the marketplace reads as a film-talent floor (and loads offline).
+const REEL: Record<string, string> = {
+  u_creator_01: "/posters/aurora-crystal.jpg",
+  u_creator_02: "/posters/golden-core.jpg",
+  u_creator_03: "/posters/neon-rain.jpg",
+  u_creator_04: "/posters/paper-lanterns.jpg",
+  u_creator_05: "/posters/crimson-mirage.jpg",
+  u_creator_06: "/posters/the-eighth-day.jpg",
+};
+const reelFor = (id: string) => REEL[id] ?? "/posters/golden-core.jpg";
+
 type Creator = (typeof CREATORS)[number];
 type Brief = (typeof NEEDS)[number];
 
@@ -92,6 +107,7 @@ export default function MarketPage() {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("All");
+  const [inviteFor, setInviteFor] = useState<Creator | null>(null);
 
   useEffect(() => {
     if (hasHydrated && !isLoggedIn) router.push("/login");
@@ -191,7 +207,7 @@ export default function MarketPage() {
           creators.length ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {creators.map((c) => (
-                <CreatorCard key={c.id} c={c} />
+                <CreatorCard key={c.id} c={c} onInvite={setInviteFor} />
               ))}
             </div>
           ) : (
@@ -207,6 +223,8 @@ export default function MarketPage() {
           <Empty label="briefs" />
         )}
       </div>
+
+      {inviteFor && <InviteDialog creator={inviteFor} onClose={() => setInviteFor(null)} />}
     </AppShell>
   );
 }
@@ -311,91 +329,218 @@ function RoleSwitch({ role, onChange }: { role: Role; onChange: (r: Role) => voi
   );
 }
 
-function CreatorCard({ c }: { c: Creator }) {
+function CreatorCard({ c, onInvite }: { c: Creator; onInvite: (c: Creator) => void }) {
   const avail = availabilityFor(c.id);
+  const reel = c.showcase[0];
   return (
-    <article className="group flex flex-col rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-6 transition-colors hover:border-primary/40">
-      <div className="flex items-start justify-between gap-3">
-        <div
-          className={cn(
-            "w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold shrink-0",
-            c.avatarColor
-          )}
-        >
-          {c.avatar}
-        </div>
+    <article className="group flex flex-col rounded-2xl border border-outline-variant/40 bg-surface-container-lowest overflow-hidden transition-all hover:border-primary/40 hover:-translate-y-0.5">
+      {/* Reel still — the card's hero, work-first like a film talent floor. */}
+      <Link href={`/market/creators/${c.id}`} className="relative block aspect-[16/10] overflow-hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={reelFor(c.id)}
+          alt=""
+          loading="lazy"
+          className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-[1.05]"
+        />
+        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,8,10,0.05)_0%,transparent_32%,rgba(8,8,10,0.55)_72%,rgba(8,8,10,0.92)_100%)]" />
         <span
           className={cn(
-            "inline-flex items-center gap-1.5 font-label text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full border",
-            avail.open
-              ? "border-primary/30 text-primary"
-              : "border-outline-variant/60 text-on-surface-variant"
+            "absolute top-3 right-3 inline-flex items-center gap-1.5 font-label text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full border border-outline-variant/40 bg-[rgba(8,8,10,0.55)] backdrop-blur-sm",
+            avail.open ? "text-primary" : "text-on-surface-variant"
           )}
         >
           <span
             className={cn(
               "w-1.5 h-1.5 rounded-full",
-              avail.open ? "bg-primary" : "bg-on-surface-variant/50"
+              avail.open ? "bg-primary" : "bg-on-surface-variant/60"
             )}
           />
           {avail.label}
         </span>
-      </div>
+        {reel && (
+          <div className="absolute inset-x-4 bottom-3 flex items-center justify-between gap-2">
+            <span className="font-label text-[10px] uppercase tracking-wider text-on-surface/85 truncate">
+              {reel.title}
+            </span>
+            <span className="font-label text-[10px] text-on-surface/60 shrink-0">{reel.duration}</span>
+          </div>
+        )}
+      </Link>
 
-      <div className="mt-5 flex items-center gap-1.5">
-        <h3 className="font-headline text-[22px] text-on-surface">{c.nickname}</h3>
-        {isVerified(c) && <BadgeCheck className="w-4 h-4 text-primary" aria-label="Verified" />}
-      </div>
-      <div className="mt-1 flex items-center gap-1.5 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">
-        <Star className="w-3 h-3 fill-primary text-primary" />
-        {c.rating} · {c.orders} completed
-      </div>
-
-      <p className="mt-3 font-label text-[11px] uppercase tracking-[0.14em] text-on-surface-variant/90">
-        {c.specialties.join(" · ")}
-      </p>
-
-      <div className="mt-4 flex flex-wrap gap-1.5">
-        {c.specialties.slice(0, 3).map((s) => (
-          <span
-            key={s}
-            className="font-label text-[10px] uppercase tracking-widest border border-outline-variant/50 text-on-surface-variant px-2.5 py-0.5 rounded-full"
+      {/* Identity + meta */}
+      <div className="flex flex-col flex-1 p-5">
+        <div className="flex items-center gap-3">
+          <div
+            className={cn(
+              "w-10 h-10 rounded-full flex items-center justify-center text-sm font-bold shrink-0",
+              c.avatarColor
+            )}
           >
-            {s}
-          </span>
-        ))}
-      </div>
-
-      <div className="mt-auto pt-5">
-        <div className="flex items-end justify-between border-t border-outline-variant/30 pt-4 mb-4">
-          <div>
-            <span className="block font-label text-[10px] uppercase tracking-widest text-on-surface-variant/70">
-              From
-            </span>
-            <span className="font-headline text-[19px] text-on-surface">
-              ¥{c.rateCard.from.toLocaleString()}
-            </span>
+            {c.avatar}
+          </div>
+          <div className="min-w-0">
+            <div className="flex items-center gap-1.5">
+              <h3 className="font-headline text-[19px] text-on-surface truncate">{c.nickname}</h3>
+              {isVerified(c) && (
+                <BadgeCheck className="w-4 h-4 text-primary shrink-0" aria-label="Verified" />
+              )}
+            </div>
+            <div className="flex items-center gap-1.5 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">
+              <Star className="w-3 h-3 fill-primary text-primary" />
+              {c.rating} · {c.orders} completed
+            </div>
           </div>
         </div>
-        <div className="flex items-center gap-2.5">
-          <Link
-            href={`/market/creators/${c.id}`}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 bg-primary text-on-primary font-label text-[11px] uppercase tracking-widest px-4 py-2.5 rounded-full hover:opacity-90 transition-opacity"
-          >
-            View Profile
-            <ArrowUpRight className="w-3.5 h-3.5" />
-          </Link>
-          <button
-            type="button"
-            onClick={() => toast.success(`Invite sent to ${c.nickname}`)}
-            className="inline-flex items-center gap-1.5 border border-primary/50 text-on-primary-container font-label text-[11px] uppercase tracking-widest px-4 py-2.5 rounded-full hover:bg-primary/10 transition-colors"
-          >
-            <UserPlus className="w-3.5 h-3.5" />
-            Invite
-          </button>
+
+        <p className="mt-4 font-label text-[11px] uppercase tracking-[0.14em] text-on-surface-variant/90">
+          {c.specialties.join(" · ")}
+        </p>
+
+        <div className="mt-auto pt-5">
+          <div className="flex items-end justify-between border-t border-outline-variant/30 pt-4 mb-4">
+            <div>
+              <span className="block font-label text-[10px] uppercase tracking-widest text-on-surface-variant/70">
+                From
+              </span>
+              <span className="font-headline text-[19px] text-on-surface">
+                ¥{c.rateCard.from.toLocaleString()}
+              </span>
+            </div>
+          </div>
+          <div className="flex items-center gap-2.5">
+            <Link
+              href={`/market/creators/${c.id}`}
+              className="flex-1 inline-flex items-center justify-center gap-1.5 bg-primary text-on-primary font-label text-[11px] uppercase tracking-widest px-4 py-2.5 rounded-full hover:opacity-90 transition-opacity"
+            >
+              View Profile
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </Link>
+            <button
+              type="button"
+              onClick={() => onInvite(c)}
+              className="inline-flex items-center gap-1.5 border border-primary/50 text-on-primary-container font-label text-[11px] uppercase tracking-widest px-4 py-2.5 rounded-full hover:bg-primary/10 transition-colors"
+            >
+              <UserPlus className="w-3.5 h-3.5" />
+              Invite
+            </button>
+          </div>
         </div>
       </div>
     </article>
+  );
+}
+
+// Invite flow — pick which of the backer's open briefs to invite the creator to
+// (a real action, not just a toast). Closes on backdrop / Escape / cancel.
+function InviteDialog({ creator, onClose }: { creator: Creator; onClose: () => void }) {
+  const myNeeds = NEEDS.filter((n) => n.backerId === "u_backer_01" && n.status === "open");
+  const [sel, setSel] = useState(myNeeds[0]?.id ?? "");
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [onClose]);
+
+  const send = () => {
+    const n = myNeeds.find((x) => x.id === sel);
+    toast.success(n ? `Invited ${creator.nickname} to “${n.title}”` : `Invited ${creator.nickname}`);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+      <button
+        type="button"
+        aria-label="Close"
+        onClick={onClose}
+        className="absolute inset-0 bg-[rgba(8,8,10,0.72)] backdrop-blur-sm"
+      />
+      <div
+        role="dialog"
+        aria-modal="true"
+        className="relative w-full max-w-md rounded-2xl border border-outline-variant/50 bg-surface-container-lowest p-6 shadow-[0_30px_80px_rgba(0,0,0,0.6)]"
+      >
+        <div className="flex items-start justify-between gap-4">
+          <div>
+            <h3 className="font-headline text-[22px] text-on-surface">Invite {creator.nickname}</h3>
+            <p className="mt-1 font-body text-sm text-on-surface-variant">
+              Choose a brief to invite them to.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close"
+            className="shrink-0 w-9 h-9 rounded-full border border-outline-variant/50 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-primary/40 transition-colors"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="mt-5 space-y-2">
+          {myNeeds.length === 0 ? (
+            <p className="font-body text-sm text-on-surface-variant py-4">You have no open briefs yet.</p>
+          ) : (
+            myNeeds.map((n) => {
+              const active = sel === n.id;
+              return (
+                <button
+                  key={n.id}
+                  type="button"
+                  onClick={() => setSel(n.id)}
+                  className={cn(
+                    "w-full text-left rounded-xl border p-4 transition-colors",
+                    active
+                      ? "border-primary bg-primary/[0.06]"
+                      : "border-outline-variant/40 hover:border-primary/40"
+                  )}
+                >
+                  <div className="flex items-center justify-between gap-3">
+                    <span className="font-headline text-[15px] text-on-surface line-clamp-1">
+                      {n.title}
+                    </span>
+                    {active && <Check className="w-4 h-4 text-primary shrink-0" />}
+                  </div>
+                  <div className="mt-1 font-label text-[10px] uppercase tracking-wider text-on-surface-variant">
+                    ¥{n.budget.toLocaleString()} · {n.bids} bids
+                  </div>
+                </button>
+              );
+            })
+          )}
+          <Link
+            href="/market/needs/new"
+            className="flex items-center gap-2 rounded-xl border border-dashed border-outline-variant/50 p-4 font-label text-[11px] uppercase tracking-widest text-on-surface-variant hover:text-primary hover:border-primary/40 transition-colors"
+          >
+            <Plus className="w-4 h-4" />
+            Post a new need
+          </Link>
+        </div>
+
+        <div className="mt-6 flex items-center justify-end gap-2.5">
+          <button
+            type="button"
+            onClick={onClose}
+            className="font-label text-[11px] uppercase tracking-widest text-on-surface-variant px-5 py-2.5 rounded-full border border-outline-variant/50 hover:text-on-surface transition-colors"
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            onClick={send}
+            disabled={!sel}
+            className="inline-flex items-center gap-1.5 bg-primary text-on-primary font-label text-[11px] uppercase tracking-widest px-6 py-2.5 rounded-full hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
+          >
+            <UserPlus className="w-3.5 h-3.5" />
+            Send invite
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 
