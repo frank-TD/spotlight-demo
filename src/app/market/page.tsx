@@ -1,35 +1,97 @@
 "use client";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 import Link from "next/link";
+import { toast } from "sonner";
 import {
+  Search,
   PlusCircle,
-  Compass,
-  BriefcaseBusiness,
-  ArrowRight,
-  Megaphone,
-  Eye,
-  Check,
-  Clock,
-  CheckCheck,
-  Hourglass,
-  Film,
-  BellRing,
-  Plus,
-  Sparkles,
-  IdCard,
-  FolderHeart,
+  FolderOpen,
+  Star,
+  BadgeCheck,
+  ShieldCheck,
+  CalendarDays,
+  Repeat,
+  Users,
+  UserPlus,
+  ArrowUpRight,
 } from "lucide-react";
 import { useStore } from "@/lib/store";
 import AppShell from "@/components/layout/AppShell";
-import { NEEDS } from "@/lib/mock-data";
+import { CREATORS, NEEDS } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
-import { useT } from "@/hooks/useT";
+
+// The Marketplace is Spotlight's trading floor — a single, role-driven discovery
+// surface. Backers find creators (and post a need); creators find open briefs
+// (and track applications). Personal workflow — active orders, posted needs,
+// my projects — lives in My Projects / Orders, not here. Copy is intentionally
+// hardcoded English for this design pass; i18n wiring is a follow-up.
+
+type Role = "backer" | "creator";
+
+const COPY = {
+  backer: {
+    subtitle: "Find creators for your next AI-powered film.",
+    searchPlaceholder: "Search creators, styles, tools...",
+  },
+  creator: {
+    subtitle: "Find film projects ready for creators.",
+    searchPlaceholder: "Search briefs, genres, budgets...",
+  },
+} as const;
+
+const BACKER_FILTERS = [
+  "All",
+  "AI Short Film",
+  "Trailer",
+  "Music Video",
+  "Brand Film",
+  "Animation",
+  "Available Now",
+  "Top Rated",
+  "Under ¥5,000",
+];
+const CREATOR_FILTERS = [
+  "All Briefs",
+  "AI Film",
+  "Brand Film",
+  "Music Video",
+  "Trailer",
+  "High Budget",
+  "Ending Soon",
+  "Escrow Protected",
+  "Remote",
+];
+
+// Availability is a marketplace-only signal; map it deterministically per creator.
+const AVAILABILITY: Record<string, { label: string; open: boolean }> = {
+  u_creator_01: { label: "Available this week", open: true },
+  u_creator_02: { label: "Booked till next week", open: false },
+  u_creator_03: { label: "Available now", open: true },
+  u_creator_04: { label: "Taking briefs", open: true },
+  u_creator_05: { label: "Available this week", open: true },
+  u_creator_06: { label: "Booked till next week", open: false },
+};
+const availabilityFor = (id: string) => AVAILABILITY[id] ?? { label: "Available", open: true };
+
+type Creator = (typeof CREATORS)[number];
+type Brief = (typeof NEEDS)[number];
+
+const isVerified = (c: Creator) => c.disputes === 0 && c.completion >= 96;
+
+const deadlineFor = (n: Brief) => {
+  const d = new Date(n.publishedAt);
+  d.setDate(d.getDate() + n.deliveryDays);
+  return d.toISOString().slice(0, 10);
+};
+const daysLeft = (n: Brief) =>
+  Math.round((new Date(deadlineFor(n)).getTime() - Date.now()) / 86_400_000);
 
 export default function MarketPage() {
   const { isLoggedIn, activeRole, switchRole, hasHydrated } = useStore();
   const router = useRouter();
-  const t = useT();
+  const [query, setQuery] = useState("");
+  const [filter, setFilter] = useState("All");
 
   useEffect(() => {
     if (hasHydrated && !isLoggedIn) router.push("/login");
@@ -37,415 +99,394 @@ export default function MarketPage() {
 
   if (!hasHydrated || !isLoggedIn) return null;
 
+  const isBacker = activeRole === "backer";
+  const copy = isBacker ? COPY.backer : COPY.creator;
+  const filters = isBacker ? BACKER_FILTERS : CREATOR_FILTERS;
+  // Role drives the page; if the held filter isn't valid for the active role
+  // (e.g. after a role switch or hydration), fall back to that role's default.
+  const activeFilter = filters.includes(filter) ? filter : filters[0];
+
+  // Switching role is a full context change — reset the query and filter.
+  const setRole = (r: Role) => {
+    switchRole(r);
+    setQuery("");
+    setFilter(r === "backer" ? "All" : "All Briefs");
+  };
+
+  const creators = filterCreators(query, activeFilter);
+  const briefs = filterBriefs(query, activeFilter);
+  const count = isBacker ? creators.length : briefs.length;
+
   return (
     <AppShell>
-      <div className="max-w-[1280px] mx-auto px-6 md:px-12 pt-10 pb-16">
-        <header
-          className="animate-fade-up flex flex-col md:flex-row justify-between md:items-end gap-6 mb-12"
-          style={{ animationDelay: "0ms" }}
-        >
-          <div>
-            <h1 className="font-headline text-headline-lg text-on-surface">{t.market.title}</h1>
-            <p className="text-on-surface-variant mt-2 font-body opacity-80 italic">
-              {activeRole === "backer" ? t.market.backerDesc : t.market.creatorDesc}
-            </p>
+      <div className="max-w-[1280px] mx-auto px-6 md:px-12 pt-10 pb-20">
+        {/* ── Header ─────────────────────────────────────────────────────── */}
+        <header className="flex flex-col gap-8 mb-10">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-6">
+            <div>
+              <h1 className="font-headline text-headline-lg text-on-surface">Marketplace</h1>
+              <p className="mt-2 font-body text-on-surface-variant">{copy.subtitle}</p>
+            </div>
+            <RoleSwitch role={activeRole} onChange={setRole} />
           </div>
-          <div className="bg-surface-container-low p-1 rounded-xl flex border border-outline-variant/30 shadow-sm self-start md:self-auto">
-            {(["backer", "creator"] as const).map((r) => (
+
+          {/* search + single primary action */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
+              <input
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder={copy.searchPlaceholder}
+                aria-label={copy.searchPlaceholder}
+                className="w-full pl-12 pr-4 py-3.5 rounded-full bg-surface-container-low border border-outline-variant/60 font-body text-sm text-on-surface placeholder:text-on-surface-variant/70 focus:border-primary focus:outline-none transition-colors"
+              />
+            </div>
+            {isBacker ? (
+              <Link
+                href="/market/needs/new"
+                className="shrink-0 inline-flex items-center justify-center gap-2 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-7 py-3.5 rounded-full hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_8px_30px_rgba(212,175,55,0.25)]"
+              >
+                <PlusCircle className="w-4 h-4" />
+                Post a Need
+              </Link>
+            ) : (
+              <Link
+                href="/projects"
+                className="shrink-0 inline-flex items-center justify-center gap-2 border border-primary/55 text-on-primary-container font-label text-label-md uppercase tracking-widest px-7 py-3.5 rounded-full hover:bg-primary/10 transition-colors"
+              >
+                <FolderOpen className="w-4 h-4" />
+                My Applications
+              </Link>
+            )}
+          </div>
+
+          {/* filter bar — scrolls horizontally on mobile, wraps on desktop */}
+          <div className="flex gap-2 overflow-x-auto no-scrollbar md:flex-wrap md:overflow-visible -mx-1 px-1">
+            {filters.map((f) => (
               <button
-                key={r}
-                onClick={() => switchRole(r)}
+                key={f}
+                type="button"
+                onClick={() => setFilter(f)}
                 className={cn(
-                  "px-8 py-2 font-label text-label-md uppercase tracking-widest rounded-lg transition-colors",
-                  activeRole === r
-                    ? "bg-surface-container-lowest text-primary shadow-sm border border-outline-variant/20"
-                    : "text-on-surface-variant hover:text-on-surface"
+                  "shrink-0 font-label text-[11px] uppercase tracking-wider px-4 py-2 rounded-full border whitespace-nowrap transition-colors",
+                  activeFilter === f
+                    ? "bg-primary text-on-primary border-primary"
+                    : "border-outline-variant/70 text-on-surface-variant hover:text-on-surface hover:border-primary/40"
                 )}
               >
-                {r === "backer" ? t.market.roleBacker : t.market.roleCreator}
+                {f}
               </button>
             ))}
           </div>
         </header>
 
-        {activeRole === "backer" ? <BackerView /> : <CreatorView />}
+        {/* ── Supply count ───────────────────────────────────────────────── */}
+        <p className="font-label text-[11px] uppercase tracking-[0.2em] text-on-surface-variant mb-6">
+          {count} {isBacker ? "creators available" : "open briefs"}
+        </p>
+
+        {/* ── Market grid ────────────────────────────────────────────────── */}
+        {isBacker ? (
+          creators.length ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {creators.map((c) => (
+                <CreatorCard key={c.id} c={c} />
+              ))}
+            </div>
+          ) : (
+            <Empty label="creators" />
+          )
+        ) : briefs.length ? (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+            {briefs.map((n) => (
+              <BriefCard key={n.id} n={n} />
+            ))}
+          </div>
+        ) : (
+          <Empty label="briefs" />
+        )}
       </div>
     </AppShell>
   );
 }
 
-function BackerView() {
-  const t = useT();
-  const myNeeds = NEEDS.filter((n) => n.backerId === "u_backer_01");
+/* ── Filtering ────────────────────────────────────────────────────────────── */
 
+function filterCreators(query: string, filter: string): Creator[] {
+  const q = query.trim().toLowerCase();
+  const out = CREATORS.filter((c) => {
+    const matchQ =
+      !q ||
+      c.nickname.toLowerCase().includes(q) ||
+      c.specialties.some((s) => s.toLowerCase().includes(q));
+    const has = (re: RegExp) => c.specialties.some((s) => re.test(s));
+    const matchF =
+      filter === "AI Short Film"
+        ? has(/short|narrative|sci-fi|film/i)
+        : filter === "Trailer"
+          ? has(/trailer/i)
+          : filter === "Music Video"
+            ? has(/music/i)
+            : filter === "Brand Film"
+              ? has(/brand|commercial|product|fashion/i)
+              : filter === "Animation"
+                ? has(/anim|anime|character/i)
+                : filter === "Available Now"
+                  ? availabilityFor(c.id).open
+                  : filter === "Top Rated"
+                    ? c.rating >= 4.8
+                    : filter === "Under ¥5,000"
+                      ? c.rateCard.from < 5000
+                      : true;
+    return matchQ && matchF;
+  });
+  if (filter === "Top Rated") out.sort((a, b) => b.rating - a.rating);
+  return out;
+}
+
+function filterBriefs(query: string, filter: string): Brief[] {
+  const q = query.trim().toLowerCase();
+  const out = NEEDS.filter((n) => n.status === "open").filter((n) => {
+    const matchQ =
+      !q ||
+      n.title.toLowerCase().includes(q) ||
+      n.contentType.toLowerCase().includes(q) ||
+      n.styles.some((s) => s.toLowerCase().includes(q));
+    const matchF =
+      filter === "AI Film"
+        ? /narrative|short|film/i.test(n.contentType)
+        : filter === "Brand Film"
+          ? /commercial|brand/i.test(n.contentType)
+          : filter === "Music Video"
+            ? /music/i.test(n.contentType)
+            : filter === "Trailer"
+              ? /trailer/i.test(n.contentType)
+              : filter === "High Budget"
+                ? n.budget >= 5000
+                : true; // All Briefs / Ending Soon / Escrow Protected / Remote → all
+    return matchQ && matchF;
+  });
+  if (filter === "Ending Soon") out.sort((a, b) => daysLeft(a) - daysLeft(b));
+  if (filter === "High Budget") out.sort((a, b) => b.budget - a.budget);
+  return out;
+}
+
+/* ── Components ───────────────────────────────────────────────────────────── */
+
+function RoleSwitch({ role, onChange }: { role: Role; onChange: (r: Role) => void }) {
+  const segs: [Role, string, string][] = [
+    ["backer", "Hire Creators", "Backer"],
+    ["creator", "Find Projects", "Creator"],
+  ];
   return (
-    <>
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-        <QuickActionCard
-          href="/market/needs/new"
-          icon={PlusCircle}
-          title={t.market.postANeed}
-          desc={t.market.postANeedDesc}
-          variant="primary"
-          decorIcon={Megaphone}
-          style={{ animationDelay: "100ms" }}
-        />
-        <QuickActionCard
-          href="/market/creators"
-          icon={Compass}
-          title={t.market.browseCreators}
-          desc={t.market.browseCreatorsDesc}
-          variant="tertiary"
-          style={{ animationDelay: "180ms" }}
-        />
-        <QuickActionCard
-          href="/projects"
-          icon={BriefcaseBusiness}
-          title={t.nav.myProjects}
-          desc={t.market.myProjectsDesc}
-          variant="secondary"
-          style={{ animationDelay: "260ms" }}
-        />
-      </section>
-
-      <div className="animate-fade-up" style={{ animationDelay: "340ms" }}>
-        <ActiveOrderSection />
-      </div>
-
-      <section className="animate-fade-up" style={{ animationDelay: "420ms" }}>
-        <div className="flex items-center justify-between mb-8">
-          <h2 className="font-label text-label-md uppercase tracking-[0.2em] text-on-surface-variant">
-            {t.market.myPostedNeeds}
-          </h2>
-          <Link
-            href="/market/needs/new"
-            className="flex items-center gap-2 font-label text-label-md uppercase tracking-wider text-primary border border-primary/20 px-4 py-1.5 rounded-lg hover:bg-primary-container transition-colors"
+    <div className="grid grid-cols-2 gap-1 p-1 rounded-2xl border border-outline-variant/40 bg-surface-container-low w-full lg:w-auto">
+      {segs.map(([r, main, cap]) => {
+        const active = role === r;
+        return (
+          <button
+            key={r}
+            type="button"
+            onClick={() => onChange(r)}
+            className={cn(
+              "flex flex-col items-center lg:items-start px-6 md:px-8 py-3 rounded-xl transition-colors",
+              active
+                ? "bg-primary text-on-primary shadow-[0_8px_24px_rgba(212,175,55,0.22)]"
+                : "text-on-surface-variant hover:text-on-surface"
+            )}
           >
-            <Plus className="w-4 h-4" />
-            {t.common.new}
-          </Link>
-        </div>
-        <div className="grid grid-cols-1 gap-4">
-          {myNeeds.map((need, idx) => (
-            <PostedNeedRow
-              key={need.id}
-              href={`/market/needs/${need.id}`}
-              title={need.title}
-              budget={need.budget}
-              bids={need.bids}
-              date={need.publishedAt}
-              status={need.status === "open" ? t.market.statusOpen : t.market.statusInProgress}
-              isOpen={need.status === "open"}
-              gradient={idx}
-            />
-          ))}
-        </div>
-      </section>
-    </>
-  );
-}
-
-function CreatorView() {
-  const t = useT();
-  const openNeeds = NEEDS.filter((n) => n.status === "open");
-
-  return (
-    <>
-      <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
-        <QuickActionCard
-          href="/projects"
-          icon={BriefcaseBusiness}
-          title={t.nav.myProjects}
-          desc={t.market.creatorActiveProjects}
-          variant="primary"
-          decorIcon={Film}
-          style={{ animationDelay: "100ms" }}
-        />
-        <QuickActionCard
-          href="/market/creators/u_creator_01"
-          icon={IdCard}
-          title={t.market.myProfileCard}
-          desc={t.market.myProfileCardDesc}
-          variant="tertiary"
-          style={{ animationDelay: "180ms" }}
-        />
-        <QuickActionCard
-          href="/assets"
-          icon={FolderHeart}
-          title={t.market.assetLibrary}
-          desc={t.market.assetLibraryDesc}
-          variant="secondary"
-          style={{ animationDelay: "260ms" }}
-        />
-      </section>
-
-      <section className="animate-fade-up" style={{ animationDelay: "340ms" }}>
-        <div className="flex items-center gap-3 mb-8">
-          <h2 className="font-label text-label-md uppercase tracking-[0.2em] text-on-surface-variant">
-            {t.market.recommendedForYou}
-          </h2>
-          <span className="flex items-center gap-1 bg-primary-container text-on-primary-container px-3 py-1 rounded-full font-label text-[11px] tracking-widest uppercase">
-            <Sparkles className="w-3 h-3" />
-            {t.market.aiMatch}
-          </span>
-        </div>
-        <div className="grid grid-cols-1 gap-4">
-          {openNeeds.map((need, idx) => (
-            <PostedNeedRow
-              key={need.id}
-              href={`/market/needs/${need.id}`}
-              title={need.title}
-              budget={need.budget}
-              bids={need.bids}
-              date={`${need.deliveryDays}${t.common.days}`}
-              status={`${need.matchScore}% ${t.common.match}`}
-              isOpen
-              gradient={idx}
-            />
-          ))}
-        </div>
-      </section>
-    </>
-  );
-}
-
-/* ───── Subcomponents ──────────────────────────────────────────────────── */
-
-type LucideIcon = React.ComponentType<{ className?: string }>;
-
-function QuickActionCard({
-  href,
-  icon: Icon,
-  title,
-  desc,
-  variant,
-  decorIcon: Decor,
-  style,
-}: {
-  href: string;
-  icon: LucideIcon;
-  title: string;
-  desc: string;
-  variant: "primary" | "secondary" | "tertiary";
-  decorIcon?: LucideIcon;
-  style?: React.CSSProperties;
-}) {
-  const styles = {
-    primary: {
-      cls: "bg-primary-container border-outline-variant/40 text-on-primary-container",
-      iconCls: "text-primary-fixed-dim",
-      arrowCls: "text-primary",
-      descCls: "text-on-primary-container/70",
-    },
-    tertiary: {
-      cls: "bg-surface-container-lowest border-outline-variant/40 hover:bg-tertiary-container text-on-surface",
-      iconCls: "text-tertiary",
-      arrowCls: "text-tertiary",
-      descCls: "text-on-surface-variant",
-    },
-    secondary: {
-      cls: "bg-surface-container-lowest border-outline-variant/40 hover:bg-secondary-container text-on-surface",
-      iconCls: "text-secondary",
-      arrowCls: "text-secondary",
-      descCls: "text-on-surface-variant",
-    },
-  }[variant];
-
-  return (
-    <Link
-      href={href}
-      style={style}
-      className={cn(
-        "animate-fade-up group relative overflow-hidden rounded-xl border p-8 cursor-pointer active:scale-[0.98] transition-all duration-300",
-        styles.cls
-      )}
-    >
-      <div className="relative z-10">
-        <Icon className={cn("w-8 h-8 mb-6", styles.iconCls)} />
-        <h3 className="font-headline text-headline-md mb-2">{title}</h3>
-        <p className={cn("font-body mb-8", styles.descCls)}>{desc}</p>
-        <ArrowRight
-          className={cn("w-5 h-5 group-hover:translate-x-2 transition-transform", styles.arrowCls)}
-        />
-      </div>
-      {Decor && (
-        <div className="absolute -right-10 -bottom-10 opacity-10 pointer-events-none">
-          <Decor className="w-40 h-40" />
-        </div>
-      )}
-    </Link>
-  );
-}
-
-function ActiveOrderSection() {
-  const t = useT();
-  return (
-    <section className="mb-16">
-      <div className="flex items-center justify-between mb-6">
-        <h2 className="font-label text-label-md uppercase tracking-[0.2em] text-on-surface-variant">
-          {t.market.activeOrder}
-        </h2>
-      </div>
-      <div className="bg-surface-container-lowest rounded-xl border border-outline-variant/40 overflow-hidden">
-        <div className="p-8">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
-            <div>
-              <div className="flex items-center gap-3 mb-2 flex-wrap">
-                <h3 className="font-headline text-headline-md text-on-surface">
-                  {t.market.activeOrderTitle}
-                </h3>
-                <span className="bg-tertiary-container text-on-tertiary-container px-3 py-1 rounded-full font-label text-[11px] tracking-widest uppercase">
-                  {t.market.stageOf(3, 5)}
-                </span>
-              </div>
-              <p className="font-body text-on-surface-variant opacity-80 italic">
-                {t.market.activeOrderWith}
-              </p>
-            </div>
-            <Link
-              href="/orders/ord_001"
-              className="flex items-center gap-2 bg-primary text-on-primary px-6 py-3 rounded-lg font-label text-label-md uppercase tracking-wider shadow-sm hover:opacity-90 transition-opacity self-start"
+            <span className="font-headline text-[19px] leading-none">{main}</span>
+            <span
+              className={cn(
+                "mt-1.5 font-label text-[10px] uppercase tracking-[0.2em]",
+                active ? "text-on-primary/80" : "text-on-surface-variant/70"
+              )}
             >
-              <Eye className="w-4 h-4" />
-              {t.chat.viewOrder}
-            </Link>
-          </div>
-
-          <StageTracker />
-
-          <div className="bg-primary-container/30 border-l-4 border-primary p-4 rounded-r-lg flex items-center gap-4 mt-12">
-            <BellRing className="w-5 h-5 text-primary shrink-0" />
-            <p className="font-body text-on-primary-container">
-              <span className="font-bold">{t.market.draftSubmitted}</span>
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function StageTracker() {
-  const t = useT();
-  const stages = t.market.stageNames;
-  const currentIndex = 2;
-
-  return (
-    <div className="relative mt-12 mb-8">
-      <div className="absolute top-5 left-0 right-0 h-1 bg-surface-container-high z-0">
-        <div
-          className="h-full bg-primary transition-all"
-          style={{ width: `${(currentIndex / (stages.length - 1)) * 100}%` }}
-        />
-      </div>
-      <div className="relative z-10 flex justify-between">
-        {stages.map((label, i) => {
-          const done = i < currentIndex;
-          const active = i === currentIndex;
-          const IconNode = done
-            ? Check
-            : active
-              ? Clock
-              : i === stages.length - 1
-                ? CheckCheck
-                : Hourglass;
-          return (
-            <div key={label} className="flex flex-col items-center">
-              <div
-                className={cn(
-                  "rounded-full flex items-center justify-center border-4 border-surface shadow-sm",
-                  done && "w-10 h-10 bg-primary text-on-primary",
-                  active &&
-                    "w-12 h-12 -mt-1 bg-primary-container text-primary shadow-md ring-2 ring-primary/20",
-                  !done && !active && "w-10 h-10 bg-surface-container text-outline-variant"
-                )}
-              >
-                <IconNode className={cn("w-4 h-4", active && "animate-pulse w-5 h-5")} />
-              </div>
-              <span
-                className={cn(
-                  "mt-2 font-label text-[10px] uppercase tracking-widest text-center",
-                  active
-                    ? "text-primary font-bold"
-                    : done
-                      ? "text-on-surface-variant"
-                      : "text-on-surface-variant/40"
-                )}
-              >
-                {label}
-              </span>
-            </div>
-          );
-        })}
-      </div>
+              {cap}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 }
 
-const GRADIENTS = [
-  "from-primary-container via-primary-fixed to-tertiary-container",
-  "from-tertiary-container via-tertiary-fixed to-primary-container",
-  "from-secondary-container via-secondary-fixed to-primary-container",
-];
-
-function PostedNeedRow({
-  href,
-  title,
-  budget,
-  bids,
-  date,
-  status,
-  isOpen,
-  gradient,
-}: {
-  href: string;
-  title: string;
-  budget: number;
-  bids: number;
-  date: string;
-  status: string;
-  isOpen: boolean;
-  gradient: number;
-}) {
-  const t = useT();
+function CreatorCard({ c }: { c: Creator }) {
+  const avail = availabilityFor(c.id);
   return (
-    <Link
-      href={href}
-      className="group bg-surface-container-lowest p-6 rounded-xl border border-outline-variant/30 flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-md transition-shadow"
-    >
-      <div className="flex items-center gap-6 flex-1 min-w-0">
+    <article className="group flex flex-col rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-6 transition-colors hover:border-primary/40">
+      <div className="flex items-start justify-between gap-3">
         <div
           className={cn(
-            "w-16 h-16 rounded-lg overflow-hidden bg-gradient-to-br flex-shrink-0 flex items-center justify-center transition-all duration-500 grayscale group-hover:grayscale-0",
-            GRADIENTS[gradient % GRADIENTS.length]
+            "w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold shrink-0",
+            c.avatarColor
           )}
         >
-          <Film className="w-7 h-7 text-primary opacity-70" />
+          {c.avatar}
         </div>
-        <div className="min-w-0">
-          <h4 className="font-headline text-[20px] text-on-surface mb-1 truncate">{title}</h4>
-          <div className="flex flex-wrap gap-x-6 gap-y-1 font-body text-on-surface-variant text-[14px] opacity-70">
-            <span>¥{budget.toLocaleString()}</span>
-            <span>
-              {bids} {t.common.bids}
-            </span>
-            <span>{date}</span>
-          </div>
-        </div>
-      </div>
-      <div className="flex items-center gap-4 ml-auto md:ml-0">
         <span
           className={cn(
-            "px-4 py-1.5 rounded-full font-label text-[11px] uppercase tracking-widest border",
-            isOpen
-              ? "bg-primary-container text-on-primary-container border-primary/10"
-              : "bg-secondary-container text-on-secondary-container border-outline-variant/20"
+            "inline-flex items-center gap-1.5 font-label text-[10px] uppercase tracking-wider px-2.5 py-1 rounded-full border",
+            avail.open
+              ? "border-primary/30 text-primary"
+              : "border-outline-variant/60 text-on-surface-variant"
           )}
         >
-          {status}
+          <span
+            className={cn(
+              "w-1.5 h-1.5 rounded-full",
+              avail.open ? "bg-primary" : "bg-on-surface-variant/50"
+            )}
+          />
+          {avail.label}
         </span>
-        <ArrowRight className="w-5 h-5 text-outline-variant group-hover:text-on-surface transition-colors" />
       </div>
-    </Link>
+
+      <div className="mt-5 flex items-center gap-1.5">
+        <h3 className="font-headline text-[22px] text-on-surface">{c.nickname}</h3>
+        {isVerified(c) && <BadgeCheck className="w-4 h-4 text-primary" aria-label="Verified" />}
+      </div>
+      <div className="mt-1 flex items-center gap-1.5 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">
+        <Star className="w-3 h-3 fill-primary text-primary" />
+        {c.rating} · {c.orders} completed
+      </div>
+
+      <p className="mt-3 font-label text-[11px] uppercase tracking-[0.14em] text-on-surface-variant/90">
+        {c.specialties.join(" · ")}
+      </p>
+
+      <div className="mt-4 flex flex-wrap gap-1.5">
+        {c.specialties.slice(0, 3).map((s) => (
+          <span
+            key={s}
+            className="font-label text-[10px] uppercase tracking-widest border border-outline-variant/50 text-on-surface-variant px-2.5 py-0.5 rounded-full"
+          >
+            {s}
+          </span>
+        ))}
+      </div>
+
+      <div className="mt-auto pt-5">
+        <div className="flex items-end justify-between border-t border-outline-variant/30 pt-4 mb-4">
+          <div>
+            <span className="block font-label text-[10px] uppercase tracking-widest text-on-surface-variant/70">
+              From
+            </span>
+            <span className="font-headline text-[19px] text-on-surface">
+              ¥{c.rateCard.from.toLocaleString()}
+            </span>
+          </div>
+        </div>
+        <div className="flex items-center gap-2.5">
+          <Link
+            href={`/market/creators/${c.id}`}
+            className="flex-1 inline-flex items-center justify-center gap-1.5 bg-primary text-on-primary font-label text-[11px] uppercase tracking-widest px-4 py-2.5 rounded-full hover:opacity-90 transition-opacity"
+          >
+            View Profile
+            <ArrowUpRight className="w-3.5 h-3.5" />
+          </Link>
+          <button
+            type="button"
+            onClick={() => toast.success(`Invite sent to ${c.nickname}`)}
+            className="inline-flex items-center gap-1.5 border border-primary/50 text-on-primary-container font-label text-[11px] uppercase tracking-widest px-4 py-2.5 rounded-full hover:bg-primary/10 transition-colors"
+          >
+            <UserPlus className="w-3.5 h-3.5" />
+            Invite
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+}
+
+function BriefCard({ n }: { n: Brief }) {
+  return (
+    <article className="group flex flex-col rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-6 transition-colors hover:border-primary/40">
+      <div className="flex items-center justify-between gap-3">
+        <span className="font-label text-[10px] uppercase tracking-widest bg-primary-container text-on-primary-container px-3 py-1 rounded-full">
+          {n.contentType}
+        </span>
+        <span className="inline-flex items-center gap-1.5 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">
+          <Users className="w-3.5 h-3.5" />
+          {n.bids} bids
+        </span>
+      </div>
+
+      <h3 className="mt-4 font-headline text-[22px] md:text-[24px] text-on-surface leading-snug line-clamp-2">
+        {n.title}
+      </h3>
+
+      <div className="mt-3 flex items-center gap-2">
+        <span className="w-6 h-6 rounded-full bg-surface-container-high flex items-center justify-center font-label text-[10px] text-on-surface-variant">
+          {n.backerAvatar}
+        </span>
+        <span className="font-label text-[11px] uppercase tracking-wider text-on-surface-variant">
+          {n.backerNickname}
+        </span>
+        <BadgeCheck className="w-3.5 h-3.5 text-primary" />
+        <span className="font-label text-[10px] uppercase tracking-wider text-primary">Verified</span>
+      </div>
+
+      <div className="mt-5 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-outline-variant/30 pt-5">
+        <Meta label="Budget" value={`¥${n.budget.toLocaleString()}`} gold />
+        <Meta label="Deadline" value={deadlineFor(n)} icon={CalendarDays} />
+        <Meta label="Revisions" value={`${n.modifyLimit} revisions`} icon={Repeat} />
+        <Meta label="Escrow" value="Protected" icon={ShieldCheck} />
+      </div>
+
+      <div className="mt-auto pt-6 flex items-center gap-2.5">
+        <Link
+          href={`/market/needs/${n.id}`}
+          className="flex-1 inline-flex items-center justify-center gap-1.5 bg-primary text-on-primary font-label text-[11px] uppercase tracking-widest px-4 py-2.5 rounded-full hover:opacity-90 transition-opacity"
+        >
+          View Brief
+          <ArrowUpRight className="w-3.5 h-3.5" />
+        </Link>
+        <button
+          type="button"
+          onClick={() => toast.success(`Application started · ${n.title}`)}
+          className="inline-flex items-center gap-1.5 border border-primary/50 text-on-primary-container font-label text-[11px] uppercase tracking-widest px-5 py-2.5 rounded-full hover:bg-primary/10 transition-colors"
+        >
+          Apply
+        </button>
+      </div>
+    </article>
+  );
+}
+
+function Meta({
+  label,
+  value,
+  icon: Icon,
+  gold,
+}: {
+  label: string;
+  value: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  gold?: boolean;
+}) {
+  return (
+    <div>
+      <span className="block font-label text-[10px] uppercase tracking-widest text-on-surface-variant/70">
+        {label}
+      </span>
+      <span
+        className={cn(
+          "mt-1 flex items-center gap-1.5 font-label text-[12px] uppercase tracking-wide",
+          gold ? "text-primary" : "text-on-surface"
+        )}
+      >
+        {Icon && <Icon className="w-3.5 h-3.5" />}
+        {value}
+      </span>
+    </div>
+  );
+}
+
+function Empty({ label }: { label: string }) {
+  return (
+    <p className="text-center py-24 font-body text-on-surface-variant">
+      No {label} match your search.
+    </p>
   );
 }
