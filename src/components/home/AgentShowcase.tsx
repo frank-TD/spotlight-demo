@@ -128,6 +128,7 @@ export default function AgentShowcase() {
               style={{ "--glow-color": side === "marlow" ? "#f3d57f" : "#a8c4e5" } as CSSProperties}
               className="border-glow-card block w-full text-left cursor-pointer rounded-2xl outline-none focus-visible:ring-2 focus-visible:ring-primary/60 transition-transform duration-300 group-hover:-translate-y-1.5"
             >
+              <span className="border-glow" aria-hidden="true" />
               <div
                 className="relative aspect-[3/4] transition-transform duration-700 ease-[cubic-bezier(0.2,0.8,0.2,1)] motion-reduce:transition-none"
                 style={{

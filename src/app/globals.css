@@ -527,20 +527,17 @@
   }
 }
 
-/* Cursor-following border glow: a soft arc of light blooms along the card's
-   edge at the cursor's angle and brightens as the cursor nears an edge. A
-   blurred conic gradient sits *behind* the (opaque) card — fed via
-   --cursor-angle and --edge-proximity from onPointerMove — so only its edges
-   read as a glow. `isolation` scopes the z-index:-1 so the 3D card never
-   composites over it. */
+/* Cursor-following border glow. The glow is a real element placed *first* in
+   the card, so DOM paint order keeps it behind the opaque, 3D-transformed
+   faces — only its blurred edges read as a border glow. No negative z-index /
+   mask / isolation, which can drop out under GPU compositing of the 3D card.
+   Fed via --cursor-angle / --edge-proximity (+ --glow-color) from onPointerMove. */
 .border-glow-card {
   position: relative;
-  isolation: isolate;
 }
-.border-glow-card::before {
-  content: "";
+.border-glow {
   position: absolute;
-  inset: -3px;
+  inset: -4px;
   border-radius: inherit;
   background: conic-gradient(
     from calc(var(--cursor-angle, 90deg) - 30deg) at 50% 50%,
@@ -548,18 +545,17 @@
     var(--glow-color, #f3d57f) 30deg,
     transparent 60deg
   );
-  filter: blur(7px);
+  filter: blur(8px);
   opacity: 0;
   transition: opacity 0.35s ease;
-  z-index: -1;
   pointer-events: none;
 }
-.border-glow-card:hover::before,
-.border-glow-card:focus-within::before {
-  opacity: calc(0.55 + var(--edge-proximity, 0) / 100 * 0.45);
+.border-glow-card:hover > .border-glow,
+.border-glow-card:focus-within > .border-glow {
+  opacity: calc(0.6 + var(--edge-proximity, 0) / 100 * 0.4);
 }
 @media (prefers-reduced-motion: reduce) {
-  .border-glow-card::before {
+  .border-glow {
     transition: none;
   }
 }
