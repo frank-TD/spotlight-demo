@@ -15,7 +15,12 @@ export default function TrustStrip() {
   ];
 
   return (
-    <section className="bg-[#efe7d2]">
+    <section
+      style={{
+        background:
+          "linear-gradient(180deg, #08080a 0%, #efe7d2 13%, #efe7d2 87%, #08080a 100%)",
+      }}
+    >
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 py-10 md:py-12">
         <div className="scroll-reveal flex flex-wrap items-center justify-center gap-x-10 md:gap-x-16 gap-y-6">
           {stats.map((s, i) => (

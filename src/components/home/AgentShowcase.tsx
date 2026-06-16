@@ -56,10 +56,10 @@ export default function AgentShowcase() {
 
   return (
     <section
-      className="relative border-t border-outline-variant/20"
+      className="relative"
       style={{
         background:
-          "radial-gradient(ellipse 55% 50% at 72% 6%, rgba(212,175,55,0.06), transparent 60%), #13100b",
+          "radial-gradient(ellipse 55% 50% at 72% 6%, rgba(212,175,55,0.06), transparent 60%), linear-gradient(180deg, #1e1912 0%, #13100b 200px)",
       }}
     >
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 py-24 md:py-28 grid md:grid-cols-[6fr_5fr] gap-14 md:gap-20 items-center">
