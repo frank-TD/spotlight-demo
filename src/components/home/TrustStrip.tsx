@@ -1,6 +1,7 @@
 "use client";
 import { ShieldCheck, Landmark } from "lucide-react";
 import StatCountUp from "./StatCountUp";
+import AuroraBackdrop from "./AuroraBackdrop";
 import { useT } from "@/hooks/useT";
 
 // Trust strip directly under the hero — the credibility signals the UI/UX
@@ -22,7 +23,23 @@ export default function TrustStrip() {
           "radial-gradient(ellipse 58% 130% at 50% 46%, rgba(212,175,55,0.085), transparent 72%), linear-gradient(180deg, #08080a 0%, #15100a 28%, #15100a 72%, #08080a 100%)",
       }}
     >
-      <div className="relative max-w-[1280px] mx-auto px-6 md:px-12 py-12 md:py-14">
+      {/* Warm gold aurora — confined to the centre and faded to transparent at
+          top & bottom so it never reaches the section edges (keeps seams clean).
+          Sits above the static spotlight, below the content. */}
+      <div
+        className="pointer-events-none absolute inset-0 overflow-hidden opacity-[0.45]"
+        style={{
+          WebkitMaskImage:
+            "linear-gradient(180deg, transparent 0%, #000 34%, #000 66%, transparent 100%)",
+          maskImage:
+            "linear-gradient(180deg, transparent 0%, #000 34%, #000 66%, transparent 100%)",
+        }}
+        aria-hidden="true"
+      >
+        <AuroraBackdrop />
+      </div>
+
+      <div className="relative z-10 max-w-[1280px] mx-auto px-6 md:px-12 py-12 md:py-14">
         <div className="scroll-reveal flex flex-wrap items-center justify-center gap-x-10 md:gap-x-16 gap-y-6">
           {stats.map((s, i) => (
             <div key={s.label} className="flex items-center gap-10 md:gap-16">
