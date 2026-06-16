@@ -36,7 +36,7 @@ export default function HowItWorksBand() {
   ];
 
   return (
-    <section className="border-t border-outline-variant/30">
+    <section className="bg-[#1e1912] border-t border-outline-variant/20">
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 py-24 md:py-28">
         {/* Title — three-line, three-segment */}
         <div className="text-center max-w-2xl mx-auto">

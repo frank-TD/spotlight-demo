@@ -55,7 +55,13 @@ export default function AgentShowcase() {
   const otherName = side === "marlow" ? "Wren" : "Marlow";
 
   return (
-    <section className="border-t border-outline-variant/30">
+    <section
+      className="relative border-t border-outline-variant/20"
+      style={{
+        background:
+          "radial-gradient(ellipse 55% 50% at 72% 6%, rgba(212,175,55,0.06), transparent 60%), #13100b",
+      }}
+    >
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 py-24 md:py-28 grid md:grid-cols-[6fr_5fr] gap-14 md:gap-20 items-center">
         {/* Slogan + CTAs */}
         <div className="scroll-reveal">

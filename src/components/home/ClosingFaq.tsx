@@ -20,7 +20,7 @@ export default function ClosingFaq() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section className="border-t border-outline-variant/30">
+    <section className="bg-[#1e1912] border-t border-outline-variant/20">
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 py-24 md:py-32 grid md:grid-cols-[5fr_7fr] gap-12 md:gap-16">
         {/* Left — oversized anchor */}
         <div className="scroll-reveal md:sticky md:top-28 self-start">
