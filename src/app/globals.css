@@ -807,3 +807,24 @@
     opacity: 0 !important;
   }
 }
+
+/* Film grain — a static, full-viewport fractal-noise overlay. On a cinematic
+   black/gold page the long, low-contrast dark gradients between sections band
+   on 8-bit displays (visible horizontal "layers"); this per-pixel noise dithers
+   those steps away, and doubles as on-theme texture for a film marketplace.
+   pointer-events:none so it never blocks interaction; sits under the sticky nav
+   and any dialogs/toasts (higher z-index) yet over the section backdrops. */
+.film-grain {
+  position: fixed;
+  inset: 0;
+  z-index: 30;
+  pointer-events: none;
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxNjAiIGhlaWdodD0iMTYwIj48ZmlsdGVyIGlkPSJuIj48ZmVUdXJidWxlbmNlIHR5cGU9ImZyYWN0YWxOb2lzZSIgYmFzZUZyZXF1ZW5jeT0iMC44NSIgbnVtT2N0YXZlcz0iMiIgc3RpdGNoVGlsZXM9InN0aXRjaCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNuKSIvPjwvc3ZnPg==");
+  background-repeat: repeat;
+}
+@media (prefers-reduced-motion: reduce) {
+  .film-grain {
+    display: none;
+  }
+}
