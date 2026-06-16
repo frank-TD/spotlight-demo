@@ -7,7 +7,7 @@ import { useEffect, useRef } from "react";
 // the closing-credits call. Renders at half resolution, pauses off-screen, and
 // paints a single static frame under reduced-motion (the stage is never empty).
 
-const SPEED = 0.32; // slow temporal drift
+const SPEED = 1.5; // visible cinematic drift
 const WARP = 0.06; // gentle organic distortion
 const GAMMA = 1.35; // luminance shaping → ink base with visible flowing gold
 const RES_SCALE = 0.5; // render at half res (the CPPN shader is heavy)
