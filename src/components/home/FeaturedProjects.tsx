@@ -30,16 +30,10 @@ export default function FeaturedProjects() {
 
   return (
     <section className="max-w-[1280px] mx-auto px-6 md:px-12 py-24 md:py-32">
-      <div className="flex items-end justify-between gap-6 mb-14 md:mb-20">
+      <div className="mb-14 md:mb-20">
         <h2 className="scroll-reveal font-headline text-5xl md:text-7xl text-on-surface leading-[1.0]">
           {t.homeV2.featuredLabel}
         </h2>
-        <Link
-          href="/discovery"
-          className="scroll-reveal hidden md:inline-flex items-center gap-2 shrink-0 pb-2 font-label text-[12px] uppercase tracking-[0.18em] text-on-surface-variant hover:text-primary transition-colors"
-        >
-          {t.homeV2.exploreAll} <ArrowRight className="w-3 h-3" />
-        </Link>
       </div>
 
       {/* Lead spread */}
@@ -77,8 +71,9 @@ export default function FeaturedProjects() {
               </p>
             )}
           </div>
-          <span className="inline-block font-label text-[12px] uppercase tracking-[0.18em] text-on-surface border-b border-primary/70 pb-1.5 mt-9 group-hover:text-primary transition-colors">
-            {(lead.status === "open" ? t.homeV2.backProject : t.homeV2.viewProject)} →
+          <span className="inline-flex items-center gap-2.5 font-label text-label-md uppercase tracking-widest text-on-primary-container border border-primary/60 px-7 py-4 rounded-full mt-9 transition-colors group-hover:bg-primary/10">
+            {(lead.status === "open" ? t.homeV2.backProject : t.homeV2.viewProject)}
+            <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </span>
         </div>
       </Link>
