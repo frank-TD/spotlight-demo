@@ -20,26 +20,27 @@ export default function TrustStrip() {
       className="relative"
       style={{
         background:
-          "radial-gradient(ellipse 58% 130% at 50% 46%, rgba(212,175,55,0.085), transparent 72%), linear-gradient(180deg, #08080a 0%, #15100a 28%, #15100a 72%, #08080a 100%)",
+          "radial-gradient(ellipse 82% 58% at 50% 50%, rgba(212,175,55,0.095) 0%, transparent 76%), #08080a",
       }}
     >
-      {/* Warm gold aurora — confined to the centre and faded to transparent at
-          top & bottom so it never reaches the section edges (keeps seams clean).
-          Sits above the static spotlight, below the content. */}
+      {/* Warm gold aurora — a soft centred halo with a long feathered edge that
+          fades to transparent on every side, well before the section bounds, so
+          it reads as a pool of light rather than a band and joins the
+          neighbouring black seamlessly. Above the static glow, below content. */}
       <div
-        className="pointer-events-none absolute inset-0 overflow-hidden opacity-[0.45]"
+        className="pointer-events-none absolute inset-0 overflow-hidden opacity-40"
         style={{
           WebkitMaskImage:
-            "linear-gradient(180deg, transparent 0%, #000 34%, #000 66%, transparent 100%)",
+            "radial-gradient(ellipse 84% 62% at 50% 50%, #000 0%, #000 16%, transparent 74%)",
           maskImage:
-            "linear-gradient(180deg, transparent 0%, #000 34%, #000 66%, transparent 100%)",
+            "radial-gradient(ellipse 84% 62% at 50% 50%, #000 0%, #000 16%, transparent 74%)",
         }}
         aria-hidden="true"
       >
         <AuroraBackdrop />
       </div>
 
-      <div className="relative z-10 max-w-[1280px] mx-auto px-6 md:px-12 py-12 md:py-14">
+      <div className="relative z-10 max-w-[1280px] mx-auto px-6 md:px-12 py-24 md:py-28">
         <div className="scroll-reveal flex flex-wrap items-center justify-center gap-x-10 md:gap-x-16 gap-y-6">
           {stats.map((s, i) => (
             <div key={s.label} className="flex items-center gap-10 md:gap-16">
