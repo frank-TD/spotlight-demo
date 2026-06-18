@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -16,20 +16,36 @@ import {
   Check,
   Plus,
   Play,
+  Send,
+  Paperclip,
+  Star,
+  MessageCircle,
 } from "lucide-react";
 import { useStore } from "@/lib/store";
 import AppShell from "@/components/layout/AppShell";
-import { CREATORS, NEEDS } from "@/lib/mock-data";
+import { CREATORS, NEEDS, findSessionForCounterpart } from "@/lib/mock-data";
+import { getAgentReply } from "@/lib/agent-response";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
-// Merged Marketplace + Discover — one role-driven surface. Backer: an
-// inspiration feed of works/creators + "Post a Need". Creator: find work first
-// (open briefs) then an inspiration feed, + "Start Creating" → AIGC Studio.
-// Routing/nav merge is deferred; this is the combined design at /market.
-// Copy is hardcoded English for this design pass; i18n is a follow-up.
+// Marketplace = the merged Discover + Marketplace surface, role-driven and
+// publicly browsable. Backer: an inspiration feed of works/creators + "Post a
+// Need". Creator: open briefs then an inspiration feed + "Start Creating". Any
+// transaction action (post / apply / invite / start / chat / send) gates on
+// signup. The old /discovery path redirects here (see next.config). Copy is
+// hardcoded English for this design pass.
 
 type Role = "backer" | "creator";
 type Aspect = "portrait" | "tall" | "landscape" | "wide" | "square";
+type Work = {
+  id: number;
+  title: string;
+  creatorId: string;
+  creator: string;
+  category: string;
+  poster: string;
+  aspect: Aspect;
+};
 
 const ASPECT: Record<Aspect, string> = {
   portrait: "aspect-[2/3]",
@@ -39,16 +55,7 @@ const ASPECT: Record<Aspect, string> = {
   square: "aspect-square",
 };
 
-// Inspiration works — local cinematic stills so the feed renders reliably.
-const WORKS: {
-  id: number;
-  title: string;
-  creatorId: string;
-  creator: string;
-  category: string;
-  poster: string;
-  aspect: Aspect;
-}[] = [
+const WORKS: Work[] = [
   { id: 1, title: "Aurora Crystal", creatorId: "u_creator_01", creator: "Aria Song", category: "Sci-Fi", poster: "/posters/aurora-crystal.jpg", aspect: "tall" },
   { id: 2, title: "Golden Core", creatorId: "u_creator_02", creator: "Marco Reyes", category: "Abstract", poster: "/posters/golden-core.jpg", aspect: "landscape" },
   { id: 3, title: "Neon Rain", creatorId: "u_creator_03", creator: "Yuki Tanaka", category: "Cinematic", poster: "/posters/neon-rain.jpg", aspect: "portrait" },
@@ -68,47 +75,71 @@ const COPY = {
   backer: {
     subtitle: "Discover creators through their work — then post your need.",
     searchPlaceholder: "Search creators, styles, tools...",
+    prompt: "Describe the film you want to commission…",
   },
   creator: {
     subtitle: "Find film projects ready for creators — and fuel your next one.",
     searchPlaceholder: "Search briefs, genres, budgets...",
+    prompt: "Describe what you want to create…",
   },
 } as const;
 
-type Creator = (typeof CREATORS)[number];
-type Brief = (typeof NEEDS)[number];
-
-// A subset of briefs get a cinematic still header; the rest stay text-only —
-// the mix gives the 3-column masonry its varied rhythm.
 const BRIEF_POSTER: Record<string, string> = {
   need_001: "/posters/golden-core.jpg",
   need_003: "/posters/neon-rain.jpg",
   need_006: "/posters/the-eighth-day.jpg",
 };
-
 const TYPE_WORD: Record<string, string> = {
   Commercial: "Hero Video",
   "Music Video": "MV",
   "Narrative Short Film": "Film",
   Trailer: "Trailer",
 };
+
+type Creator = (typeof CREATORS)[number];
+type Brief = (typeof NEEDS)[number];
+
 const deliverableFor = (n: Brief) => {
   const dur = n.durationSec < 120 ? `${n.durationSec}s` : `${Math.round(n.durationSec / 60)} min`;
   return `${dur} ${TYPE_WORD[n.contentType] ?? "Video"}`;
 };
 
 export default function MarketPage() {
-  const { isLoggedIn, activeRole, switchRole, hasHydrated } = useStore();
+  const {
+    isLoggedIn,
+    activeRole,
+    switchRole,
+    hasHydrated,
+    locale,
+    appendAgentMessages,
+    openAgent,
+    setAgentThinking,
+  } = useStore();
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("All");
   const [inviteFor, setInviteFor] = useState<Creator | null>(null);
+  const [openWork, setOpenWork] = useState<Work | null>(null);
+
+  // Marlow prompt dock
+  const [prompt, setPrompt] = useState("");
+  const [promptExpanded, setPromptExpanded] = useState(false);
+  const [files, setFiles] = useState<{ name: string; size: string }[]>([]);
+  const promptRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (hasHydrated && !isLoggedIn) router.push("/login");
-  }, [hasHydrated, isLoggedIn, router]);
+    if (!promptExpanded) return;
+    const onDown = (e: MouseEvent) => {
+      if (promptRef.current && !promptRef.current.contains(e.target as Node)) {
+        if (!prompt.trim() && files.length === 0) setPromptExpanded(false);
+      }
+    };
+    document.addEventListener("mousedown", onDown);
+    return () => document.removeEventListener("mousedown", onDown);
+  }, [promptExpanded, prompt, files.length]);
 
-  if (!hasHydrated || !isLoggedIn) return null;
+  if (!hasHydrated) return null; // public, but wait for persisted role to avoid a flip
 
   const isBacker = activeRole === "backer";
   const copy = isBacker ? COPY.backer : COPY.creator;
@@ -121,10 +152,52 @@ export default function MarketPage() {
     setFilter(r === "backer" ? "All" : "All Briefs");
   };
 
+  // Browsing is free; acting gates on signup.
+  const requireSignup = () => {
+    toast.info("Sign up to continue.");
+    router.push("/register");
+  };
+  const handlePostNeed = () => (isLoggedIn ? router.push("/market/needs/new") : requireSignup());
+  const handleStartCreating = () =>
+    isLoggedIn ? router.push("/discovery/workspace") : requireSignup();
+  const handleApply = (n: Brief) =>
+    isLoggedIn ? toast.success(`Application started · ${n.title}`) : requireSignup();
+  const handleInvite = (c: Creator) => (isLoggedIn ? setInviteFor(c) : requireSignup());
+  const startConversation = (creatorId: string) => {
+    setOpenWork(null);
+    if (!isLoggedIn) return requireSignup();
+    const sid = findSessionForCounterpart("backer", creatorId);
+    router.push(sid ? `/messages/sessions/${sid}` : "/messages");
+  };
+
+  const formatSize = (b: number) =>
+    b < 1024 ? `${b} B` : b < 1024 * 1024 ? `${(b / 1024).toFixed(1)} KB` : `${(b / 1048576).toFixed(1)} MB`;
+  const onFilePick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const picked = Array.from(e.target.files ?? []).slice(0, 5 - files.length);
+    setFiles((prev) => [...prev, ...picked.map((f) => ({ name: f.name, size: formatSize(f.size) }))]);
+    e.target.value = "";
+  };
+  const sendPrompt = () => {
+    const qq = prompt.trim();
+    if (!qq && files.length === 0) return;
+    if (!isLoggedIn) return requireSignup();
+    const attached = files.length > 0 ? ` 📎 ${files.map((f) => f.name).join(", ")}` : "";
+    const text = (qq || "Files attached") + attached;
+    appendAgentMessages([{ role: "user", text }]);
+    setPrompt("");
+    setFiles([]);
+    setPromptExpanded(false);
+    openAgent();
+    setAgentThinking(true);
+    const resp = getAgentReply(text, locale);
+    setTimeout(() => {
+      appendAgentMessages([{ role: "agent", text: resp.a, link: resp.link }]);
+      setAgentThinking(false);
+    }, 800);
+  };
+
   const q = query.trim().toLowerCase();
-  // Search filters BOTH briefs and inspiration; the category chip only narrows
-  // the backer feed.
-  const matchWork = (w: (typeof WORKS)[number]) =>
+  const matchWork = (w: Work) =>
     !q ||
     w.title.toLowerCase().includes(q) ||
     w.creator.toLowerCase().includes(q) ||
@@ -154,7 +227,7 @@ export default function MarketPage() {
 
   return (
     <AppShell>
-      <div className="max-w-[1280px] mx-auto px-6 md:px-12 pt-10 pb-24">
+      <div className="max-w-[1280px] mx-auto px-6 md:px-12 pt-10 pb-40">
         {/* ── Hero header ────────────────────────────────────────────────── */}
         <header className="flex flex-col gap-7 mb-12">
           <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
@@ -165,33 +238,21 @@ export default function MarketPage() {
               <p className="mt-3 font-headline italic text-lg md:text-xl text-on-surface-variant">
                 {copy.subtitle}
               </p>
-              {/* role primary CTA */}
               <div className="mt-6">
-                {isBacker ? (
-                  <Link
-                    href="/market/needs/new"
-                    className="group inline-flex items-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-8 py-4 rounded-full hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_8px_30px_rgba(212,175,55,0.25)]"
-                  >
-                    <PlusCircle className="w-4 h-4" />
-                    Post a Need
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </Link>
-                ) : (
-                  <Link
-                    href="/studio"
-                    className="group inline-flex items-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-8 py-4 rounded-full hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_8px_30px_rgba(212,175,55,0.25)]"
-                  >
-                    <Wand2 className="w-4 h-4" />
-                    Start Creating
-                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-                  </Link>
-                )}
+                <button
+                  type="button"
+                  onClick={isBacker ? handlePostNeed : handleStartCreating}
+                  className="group inline-flex items-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-8 py-4 rounded-full hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_8px_30px_rgba(212,175,55,0.25)]"
+                >
+                  {isBacker ? <PlusCircle className="w-4 h-4" /> : <Wand2 className="w-4 h-4" />}
+                  {isBacker ? "Post a Need" : "Start Creating"}
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                </button>
               </div>
             </div>
             <RoleSwitch role={activeRole} onChange={setRole} />
           </div>
 
-          {/* search + filter chips */}
           <div className="flex flex-col gap-4">
             <div className="relative max-w-xl">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
@@ -231,28 +292,25 @@ export default function MarketPage() {
               hint="Tap a still to open the creator"
             />
             {backerWorks.length ? (
-              <Masonry works={backerWorks} onInvite={setInviteFor} showInvite />
+              <Masonry works={backerWorks} onOpen={setOpenWork} onInvite={handleInvite} showInvite />
             ) : (
               <Empty label="works" />
             )}
           </section>
         ) : (
           <div className="flex flex-col">
-            {/* 1 — find work */}
             <section>
               <SectionHead label="Open briefs" hint={`${briefs.length} ready for creators`} />
               {briefs.length ? (
                 <div className="columns-1 sm:columns-2 lg:columns-3 gap-5">
                   {briefs.map((n) => (
-                    <BriefCard key={n.id} n={n} />
+                    <BriefCard key={n.id} n={n} onApply={handleApply} />
                   ))}
                 </div>
               ) : (
                 <Empty label="briefs" />
               )}
             </section>
-            {/* 2 — inspiration: an enlarged, centred transition so it reads as a
-                 distinct moment, not more briefs */}
             <section>
               <div className="text-center max-w-2xl mx-auto my-16 md:my-20">
                 <span className="font-label text-[11px] uppercase tracking-[0.3em] text-primary">
@@ -263,7 +321,7 @@ export default function MarketPage() {
                 </h2>
               </div>
               {worksQ.length ? (
-                <Masonry works={worksQ} onInvite={setInviteFor} showInvite={false} />
+                <Masonry works={worksQ} onOpen={setOpenWork} onInvite={handleInvite} showInvite={false} />
               ) : (
                 <Empty label="works" />
               )}
@@ -272,7 +330,119 @@ export default function MarketPage() {
         )}
       </div>
 
+      {/* Work detail dialog (ported from Discover) */}
+      <WorkDialog
+        work={openWork}
+        viewerIsBacker={isBacker}
+        onClose={() => setOpenWork(null)}
+        onStartConversation={startConversation}
+      />
+
       {inviteFor && <InviteDialog creator={inviteFor} onClose={() => setInviteFor(null)} />}
+
+      {/* Floating Marlow prompt dock (ported from Discover) */}
+      <div
+        className={cn(
+          "fixed left-1/2 -translate-x-1/2 w-[94%] max-w-[820px] z-40 pointer-events-none transition-all duration-500 ease-out",
+          promptExpanded ? "bottom-10" : "bottom-8"
+        )}
+      >
+        <div
+          ref={promptRef}
+          onClick={() => setPromptExpanded(true)}
+          className={cn(
+            "pointer-events-auto rounded-[28px] border border-outline-variant/40 transition-all duration-500 ease-out overflow-hidden",
+            promptExpanded ? "shadow-[0_24px_60px_rgba(0,0,0,0.6)] ring-1 ring-primary/20" : "shadow-2xl"
+          )}
+          style={{
+            background: "rgba(20, 20, 26, 0.85)",
+            backdropFilter: "blur(24px) saturate(180%)",
+            WebkitBackdropFilter: "blur(24px) saturate(180%)",
+          }}
+        >
+          {files.length > 0 && (
+            <div className="px-5 pt-3 flex flex-wrap gap-2 animate-fade-up">
+              {files.map((f, i) => (
+                <span
+                  key={`${f.name}-${i}`}
+                  className="inline-flex items-center gap-1.5 bg-primary-container/60 text-on-primary-container rounded-full pl-2.5 pr-1.5 py-1 font-body text-xs"
+                >
+                  <Paperclip className="w-3 h-3" />
+                  <span className="max-w-[160px] truncate">{f.name}</span>
+                  <span className="opacity-60 font-label text-[9px] uppercase tracking-wider">{f.size}</span>
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setFiles((prev) => prev.filter((_, idx) => idx !== i));
+                    }}
+                    className="ml-0.5 w-4 h-4 rounded-full hover:bg-on-primary-container/10 flex items-center justify-center"
+                    aria-label="remove attachment"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </span>
+              ))}
+            </div>
+          )}
+
+          <div className="flex items-end gap-3 px-4 py-3">
+            <Wand2 className="text-primary shrink-0 w-5 h-5 mb-2" />
+            <textarea
+              rows={1}
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+              onFocus={() => setPromptExpanded(true)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  sendPrompt();
+                }
+              }}
+              placeholder={copy.prompt}
+              aria-label={copy.prompt}
+              className={cn(
+                "flex-1 bg-transparent border-none resize-none focus:outline-none focus:ring-0 font-body text-base md:text-lg placeholder:text-on-surface-variant/60 transition-all duration-500 ease-out",
+                promptExpanded ? "min-h-[96px]" : "min-h-[28px]"
+              )}
+              style={{ maxHeight: promptExpanded ? 200 : 28 }}
+            />
+            <button
+              type="button"
+              onClick={sendPrompt}
+              disabled={!prompt.trim() && files.length === 0}
+              className="bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-5 md:px-6 py-3 rounded-2xl hover:opacity-95 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
+            >
+              <span className="hidden sm:inline">Send</span>
+              <Send className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
+          {promptExpanded && (
+            <div className="flex items-center gap-3 px-5 pb-3 pt-2 border-t border-outline-variant/20 animate-fade-up">
+              <input
+                ref={fileInputRef}
+                type="file"
+                multiple
+                aria-label="Attach files"
+                className="hidden"
+                onChange={onFilePick}
+              />
+              <button
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={files.length >= 5}
+                className="flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider px-3 py-1.5 rounded-lg border border-outline-variant/40 hover:border-primary/40 hover:text-primary text-on-surface-variant transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                <Paperclip className="w-3.5 h-3.5" /> Attach
+              </button>
+              <span className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/60">
+                {files.length}/5
+              </span>
+            </div>
+          )}
+        </div>
+      </div>
     </AppShell>
   );
 }
@@ -290,17 +460,19 @@ function SectionHead({ label, hint }: { label: string; hint: string }) {
 
 function Masonry({
   works,
+  onOpen,
   onInvite,
   showInvite,
 }: {
-  works: typeof WORKS;
+  works: Work[];
+  onOpen: (w: Work) => void;
   onInvite: (c: Creator) => void;
   showInvite: boolean;
 }) {
   return (
     <div className="columns-2 sm:columns-3 lg:columns-4 gap-4">
       {works.map((w) => (
-        <WorkCard key={w.id} w={w} onInvite={onInvite} showInvite={showInvite} />
+        <WorkCard key={w.id} w={w} onOpen={onOpen} onInvite={onInvite} showInvite={showInvite} />
       ))}
     </div>
   );
@@ -308,17 +480,19 @@ function Masonry({
 
 function WorkCard({
   w,
+  onOpen,
   onInvite,
   showInvite,
 }: {
-  w: (typeof WORKS)[number];
+  w: Work;
+  onOpen: (w: Work) => void;
   onInvite: (c: Creator) => void;
   showInvite: boolean;
 }) {
   const creator = CREATORS.find((c) => c.id === w.creatorId);
   return (
     <div className="group break-inside-avoid mb-4 relative rounded-2xl overflow-hidden border border-outline-variant/30 bg-surface-container">
-      <Link href={`/market/creators/${w.creatorId}`} className="block">
+      <button type="button" onClick={() => onOpen(w)} className="block w-full text-left">
         <div className={cn("relative", ASPECT[w.aspect])}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
@@ -343,7 +517,7 @@ function WorkCard({
             </p>
           </div>
         </div>
-      </Link>
+      </button>
       {showInvite && creator && (
         <button
           type="button"
@@ -395,11 +569,7 @@ function RoleSwitch({ role, onChange }: { role: Role; onChange: (r: Role) => voi
   );
 }
 
-// Vertical brief card for the 3-column masonry — clean: a cinematic still on a
-// subset, type · title · one-line brief, buyer, then price + the essential
-// facts (deliverable, days left, bids, revisions, escrow). No match score or
-// tag spam.
-function BriefCard({ n }: { n: Brief }) {
+function BriefCard({ n, onApply }: { n: Brief; onApply: (n: Brief) => void }) {
   const poster = BRIEF_POSTER[n.id];
   return (
     <article className="group break-inside-avoid mb-5 flex flex-col rounded-2xl border border-outline-variant/40 bg-surface-container-lowest overflow-hidden transition-colors hover:border-primary/40">
@@ -445,9 +615,7 @@ function BriefCard({ n }: { n: Brief }) {
 
         <div className="mt-4 pt-4 border-t border-outline-variant/30">
           <div className="flex items-baseline justify-between gap-3">
-            <span className="font-headline text-[26px] text-primary">
-              ¥{n.budget.toLocaleString()}
-            </span>
+            <span className="font-headline text-[26px] text-primary">¥{n.budget.toLocaleString()}</span>
             <span className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant">
               {deliverableFor(n)}
             </span>
@@ -475,7 +643,7 @@ function BriefCard({ n }: { n: Brief }) {
           </Link>
           <button
             type="button"
-            onClick={() => toast.success(`Application started · ${n.title}`)}
+            onClick={() => onApply(n)}
             className="inline-flex items-center gap-1.5 border border-primary/50 text-on-primary-container font-label text-[11px] uppercase tracking-widest px-5 py-2.5 rounded-full hover:bg-primary/10 transition-colors"
           >
             Apply
@@ -483,6 +651,126 @@ function BriefCard({ n }: { n: Brief }) {
         </div>
       </div>
     </article>
+  );
+}
+
+// Work preview — a still + the creator behind it, with the role-appropriate
+// next step (backer → start a conversation; anyone → view the full profile).
+function WorkDialog({
+  work,
+  viewerIsBacker,
+  onClose,
+  onStartConversation,
+}: {
+  work: Work | null;
+  viewerIsBacker: boolean;
+  onClose: () => void;
+  onStartConversation: (creatorId: string) => void;
+}) {
+  const creator = work ? CREATORS.find((c) => c.id === work.creatorId) : undefined;
+  return (
+    <Dialog open={!!work} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent className="sm:max-w-5xl p-0 overflow-hidden max-h-[90vh]">
+        {work && (
+          <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] max-h-[90vh] overflow-hidden">
+            <div className="bg-[#08080a] p-6 md:p-7 flex flex-col gap-4 overflow-y-auto">
+              <div className="aspect-video relative rounded-xl overflow-hidden bg-surface-container group">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={work.poster} alt={work.title} className="absolute inset-0 w-full h-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => toast.info("Playback is a demo placeholder.")}
+                  className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/45 transition-colors"
+                  aria-label="play"
+                >
+                  <span className="w-16 h-16 rounded-full bg-primary/95 text-on-primary shadow-xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                    <Play className="w-7 h-7 ml-1" fill="currentColor" />
+                  </span>
+                </button>
+              </div>
+              <div>
+                <span className="font-label text-[10px] uppercase tracking-widest bg-white/10 text-white/80 px-2.5 py-1 rounded">
+                  {work.category}
+                </span>
+                <h2 className="font-headline italic text-white text-2xl md:text-3xl mt-3 leading-tight">
+                  {work.title}
+                </h2>
+                <p className="font-label text-white/60 text-[11px] uppercase tracking-widest mt-2">
+                  by {work.creator}
+                </p>
+              </div>
+            </div>
+
+            {creator && (
+              <div className="p-6 md:p-7 flex flex-col overflow-y-auto">
+                <div className="flex items-center gap-3 mb-4">
+                  <div
+                    className={cn(
+                      "w-14 h-14 rounded-full flex items-center justify-center text-lg font-bold shrink-0",
+                      creator.avatarColor
+                    )}
+                  >
+                    {creator.avatar}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-headline text-[20px] text-on-surface truncate">{creator.nickname}</p>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <Star className="w-3 h-3 fill-primary text-primary" />
+                      <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                        {creator.rating} · {creator.orders} completed
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap gap-1.5 mb-4">
+                  {creator.specialties.map((s) => (
+                    <span
+                      key={s}
+                      className="font-label text-[10px] uppercase tracking-widest bg-primary-container text-on-primary-container px-2.5 py-1 rounded-full"
+                    >
+                      {s}
+                    </span>
+                  ))}
+                </div>
+
+                <p className="font-body text-sm text-on-surface-variant leading-relaxed mb-5 line-clamp-4 flex-1">
+                  {creator.bio}
+                </p>
+
+                <div className="bg-surface-container rounded-xl p-4 mb-4 flex items-center justify-between">
+                  <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                    From
+                  </span>
+                  <span className="font-headline text-[20px] text-on-surface">
+                    ¥{creator.rateCard.from.toLocaleString()}+
+                  </span>
+                </div>
+
+                <div className="space-y-2">
+                  {viewerIsBacker && (
+                    <button
+                      type="button"
+                      onClick={() => onStartConversation(creator.id)}
+                      className="w-full flex items-center justify-center gap-2 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider py-3 rounded-lg hover:opacity-90 active:scale-95 transition-all"
+                    >
+                      <MessageCircle className="w-4 h-4" /> Start conversation
+                    </button>
+                  )}
+                  <Link
+                    href={`/market/creators/${creator.id}`}
+                    onClick={onClose}
+                    className="w-full flex items-center justify-center gap-1.5 font-label text-label-md uppercase tracking-wider py-3 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors"
+                  >
+                    View Profile <ArrowUpRight className="w-3.5 h-3.5" />
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -548,15 +836,11 @@ function InviteDialog({ creator, onClose }: { creator: Creator; onClose: () => v
                   onClick={() => setSel(n.id)}
                   className={cn(
                     "w-full text-left rounded-xl border p-4 transition-colors",
-                    active
-                      ? "border-primary bg-primary/[0.06]"
-                      : "border-outline-variant/40 hover:border-primary/40"
+                    active ? "border-primary bg-primary/[0.06]" : "border-outline-variant/40 hover:border-primary/40"
                   )}
                 >
                   <div className="flex items-center justify-between gap-3">
-                    <span className="font-headline text-[15px] text-on-surface line-clamp-1">
-                      {n.title}
-                    </span>
+                    <span className="font-headline text-[15px] text-on-surface line-clamp-1">{n.title}</span>
                     {active && <Check className="w-4 h-4 text-primary shrink-0" />}
                   </div>
                   <div className="mt-1 font-label text-[10px] uppercase tracking-wider text-on-surface-variant">
