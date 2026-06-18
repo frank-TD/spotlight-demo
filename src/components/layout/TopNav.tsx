@@ -50,12 +50,10 @@ export default function TopNav() {
   const t = useT();
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  // `match` controls how the active state is decided. Workspace is a sub-route
-  // of /discovery, so plain startsWith would double-highlight Discover and
-  // AIGC Studio when the user is in the workspace — we pin Discover to an
-  // exact match and let AIGC Studio claim the workspace prefix.
+  // `match` controls how the active state is decided. Discover has merged into
+  // the Marketplace (one tab → /market). Workspace is a sub-route of /discovery,
+  // so we let AIGC Studio claim the workspace prefix.
   const NAV_ITEMS = [
-    { label: t.nav.discover, href: "/discovery", match: (p: string) => p === "/discovery" },
     { label: t.nav.marketplace, href: "/market", match: (p: string) => p.startsWith("/market") },
     {
       label: t.nav.studio,

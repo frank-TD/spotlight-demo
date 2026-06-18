@@ -8,6 +8,13 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "fastly.picsum.photos" },
     ],
   },
+  async redirects() {
+    return [
+      // Discover merged into the Marketplace — keep the old path working.
+      // Exact match, so /discovery/workspace (the AIGC Studio) is untouched.
+      { source: "/discovery", destination: "/market", permanent: false },
+    ];
+  },
 };
 
 export default nextConfig;
