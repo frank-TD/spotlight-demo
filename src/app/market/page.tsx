@@ -11,9 +11,6 @@ import {
   ArrowUpRight,
   BadgeCheck,
   ShieldCheck,
-  CalendarDays,
-  Repeat,
-  Users,
   UserPlus,
   X,
   Check,
@@ -81,10 +78,23 @@ const COPY = {
 type Creator = (typeof CREATORS)[number];
 type Brief = (typeof NEEDS)[number];
 
-const deadlineFor = (n: Brief) => {
-  const d = new Date(n.publishedAt);
-  d.setDate(d.getDate() + n.deliveryDays);
-  return d.toISOString().slice(0, 10);
+// A subset of briefs get a cinematic still header; the rest stay text-only —
+// the mix gives the 3-column masonry its varied rhythm.
+const BRIEF_POSTER: Record<string, string> = {
+  need_001: "/posters/golden-core.jpg",
+  need_003: "/posters/neon-rain.jpg",
+  need_006: "/posters/the-eighth-day.jpg",
+};
+
+const TYPE_WORD: Record<string, string> = {
+  Commercial: "Hero Video",
+  "Music Video": "MV",
+  "Narrative Short Film": "Film",
+  Trailer: "Trailer",
+};
+const deliverableFor = (n: Brief) => {
+  const dur = n.durationSec < 120 ? `${n.durationSec}s` : `${Math.round(n.durationSec / 60)} min`;
+  return `${dur} ${TYPE_WORD[n.contentType] ?? "Video"}`;
 };
 
 export default function MarketPage() {
@@ -112,13 +122,15 @@ export default function MarketPage() {
   };
 
   const q = query.trim().toLowerCase();
-  const works = WORKS.filter((w) => {
-    const mq = !q || w.title.toLowerCase().includes(q) || w.creator.toLowerCase().includes(q);
-    const mf = isBacker
-      ? activeFilter === "All" || w.category === activeFilter
-      : true;
-    return mq && mf;
-  });
+  // Search filters BOTH briefs and inspiration; the category chip only narrows
+  // the backer feed.
+  const matchWork = (w: (typeof WORKS)[number]) =>
+    !q ||
+    w.title.toLowerCase().includes(q) ||
+    w.creator.toLowerCase().includes(q) ||
+    w.category.toLowerCase().includes(q);
+  const worksQ = WORKS.filter(matchWork);
+  const backerWorks = worksQ.filter((w) => activeFilter === "All" || w.category === activeFilter);
   const briefs = NEEDS.filter((n) => n.status === "open").filter((n) => {
     const mq =
       !q ||
@@ -214,20 +226,23 @@ export default function MarketPage() {
         {/* ── Body ───────────────────────────────────────────────────────── */}
         {isBacker ? (
           <section>
-            <SectionHead label={`${works.length} works in the spotlight`} hint="Tap a still to open the creator" />
-            {works.length ? (
-              <Masonry works={works} onInvite={setInviteFor} showInvite />
+            <SectionHead
+              label={`${backerWorks.length} works in the spotlight`}
+              hint="Tap a still to open the creator"
+            />
+            {backerWorks.length ? (
+              <Masonry works={backerWorks} onInvite={setInviteFor} showInvite />
             ) : (
               <Empty label="works" />
             )}
           </section>
         ) : (
-          <div className="flex flex-col gap-16">
+          <div className="flex flex-col">
             {/* 1 — find work */}
             <section>
               <SectionHead label="Open briefs" hint={`${briefs.length} ready for creators`} />
               {briefs.length ? (
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <div className="columns-1 sm:columns-2 lg:columns-3 gap-5">
                   {briefs.map((n) => (
                     <BriefCard key={n.id} n={n} />
                   ))}
@@ -236,10 +251,25 @@ export default function MarketPage() {
                 <Empty label="briefs" />
               )}
             </section>
-            {/* 2 — inspiration */}
+            {/* 2 — inspiration: an enlarged, centred transition so it reads as a
+                 distinct moment, not more briefs */}
             <section>
-              <SectionHead label="For inspiration" hint="What the network is making" />
-              <Masonry works={WORKS} onInvite={setInviteFor} showInvite={false} />
+              <div className="text-center max-w-2xl mx-auto my-16 md:my-20">
+                <span className="font-label text-[11px] uppercase tracking-[0.3em] text-primary">
+                  For Inspiration
+                </span>
+                <h2 className="mt-3 font-headline text-4xl md:text-5xl text-on-surface leading-tight">
+                  What the network is making
+                </h2>
+                <p className="mt-3 font-headline italic text-lg text-on-surface-variant">
+                  Fuel your next film — browse work across the slate.
+                </p>
+              </div>
+              {worksQ.length ? (
+                <Masonry works={worksQ} onInvite={setInviteFor} showInvite={false} />
+              ) : (
+                <Empty label="works" />
+              )}
             </section>
           </div>
         )}
@@ -368,87 +398,94 @@ function RoleSwitch({ role, onChange }: { role: Role; onChange: (r: Role) => voi
   );
 }
 
+// Vertical brief card for the 3-column masonry — clean: a cinematic still on a
+// subset, type · title · one-line brief, buyer, then price + the essential
+// facts (deliverable, days left, bids, revisions, escrow). No match score or
+// tag spam.
 function BriefCard({ n }: { n: Brief }) {
+  const poster = BRIEF_POSTER[n.id];
   return (
-    <article className="group flex flex-col rounded-2xl border border-outline-variant/40 bg-surface-container-lowest p-6 transition-colors hover:border-primary/40">
-      <div className="flex items-center justify-between gap-3">
-        <span className="font-label text-[10px] uppercase tracking-widest bg-primary-container text-on-primary-container px-3 py-1 rounded-full">
-          {n.contentType}
-        </span>
-        <span className="inline-flex items-center gap-1.5 font-label text-[11px] uppercase tracking-wider text-on-surface-variant">
-          <Users className="w-3.5 h-3.5" />
-          {n.bids} bids
-        </span>
-      </div>
-
-      <h3 className="mt-4 font-headline text-[22px] md:text-[24px] text-on-surface leading-snug line-clamp-2">
-        {n.title}
-      </h3>
-
-      <div className="mt-3 flex items-center gap-2">
-        <span className="w-6 h-6 rounded-full bg-surface-container-high flex items-center justify-center font-label text-[10px] text-on-surface-variant">
-          {n.backerAvatar}
-        </span>
-        <span className="font-label text-[11px] uppercase tracking-wider text-on-surface-variant">
-          {n.backerNickname}
-        </span>
-        <BadgeCheck className="w-3.5 h-3.5 text-primary" />
-        <span className="font-label text-[10px] uppercase tracking-wider text-primary">Verified</span>
-      </div>
-
-      <div className="mt-5 grid grid-cols-2 gap-x-6 gap-y-4 border-t border-outline-variant/30 pt-5">
-        <Meta label="Budget" value={`¥${n.budget.toLocaleString()}`} gold />
-        <Meta label="Deadline" value={deadlineFor(n)} icon={CalendarDays} />
-        <Meta label="Revisions" value={`${n.modifyLimit} revisions`} icon={Repeat} />
-        <Meta label="Escrow" value="Protected" icon={ShieldCheck} />
-      </div>
-
-      <div className="mt-auto pt-6 flex items-center gap-2.5">
-        <Link
-          href={`/market/needs/${n.id}`}
-          className="flex-1 inline-flex items-center justify-center gap-1.5 bg-primary text-on-primary font-label text-[11px] uppercase tracking-widest px-4 py-2.5 rounded-full hover:opacity-90 transition-opacity"
-        >
-          View Brief
-          <ArrowUpRight className="w-3.5 h-3.5" />
+    <article className="group break-inside-avoid mb-5 flex flex-col rounded-2xl border border-outline-variant/40 bg-surface-container-lowest overflow-hidden transition-colors hover:border-primary/40">
+      {poster && (
+        <Link href={`/market/needs/${n.id}`} className="relative block aspect-[16/10] overflow-hidden">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={poster}
+            alt=""
+            loading="lazy"
+            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+          <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,8,10,0.05)_0%,transparent_45%,rgba(8,8,10,0.7)_100%)]" />
+          <span className="absolute top-3 left-3 font-label text-[10px] uppercase tracking-widest px-3 py-1 rounded-full bg-[rgba(8,8,10,0.55)] backdrop-blur-sm border border-outline-variant/40 text-primary">
+            {n.contentType}
+          </span>
         </Link>
-        <button
-          type="button"
-          onClick={() => toast.success(`Application started · ${n.title}`)}
-          className="inline-flex items-center gap-1.5 border border-primary/50 text-on-primary-container font-label text-[11px] uppercase tracking-widest px-5 py-2.5 rounded-full hover:bg-primary/10 transition-colors"
-        >
-          Apply
-        </button>
+      )}
+
+      <div className="flex flex-col flex-1 p-6">
+        {!poster && (
+          <span className="font-label text-[10px] uppercase tracking-widest text-primary mb-3">
+            {n.contentType}
+          </span>
+        )}
+
+        <h3 className="font-headline text-[22px] text-on-surface leading-snug">{n.title}</h3>
+        {n.brief && (
+          <p className="mt-2 font-body text-sm text-on-surface-variant leading-relaxed line-clamp-2">
+            {n.brief}
+          </p>
+        )}
+
+        <div className="mt-4 flex items-center gap-2">
+          <span className="w-5 h-5 rounded-full bg-surface-container-high flex items-center justify-center font-label text-[9px] text-on-surface-variant">
+            {n.backerAvatar}
+          </span>
+          <span className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant">
+            {n.backerNickname}
+          </span>
+          <BadgeCheck className="w-3.5 h-3.5 text-primary" aria-label="Verified buyer" />
+        </div>
+
+        <div className="mt-4 pt-4 border-t border-outline-variant/30">
+          <div className="flex items-baseline justify-between gap-3">
+            <span className="font-headline text-[26px] text-primary">
+              ¥{n.budget.toLocaleString()}
+            </span>
+            <span className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant">
+              {deliverableFor(n)}
+            </span>
+          </div>
+          <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 font-label text-[10px] uppercase tracking-wider text-on-surface-variant">
+            <span>{n.deliveryDays} days left</span>
+            <span className="text-on-surface-variant/40">·</span>
+            <span>{n.bids} bids</span>
+            <span className="text-on-surface-variant/40">·</span>
+            <span>{n.modifyLimit} revisions</span>
+            <span className="inline-flex items-center gap-1 text-on-surface-variant/90">
+              <ShieldCheck className="w-3 h-3 text-primary" />
+              Escrow
+            </span>
+          </div>
+        </div>
+
+        <div className="mt-5 flex items-center gap-2.5">
+          <Link
+            href={`/market/needs/${n.id}`}
+            className="flex-1 inline-flex items-center justify-center gap-1.5 bg-primary text-on-primary font-label text-[11px] uppercase tracking-widest px-4 py-2.5 rounded-full hover:opacity-90 transition-opacity"
+          >
+            View Brief
+            <ArrowUpRight className="w-3.5 h-3.5" />
+          </Link>
+          <button
+            type="button"
+            onClick={() => toast.success(`Application started · ${n.title}`)}
+            className="inline-flex items-center gap-1.5 border border-primary/50 text-on-primary-container font-label text-[11px] uppercase tracking-widest px-5 py-2.5 rounded-full hover:bg-primary/10 transition-colors"
+          >
+            Apply
+          </button>
+        </div>
       </div>
     </article>
-  );
-}
-
-function Meta({
-  label,
-  value,
-  icon: Icon,
-  gold,
-}: {
-  label: string;
-  value: string;
-  icon?: React.ComponentType<{ className?: string }>;
-  gold?: boolean;
-}) {
-  return (
-    <div>
-      <span className="block font-label text-[10px] uppercase tracking-widest text-on-surface-variant/70">
-        {label}
-      </span>
-      <span
-        className={cn(
-          "mt-1 flex items-center gap-1.5 font-label text-[12px] uppercase tracking-wide",
-          gold ? "text-primary" : "text-on-surface"
-        )}
-      >
-        {Icon && <Icon className="w-3.5 h-3.5" />}
-        {value}
-      </span>
-    </div>
   );
 }
 
