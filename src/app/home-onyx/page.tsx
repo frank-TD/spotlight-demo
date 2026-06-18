@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { Archivo_Black, Montserrat } from "next/font/google";
 import styles from "./onyx.module.css";
 
@@ -48,30 +47,6 @@ export default function OnyxHome() {
             <br />
             Owned
           </p>
-        </section>
-
-        {/* ── Contents ─────────────────────────────────────────────────── */}
-        <section className={`${styles.contents} ${styles.frame}`}>
-          <ol className={styles.numbers}>
-            <li>01</li>
-            <li>02</li>
-            <li>03</li>
-            <li>04</li>
-            <li>05</li>
-            <li>06</li>
-            <li>07</li>
-            <li>08</li>
-          </ol>
-          <nav className={styles.links} aria-label="Spotlight contents">
-            <Link href="/market">Discover</Link>
-            <Link href="/market">Marketplace</Link>
-            <Link href="/discovery/workspace">AIGC Studio</Link>
-            <Link href="/market">Creators</Link>
-            <Link href="/market">Backers</Link>
-            <Link href="/how-it-works">How it works</Link>
-            <Link href="/distribution">Distribution</Link>
-            <Link href="/register">Contact</Link>
-          </nav>
         </section>
 
         {/* ── About ────────────────────────────────────────────────────── */}

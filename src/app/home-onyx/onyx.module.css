@@ -1,7 +1,7 @@
-/* "ONYX" brutalist brand-portfolio language, scoped to this route only.
-   Vivid red + charcoal + cream, Archivo Black display, grayscale-duotone
-   imagery, textured backdrop, a 2-column board of poster "page" panels.
-   Everything is qualified under .root so nothing leaks into the app. */
+/* "ONYX" brutalist language as a real vertical homepage: full-bleed sections
+   stacked top-to-bottom (no moodboard tiling). Vivid red + charcoal + cream,
+   Archivo Black display, grayscale-duotone imagery, textured backdrop. All
+   qualified under .root so nothing leaks into the app. */
 
 .root {
   --red: #ff2d2f;
@@ -10,7 +10,7 @@
   --charcoal: #2b2d2f;
   --paper: #fff7da;
   --muted: rgba(255, 247, 218, 0.72);
-  --hairline: rgba(255, 247, 218, 0.17);
+  --pad: clamp(28px, 5.5vw, 110px);
   --headline: var(--onyx-headline, "Arial Black", Impact, sans-serif);
   --body: var(--onyx-body, "Montserrat", Arial, sans-serif);
   position: relative;
@@ -47,22 +47,16 @@
   text-decoration: none;
 }
 
+/* Vertical stack of full-bleed sections — they connect directly, no gaps. */
 .board {
   position: relative;
   z-index: 1;
-  width: min(1220px, calc(100vw - 54px));
-  margin: 28px auto 52px;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 46px 58px;
+  width: 100%;
 }
-
 .frame {
   position: relative;
   overflow: hidden;
-  min-height: 304px;
   background: var(--charcoal);
-  box-shadow: 0 18px 34px rgba(0, 0, 0, 0.28);
 }
 .frame::after {
   content: "";
@@ -70,13 +64,20 @@
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(90deg, transparent 32.8%, rgba(255, 247, 218, 0.08) 33%, transparent 33.2%),
-    linear-gradient(0deg, transparent 49.7%, rgba(255, 247, 218, 0.06) 50%, transparent 50.3%);
+    linear-gradient(90deg, transparent 32.9%, rgba(255, 247, 218, 0.07) 33%, transparent 33.1%),
+    linear-gradient(0deg, transparent 49.8%, rgba(255, 247, 218, 0.05) 50%, transparent 50.2%);
   mix-blend-mode: screen;
-  opacity: 0.23;
+  opacity: 0.22;
 }
 
-/* shared duotone treatment */
+/* shared big display heading + duotone photo */
+.bigHead {
+  color: var(--paper);
+  font-family: var(--headline);
+  font-size: clamp(48px, 6.6vw, 116px);
+  line-height: 0.82;
+  text-transform: uppercase;
+}
 .duotone {
   position: relative;
   background-position: center;
@@ -93,41 +94,42 @@
 
 /* ── Hero ────────────────────────────────────────────────────────────────── */
 .hero {
-  grid-column: 1 / -1;
   display: grid;
   grid-template-columns: 1fr 1fr;
-  min-height: 642px;
+  min-height: clamp(560px, 74vh, 820px);
   background: var(--red);
 }
 .heroRed {
   position: relative;
   z-index: 2;
-  padding: 36px 34px;
+  display: flex;
+  flex-direction: column;
+  padding: var(--pad);
   background: var(--red);
 }
 .heroRed h1 {
   color: var(--paper);
   font-family: var(--headline);
-  font-size: clamp(96px, 12vw, 166px);
-  line-height: 0.78;
+  font-size: clamp(108px, 13.5vw, 248px);
+  line-height: 0.76;
 }
 .heroSub {
-  margin-top: 20px;
+  margin-top: clamp(20px, 2vw, 34px);
   color: var(--paper);
   font-family: var(--headline);
-  font-size: clamp(40px, 4.4vw, 58px);
-  line-height: 0.92;
+  font-size: clamp(42px, 5vw, 88px);
+  line-height: 0.9;
   text-transform: uppercase;
 }
 .heroContact {
   position: absolute;
-  left: 36px;
-  right: 36px;
-  bottom: 36px;
+  left: var(--pad);
+  right: var(--pad);
+  bottom: clamp(30px, 3.4vw, 56px);
   display: flex;
   justify-content: space-between;
   color: var(--paper);
-  font-size: 15px;
+  font-size: clamp(13px, 1.1vw, 20px);
   font-weight: 600;
 }
 .heroPhoto {
@@ -153,88 +155,41 @@
   top: 0;
   left: 0;
   right: 0;
-  height: 50px;
+  height: clamp(48px, 4vw, 72px);
   background: var(--red);
   z-index: 3;
 }
 .heroTag {
   position: absolute;
   z-index: 4;
-  left: calc(50% - 45px);
+  left: calc(50% - 56px);
   top: 60%;
   color: var(--paper);
   font-family: var(--headline);
-  font-size: 18px;
+  font-size: clamp(18px, 1.7vw, 28px);
   line-height: 1.03;
-  text-transform: uppercase;
-}
-
-/* ── Contents ────────────────────────────────────────────────────────────── */
-.contents {
-  display: grid;
-  grid-template-columns: 110px 1fr;
-  min-height: 304px;
-  background: var(--red);
-}
-.numbers {
-  margin: 0;
-  padding: 22px 0 18px;
-  list-style: none;
-  background: var(--black);
-}
-.numbers li {
-  display: grid;
-  height: 32px;
-  place-items: center;
-  color: var(--paper);
-  font-family: var(--headline);
-  font-size: 25px;
-  line-height: 1;
-}
-.links {
-  display: grid;
-  padding: 22px 28px 18px 0;
-}
-.links a {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  min-height: 32px;
-  border-bottom: 1px solid rgba(255, 247, 218, 0.22);
-  color: var(--paper);
-  font-family: var(--headline);
-  font-size: 22px;
-  line-height: 0.95;
-  text-align: right;
   text-transform: uppercase;
 }
 
 /* ── About ───────────────────────────────────────────────────────────────── */
 .about {
   display: grid;
-  grid-template-columns: 1.05fr 0.95fr;
-  gap: 18px;
-  min-height: 304px;
-  padding: 16px 16px 16px 20px;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: clamp(24px, 3vw, 56px);
+  min-height: clamp(460px, 60vh, 680px);
+  padding: var(--pad);
   background: var(--red);
-}
-.bigHead {
-  color: var(--paper);
-  font-family: var(--headline);
-  font-size: clamp(40px, 4.2vw, 58px);
-  line-height: 0.82;
-  text-transform: uppercase;
 }
 .aboutCopy {
   position: relative;
   z-index: 2;
 }
 .aboutCopy p {
-  width: 80%;
-  margin-top: 28px;
-  color: rgba(255, 247, 218, 0.86);
-  font-size: 10px;
-  line-height: 1.4;
+  max-width: 46ch;
+  margin-top: clamp(28px, 3vw, 48px);
+  color: rgba(255, 247, 218, 0.88);
+  font-size: clamp(13px, 1.05vw, 17px);
+  line-height: 1.55;
   font-weight: 700;
 }
 .aboutCopy strong {
@@ -243,27 +198,28 @@
   bottom: 2px;
   color: var(--paper);
   font-family: var(--headline);
-  font-size: 11px;
-  line-height: 1.15;
+  font-size: clamp(16px, 1.5vw, 26px);
+  line-height: 1.12;
   text-align: right;
   text-transform: uppercase;
 }
 .aboutMedia {
   display: grid;
   grid-template-rows: 2fr 1fr;
-  gap: 12px;
+  gap: 16px;
+  min-height: clamp(340px, 44vh, 520px);
 }
 
-/* ── Team / Creators ─────────────────────────────────────────────────────── */
+/* ── Creators (team) ─────────────────────────────────────────────────────── */
 .dark {
   background: var(--black);
 }
 .team {
   display: grid;
-  grid-template-columns: 1fr 2.35fr;
-  gap: 18px;
-  min-height: 304px;
-  padding: 28px 20px 24px;
+  grid-template-columns: 1fr 2.5fr;
+  gap: clamp(28px, 3.5vw, 64px);
+  min-height: clamp(520px, 66vh, 760px);
+  padding: var(--pad);
 }
 .teamIntro {
   display: flex;
@@ -272,223 +228,217 @@
   min-width: 0;
 }
 .teamIntro h2 {
-  font-size: clamp(28px, 3vw, 36px);
-  line-height: 0.85;
+  font-size: clamp(40px, 4.6vw, 84px);
 }
 .teamIntro p {
-  max-width: 178px;
+  max-width: 300px;
+  margin-top: 28px;
   color: var(--muted);
-  font-size: 10px;
-  line-height: 1.45;
+  font-size: clamp(12px, 1vw, 16px);
+  line-height: 1.5;
 }
 .eyebrow {
   position: absolute;
-  left: 35%;
-  top: 28px;
+  left: 34%;
+  top: var(--pad);
   color: var(--paper);
-  font-size: 9px;
-  line-height: 1.15;
+  font-size: clamp(10px, 0.85vw, 14px);
+  line-height: 1.2;
   text-transform: uppercase;
 }
 .teamGrid {
   align-self: end;
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
+  gap: clamp(16px, 1.6vw, 30px);
 }
 .teamGrid figure {
   min-width: 0;
 }
 .person {
-  height: 178px;
+  height: clamp(300px, 40vh, 520px);
 }
 .root figcaption {
-  padding-top: 12px;
+  padding-top: 14px;
   color: rgba(255, 247, 218, 0.78);
-  font-size: 8px;
-  line-height: 1.25;
+  font-size: clamp(10px, 0.9vw, 14px);
+  line-height: 1.3;
 }
 .root figcaption b {
   display: block;
   color: var(--paper);
-  font-size: 9px;
+  font-size: clamp(12px, 1vw, 16px);
 }
 
 /* ── Story ───────────────────────────────────────────────────────────────── */
 .story {
   display: grid;
-  grid-template-columns: 1fr 0.98fr;
-  min-height: 304px;
-  padding: 20px 18px 18px 20px;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(28px, 3.5vw, 64px);
+  min-height: clamp(520px, 66vh, 760px);
+  padding: var(--pad);
 }
 .storyCopy {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding-right: 26px;
 }
 .storyCopy p {
-  max-width: 260px;
+  max-width: 46ch;
   color: var(--muted);
-  font-size: 10px;
-  line-height: 1.42;
+  font-size: clamp(13px, 1.05vw, 17px);
+  line-height: 1.55;
 }
 .mosaic {
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr 1fr;
-  gap: 10px;
+  gap: 12px;
+  min-height: clamp(360px, 50vh, 600px);
 }
 .cornerNote,
 .passionNote {
   position: absolute;
   color: var(--paper);
-  font-size: 9px;
-  line-height: 1.15;
+  font-size: clamp(10px, 0.9vw, 14px);
+  line-height: 1.18;
   text-align: right;
   text-transform: uppercase;
 }
-.cornerNote { top: 24px; right: 20px; }
-.passionNote { right: 150px; bottom: 20px; }
+.cornerNote { top: var(--pad); right: var(--pad); }
+.passionNote { left: var(--pad); bottom: var(--pad); text-align: left; }
 
 /* ── Studio ──────────────────────────────────────────────────────────────── */
 .studio {
   display: grid;
-  grid-template-columns: 0.78fr 0.74fr 1.48fr;
-  min-height: 304px;
+  grid-template-columns: 0.85fr 0.85fr 1.4fr;
+  min-height: clamp(480px, 62vh, 720px);
   background: var(--black);
 }
 .studioTitle {
-  padding: 28px 18px 22px;
+  display: flex;
+  flex-direction: column;
+  padding: var(--pad);
   background: var(--red);
 }
 .studioTitle p {
-  margin-top: 74px;
-  color: rgba(255, 247, 218, 0.9);
-  font-size: 10px;
-  line-height: 1.42;
+  margin-top: clamp(48px, 7vh, 120px);
+  color: rgba(255, 247, 218, 0.92);
+  font-size: clamp(13px, 1.05vw, 16px);
+  line-height: 1.5;
 }
 .studioCopy {
   position: relative;
-  padding: 28px 20px 22px;
+  padding: var(--pad);
 }
 .studioCopy p {
+  max-width: 44ch;
+  margin-left: auto;
   color: var(--muted);
-  font-size: 10px;
-  line-height: 1.42;
+  font-size: clamp(13px, 1.05vw, 16px);
+  line-height: 1.5;
   text-align: right;
 }
 .studioCopy strong {
   position: absolute;
-  right: 20px;
-  bottom: 104px;
+  right: var(--pad);
+  bottom: clamp(120px, 18vh, 200px);
   color: var(--paper);
-  font-size: 9px;
+  font-size: clamp(12px, 1vw, 16px);
   line-height: 1.15;
   text-align: right;
   text-transform: uppercase;
 }
 .studioCopy h2 {
   position: absolute;
-  right: 18px;
-  bottom: 18px;
+  right: var(--pad);
+  bottom: clamp(24px, 3vw, 40px);
 }
 
-/* ── Inside / In the Spotlight ───────────────────────────────────────────── */
+/* ── In the Spotlight (inside) ───────────────────────────────────────────── */
 .inside {
   position: relative;
-  min-height: 304px;
-  padding: 24px 20px;
+  min-height: clamp(520px, 66vh, 760px);
+  padding: var(--pad);
 }
 .insideCopy {
   width: 46%;
+  max-width: 52ch;
   color: var(--muted);
-  font-size: 10px;
-  line-height: 1.42;
+  font-size: clamp(13px, 1.05vw, 17px);
+  line-height: 1.55;
 }
 .insidePhotos {
   position: absolute;
-  left: 42px;
-  right: 150px;
-  bottom: 42px;
+  left: var(--pad);
+  right: 42%;
+  bottom: var(--pad);
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  height: 126px;
-  gap: 0;
+  height: clamp(180px, 24vh, 320px);
 }
 .inside h2 {
   position: absolute;
-  right: 22px;
-  bottom: 28px;
-  font-size: clamp(40px, 4vw, 54px);
+  right: var(--pad);
+  bottom: clamp(40px, 5vw, 80px);
+  font-size: clamp(48px, 6vw, 108px);
   text-align: right;
 }
 .actionNote {
   position: absolute;
-  right: 20px;
-  top: 24px;
+  right: var(--pad);
+  top: var(--pad);
   color: var(--paper);
-  font-size: 9px;
+  font-size: clamp(10px, 0.9vw, 14px);
   text-transform: uppercase;
 }
 
 /* ── Ticker ──────────────────────────────────────────────────────────────── */
 .ticker {
-  grid-column: 1 / 2;
   display: flex;
   flex-wrap: wrap;
-  min-height: 54px;
-  padding: 0 14px;
   align-items: center;
+  justify-content: center;
+  min-height: clamp(88px, 10vh, 140px);
+  padding: 0 var(--pad);
   background: var(--red);
 }
 .ticker span {
   color: var(--paper);
-  font-size: 12px;
+  font-size: clamp(14px, 1.5vw, 24px);
   line-height: 1;
   text-transform: uppercase;
 }
 .ticker span + span::before {
   content: "+";
-  margin: 0 8px;
+  margin: 0 clamp(10px, 1.2vw, 22px);
 }
 
 /* ── Services ────────────────────────────────────────────────────────────── */
 .services {
   display: grid;
-  grid-template-columns: 0.8fr 0.9fr 1.45fr;
-  min-height: 118px;
+  grid-template-columns: 0.85fr 0.95fr 1.4fr;
+  min-height: clamp(200px, 26vh, 320px);
   background: var(--black);
 }
 .services > div {
   display: flex;
   align-items: flex-start;
-  padding: 18px;
+  padding: var(--pad);
   background: var(--red);
-  border-right: 2px solid var(--black);
+  border-right: 3px solid var(--black);
 }
 .services strong {
   color: var(--paper);
-  font-size: 13px;
+  font-size: clamp(15px, 1.5vw, 26px);
   line-height: 1.1;
 }
 .services h2 {
   align-self: end;
-  padding: 0 0 13px 18px;
+  padding: 0 0 clamp(20px, 2.4vw, 40px) var(--pad);
 }
 
-@media (max-width: 920px) {
-  .board {
-    width: min(720px, calc(100vw - 28px));
-    grid-template-columns: 1fr;
-    gap: 28px;
-    margin-top: 16px;
-  }
-  .hero { min-height: 520px; }
-  .ticker { grid-column: auto; }
-}
-@media (max-width: 620px) {
-  .frame { min-height: 360px; }
+@media (max-width: 760px) {
   .hero,
   .about,
   .team,
@@ -497,6 +447,7 @@
   .services {
     grid-template-columns: 1fr;
   }
-  .heroPhoto { min-height: 300px; }
+  .heroPhoto { min-height: 320px; }
   .insideCopy { width: 100%; }
+  .insidePhotos { right: var(--pad); }
 }
