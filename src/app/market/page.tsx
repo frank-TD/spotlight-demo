@@ -261,9 +261,6 @@ export default function MarketPage() {
                 <h2 className="mt-3 font-headline text-4xl md:text-5xl text-on-surface leading-tight">
                   What the network is making
                 </h2>
-                <p className="mt-3 font-headline italic text-lg text-on-surface-variant">
-                  Fuel your next film — browse work across the slate.
-                </p>
               </div>
               {worksQ.length ? (
                 <Masonry works={worksQ} onInvite={setInviteFor} showInvite={false} />
