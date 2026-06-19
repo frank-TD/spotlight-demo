@@ -1,0 +1,192 @@
+/* Temporary internal gallery that links out to every homepage style draft.
+   Neutral dark chrome (so it doesn't favour any one draft), gold accent to
+   match the Spotlight app. Each card carries the draft's own accent color via
+   the --accent custom property. Scoped under .root so nothing leaks. */
+
+.root {
+  --bg: #08080a;
+  --panel: #121214;
+  --panel-2: #17171a;
+  --text: #f4f3ef;
+  --muted: #9a9a9f;
+  --line: rgba(244, 243, 239, 0.12);
+  --gold: #d4af37;
+  --font: var(--previews-font, Arial, sans-serif);
+  min-height: 100vh;
+  padding: clamp(48px, 8vh, 110px) clamp(20px, 6vw, 96px) 96px;
+  color: var(--text);
+  font-family: var(--font);
+  background:
+    radial-gradient(circle at 20% -10%, rgba(212, 175, 55, 0.08), transparent 42%),
+    radial-gradient(circle at 92% 4%, rgba(212, 175, 55, 0.05), transparent 36%),
+    var(--bg);
+}
+.root * {
+  box-sizing: border-box;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────── */
+.head {
+  max-width: 760px;
+  margin: 0 0 clamp(36px, 5vh, 64px);
+}
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  color: var(--gold);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.eyebrow::before {
+  content: "";
+  width: 26px;
+  height: 1px;
+  background: var(--gold);
+}
+.head h1 {
+  margin: 0;
+  font-size: clamp(30px, 4.4vw, 50px);
+  line-height: 1.04;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.head p {
+  margin: 18px 0 0;
+  max-width: 60ch;
+  color: var(--muted);
+  font-size: 15px;
+  line-height: 1.65;
+}
+
+/* ── Grid ────────────────────────────────────────────────────────────────── */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+  gap: clamp(20px, 2.4vw, 32px);
+}
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--panel);
+  color: inherit;
+  text-decoration: none;
+  transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+}
+.card:hover {
+  transform: translateY(-4px);
+  border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+  background: var(--panel-2);
+}
+.thumb {
+  position: relative;
+  aspect-ratio: 16 / 10;
+  background-color: #0c0c0e;
+  background-position: top center;
+  background-size: cover;
+  border-bottom: 1px solid var(--line);
+}
+.thumb::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 62%, rgba(8, 8, 10, 0.55));
+}
+.badge {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 2;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--gold);
+  color: #1a1407;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+.open {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(8, 8, 10, 0.6);
+  color: var(--text);
+  font-size: 15px;
+  opacity: 0;
+  transition: opacity 0.18s ease;
+  backdrop-filter: blur(4px);
+}
+.card:hover .open {
+  opacity: 1;
+}
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 20px 22px 24px;
+}
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+.name {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  margin: 0;
+  font-size: 19px;
+  font-weight: 700;
+}
+.swatch {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 26%, transparent);
+}
+.routeTag {
+  padding: 4px 10px;
+  border: 1px solid color-mix(in srgb, var(--accent) 45%, var(--line));
+  border-radius: 999px;
+  color: color-mix(in srgb, var(--accent) 80%, var(--text));
+  font-size: 11px;
+  font-weight: 600;
+  font-family: ui-monospace, "SF Mono", Menlo, monospace;
+  white-space: nowrap;
+}
+.desc {
+  margin: 14px 0 0;
+  color: var(--muted);
+  font-size: 13.5px;
+  line-height: 1.6;
+}
+
+.note {
+  margin: clamp(40px, 6vh, 72px) 0 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+@media (max-width: 560px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
