@@ -226,15 +226,6 @@
   filter: grayscale(1) contrast(1.02) brightness(1.28);
   clip-path: ellipse(45% 50% at 50% 50%);
 }
-.heroPerson::before {
-  content: "";
-  position: absolute;
-  inset: auto 0 0;
-  height: 72%;
-  border-radius: 50% 50% 0 0;
-  background: #e9e9e5;
-  z-index: -1;
-}
 .dualCta {
   position: absolute;
   left: 50%;
