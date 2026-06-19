@@ -3,6 +3,7 @@ export type Locale = "en" | "zh-CN" | "zh-TW";
 const en = {
   nav: {
     discover: "Discover",
+    drafts: "Drafts",
     marketplace: "Marketplace",
     studio: "AIGC Studio",
     myProjects: "My Projects",
@@ -1343,6 +1344,7 @@ const en = {
 const zhCN: typeof en = {
   nav: {
     discover: "发现",
+    drafts: "样稿预览",
     marketplace: "市场",
     studio: "AIGC 创作台",
     myProjects: "我的项目",
@@ -2554,6 +2556,7 @@ const zhCN: typeof en = {
 const zhTW: typeof en = {
   nav: {
     discover: "發現",
+    drafts: "樣稿預覽",
     marketplace: "市場",
     studio: "AIGC 創作台",
     myProjects: "我的項目",

@@ -13,6 +13,7 @@ import {
   Check,
   Menu,
   X,
+  LayoutGrid,
 } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { useT } from "@/hooks/useT";
@@ -64,6 +65,11 @@ export default function TopNav() {
     { label: t.nav.messages, href: "/messages", match: (p: string) => p.startsWith("/messages") },
   ];
 
+  // Temporary entry to the homepage style-draft gallery. Kept visually distinct
+  // from the primary tabs (outlined pill) so it reads as an internal preview
+  // link, not a product section. Remove once a direction is chosen.
+  const previewsActive = pathname.startsWith("/previews");
+
   const handleLogout = () => {
     logout();
     router.push("/login");
@@ -102,6 +108,18 @@ export default function TopNav() {
                   </Link>
                 );
               })}
+              <Link
+                href="/previews"
+                className={cn(
+                  "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border font-label text-label-md uppercase tracking-widest whitespace-nowrap transition-colors",
+                  previewsActive
+                    ? "border-primary/60 text-primary"
+                    : "border-outline-variant/40 text-on-surface-variant hover:text-primary hover:border-primary/50"
+                )}
+              >
+                <LayoutGrid className="w-3.5 h-3.5" />
+                {t.nav.drafts}
+              </Link>
             </nav>
           </div>
 
@@ -297,6 +315,18 @@ export default function TopNav() {
                 </Link>
               );
             })}
+            <Link
+              href="/previews"
+              onClick={() => setMobileOpen(false)}
+              className={cn(
+                "flex items-center gap-3 px-4 py-3 rounded-lg font-label text-label-md uppercase tracking-widest transition-colors",
+                previewsActive
+                  ? "bg-primary-container text-primary"
+                  : "text-on-surface-variant hover:bg-surface-container hover:text-on-surface"
+              )}
+            >
+              <LayoutGrid className="w-4 h-4" /> {t.nav.drafts}
+            </Link>
           </nav>
           <div className="border-t border-outline-variant/30 px-3 py-3 space-y-1">
             {isLoggedIn ? (
