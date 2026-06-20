@@ -32,7 +32,7 @@ export default function EditorialHome() {
     <main className={`${styles.root} ${mont.className}`}>
       {/* ── Hero (promoted full-bleed screen) ────────────────────────────── */}
       <section className={styles.hero}>
-        <div className={styles.heroPhoto} style={bg("the-eighth-day")} aria-hidden="true" />
+        <div className={styles.heroPhoto} style={bg("aurora-crystal")} aria-hidden="true" />
         <span className={styles.topRule} />
         <span className={`${styles.axis} ${styles.axisLeft}`} />
         <span className={`${styles.axis} ${styles.axisRight}`} />
@@ -140,7 +140,7 @@ export default function EditorialHome() {
           <span className={styles.eyebrow}>In the Spotlight</span>
 
           <div className={styles.leadSpread}>
-            <div className={styles.leadMedia} style={bg("aurora-crystal")} />
+            <div className={styles.leadMedia} style={bg("crimson-mirage")} />
             <div className={styles.leadInfo}>
               <span className={styles.statusPill}>Open to back</span>
               <h3>Celestial Entity</h3>

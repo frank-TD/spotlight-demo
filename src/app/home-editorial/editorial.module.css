@@ -201,8 +201,8 @@
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(90deg, rgba(20, 21, 21, 0.94) 0%, rgba(20, 21, 21, 0.5) 52%, rgba(20, 21, 21, 0.72) 100%),
-    linear-gradient(180deg, rgba(20, 21, 21, 0.5) 0%, rgba(20, 21, 21, 0.2) 36%, rgba(20, 21, 21, 0.86) 100%);
+    linear-gradient(90deg, rgba(20, 21, 21, 0.86) 0%, rgba(20, 21, 21, 0.58) 40%, rgba(20, 21, 21, 0.16) 74%, rgba(20, 21, 21, 0.34) 100%),
+    linear-gradient(180deg, rgba(20, 21, 21, 0.42) 0%, rgba(20, 21, 21, 0.04) 34%, rgba(20, 21, 21, 0.12) 60%, rgba(20, 21, 21, 0.64) 100%);
 }
 .heroPhoto::after {
   content: "";
@@ -302,6 +302,7 @@
   text-transform: uppercase;
   letter-spacing: -0.02em;
   color: var(--white);
+  text-shadow: 0 2px 38px rgba(8, 8, 9, 0.55);
 }
 .heroTitle span { display: block; }
 .heroSub {
@@ -310,7 +311,8 @@
   font-size: clamp(14px, 1.2vw, 18px);
   line-height: 1.5;
   font-weight: 600;
-  color: rgba(244, 240, 232, 0.8);
+  color: rgba(244, 240, 232, 0.82);
+  text-shadow: 0 1px 20px rgba(8, 8, 9, 0.6);
 }
 
 /* ── Trust band (数据条) ─────────────────────────────────────────────────── */
