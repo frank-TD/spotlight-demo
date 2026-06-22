@@ -188,8 +188,7 @@ function SlatePoster({
         Released
       </span>
       <div className="absolute inset-x-0 bottom-0 p-2.5 sm:p-3">
-        <h3 className="font-headline text-base sm:text-lg leading-tight text-on-surface">{film.title}</h3>
-        <p className="font-label text-[10px] uppercase tracking-[0.14em] text-on-surface-variant mt-1">
+        <p className="font-label text-[10px] uppercase tracking-[0.14em] text-on-surface-variant">
           {film.releaseDate}
         </p>
       </div>
