@@ -450,10 +450,10 @@ export const RELEASED_SHOWCASE = {
   films: [
     {
       id: "neon-rain",
-      title: "Neon Rain",
-      poster: mediaUrl("/posters/neon-rain.jpg"),
+      title: "Marty Supreme",
+      poster: mediaUrl("/posters/marty-supreme.jpg"),
       releaseDate: "May 2026",
-      type: "AI Short Film · Released Globally",
+      type: "Feature Film · Released Globally",
       distribution: "5 Platforms · 31 Regions · 28-Day Release Window",
       // Large post-release proof points (audience/distribution only — no revenue).
       // `value` animates as a count-up; `suffix`/`decimals` shape the display.
@@ -466,10 +466,10 @@ export const RELEASED_SHOWCASE = {
     },
     {
       id: "golden-core",
-      title: "Golden Core",
-      poster: mediaUrl("/posters/golden-core.jpg"),
+      title: "Exit 8",
+      poster: mediaUrl("/posters/exit-8.jpg"),
       releaseDate: "Apr 2026",
-      type: "AI Short Film · Festival Circuit",
+      type: "Feature Film · Festival Circuit",
       distribution: "Festival Circuit · 6 Submissions · 3 Selections",
       metrics: [
         { value: 812, suffix: "K", decimals: 0, label: "Total Views" },
@@ -480,10 +480,10 @@ export const RELEASED_SHOWCASE = {
     },
     {
       id: "aurora-crystal",
-      title: "Aurora Crystal",
-      poster: mediaUrl("/posters/aurora-crystal.jpg"),
+      title: "Dallas Buyers Club",
+      poster: mediaUrl("/posters/dallas-buyers-club.jpg"),
       releaseDate: "Mar 2026",
-      type: "AI Short Film · Streaming",
+      type: "Feature Film · Streaming",
       distribution: "Streaming · 4 Platforms · 12 Regions",
       metrics: [
         { value: 1.1, suffix: "M", decimals: 1, label: "Total Views" },
