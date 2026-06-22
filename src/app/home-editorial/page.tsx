@@ -2,15 +2,19 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Montserrat } from "next/font/google";
 import EditorialHeroVideo from "./EditorialHeroVideo";
+import { GlowDealCard, DrawLine, FaqAccordion } from "./motion";
 import styles from "./editorial.module.css";
+import StatCountUp from "@/components/home/StatCountUp";
+import ScrollReveal from "@/components/home/ScrollReveal";
 
 // Editorial homepage — Spotlight's full homepage in the "A United"
 // Swiss/editorial language (charcoal + sand + orange, Montserrat, structural
 // grid, axis ticks, corner notes, outlined titles, alternating ink/sand/orange
 // stages). The signature dark screen-mockup is promoted to a full-bleed
-// cinematic hero. Same modules and copy as the live homepage: hero → stats →
-// in the spotlight → create/fund/distribute → agents → distribution → join →
-// faq → footer. Self-contained route; local /posters keep it offline-rendered.
+// cinematic hero. The live homepage's effects are ported in an editorial-native
+// way: staggered fade-up entrance, scroll-reveal, stat count-up, a draw-in
+// pipeline line, cursor-following orange border glow on the agent cards, a
+// breathing orange glow under the open call, and an accordion FAQ.
 
 export const metadata: Metadata = { title: "Spotlight — Editorial" };
 
@@ -19,6 +23,29 @@ const mont = Montserrat({ subsets: ["latin"], weight: ["400", "500", "600", "700
 const bg = (name: string) => ({ backgroundImage: `url(/posters/${name}.jpg)` });
 
 const GENRES = ["Sci-Fi", "Drama", "Anime", "Documentary", "Music", "Action", "Fantasy"];
+
+const FAQ_ITEMS = [
+  {
+    q: "Is this like Fiverr or Upwork?",
+    a: "No. Spotlight is a content commissioning platform, not a task marketplace. You commission full productions — brief to broadcast-ready — with IP protection and AI-managed delivery. Think executive producer, not task manager.",
+  },
+  {
+    q: "What does a Patron do?",
+    a: "You fund and direct content. Post your creative brief, set your budget, and own the final work. Marlow, your AI agent, handles negotiation, scoping, and brief production. You review and approve.",
+  },
+  {
+    q: "How do Marlow and Wren work?",
+    a: "Marlow is your AI Patron agent. Wren represents the Creator. They negotiate deal terms, scope deliverables, agree pricing, and produce a binding brief — automatically. You review and sign off. No awkward back-and-forth.",
+  },
+  {
+    q: "How does escrow work?",
+    a: "Your full project budget is locked in escrow at signing. Creators receive payment at each approved milestone. Final IP transfers to you only when you approve delivery and release the final payment.",
+  },
+  {
+    q: "Who backs Spotlight?",
+    a: "Spotlight is backed by one of Asia's most respected independent film production groups, with over 20 years of production experience across Hong Kong, Taiwan, and Southeast Asia.",
+  },
+];
 
 function Mark({ className }: { className?: string }) {
   return (
@@ -31,6 +58,8 @@ function Mark({ className }: { className?: string }) {
 export default function EditorialHome() {
   return (
     <main className={`${styles.root} ${mont.className}`}>
+      <ScrollReveal />
+
       {/* ── Hero (promoted full-bleed screen) ────────────────────────────── */}
       <section className={styles.hero}>
         <EditorialHeroVideo />
@@ -80,15 +109,21 @@ export default function EditorialHome() {
         <div className={styles.heroBody}>
           <div className={styles.wrap}>
             <h1 className={styles.heroTitle}>
-              <span>Fund it.</span>
-              <span>Own it.</span>
-              <span className={styles.accent}>Stream it.</span>
+              <span className="animate-fade-up" style={{ animationDelay: "120ms" }}>
+                Fund it.
+              </span>
+              <span className="animate-fade-up" style={{ animationDelay: "220ms" }}>
+                Own it.
+              </span>
+              <span className={`${styles.accent} animate-fade-up`} style={{ animationDelay: "320ms" }}>
+                Stream it.
+              </span>
             </h1>
-            <p className={styles.heroSub}>
+            <p className={`${styles.heroSub} animate-fade-up`} style={{ animationDelay: "440ms" }}>
               Discover AI-powered films, back the stories you believe in — and let AI take them to the
               world.
             </p>
-            <div className={styles.ctaRow}>
+            <div className={`${styles.ctaRow} animate-fade-up`} style={{ animationDelay: "560ms" }}>
               <Link href="/market" className={`${styles.btn} ${styles.btnOrange}`}>
                 Explore Projects
               </Link>
@@ -105,21 +140,27 @@ export default function EditorialHome() {
         <span className={`${styles.axis} ${styles.axisLeft}`} />
         <span className={`${styles.axis} ${styles.axisRight}`} />
         <div className={styles.wrap}>
-          <div className={styles.trustRow}>
+          <div className={`${styles.trustRow} scroll-reveal`}>
             <div className={styles.stat}>
-              <b>2,400+</b>
+              <b>
+                <StatCountUp value="2,400+" />
+              </b>
               <span>Creators</span>
             </div>
             <div className={styles.stat}>
-              <b>¥18M+</b>
+              <b>
+                <StatCountUp value="¥18M+" />
+              </b>
               <span>Commissioned</span>
             </div>
             <div className={styles.stat}>
-              <b>98%</b>
+              <b>
+                <StatCountUp value="98%" />
+              </b>
               <span>Completion</span>
             </div>
           </div>
-          <div className={styles.trustProof}>
+          <div className={`${styles.trustProof} scroll-reveal`}>
             <span>
               <i />
               Escrow protected
@@ -138,9 +179,9 @@ export default function EditorialHome() {
           Spotlight
         </span>
         <div className={styles.wrap}>
-          <span className={styles.eyebrow}>In the Spotlight</span>
+          <span className={`${styles.eyebrow} scroll-reveal`}>In the Spotlight</span>
 
-          <div className={styles.leadSpread}>
+          <div className={`${styles.leadSpread} scroll-reveal`}>
             <div className={styles.leadMedia} style={bg("past-lives")} />
             <div className={styles.leadInfo}>
               <span className={styles.statusPill}>Open to back</span>
@@ -160,7 +201,7 @@ export default function EditorialHome() {
             </div>
           </div>
 
-          <div className={styles.moreFilms}>
+          <div className={`${styles.moreFilms} scroll-reveal`}>
             <article className={styles.miniCard}>
               <div className={styles.miniPoster} style={bg("the-bear")} />
               <div className={styles.miniCap}>
@@ -198,8 +239,10 @@ export default function EditorialHome() {
           <span className={`${styles.eyebrow} ${styles.eyebrowDark}`}>Create · Fund · Distribute</span>
           <h2 className={`${styles.title} ${styles.titleDark}`}>How it works</h2>
 
+          <DrawLine />
+
           <div className={styles.stepsGrid}>
-            <div className={styles.step}>
+            <div className={`${styles.step} scroll-reveal`}>
               <span className={styles.num}>01</span>
               <span className={styles.bar} />
               <h4>Create</h4>
@@ -208,7 +251,7 @@ export default function EditorialHome() {
                 production assets.
               </p>
             </div>
-            <div className={styles.step}>
+            <div className={`${styles.step} scroll-reveal`}>
               <span className={styles.num}>02</span>
               <span className={styles.bar} />
               <h4>Fund</h4>
@@ -217,7 +260,7 @@ export default function EditorialHome() {
                 project&apos;s IP journey.
               </p>
             </div>
-            <div className={styles.step}>
+            <div className={`${styles.step} scroll-reveal`}>
               <span className={styles.num}>03</span>
               <span className={styles.bar} />
               <h4>Distribute</h4>
@@ -243,7 +286,7 @@ export default function EditorialHome() {
       <section className={`${styles.sec} ${styles.gridStage}`}>
         <div className={styles.wrap}>
           <div className={styles.agentsGrid}>
-            <div className={styles.agentsCopy}>
+            <div className={`${styles.agentsCopy} scroll-reveal`}>
               <span className={styles.eyebrow}>Your AI Agent</span>
               <h2 className={styles.title}>
                 Agents negotiate.
@@ -264,8 +307,8 @@ export default function EditorialHome() {
               </div>
             </div>
 
-            <div className={styles.agentCards}>
-              <article className={styles.agentCard}>
+            <div className={`${styles.agentCards} scroll-reveal`}>
+              <GlowDealCard>
                 <h4>Marlow</h4>
                 <p className={styles.agentRole}>Backer&apos;s AI Agent</p>
                 <div className={styles.agentTags}>
@@ -279,8 +322,8 @@ export default function EditorialHome() {
                   <p>US$4,200 · 5 milestones · 3 revisions · escrow protected</p>
                 </div>
                 <p className={styles.agentAwait}>Awaiting your approval</p>
-              </article>
-              <article className={styles.agentCard}>
+              </GlowDealCard>
+              <GlowDealCard>
                 <h4>Wren</h4>
                 <p className={styles.agentRole}>Creator&apos;s AI Agent</p>
                 <div className={styles.agentTags}>
@@ -294,7 +337,7 @@ export default function EditorialHome() {
                   <p>US$4,200 · portfolio rights retained · 5 milestones · escrow protected</p>
                 </div>
                 <p className={styles.agentAwait}>Awaiting your approval</p>
-              </article>
+              </GlowDealCard>
             </div>
           </div>
         </div>
@@ -304,7 +347,7 @@ export default function EditorialHome() {
       <section className={styles.dist}>
         <div className={styles.wrap}>
           <div className={styles.distGrid}>
-            <div>
+            <div className="scroll-reveal">
               <span className={`${styles.eyebrow} ${styles.eyebrowDark}`}>AI Distribution</span>
               <h2 className={`${styles.title} ${styles.titleDark}`}>
                 Made here.
@@ -322,7 +365,7 @@ export default function EditorialHome() {
               </div>
             </div>
 
-            <div>
+            <div className="scroll-reveal">
               <div className={styles.distSlate}>
                 <div className={styles.slateRow}>
                   <b>Streaming · 3 platforms · 12 regions</b>
@@ -337,7 +380,9 @@ export default function EditorialHome() {
                   <span className={styles.live}>Live</span>
                 </div>
               </div>
-              <p className={styles.slateFoot}>92 territories · 6 platforms · one agent</p>
+              <p className={styles.slateFoot}>
+                <StatCountUp value="92 territories · 6 platforms · one agent" />
+              </p>
             </div>
           </div>
         </div>
@@ -345,7 +390,8 @@ export default function EditorialHome() {
 
       {/* ── Join Spotlight (orange open call) ────────────────────────────── */}
       <section className={styles.join}>
-        <div className={styles.joinInner}>
+        <span className={`${styles.joinGlow} spotlight-breathe`} aria-hidden="true" />
+        <div className={`${styles.joinInner} scroll-reveal`}>
           <p className={styles.joinEyebrow}>Open Call · AI Film Slate</p>
           <div className={styles.joinAvatars}>
             {["neon-rain", "golden-core", "aurora-crystal", "crimson-mirage", "paper-lanterns"].map((p) => (
@@ -367,68 +413,12 @@ export default function EditorialHome() {
       {/* ── FAQ ──────────────────────────────────────────────────────────── */}
       <section className={`${styles.sec} ${styles.gridStage}`}>
         <div className={styles.wrap}>
-          <div className={styles.faqGrid}>
+          <div className={`${styles.faqGrid} scroll-reveal`}>
             <div className={styles.faqAnchor}>
               <h2 aria-hidden="true">FAQ</h2>
               <p>Everything you need to know</p>
             </div>
-            <div className={styles.faqRows}>
-              <div className={styles.faqRow}>
-                <h3>
-                  Is this like Fiverr or Upwork?
-                  <i>+</i>
-                </h3>
-                <p>
-                  No. Spotlight is a content commissioning platform, not a task marketplace. You
-                  commission full productions — brief to broadcast-ready — with IP protection and
-                  AI-managed delivery. Think executive producer, not task manager.
-                </p>
-              </div>
-              <div className={styles.faqRow}>
-                <h3>
-                  What does a Patron do?
-                  <i>+</i>
-                </h3>
-                <p>
-                  You fund and direct content. Post your creative brief, set your budget, and own the
-                  final work. Marlow, your AI agent, handles negotiation, scoping, and brief
-                  production. You review and approve.
-                </p>
-              </div>
-              <div className={styles.faqRow}>
-                <h3>
-                  How do Marlow and Wren work?
-                  <i>+</i>
-                </h3>
-                <p>
-                  Marlow is your AI Patron agent. Wren represents the Creator. They negotiate deal
-                  terms, scope deliverables, agree pricing, and produce a binding brief —
-                  automatically. You review and sign off. No awkward back-and-forth.
-                </p>
-              </div>
-              <div className={styles.faqRow}>
-                <h3>
-                  How does escrow work?
-                  <i>+</i>
-                </h3>
-                <p>
-                  Your full project budget is locked in escrow at signing. Creators receive payment at
-                  each approved milestone. Final IP transfers to you only when you approve delivery and
-                  release the final payment.
-                </p>
-              </div>
-              <div className={styles.faqRow}>
-                <h3>
-                  Who backs Spotlight?
-                  <i>+</i>
-                </h3>
-                <p>
-                  Spotlight is backed by one of Asia&apos;s most respected independent film production
-                  groups, with over 20 years of production experience across Hong Kong, Taiwan, and
-                  Southeast Asia.
-                </p>
-              </div>
-            </div>
+            <FaqAccordion items={FAQ_ITEMS} />
           </div>
         </div>
       </section>
@@ -437,7 +427,7 @@ export default function EditorialHome() {
       <footer className={`${styles.footer} ${styles.gridStage}`}>
         <span className={styles.topRule} />
         <div className={styles.wrap}>
-          <div className={styles.footerInner}>
+          <div className={`${styles.footerInner} scroll-reveal`}>
             <div className={styles.footerWord}>Spotlight</div>
             <Link href="/register" className={`${styles.btn} ${styles.btnOrange}`}>
               Join Spotlight →
