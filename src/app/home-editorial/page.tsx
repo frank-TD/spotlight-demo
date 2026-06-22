@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Montserrat } from "next/font/google";
+import EditorialDistribution from "./EditorialDistribution";
 import EditorialHeroVideo from "./EditorialHeroVideo";
 import { GlowDealCard, DrawLine, FaqAccordion } from "./motion";
 import styles from "./editorial.module.css";
@@ -366,23 +367,7 @@ export default function EditorialHome() {
             </div>
 
             <div className="scroll-reveal">
-              <div className={styles.distSlate}>
-                <div className={styles.slateRow}>
-                  <b>Streaming · 3 platforms · 12 regions</b>
-                  <span>Jun 28</span>
-                </div>
-                <div className={styles.slateRow}>
-                  <b>Festival circuit · 6 submissions</b>
-                  <span>Jul 09</span>
-                </div>
-                <div className={styles.slateRow}>
-                  <b>Streaming · 5 platforms · 31 regions</b>
-                  <span className={styles.live}>Live</span>
-                </div>
-              </div>
-              <p className={styles.slateFoot}>
-                <StatCountUp value="92 territories · 6 platforms · one agent" />
-              </p>
+              <EditorialDistribution />
             </div>
           </div>
         </div>
