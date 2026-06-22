@@ -169,7 +169,7 @@
 }
 .btnOrange { background: var(--orange); color: var(--white); }
 .btnOrange:hover { background: var(--orange-deep); }
-.btnGhost { background: transparent; border: 1.5px solid rgba(244, 240, 232, 0.42); color: var(--white); }
+.btnGhost { background: transparent; border: 1.5px solid rgba(244, 240, 232, 0.42); color: var(--white); text-shadow: 0 1px 10px rgba(0, 0, 0, 0.5); }
 .btnGhost:hover { border-color: var(--white); }
 .btnGhostDark { background: transparent; border: 1.5px solid rgba(28, 28, 28, 0.4); color: #1c1c1c; }
 .btnGhostDark:hover { border-color: #1c1c1c; }
@@ -207,14 +207,13 @@
   background:
     linear-gradient(90deg, transparent 12.4%, rgba(255, 255, 255, 0.07) 12.5%, transparent 12.6%),
     linear-gradient(90deg, transparent 49.95%, rgba(255, 255, 255, 0.05) 50%, transparent 50.05%),
-    linear-gradient(90deg, transparent 87.4%, rgba(255, 255, 255, 0.07) 87.5%, transparent 87.6%),
-    linear-gradient(90deg, rgba(20, 21, 21, 0.86) 0%, rgba(20, 21, 21, 0.58) 40%, rgba(20, 21, 21, 0.16) 74%, rgba(20, 21, 21, 0.34) 100%),
-    linear-gradient(180deg, rgba(20, 21, 21, 0.42) 0%, rgba(20, 21, 21, 0.04) 34%, rgba(20, 21, 21, 0.12) 60%, rgba(20, 21, 21, 0.64) 100%);
+    linear-gradient(90deg, transparent 87.4%, rgba(255, 255, 255, 0.07) 87.5%, transparent 87.6%);
 }
 .heroNav {
   position: relative;
   z-index: 5;
   padding-top: 30px;
+  text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55);
 }
 .heroNavInner {
   display: flex;
@@ -300,7 +299,7 @@
   text-transform: uppercase;
   letter-spacing: -0.02em;
   color: var(--white);
-  text-shadow: 0 2px 38px rgba(8, 8, 9, 0.55);
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.5), 0 2px 44px rgba(8, 8, 9, 0.5);
 }
 .heroTitle span { display: block; }
 .heroSub {
@@ -309,8 +308,8 @@
   font-size: clamp(14px, 1.2vw, 18px);
   line-height: 1.5;
   font-weight: 600;
-  color: rgba(244, 240, 232, 0.82);
-  text-shadow: 0 1px 20px rgba(8, 8, 9, 0.6);
+  color: rgba(244, 240, 232, 0.86);
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.72);
 }
 
 /* ── Trust band (数据条) ─────────────────────────────────────────────────── */
