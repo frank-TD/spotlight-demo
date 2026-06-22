@@ -51,13 +51,13 @@ export default function HeroCinematic() {
       {motionAllowed && (
         <MobileHeroVideo clips={HERO_VIDEO_CLIPS} playing={heroInView && pageVisible} />
       )}
-      {/* Editorial scrims only: darken left for the copy block, fade bottom to
-          black — no full-frame dim, so the footage reads at full brightness. */}
-      <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,8,10,0.78)_0%,rgba(8,8,10,0.38)_36%,rgba(8,8,10,0.05)_64%)] pointer-events-none" />
-      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,8,10,0.66)_0%,rgba(8,8,10,0.10)_34%,rgba(8,8,10,0.30)_62%,rgba(8,8,10,0.97)_100%)] pointer-events-none" />
+      {/* No grade over the footage — only a soft fade at the very bottom so the
+          hero blends into the next (black) section. Legibility comes from the
+          headline / CTA text-shadows below instead of a full overlay. */}
+      <div className="absolute inset-0 bg-[linear-gradient(180deg,transparent_0%,transparent_72%,rgba(8,8,10,0.85)_100%)] pointer-events-none" />
 
       <div className="relative h-full max-w-[1280px] mx-auto px-6 md:px-12 flex flex-col justify-center">
-        <h1 className="font-headline text-[64px] sm:text-[84px] md:text-[104px] leading-[1.02] tracking-tight text-on-surface">
+        <h1 className="font-headline text-[64px] sm:text-[84px] md:text-[104px] leading-[1.02] tracking-tight text-on-surface [text-shadow:0_2px_20px_rgba(0,0,0,0.6)]">
           <span className="block animate-fade-up" style={{ animationDelay: "120ms" }}>
             {t.landing.heroLine1}
           </span>
@@ -80,7 +80,7 @@ export default function HeroCinematic() {
         </h1>
 
         <p
-          className="font-body text-base md:text-lg text-on-surface-variant max-w-xl leading-relaxed mt-7 animate-fade-up"
+          className="font-body text-base md:text-lg text-on-surface-variant max-w-xl leading-relaxed mt-7 animate-fade-up [text-shadow:0_1px_14px_rgba(0,0,0,0.75)]"
           style={{ animationDelay: "440ms" }}
         >
           {t.homeV2.heroSub}
@@ -100,7 +100,7 @@ export default function HeroCinematic() {
           <button
             type="button"
             onClick={submit}
-            className="inline-flex items-center justify-center gap-2 font-label text-label-md uppercase tracking-widest text-on-surface px-7 py-4 rounded-full border border-on-surface/40 hover:bg-on-surface/5 hover:border-on-surface transition-colors"
+            className="inline-flex items-center justify-center gap-2 font-label text-label-md uppercase tracking-widest text-on-surface px-7 py-4 rounded-full border border-on-surface/40 hover:bg-on-surface/5 hover:border-on-surface transition-colors [text-shadow:0_1px_10px_rgba(0,0,0,0.55)]"
           >
             {t.homeV2.ctaSecondary}
           </button>
