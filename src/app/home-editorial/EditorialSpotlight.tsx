@@ -32,7 +32,7 @@ const FILMS: Film[] = [
     credit: "A film by Noa Vance · Berlin",
     seeking: "Seeking a backer · Est. ¥150K–520K",
     clip: "/videos/clips/hero-1.mp4",
-    still: "/posters/the-eighth-day.jpg",
+    still: "/posters/stay-for-tonight.webp",
   },
   {
     id: "past-lives",
