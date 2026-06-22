@@ -51,11 +51,8 @@ export default function HeroCinematic() {
       {motionAllowed && (
         <MobileHeroVideo clips={HERO_VIDEO_CLIPS} playing={heroInView && pageVisible} />
       )}
-      {/* Flat grade first: the source clips are bright daylight footage, so a
-          constant dim keeps them a moody texture and the transparent nav +
-          headline legible no matter which frame is on screen. */}
-      <div className="absolute inset-0 bg-surface/50 pointer-events-none" />
-      {/* Editorial scrims: darken left for the copy block, fade bottom to black. */}
+      {/* Editorial scrims only: darken left for the copy block, fade bottom to
+          black — no full-frame dim, so the footage reads at full brightness. */}
       <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(8,8,10,0.78)_0%,rgba(8,8,10,0.38)_36%,rgba(8,8,10,0.05)_64%)] pointer-events-none" />
       <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,8,10,0.66)_0%,rgba(8,8,10,0.10)_34%,rgba(8,8,10,0.30)_62%,rgba(8,8,10,0.97)_100%)] pointer-events-none" />
 
