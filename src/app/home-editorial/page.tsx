@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Montserrat } from "next/font/google";
 import EditorialDistribution from "./EditorialDistribution";
 import EditorialHeroVideo from "./EditorialHeroVideo";
+import EditorialSpotlight from "./EditorialSpotlight";
 import { GlowDealCard, DrawLine, FaqAccordion } from "./motion";
 import styles from "./editorial.module.css";
 import StatCountUp from "@/components/home/StatCountUp";
@@ -181,50 +182,7 @@ export default function EditorialHome() {
         </span>
         <div className={styles.wrap}>
           <span className={`${styles.eyebrow} scroll-reveal`}>In the Spotlight</span>
-
-          <div className={`${styles.leadSpread} scroll-reveal`}>
-            <div className={styles.leadMedia} style={bg("past-lives")} />
-            <div className={styles.leadInfo}>
-              <span className={styles.statusPill}>Open to back</span>
-              <h3>Past Lives</h3>
-              <p className={styles.leadMeta}>Romance · Feature Film · 106 min</p>
-              <p className={styles.leadLog}>
-                Two childhood friends, separated as kids in Seoul, reunite two decades later — caught
-                between the life they imagined and the one they chose.
-              </p>
-              <div className={styles.leadCredit}>
-                <b>A film by Aria Song · Seoul</b>
-                <span>Seeking a backer · Est. ¥120K–480K</span>
-              </div>
-              <Link href="/market" className={`${styles.btn} ${styles.btnOrange}`}>
-                Back this project →
-              </Link>
-            </div>
-          </div>
-
-          <div className={`${styles.moreFilms} scroll-reveal`}>
-            <article className={styles.miniCard}>
-              <div className={styles.miniPoster} style={bg("the-bear")} />
-              <div className={styles.miniCap}>
-                <b>The Bear</b>
-                <span>Marco Reyes</span>
-              </div>
-            </article>
-            <article className={styles.miniCard}>
-              <div className={styles.miniPoster} style={bg("die-my-love")} />
-              <div className={styles.miniCap}>
-                <b>Die My Love</b>
-                <span>Yuki Tanaka</span>
-              </div>
-            </article>
-            <article className={styles.miniCard}>
-              <div className={styles.miniPoster} style={bg("fish-bone")} />
-              <div className={styles.miniCap}>
-                <b>Fish Bone</b>
-                <span>Sofia Okonkwo</span>
-              </div>
-            </article>
-          </div>
+          <EditorialSpotlight />
         </div>
       </section>
 
