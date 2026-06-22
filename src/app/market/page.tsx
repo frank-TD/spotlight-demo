@@ -56,19 +56,19 @@ const ASPECT: Record<Aspect, string> = {
 };
 
 const WORKS: Work[] = [
-  { id: 1, title: "Aurora Crystal", creatorId: "u_creator_01", creator: "Aria Song", category: "Sci-Fi", poster: "/posters/aurora-crystal.jpg", aspect: "tall" },
-  { id: 2, title: "Golden Core", creatorId: "u_creator_02", creator: "Marco Reyes", category: "Abstract", poster: "/posters/golden-core.jpg", aspect: "landscape" },
-  { id: 3, title: "Neon Rain", creatorId: "u_creator_03", creator: "Yuki Tanaka", category: "Cinematic", poster: "/posters/neon-rain.jpg", aspect: "portrait" },
-  { id: 4, title: "Paper Lanterns", creatorId: "u_creator_04", creator: "Sofia Okonkwo", category: "Nature", poster: "/posters/paper-lanterns.jpg", aspect: "portrait" },
-  { id: 5, title: "Crimson Mirage", creatorId: "u_creator_05", creator: "Liang Wei", category: "Character", poster: "/posters/crimson-mirage.jpg", aspect: "wide" },
-  { id: 6, title: "The Eighth Day", creatorId: "u_creator_06", creator: "Nadia Haddad", category: "Cinematic", poster: "/posters/the-eighth-day.jpg", aspect: "tall" },
-  { id: 7, title: "Voidbound", creatorId: "u_creator_05", creator: "Liang Wei", category: "Sci-Fi", poster: "/posters/crimson-mirage.jpg", aspect: "portrait" },
-  { id: 8, title: "Stellar Bloom", creatorId: "u_creator_03", creator: "Yuki Tanaka", category: "Nature", poster: "/posters/neon-rain.jpg", aspect: "landscape" },
-  { id: 9, title: "Glass Garden", creatorId: "u_creator_01", creator: "Aria Song", category: "Architecture", poster: "/posters/aurora-crystal.jpg", aspect: "portrait" },
-  { id: 10, title: "Maison Aurelle", creatorId: "u_creator_06", creator: "Nadia Haddad", category: "Abstract", poster: "/posters/the-eighth-day.jpg", aspect: "square" },
+  { id: 1, title: "Past Lives", creatorId: "u_creator_01", creator: "Aria Song", category: "Romance", poster: "/posters/past-lives.jpg", aspect: "portrait" },
+  { id: 2, title: "The Bear", creatorId: "u_creator_02", creator: "Marco Reyes", category: "Drama", poster: "/posters/the-bear.jpg", aspect: "portrait" },
+  { id: 3, title: "Die My Love", creatorId: "u_creator_03", creator: "Yuki Tanaka", category: "Drama", poster: "/posters/die-my-love.jpg", aspect: "portrait" },
+  { id: 4, title: "Marty Supreme", creatorId: "u_creator_04", creator: "Sofia Okonkwo", category: "Drama", poster: "/posters/marty-supreme.jpg", aspect: "portrait" },
+  { id: 5, title: "Exit 8", creatorId: "u_creator_05", creator: "Liang Wei", category: "Thriller", poster: "/posters/exit-8.jpg", aspect: "portrait" },
+  { id: 6, title: "Dallas Buyers Club", creatorId: "u_creator_06", creator: "Nadia Haddad", category: "Drama", poster: "/posters/dallas-buyers-club.jpg", aspect: "portrait" },
+  { id: 7, title: "Gringo", creatorId: "u_creator_05", creator: "Liang Wei", category: "Comedy", poster: "/posters/gringo.jpg", aspect: "portrait" },
+  { id: 8, title: "Fish Bone", creatorId: "u_creator_03", creator: "Yuki Tanaka", category: "Drama", poster: "/posters/fish-bone.jpg", aspect: "portrait" },
+  { id: 9, title: "Love Will Tear Us Apart", creatorId: "u_creator_01", creator: "Aria Song", category: "Romance", poster: "/posters/love-tears-us-apart.jpg", aspect: "portrait" },
+  { id: 10, title: "Who Are You?", creatorId: "u_creator_06", creator: "Nadia Haddad", category: "Documentary", poster: "/posters/who-are-you.jpg", aspect: "portrait" },
 ];
 
-const CATEGORIES = ["All", "Cinematic", "Character", "Sci-Fi", "Abstract", "Nature", "Architecture"];
+const CATEGORIES = ["All", "Drama", "Romance", "Thriller", "Comedy", "Documentary"];
 const BRIEF_FILTERS = ["All Briefs", "AI Film", "Brand Film", "Music Video", "Trailer", "High Budget"];
 
 const COPY = {
@@ -85,9 +85,9 @@ const COPY = {
 } as const;
 
 const BRIEF_POSTER: Record<string, string> = {
-  need_001: "/posters/golden-core.jpg",
-  need_003: "/posters/neon-rain.jpg",
-  need_006: "/posters/the-eighth-day.jpg",
+  need_001: "/posters/the-bear.jpg",
+  need_003: "/posters/exit-8.jpg",
+  need_006: "/posters/marty-supreme.jpg",
 };
 const TYPE_WORD: Record<string, string> = {
   Commercial: "Hero Video",
@@ -509,9 +509,6 @@ function WorkCard({
             <span className="font-label text-[9px] uppercase tracking-widest text-on-surface/70">
               {w.category}
             </span>
-            <p className="font-headline italic text-on-surface text-[17px] leading-tight mt-0.5">
-              {w.title}
-            </p>
             <p className="font-label text-[10px] uppercase tracking-widest text-on-surface/65 mt-1">
               by {w.creator}
             </p>
