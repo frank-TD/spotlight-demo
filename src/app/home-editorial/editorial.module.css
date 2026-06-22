@@ -368,14 +368,14 @@
 .spotlightWatermark { top: 40px; right: 9%; font-size: clamp(60px, 9vw, 150px); }
 .leadSpread {
   display: grid;
-  grid-template-columns: 7fr 5fr;
-  gap: clamp(28px, 4vw, 64px);
+  grid-template-columns: minmax(0, 440px) 1fr;
+  gap: clamp(28px, 4vw, 72px);
   align-items: center;
   margin-top: clamp(38px, 5vh, 64px);
 }
 .leadMedia {
   position: relative;
-  aspect-ratio: 3 / 2;
+  aspect-ratio: 2 / 3;
   overflow: hidden;
   background-position: center;
   background-size: cover;
@@ -436,53 +436,33 @@
 .moreFilms {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  gap: clamp(18px, 2vw, 28px);
   margin-top: clamp(40px, 5vh, 64px);
 }
-.miniCard {
+.miniPoster {
   position: relative;
-  height: 158px;
+  aspect-ratio: 2 / 3;
   overflow: hidden;
   background-position: center;
   background-size: cover;
+  border: 1px solid rgba(244, 240, 232, 0.16);
   box-shadow: 0 24px 44px rgba(0, 0, 0, 0.38);
 }
-.miniCard::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(90deg, rgba(22, 23, 23, 0.82), rgba(22, 23, 23, 0.4) 70%, rgba(22, 23, 23, 0.1));
+.miniCap {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
 }
-.miniText { position: absolute; top: 26px; left: 26px; right: 96px; z-index: 2; }
-.miniText b { display: block; font-size: 22px; line-height: 1.0; font-weight: 800; color: var(--white); text-transform: uppercase; }
-.miniText span {
-  display: block;
-  margin-top: 12px;
-  color: rgba(244, 240, 232, 0.42);
+.miniCap b { font-size: 15px; font-weight: 800; text-transform: uppercase; color: var(--white); }
+.miniCap span {
   font-size: 10px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-}
-.miniCard aside {
-  position: absolute;
-  top: 0;
-  right: 0;
-  z-index: 2;
-  width: 84px;
-  height: 100%;
-  padding: 22px 12px;
-  background: var(--orange);
-  display: flex;
-  align-items: flex-end;
-}
-.miniCard aside small {
-  font-size: 8px;
-  line-height: 1.2;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
-  color: var(--white);
+  letter-spacing: 0.1em;
+  color: rgba(244, 240, 232, 0.5);
+  white-space: nowrap;
 }
 
 /* ── Create · Fund · Distribute (paper) ──────────────────────────────────── */

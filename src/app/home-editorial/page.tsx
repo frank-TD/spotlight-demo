@@ -140,14 +140,14 @@ export default function EditorialHome() {
           <span className={styles.eyebrow}>In the Spotlight</span>
 
           <div className={styles.leadSpread}>
-            <div className={styles.leadMedia} style={bg("crimson-mirage")} />
+            <div className={styles.leadMedia} style={bg("past-lives")} />
             <div className={styles.leadInfo}>
               <span className={styles.statusPill}>Open to back</span>
-              <h3>Celestial Entity</h3>
-              <p className={styles.leadMeta}>Cinematic · Feature Film · 96 min</p>
+              <h3>Past Lives</h3>
+              <p className={styles.leadMeta}>Romance · Feature Film · 106 min</p>
               <p className={styles.leadLog}>
-                A deep-space salvage crew finds something that has been waiting longer than the stars
-                themselves.
+                Two childhood friends, separated as kids in Seoul, reunite two decades later — caught
+                between the life they imagined and the one they chose.
               </p>
               <div className={styles.leadCredit}>
                 <b>A film by Aria Song · Seoul</b>
@@ -160,44 +160,26 @@ export default function EditorialHome() {
           </div>
 
           <div className={styles.moreFilms}>
-            <article className={styles.miniCard} style={bg("neon-rain")}>
-              <div className={styles.miniText}>
-                <b>Neon Rain</b>
-                <span>In Production</span>
+            <article className={styles.miniCard}>
+              <div className={styles.miniPoster} style={bg("the-bear")} />
+              <div className={styles.miniCap}>
+                <b>The Bear</b>
+                <span>Marco Reyes</span>
               </div>
-              <aside>
-                <small>
-                  By Marco Reyes
-                  <br />
-                  Brand Film
-                </small>
-              </aside>
             </article>
-            <article className={styles.miniCard} style={bg("golden-core")}>
-              <div className={styles.miniText}>
-                <b>Golden Core</b>
-                <span>Open to back</span>
+            <article className={styles.miniCard}>
+              <div className={styles.miniPoster} style={bg("die-my-love")} />
+              <div className={styles.miniCap}>
+                <b>Die My Love</b>
+                <span>Yuki Tanaka</span>
               </div>
-              <aside>
-                <small>
-                  By Sofia Okonkwo
-                  <br />
-                  Documentary
-                </small>
-              </aside>
             </article>
-            <article className={styles.miniCard} style={bg("paper-lanterns")}>
-              <div className={styles.miniText}>
-                <b>Paper Lanterns</b>
-                <span>Released</span>
+            <article className={styles.miniCard}>
+              <div className={styles.miniPoster} style={bg("fish-bone")} />
+              <div className={styles.miniCap}>
+                <b>Fish Bone</b>
+                <span>Sofia Okonkwo</span>
               </div>
-              <aside>
-                <small>
-                  By Yuki Tanaka
-                  <br />
-                  AI Short Film
-                </small>
-              </aside>
             </article>
           </div>
         </div>
