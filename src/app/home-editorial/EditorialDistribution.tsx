@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from "react";
 import styles from "./editorial.module.css";
 import CountUp from "@/components/common/CountUp";
-import { RELEASED_SHOWCASE } from "@/lib/mock-data";
+import { EDITORIAL_RELEASES } from "@/lib/mock-data";
 
 // Editorial Distribution "report" — proof that films shipped: a lead released
 // poster + its post-release metrics counting up, with a thumbnail switcher for
@@ -11,7 +11,7 @@ import { RELEASED_SHOWCASE } from "@/lib/mock-data";
 // scrolls into view and re-count when you switch films.
 
 export default function EditorialDistribution() {
-  const films = RELEASED_SHOWCASE.films;
+  const films = EDITORIAL_RELEASES;
   const [active, setActive] = useState(0);
   const [inView, setInView] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
@@ -84,8 +84,10 @@ export default function EditorialDistribution() {
             aria-label={`Show ${f.title}`}
             aria-pressed={i === active}
             className={i === active ? styles.relThumbOn : styles.relThumb}
-            style={{ backgroundImage: `url(${f.poster})` }}
-          />
+          >
+            <span className={styles.relThumbImg} style={{ backgroundImage: `url(${f.poster})` }} />
+            <span className={styles.relThumbDate}>{f.releaseDate}</span>
+          </button>
         ))}
       </div>
     </div>

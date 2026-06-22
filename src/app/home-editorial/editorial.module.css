@@ -666,27 +666,48 @@
 }
 .relSwitch {
   display: flex;
-  gap: 12px;
-  margin-top: 26px;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 30px;
+  padding-top: 24px;
+  border-top: 1px solid rgba(28, 28, 28, 0.2);
 }
 .relThumb,
 .relThumbOn {
-  width: 54px;
-  height: 76px;
+  width: 62px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
   padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+.relThumbImg {
+  width: 100%;
+  aspect-ratio: 2 / 3;
   background-position: center;
   background-size: cover;
   border: 1px solid rgba(28, 28, 28, 0.25);
-  cursor: pointer;
   transition: opacity 0.25s ease, border-color 0.25s ease, transform 0.25s ease;
 }
-.relThumb { opacity: 0.55; }
-.relThumb:hover { opacity: 0.85; }
-.relThumbOn {
+.relThumb .relThumbImg { opacity: 0.55; }
+.relThumb:hover .relThumbImg { opacity: 0.85; }
+.relThumbOn .relThumbImg {
   opacity: 1;
   border: 2px solid var(--orange);
   transform: translateY(-2px);
 }
+.relThumbDate {
+  font-size: 8px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: rgba(28, 28, 28, 0.55);
+  white-space: nowrap;
+}
+.relThumbOn .relThumbDate { color: var(--orange-deep); }
 
 /* ── Join Spotlight (orange) ─────────────────────────────────────────────── */
 .join {
