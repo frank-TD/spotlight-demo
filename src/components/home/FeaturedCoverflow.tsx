@@ -323,10 +323,7 @@ function CoverCard({
       </span>
 
       <div className="absolute inset-x-0 bottom-0 p-5">
-        <h3 className="font-headline text-[26px] md:text-[30px] leading-tight text-on-surface">
-          {project.title}
-        </h3>
-        <p className="font-label text-[12px] uppercase tracking-[0.18em] text-primary/95 mt-2.5">
+        <p className="font-label text-[12px] uppercase tracking-[0.18em] text-primary/95">
           {t.homeV2.filmBy} {project.creator}
         </p>
       </div>
