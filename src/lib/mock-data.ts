@@ -535,34 +535,6 @@ const EXTRA_RELEASES = [
       { value: 24, suffix: "", decimals: 0, label: "Regions" },
     ],
   },
-  {
-    id: "gringo",
-    title: "Gringo",
-    poster: mediaUrl("/posters/gringo.jpg"),
-    releaseDate: "Dec 2025",
-    type: "Feature Film · Streaming",
-    distribution: "Streaming · 3 Platforms · 9 Regions",
-    metrics: [
-      { value: 640, suffix: "K", decimals: 0, label: "Total Views" },
-      { value: 61, suffix: "%", decimals: 0, label: "Avg. Completion" },
-      { value: 38, suffix: "K", decimals: 0, label: "Audience Actions" },
-      { value: 9, suffix: "", decimals: 0, label: "Regions" },
-    ],
-  },
-  {
-    id: "fish-bone",
-    title: "Fish Bone",
-    poster: mediaUrl("/posters/fish-bone.jpg"),
-    releaseDate: "Nov 2025",
-    type: "Feature Film · Festival Circuit",
-    distribution: "Festival Circuit · 5 Submissions · 7 Regions",
-    metrics: [
-      { value: 480, suffix: "K", decimals: 0, label: "Total Views" },
-      { value: 79, suffix: "%", decimals: 0, label: "Avg. Completion" },
-      { value: 41, suffix: "K", decimals: 0, label: "Audience Actions" },
-      { value: 7, suffix: "", decimals: 0, label: "Regions" },
-    ],
-  },
 ] as const;
 
 // Full released slate for the editorial distribution report (live homepage
