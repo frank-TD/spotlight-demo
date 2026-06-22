@@ -193,25 +193,23 @@
 .heroPhoto {
   position: absolute;
   inset: 0;
+  overflow: hidden;
+}
+.heroPhotoStill {
+  position: absolute;
+  inset: 0;
   background-position: center;
   background-size: cover;
 }
-.heroPhoto::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    linear-gradient(90deg, rgba(20, 21, 21, 0.86) 0%, rgba(20, 21, 21, 0.58) 40%, rgba(20, 21, 21, 0.16) 74%, rgba(20, 21, 21, 0.34) 100%),
-    linear-gradient(180deg, rgba(20, 21, 21, 0.42) 0%, rgba(20, 21, 21, 0.04) 34%, rgba(20, 21, 21, 0.12) 60%, rgba(20, 21, 21, 0.64) 100%);
-}
-.heroPhoto::after {
-  content: "";
+.heroScrim {
   position: absolute;
   inset: 0;
   background:
     linear-gradient(90deg, transparent 12.4%, rgba(255, 255, 255, 0.07) 12.5%, transparent 12.6%),
     linear-gradient(90deg, transparent 49.95%, rgba(255, 255, 255, 0.05) 50%, transparent 50.05%),
-    linear-gradient(90deg, transparent 87.4%, rgba(255, 255, 255, 0.07) 87.5%, transparent 87.6%);
+    linear-gradient(90deg, transparent 87.4%, rgba(255, 255, 255, 0.07) 87.5%, transparent 87.6%),
+    linear-gradient(90deg, rgba(20, 21, 21, 0.86) 0%, rgba(20, 21, 21, 0.58) 40%, rgba(20, 21, 21, 0.16) 74%, rgba(20, 21, 21, 0.34) 100%),
+    linear-gradient(180deg, rgba(20, 21, 21, 0.42) 0%, rgba(20, 21, 21, 0.04) 34%, rgba(20, 21, 21, 0.12) 60%, rgba(20, 21, 21, 0.64) 100%);
 }
 .heroNav {
   position: relative;

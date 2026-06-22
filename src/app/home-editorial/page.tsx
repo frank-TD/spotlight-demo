@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Montserrat } from "next/font/google";
+import EditorialHeroVideo from "./EditorialHeroVideo";
 import styles from "./editorial.module.css";
 
 // Editorial homepage — Spotlight's full homepage in the "A United"
@@ -32,7 +33,7 @@ export default function EditorialHome() {
     <main className={`${styles.root} ${mont.className}`}>
       {/* ── Hero (promoted full-bleed screen) ────────────────────────────── */}
       <section className={styles.hero}>
-        <div className={styles.heroPhoto} style={bg("aurora-crystal")} aria-hidden="true" />
+        <EditorialHeroVideo />
         <span className={styles.topRule} />
         <span className={`${styles.axis} ${styles.axisLeft}`} />
         <span className={`${styles.axis} ${styles.axisRight}`} />

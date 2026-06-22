@@ -342,17 +342,24 @@ export interface VideoClip {
 export const HERO_VIDEO_POSTER =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='8' height='8' fill='%2308080a'/%3E%3C/svg%3E";
 
-const HERO_CLIP_IDS = ["3917525", "8059683", "7596081", "3917513"];
+// Hero background pool — the three uploaded films cross-fade as the hero reel.
+const HERO_CLIP_IDS = ["hero-1", "hero-2", "hero-3"];
+// Older clips stay available only for the "In the Spotlight" preview lookups.
+const FEATURED_CLIP_IDS = ["3917525", "8059683", "7596081", "3917513"];
 
-export const HERO_VIDEO_CLIPS: VideoClip[] = HERO_CLIP_IDS.map((id) => ({
+const toClip = (id: string): VideoClip => ({
   id,
   src: mediaUrl(`/videos/clips/${id}.mp4`),
-  poster: mediaUrl(`/videos/clips/${id}.jpg`),
-}));
+  // The new hero clips ship without a baked first-frame still, so fall back to
+  // the flat dark poster; the older featured clips keep their .jpg posters.
+  poster: id.startsWith("hero-") ? HERO_VIDEO_POSTER : mediaUrl(`/videos/clips/${id}.jpg`),
+});
+
+export const HERO_VIDEO_CLIPS: VideoClip[] = HERO_CLIP_IDS.map(toClip);
 
 // Lookup so featured projects can reference a clip by id for their preview.
 export const VIDEO_CLIP_BY_ID: Record<string, VideoClip> = Object.fromEntries(
-  HERO_VIDEO_CLIPS.map((clip) => [clip.id, clip])
+  [...HERO_CLIP_IDS, ...FEATURED_CLIP_IDS].map((id) => [id, toClip(id)])
 );
 
 // ── Featured projects (homepage "In the Spotlight" curation) ─────────────────
