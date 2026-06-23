@@ -14,6 +14,7 @@ import {
   Menu,
   X,
   LayoutGrid,
+  Workflow,
 } from "lucide-react";
 import { useStore } from "@/lib/store";
 import { useT } from "@/hooks/useT";
@@ -69,6 +70,9 @@ export default function TopNav() {
   // from the primary tabs (outlined pill) so it reads as an internal preview
   // link, not a product section. Remove once a direction is chosen.
   const previewsActive = pathname.startsWith("/previews");
+  // Standalone entry to the Spotlight Agent prototype. Uses the cool agent
+  // accent (not gold) so it reads as the embedded intelligence layer.
+  const agentActive = pathname.startsWith("/agent-demo");
 
   const handleLogout = () => {
     logout();
@@ -119,6 +123,18 @@ export default function TopNav() {
               >
                 <LayoutGrid className="w-3.5 h-3.5" />
                 {t.nav.drafts}
+              </Link>
+              <Link
+                href="/agent-demo"
+                className={cn(
+                  "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border font-label text-label-md uppercase tracking-widest whitespace-nowrap transition-colors",
+                  agentActive
+                    ? "border-agent/60 text-agent"
+                    : "border-outline-variant/40 text-on-surface-variant hover:text-agent hover:border-agent/50"
+                )}
+              >
+                <Workflow className="w-3.5 h-3.5" />
+                Agent
               </Link>
             </nav>
           </div>
@@ -326,6 +342,18 @@ export default function TopNav() {
               )}
             >
               <LayoutGrid className="w-4 h-4" /> {t.nav.drafts}
+            </Link>
+            <Link
+              href="/agent-demo"
+              onClick={() => setMobileOpen(false)}
+              className={cn(
+                "flex items-center gap-3 px-4 py-3 rounded-lg font-label text-label-md uppercase tracking-widest transition-colors",
+                agentActive
+                  ? "bg-agent/15 text-agent"
+                  : "text-on-surface-variant hover:bg-surface-container hover:text-agent"
+              )}
+            >
+              <Workflow className="w-4 h-4" /> Agent
             </Link>
           </nav>
           <div className="border-t border-outline-variant/30 px-3 py-3 space-y-1">
