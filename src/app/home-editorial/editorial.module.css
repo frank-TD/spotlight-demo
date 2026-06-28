@@ -41,10 +41,19 @@
 /* ── Colour variants ─────────────────────────────────────────────────────────
    The entire accent is driven by --orange / --orange-deep, so a variant only
    re-declares those two on the root. `.root.themeFanvue` (two classes) outranks
-   the base `.root` regardless of source order. Fanvue brand: electric green. */
+   the base `.root` regardless of source order. Fanvue brand: a fluorescent
+   spring-green. Because the green is so luminous, filled accent buttons switch
+   to dark ink text (how Fanvue's own buttons render) — far better contrast than
+   the white text the orange theme uses. */
 .root.themeFanvue {
-  --orange: #00e58a;
-  --orange-deep: #00b26c;
+  --orange: #1fe96b;
+  --orange-deep: #13c456;
+}
+.root.themeFanvue .btnOrange {
+  color: var(--ink);
+}
+.root.themeFanvue .spotPlay span {
+  color: var(--ink);
 }
 
 /* ── Shared stages / grid scaffolding ────────────────────────────────────── */

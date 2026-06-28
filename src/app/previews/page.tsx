@@ -48,8 +48,8 @@ const DRAFTS: Draft[] = [
     name: "Editorial — Fanvue Green",
     route: "/home-editorial-fanvue",
     thumb: "/previews/home-editorial-fanvue.jpg",
-    accent: "#00e58a",
-    desc: "The editorial layout retinted to Fanvue's electric brand green — same Swiss grid, orange swapped for vivid green.",
+    accent: "#1fe96b",
+    desc: "The editorial layout retinted to Fanvue's fluorescent brand green — same Swiss grid, orange swapped for vivid neon green.",
   },
   {
     name: "ONYX",
