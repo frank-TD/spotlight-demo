@@ -45,6 +45,20 @@ const DRAFTS: Draft[] = [
     desc: "Swiss editorial: charcoal, sand & orange, Montserrat, structural grid, outlined watermark titles.",
   },
   {
+    name: "Editorial — Fanvue Green",
+    route: "/home-editorial-fanvue",
+    thumb: "/previews/home-editorial-fanvue.jpg",
+    accent: "#1fe96b",
+    desc: "The editorial layout retinted to Fanvue's fluorescent brand green — same Swiss grid, orange swapped for vivid neon green.",
+  },
+  {
+    name: "Editorial — Black + Lime",
+    route: "/home-editorial-lime",
+    thumb: "/previews/home-editorial-lime.jpg",
+    accent: "#c6ff34",
+    desc: "An all-dark take: charcoal and pure-black stages with an electric lime accent — the cream paper sections go black.",
+  },
+  {
     name: "ONYX",
     route: "/home-onyx",
     thumb: "/previews/home-onyx.jpg",

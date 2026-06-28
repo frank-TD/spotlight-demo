@@ -32,7 +32,7 @@ export function GlowDealCard({ children }: { children: ReactNode }) {
       ref={ref}
       onPointerMove={(e) => ref.current && setBorderGlow(ref.current, e.clientX, e.clientY)}
       className={`${styles.agentCard} border-glow-card`}
-      style={{ "--glow-color": "#f25a05" } as CSSProperties}
+      style={{ "--glow-color": "var(--orange)" } as CSSProperties}
     >
       <span className="border-glow" aria-hidden="true" />
       {children}
