@@ -70,6 +70,64 @@
   color: var(--white);
 }
 
+/* ── Black + Lime variant (themeLime) ────────────────────────────────────────
+   An all-dark reading of the Black + Lime palette: charcoal stages (--ink, kept)
+   and pure-black stages (the former cream "paper" sections, --paper → #000),
+   unified by an electric lime accent. Lime is so luminous that every filled-lime
+   surface (buttons, badges) takes dark ink text, and the now-black paper sections
+   invert their copy + hairlines from charcoal to light. The Join field becomes a
+   full lime panel with charcoal type — the "lime panel, black type" pairing from
+   the palette card. */
+.root.themeLime {
+  --orange: #c6ff34;
+  --orange-deep: #aee62a;
+  --paper: #000000;
+}
+/* Dark text on every filled-lime surface. */
+.root.themeLime .btnOrange,
+.root.themeLime .spotPlay span,
+.root.themeLime .relBadge {
+  color: var(--ink);
+}
+.root.themeLime .relBadge::before {
+  background: var(--ink);
+}
+/* Former cream stages are now pure black — flip copy + hairlines to light. */
+.root.themeLime .steps,
+.root.themeLime .dist,
+.root.themeLime .eyebrowDark,
+.root.themeLime .titleDark,
+.root.themeLime .step h4,
+.root.themeLime .relMeta h3,
+.root.themeLime .relMetric b {
+  color: var(--white);
+}
+.root.themeLime .step p { color: rgba(244, 240, 232, 0.66); }
+.root.themeLime .distBody { color: rgba(244, 240, 232, 0.68); }
+.root.themeLime .relHead { color: rgba(244, 240, 232, 0.6); border-bottom-color: rgba(244, 240, 232, 0.2); }
+.root.themeLime .relMetric span { color: rgba(244, 240, 232, 0.6); }
+.root.themeLime .relMetrics { border-top-color: rgba(244, 240, 232, 0.2); }
+.root.themeLime .relSwitch { border-top-color: rgba(244, 240, 232, 0.2); }
+.root.themeLime .relThumbDate { color: rgba(244, 240, 232, 0.55); }
+.root.themeLime .relPoster { border-color: rgba(244, 240, 232, 0.18); }
+.root.themeLime .relThumbImg { border-color: rgba(244, 240, 232, 0.25); }
+.root.themeLime .step .num { -webkit-text-stroke-color: rgba(244, 240, 232, 0.22); }
+.root.themeLime .outlineDark { -webkit-text-stroke-color: rgba(244, 240, 232, 0.16); }
+.root.themeLime .btnGhostDark { border-color: rgba(244, 240, 232, 0.4); color: var(--white); }
+.root.themeLime .btnGhostDark:hover { border-color: var(--white); }
+/* Join: a full lime field → charcoal copy; the dark .btnDark button reads well. */
+.root.themeLime .join,
+.root.themeLime .joinTitle { color: var(--ink); }
+.root.themeLime .joinEyebrow { color: rgba(28, 28, 28, 0.82); }
+.root.themeLime .joinSlateMeta { color: rgba(28, 28, 28, 0.78); }
+.root.themeLime .joinSub { color: rgba(28, 28, 28, 0.82); }
+.root.themeLime .joinAvatars span { border-color: rgba(28, 28, 28, 0.6); }
+.root.themeLime .joinGlow { background: radial-gradient(ellipse 46% 42% at 50% 32%, rgba(255, 255, 255, 0.3), transparent 64%); }
+/* The CTA is an <a>, and `.root a { color: inherit }` outranks `.btnDark`, so it
+   would inherit the panel's now-dark copy. Pin it: a pure-black button with lime
+   type — the sharpest Black + Lime pairing on the lime field. */
+.root.themeLime .join .btnDark { background: #000000; color: var(--orange); }
+
 /* ── Shared stages / grid scaffolding ────────────────────────────────────── */
 .gridStage {
   position: relative;

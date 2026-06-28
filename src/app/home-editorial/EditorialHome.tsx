@@ -12,7 +12,8 @@ import ScrollReveal from "@/components/home/ScrollReveal";
 // palette is scoped under `.root` and the accent is driven by two CSS vars
 // (--orange / --orange-deep), so a variant only needs to add a theme class
 // that overrides them — the markup is identical. `theme` selects that class:
-// "orange" is the original; "fanvue" retints the accent to the brand green.
+// "orange" is the original; "fanvue" retints to the brand green; "lime" is the
+// all-dark Black + Lime palette.
 
 const mont = Montserrat({ subsets: ["latin"], weight: ["400", "500", "600", "700", "800"], display: "swap" });
 
@@ -51,8 +52,9 @@ function Mark({ className }: { className?: string }) {
   );
 }
 
-export default function EditorialHome({ theme = "orange" }: { theme?: "orange" | "fanvue" }) {
-  const rootClass = `${styles.root} ${mont.className}${theme === "fanvue" ? ` ${styles.themeFanvue}` : ""}`;
+export default function EditorialHome({ theme = "orange" }: { theme?: "orange" | "fanvue" | "lime" }) {
+  const themeClass = theme === "fanvue" ? styles.themeFanvue : theme === "lime" ? styles.themeLime : "";
+  const rootClass = `${styles.root} ${mont.className}${themeClass ? ` ${themeClass}` : ""}`;
   return (
     <main className={rootClass}>
       <ScrollReveal />
