@@ -186,6 +186,12 @@
   --color-error-container: var(--md-error-container);
   --color-on-error-container: var(--md-on-error-container);
 
+  /* Agent intelligence-layer accent — a cool iris-blue, distinct from the gold
+     brand, so embedded Agent UI reads as a separate intelligence layer. */
+  --color-agent: #6ea8ff;
+  --color-agent-bright: #a9c8ff;
+  --color-agent-dim: #3f6bb8;
+
   /* shadcn aliases continue to work */
   --color-background: var(--background);
   --color-foreground: var(--foreground);
