@@ -55,6 +55,20 @@
 .root.themeFanvue .spotPlay span {
   color: var(--ink);
 }
+/* The neon green pops on the dark stages but washes out on the light "paper"
+   stages (Steps, Distribution). Those sections re-declare the accent to a
+   deeper green of the same hue — legible on cream — which cascades to every
+   accent inside them. Their filled buttons flip back to light text since the
+   fill is now dark enough. */
+.root.themeFanvue .steps,
+.root.themeFanvue .dist {
+  --orange: #0a6e3a;
+  --orange-deep: #085a2f;
+}
+.root.themeFanvue .steps .btnOrange,
+.root.themeFanvue .dist .btnOrange {
+  color: var(--white);
+}
 
 /* ── Shared stages / grid scaffolding ────────────────────────────────────── */
 .gridStage {
