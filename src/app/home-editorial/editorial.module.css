@@ -38,6 +38,15 @@
   margin: 0;
 }
 
+/* ── Colour variants ─────────────────────────────────────────────────────────
+   The entire accent is driven by --orange / --orange-deep, so a variant only
+   re-declares those two on the root. `.root.themeFanvue` (two classes) outranks
+   the base `.root` regardless of source order. Fanvue brand: electric green. */
+.root.themeFanvue {
+  --orange: #00e58a;
+  --orange-deep: #00b26c;
+}
+
 /* ── Shared stages / grid scaffolding ────────────────────────────────────── */
 .gridStage {
   position: relative;
