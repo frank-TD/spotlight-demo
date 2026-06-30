@@ -32,7 +32,7 @@ export default function AboutPage() {
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 pt-14 pb-20">
         <div className="animate-fade-up max-w-2xl">
           <SectionLabel>Spotlight</SectionLabel>
-          <h1 className="font-headline text-5xl md:text-6xl text-on-surface leading-tight mt-6">
+          <h1 className="font-headline text-5xl md:text-6xl font-extrabold uppercase tracking-tight text-on-surface leading-[1.02] mt-6">
             {t.aboutPage.title}
           </h1>
           <p className="font-body text-lg text-on-surface leading-relaxed mt-7">
@@ -45,7 +45,7 @@ export default function AboutPage() {
 
         {/* Backing */}
         <div className="scroll-reveal mt-20 border-t border-outline-variant/40 pt-10 grid md:grid-cols-[320px_1fr] gap-6 md:gap-12">
-          <h2 className="font-headline text-2xl md:text-3xl text-on-surface">
+          <h2 className="font-headline text-2xl md:text-3xl font-extrabold uppercase tracking-tight text-on-surface">
             {t.aboutPage.backingTitle}
           </h2>
           <p className="font-body text-on-surface-variant leading-relaxed max-w-2xl">
@@ -67,7 +67,7 @@ export default function AboutPage() {
               <span className="inline-flex items-center justify-center w-11 h-11 rounded-full bg-primary/10 text-primary">
                 <p.icon className="w-5 h-5" />
               </span>
-              <h3 className="font-headline text-xl text-on-surface mt-5">{p.title}</h3>
+              <h3 className="font-headline text-xl font-extrabold uppercase tracking-tight text-on-surface mt-5">{p.title}</h3>
               <p className="font-body text-sm text-on-surface-variant leading-relaxed mt-2.5">
                 {p.body}
               </p>
@@ -75,16 +75,20 @@ export default function AboutPage() {
           ))}
         </div>
 
-        {/* Network stats */}
-        <div className="scroll-reveal mt-20 border-y border-outline-variant/40 py-12 grid grid-cols-3 gap-6 text-center">
-          {stats.map((s) => (
-            <div key={s.label}>
-              <p className="font-headline text-3xl md:text-4xl text-primary">{s.value}</p>
-              <p className="font-label text-[12px] uppercase tracking-[0.18em] text-on-surface-variant mt-2">
-                {s.label}
-              </p>
-            </div>
-          ))}
+        {/* Network stats — editorial lime data panel */}
+        <div className="scroll-reveal mt-20 flex justify-center">
+          <div className="grid grid-cols-3 rounded-2xl border border-primary/30 bg-primary/[0.05] divide-x divide-primary/20">
+            {stats.map((s) => (
+              <div key={s.label} className="px-7 md:px-14 py-9 text-center">
+                <p className="font-headline text-3xl md:text-5xl font-extrabold text-primary leading-none">
+                  {s.value}
+                </p>
+                <p className="font-label text-[11px] uppercase tracking-[0.18em] text-on-surface-variant/80 mt-3">
+                  {s.label}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Positioning FAQ */}
@@ -105,12 +109,12 @@ export default function AboutPage() {
 
         {/* Closing CTA */}
         <div className="scroll-reveal text-center mt-28">
-          <h2 className="font-headline text-4xl md:text-5xl text-on-surface">
+          <h2 className="font-headline text-4xl md:text-5xl font-extrabold uppercase tracking-tight text-on-surface">
             {t.aboutPage.ctaTitle}
           </h2>
           <Link
             href="/discovery"
-            className="group inline-flex items-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-7 py-4 rounded-full hover:opacity-90 active:scale-95 transition-all shadow-[0_8px_30px_rgba(212,175,55,0.25)] mt-10"
+            className="group inline-flex items-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-7 py-4 rounded-full hover:opacity-90 active:scale-95 transition-all shadow-[0_8px_30px_rgba(198,255,52,0.25)] mt-10"
           >
             {t.homeV2.ctaPrimary}
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />

@@ -43,20 +43,10 @@ export default function DistributionPage() {
         <div className="animate-fade-up grid md:grid-cols-[6fr_5fr] gap-12 md:gap-20 items-center">
           <div>
             <SectionLabel>{t.distribution.title}</SectionLabel>
-            <h1 className="font-headline text-5xl md:text-[64px] text-on-surface leading-[1.06] mt-6">
+            <h1 className="font-headline text-5xl md:text-[64px] font-extrabold uppercase tracking-tight text-on-surface leading-[1.02] mt-6">
               {t.homeV2.distTitle1}
               <br />
-              <span
-                className="italic"
-                style={{
-                  background: "linear-gradient(135deg, #d4af37 0%, #f3d57f 60%, #d4af37 100%)",
-                  WebkitBackgroundClip: "text",
-                  WebkitTextFillColor: "transparent",
-                  backgroundClip: "text",
-                }}
-              >
-                {t.homeV2.distTitle2}
-              </span>
+              <span className="text-primary">{t.homeV2.distTitle2}</span>
             </h1>
             <p className="font-body text-on-surface-variant leading-relaxed mt-6 max-w-lg">
               {t.distribution.intro}
@@ -76,13 +66,14 @@ export default function DistributionPage() {
               style={{ animationDelay: `${i * 90}ms` }}
             >
               <div
-                className="font-label text-[56px] leading-[0.9] select-none"
-                style={{ WebkitTextStroke: "1.2px rgba(212,175,55,0.55)", color: "transparent" }}
+                className="font-headline text-[56px] font-extrabold leading-[0.9] select-none"
+                style={{ WebkitTextStroke: "1.2px rgba(244,240,232,0.2)", color: "transparent" }}
                 aria-hidden="true"
               >
                 {s.num}
               </div>
-              <h2 className="font-headline text-2xl text-on-surface mt-4">{s.title}</h2>
+              <span className="block w-9 h-[3px] bg-primary mt-4 mb-3" aria-hidden="true" />
+              <h2 className="font-headline text-2xl font-extrabold uppercase tracking-tight text-on-surface">{s.title}</h2>
               <p className="font-body text-sm text-on-surface-variant leading-relaxed mt-3">
                 {s.body}
               </p>
@@ -92,7 +83,7 @@ export default function DistributionPage() {
 
         {/* Coverage: platforms + regions from the real distribution flow */}
         <div className="scroll-reveal mt-24">
-          <h2 className="font-headline text-3xl text-on-surface">
+          <h2 className="font-headline text-3xl font-extrabold uppercase tracking-tight text-on-surface">
             {t.distribution.platformsTitle}
           </h2>
           <div className="flex flex-wrap gap-3 mt-8">
@@ -122,13 +113,13 @@ export default function DistributionPage() {
 
         {/* CTA */}
         <div className="scroll-reveal text-center mt-28 border-t border-outline-variant/40 pt-20">
-          <h2 className="font-headline text-4xl md:text-5xl text-on-surface">
+          <h2 className="font-headline text-4xl md:text-5xl font-extrabold uppercase tracking-tight text-on-surface">
             {t.distribution.ctaTitle}
           </h2>
           <button
             type="button"
             onClick={distribute}
-            className="group inline-flex items-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-7 py-4 rounded-full hover:opacity-90 active:scale-95 transition-all shadow-[0_8px_30px_rgba(212,175,55,0.25)] mt-10"
+            className="group inline-flex items-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-7 py-4 rounded-full hover:opacity-90 active:scale-95 transition-all shadow-[0_8px_30px_rgba(198,255,52,0.25)] mt-10"
           >
             {t.distribution.cta}
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
