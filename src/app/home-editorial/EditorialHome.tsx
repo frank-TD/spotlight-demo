@@ -73,11 +73,9 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
               </Link>
               <nav className={styles.heroLinks}>
                 <Link href="/market">Marketplace</Link>
-                <Link href="/discovery/workspace">AIGC Studio</Link>
                 <Link href="/how-it-works">How it works</Link>
-                <Link href="/market">Creators</Link>
               </nav>
-              <Link href="/register" className={styles.heroSignIn}>
+              <Link href="/login" className={styles.heroSignIn}>
                 Sign in
               </Link>
             </div>
