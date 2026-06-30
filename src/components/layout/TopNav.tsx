@@ -88,7 +88,7 @@ export default function TopNav() {
           <div className="flex items-center gap-8">
             <Link
               href="/"
-              className="font-headline text-[28px] md:text-[32px] text-primary italic font-bold leading-none whitespace-nowrap"
+              className="font-headline text-[26px] md:text-[30px] text-primary font-extrabold tracking-tight leading-none whitespace-nowrap"
             >
               Spotlight
             </Link>

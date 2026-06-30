@@ -10,20 +10,20 @@
    (bg-surface, text-on-surface-variant, etc.) keeps working — we just
    redefined the values. */
 :root {
-  /* Primary = warm cinematic gold (was warm brown). Used for the wordmark,
-     accented italic display words like "Stream it.", and the primary CTA. */
-  --md-primary: #d4af37;
+  /* Primary = electric lime (Black + Lime rebrand, was cinematic gold). Drives
+     the wordmark, accent text, and the primary CTA across the whole app. Lime
+     is luminous, so on-primary stays dark for legible button text. */
+  --md-primary: #c6ff34;
   --md-on-primary: #08080a;
-  --md-primary-container: #3a2f12;
-  --md-on-primary-container: #f3d57f;
-  /* *-fixed are used as gradient stops on placeholder cards. Light gold here
-     causes a chrome look against the container — keep these in the dim
-     cinematic range so cards read as moody, not metallic. */
-  --md-primary-fixed: #5a4515;
-  --md-primary-fixed-dim: #3a2f12;
-  --md-on-primary-fixed: #f3d57f;
-  --md-on-primary-fixed-variant: #f3d57f;
-  --md-inverse-primary: #6e5b47;
+  --md-primary-container: #20300d;
+  --md-on-primary-container: #d8ff95;
+  /* *-fixed are used as gradient stops on placeholder cards — keep them in the
+     dim lime/olive range so cards read as moody, not neon-flat. */
+  --md-primary-fixed: #2f4712;
+  --md-primary-fixed-dim: #20300d;
+  --md-on-primary-fixed: #d8ff95;
+  --md-on-primary-fixed-variant: #d8ff95;
+  --md-inverse-primary: #6f9233;
 
   /* Secondary = cool slate blue (Creator / Wren accent, "I'M A CREATOR" chip,
      Sci-Fi category). */
@@ -59,7 +59,7 @@
   --md-surface-container-high: #1a1a22;
   --md-surface-container-highest: #22222a;
   --md-surface-variant: #1a1a22;
-  --md-surface-tint: #d4af37;
+  --md-surface-tint: #c6ff34;
   --md-on-surface: #ffffff;
   --md-on-surface-variant: #a8a8b0;
   --md-inverse-surface: #f6efed;
@@ -99,13 +99,14 @@
 }
 
 @theme inline {
-  /* Font families (set in layout.tsx via next/font) */
-  --font-headline: var(--font-headline);
-  --font-body: var(--font-body);
-  --font-label: var(--font-label);
-  --font-sans: var(--font-body);
+  /* Font families — one Montserrat instance (from layout.tsx) drives every slot,
+     matching the editorial homepage. */
+  --font-headline: var(--font-montserrat);
+  --font-body: var(--font-montserrat);
+  --font-label: var(--font-montserrat);
+  --font-sans: var(--font-montserrat);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-headline);
+  --font-heading: var(--font-montserrat);
 
   /* Typography scale */
   --text-label-md: 14px;
@@ -364,7 +365,7 @@
     transform 0.3s ease;
 }
 .glow-hover:hover {
-  box-shadow: 0 0 24px rgba(212, 175, 55, 0.35);
+  box-shadow: 0 0 24px rgba(198, 255, 52, 0.35);
 }
 
 /* Hide the scrollbar on horizontal rails (featured posters) while keeping the
@@ -515,7 +516,7 @@
   border-radius: inherit;
   background: radial-gradient(
     300px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    var(--spotlight-color, rgba(212, 175, 55, 0.22)),
+    var(--spotlight-color, rgba(198, 255, 52, 0.22)),
     transparent 72%
   );
   opacity: 0;
@@ -548,7 +549,7 @@
   background: conic-gradient(
     from calc(var(--cursor-angle, 90deg) - 30deg) at 50% 50%,
     transparent 0deg,
-    var(--glow-color, #f3d57f) 30deg,
+    var(--glow-color, #c6ff34) 30deg,
     transparent 60deg
   );
   filter: blur(8px);
@@ -620,13 +621,13 @@
 /* Live pulse halo — slow breathing ring used by status dots */
 @keyframes live-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0.55);
+    box-shadow: 0 0 0 0 rgba(198, 255, 52, 0.55);
   }
   70% {
-    box-shadow: 0 0 0 8px rgba(212, 175, 55, 0);
+    box-shadow: 0 0 0 8px rgba(198, 255, 52, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(212, 175, 55, 0);
+    box-shadow: 0 0 0 0 rgba(198, 255, 52, 0);
   }
 }
 .live-dot {
