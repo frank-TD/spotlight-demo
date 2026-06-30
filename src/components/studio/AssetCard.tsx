@@ -223,7 +223,7 @@ function VisualCard({
       {/* Fallback overlay shows the prompt-as-poster, used when the image can't load. */}
       {!imgOk && (
         <div className="absolute inset-0 flex items-end p-5">
-          <p className="font-headline italic text-on-surface text-lg md:text-xl leading-snug line-clamp-4">
+          <p className="font-headline text-on-surface text-lg md:text-xl leading-snug line-clamp-4">
             {asset.prompt}
           </p>
         </div>

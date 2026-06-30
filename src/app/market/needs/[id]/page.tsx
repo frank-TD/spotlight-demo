@@ -111,7 +111,7 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
                   <h1 className="font-headline text-headline-md text-on-surface leading-snug mt-3">
                     {need.title}
                   </h1>
-                  <p className="font-body text-sm text-on-surface-variant mt-1 italic">
+                  <p className="font-body text-sm text-on-surface-variant mt-1">
                     {t.needDetail.postedBy}{" "}
                     <span className="font-bold not-italic">{need.backerNickname}</span> ·{" "}
                     {need.publishedAt}

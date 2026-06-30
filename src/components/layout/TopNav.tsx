@@ -300,7 +300,7 @@ export default function TopNav() {
           )}
         >
           <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant/30">
-            <span className="font-headline text-2xl italic font-bold text-on-surface">
+            <span className="font-headline text-2xl font-bold text-on-surface">
               Spotlight
             </span>
             <button

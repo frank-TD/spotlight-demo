@@ -61,10 +61,10 @@ export default function OnboardingProfilePage() {
             {title1}
           </span>
           <span
-            className="block italic font-headline animate-fade-up"
+            className="block font-headline animate-fade-up"
             style={{
               animationDelay: "260ms",
-              background: "linear-gradient(135deg, #d4af37 0%, #f3d57f 60%, #d4af37 100%)",
+              background: "linear-gradient(135deg, #c6ff34 0%, #d8ff95 60%, #c6ff34 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",

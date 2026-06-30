@@ -257,27 +257,20 @@ export default function DiscoveryPage() {
           <div className="inline-flex justify-center mb-6">
             <SectionLabel>{t.discovery.badge}</SectionLabel>
           </div>
-          <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl font-bold mb-6 tracking-tight leading-[1.05] [overflow:visible] px-2 md:px-4">
+          <h1 className="font-headline text-5xl md:text-7xl lg:text-8xl font-extrabold uppercase mb-6 tracking-tight leading-[1.02] [overflow:visible] px-2 md:px-4">
             <span className="animate-fade-up" style={{ animationDelay: "100ms" }}>
               {t.discovery.title1}
             </span>
             <span>&nbsp;</span>
             <span
-              className="italic font-headline animate-fade-in"
-              style={{
-                animationDelay: "260ms",
-                background: "linear-gradient(135deg, #d4af37 0%, #f3d57f 60%, #d4af37 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-                paddingRight: "0.15em",
-              }}
+              className="text-primary font-headline animate-fade-in"
+              style={{ animationDelay: "260ms", paddingRight: "0.15em" }}
             >
               {t.discovery.title2}
             </span>
           </h1>
           <p
-            className="font-headline italic font-light text-on-surface-variant text-lg md:text-2xl max-w-3xl mx-auto opacity-90 leading-relaxed tracking-tight animate-fade-up"
+            className="font-body text-on-surface-variant text-lg md:text-2xl max-w-3xl mx-auto opacity-90 leading-relaxed tracking-tight animate-fade-up"
             style={{ animationDelay: "380ms" }}
           >
             {t.discovery.subtitle}
@@ -290,7 +283,7 @@ export default function DiscoveryPage() {
           >
             <button
               onClick={handleStartCreating}
-              className="group glow-hover inline-flex items-center gap-3 bg-primary text-on-primary font-label text-base md:text-lg uppercase tracking-widest px-9 py-4 rounded-full hover:scale-105 active:scale-95 transition-transform shadow-[0_8px_30px_rgba(212,175,55,0.25)]"
+              className="group glow-hover inline-flex items-center gap-3 bg-primary text-on-primary font-label text-base md:text-lg uppercase tracking-widest px-9 py-4 rounded-full hover:scale-105 active:scale-95 transition-transform shadow-[0_8px_30px_rgba(198,255,52,0.25)]"
             >
               <Wand2 className="w-4 h-4" />
               {t.discovery.startCreating}
@@ -374,7 +367,7 @@ export default function DiscoveryPage() {
                       <span className="font-label text-[10px] uppercase tracking-widest bg-white/10 text-white/80 px-2.5 py-1 rounded">
                         {t.discovery.filters[openItem.category] ?? openItem.category}
                       </span>
-                      <h2 className="font-headline italic text-white text-2xl md:text-3xl mt-3 leading-tight">
+                      <h2 className="font-headline font-extrabold text-white text-2xl md:text-3xl mt-3 leading-tight">
                         {openItem.title}
                       </h2>
                       <p className="font-label text-white/60 text-[11px] uppercase tracking-widest mt-2">
@@ -618,7 +611,7 @@ function MasonryCard({
           <Play className="w-3.5 h-3.5 ml-0.5" fill="currentColor" />
         </span>
         <div className="bg-black/30 backdrop-blur-md border border-white/10 rounded-lg p-3 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-          <p className="font-headline italic text-white text-base md:text-lg leading-tight">
+          <p className="font-headline font-extrabold text-white text-base md:text-lg leading-tight">
             {item.title}
           </p>
           <p className="font-label text-white/70 text-[10px] uppercase tracking-widest mt-1">
