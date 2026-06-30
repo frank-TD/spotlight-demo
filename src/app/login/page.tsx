@@ -29,12 +29,12 @@ export default function LoginPage() {
       <div className="hidden lg:flex lg:w-1/2 bg-surface-container-lowest text-on-surface flex-col justify-between p-12 relative overflow-hidden bg-mesh">
         <Link
           href="/"
-          className="font-headline text-[32px] italic font-bold leading-none text-primary"
+          className="font-headline text-[32px] font-extrabold tracking-tight leading-none text-primary"
         >
           Spotlight
         </Link>
         <div className="relative z-10">
-          <blockquote className="font-headline text-[28px] leading-snug italic mb-6">
+          <blockquote className="font-headline text-[28px] leading-snug mb-6">
             {t.login.testimonial}
           </blockquote>
           <div className="flex items-center gap-3">
@@ -59,15 +59,15 @@ export default function LoginPage() {
         <div className="w-full max-w-sm">
           <Link
             href="/"
-            className="lg:hidden font-headline text-[28px] italic font-bold text-on-surface block mb-10"
+            className="lg:hidden font-headline text-[28px] font-extrabold tracking-tight text-on-surface block mb-10"
           >
             Spotlight
           </Link>
 
-          <h1 className="font-headline text-[40px] text-on-surface mb-2 leading-tight">
+          <h1 className="font-headline text-[40px] font-extrabold uppercase tracking-tight text-on-surface mb-2 leading-[1.05]">
             {t.login.welcomeBack}
           </h1>
-          <p className="text-on-surface-variant font-body italic mb-8">{t.login.subtitle}</p>
+          <p className="text-on-surface-variant font-body mb-8">{t.login.subtitle}</p>
 
           <form onSubmit={handleLogin} className="space-y-4">
             <div>

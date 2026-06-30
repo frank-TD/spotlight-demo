@@ -269,7 +269,7 @@ function AgentCard({
       className={cn(
         "rounded-2xl p-5 border bg-surface-container-lowest text-left transition-all hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2",
         accent === "gold"
-          ? "border-primary/30 hover:border-primary/60 hover:shadow-[0_12px_40px_rgba(212,175,55,0.18)] focus-visible:ring-primary"
+          ? "border-primary/30 hover:border-primary/60 hover:shadow-[0_12px_40px_rgba(198,255,52,0.18)] focus-visible:ring-primary"
           : "border-secondary/30 hover:border-secondary/60 hover:shadow-[0_12px_40px_rgba(168,196,229,0.18)] focus-visible:ring-secondary"
       )}
     >
@@ -310,7 +310,7 @@ function GlowAgentCard({
   const [sweep, setSweep] = useState(0);
   const isGold = accent === "gold";
   const glow = isGold
-    ? { glowColor: "46 70 52", colors: ["#d4af37", "#f3d57f", "#5a4515"] }
+    ? { glowColor: "198 255 52", colors: ["#c6ff34", "#d8ff95", "#2f4712"] }
     : { glowColor: "211 55 78", colors: ["#a8c4e5", "#c5d6e8", "#1c2a3a"] };
 
   const handleClick = () => {
@@ -464,7 +464,7 @@ function AgentIntroDialog({
                   {data.quoteLabel}
                 </span>
               </div>
-              <p className="font-body italic text-sm text-on-surface leading-relaxed">
+              <p className="font-body text-sm text-on-surface leading-relaxed">
                 &ldquo;{data.quote}&rdquo;
               </p>
             </div>
