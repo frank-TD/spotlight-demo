@@ -232,17 +232,17 @@ export default function MarketPage() {
         <header className="flex flex-col gap-7 mb-12">
           <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
             <div className="max-w-2xl">
-              <h1 className="font-headline text-5xl md:text-6xl text-on-surface leading-[1.05]">
+              <h1 className="font-headline text-5xl md:text-6xl font-extrabold uppercase tracking-tight text-on-surface leading-[1.02]">
                 Marketplace
               </h1>
-              <p className="mt-3 font-headline italic text-lg md:text-xl text-on-surface-variant">
+              <p className="mt-3 font-body text-lg md:text-xl text-on-surface-variant">
                 {copy.subtitle}
               </p>
               <div className="mt-6">
                 <button
                   type="button"
                   onClick={isBacker ? handlePostNeed : handleStartCreating}
-                  className="group inline-flex items-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-8 py-4 rounded-full hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_8px_30px_rgba(212,175,55,0.25)]"
+                  className="group inline-flex items-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-8 py-4 rounded-full hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_8px_30px_rgba(198,255,52,0.25)]"
                 >
                   {isBacker ? <PlusCircle className="w-4 h-4" /> : <Wand2 className="w-4 h-4" />}
                   {isBacker ? "Post a Need" : "Start Creating"}
@@ -316,7 +316,7 @@ export default function MarketPage() {
                 <span className="font-label text-[11px] uppercase tracking-[0.3em] text-primary">
                   For Inspiration
                 </span>
-                <h2 className="mt-3 font-headline text-4xl md:text-5xl text-on-surface leading-tight">
+                <h2 className="mt-3 font-headline text-4xl md:text-5xl font-extrabold uppercase tracking-tight text-on-surface leading-[1.02]">
                   What the network is making
                 </h2>
               </div>
@@ -546,7 +546,7 @@ function RoleSwitch({ role, onChange }: { role: Role; onChange: (r: Role) => voi
             className={cn(
               "flex flex-col items-center lg:items-start px-6 md:px-8 py-3 rounded-xl transition-colors",
               active
-                ? "bg-primary text-on-primary shadow-[0_8px_24px_rgba(212,175,55,0.22)]"
+                ? "bg-primary text-on-primary shadow-[0_8px_24px_rgba(198,255,52,0.22)]"
                 : "text-on-surface-variant hover:text-on-surface"
             )}
           >
@@ -689,7 +689,7 @@ function WorkDialog({
                 <span className="font-label text-[10px] uppercase tracking-widest bg-white/10 text-white/80 px-2.5 py-1 rounded">
                   {work.category}
                 </span>
-                <h2 className="font-headline italic text-white text-2xl md:text-3xl mt-3 leading-tight">
+                <h2 className="font-headline font-extrabold text-white text-2xl md:text-3xl mt-3 leading-tight">
                   {work.title}
                 </h2>
                 <p className="font-label text-white/60 text-[11px] uppercase tracking-widest mt-2">
