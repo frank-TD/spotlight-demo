@@ -78,7 +78,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
               <h1 className="font-headline text-headline-md text-on-surface leading-snug">
                 {order.title}
               </h1>
-              <p className="font-body text-sm text-on-surface-variant italic mt-1.5">
+              <p className="font-body text-sm text-on-surface-variant mt-1.5">
                 {activeRole === "backer"
                   ? t.orderDetail.withCounterpart(order.creator.nickname)
                   : t.orderDetail.forCounterpart(order.backer.nickname)}{" "}

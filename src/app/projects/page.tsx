@@ -124,7 +124,7 @@ export default function ProjectsPage() {
 
                   <div className="space-y-4">
                     <div className="flex justify-between items-end">
-                      <p className="text-on-surface-variant font-body text-sm italic">
+                      <p className="text-on-surface-variant font-body text-sm">
                         {t.projects.stagePendingReview}
                       </p>
                       <p className="font-label text-primary text-label-md">
@@ -192,7 +192,7 @@ export default function ProjectsPage() {
                 <MoreVertical className="w-4 h-4 text-outline" />
               </div>
               <h4 className="font-body font-bold mb-1">{ORDER_COMPLETED.title}</h4>
-              <p className="text-sm text-on-surface-variant/70 italic">
+              <p className="text-sm text-on-surface-variant/70">
                 {activeRole === "backer"
                   ? t.projects.counterpartCreator
                   : t.projects.counterpartBacker}

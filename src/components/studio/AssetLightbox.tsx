@@ -55,7 +55,7 @@ export default function AssetLightbox({
               />
             ) : (
               <div className="w-full aspect-video rounded-xl bg-gradient-to-br from-primary-container via-primary-fixed to-tertiary-container flex items-end p-6">
-                <p className="font-headline italic text-on-surface text-xl md:text-2xl leading-snug">
+                <p className="font-headline text-on-surface text-xl md:text-2xl leading-snug">
                   {asset.prompt}
                 </p>
               </div>
@@ -78,7 +78,7 @@ export default function AssetLightbox({
             <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">
               {t.aigc.modes[asset.mode]}
             </p>
-            <h2 className="font-headline italic text-2xl text-on-surface leading-snug mb-4">
+            <h2 className="font-headline text-2xl text-on-surface leading-snug mb-4">
               {asset.prompt}
             </h2>
 

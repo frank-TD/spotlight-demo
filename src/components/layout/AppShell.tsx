@@ -29,7 +29,7 @@ function Footer() {
     <footer className="w-full py-12 bg-surface-container-lowest border-t border-outline-variant/30 mt-16">
       <div className="flex flex-col md:flex-row justify-between items-center px-12 max-w-[1280px] mx-auto gap-8">
         <div className="flex flex-col items-center md:items-start gap-2">
-          <span className="font-headline text-headline-md text-primary italic font-bold">
+          <span className="font-headline text-headline-md text-primary font-bold">
             Spotlight
           </span>
           <p className="font-body text-on-surface-variant opacity-80 text-sm">

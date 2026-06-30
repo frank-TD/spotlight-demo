@@ -56,7 +56,7 @@ export default function AssetsPage() {
         >
           <div>
             <h1 className="font-headline text-headline-lg text-on-surface">{t.assets.title}</h1>
-            <p className="text-on-surface-variant mt-2 font-body opacity-80 italic">
+            <p className="text-on-surface-variant mt-2 font-body opacity-80">
               {t.assets.subtitle}
             </p>
           </div>

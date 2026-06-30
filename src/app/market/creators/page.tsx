@@ -39,7 +39,7 @@ export default function CreatorsPage() {
         <div className="flex flex-col md:flex-row justify-between md:items-end gap-6 mb-10">
           <div>
             <h1 className="font-headline text-headline-lg text-on-surface">{t.creators.title}</h1>
-            <p className="text-on-surface-variant mt-2 font-body opacity-80 italic">
+            <p className="text-on-surface-variant mt-2 font-body opacity-80">
               {t.creators.available(CREATORS.length)}
             </p>
           </div>

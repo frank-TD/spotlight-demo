@@ -82,7 +82,7 @@ export default function NewNeedPage() {
 
         <div className="mb-10">
           <h1 className="font-headline text-headline-lg text-on-surface">{t.postNeed.title}</h1>
-          <p className="text-on-surface-variant font-body opacity-80 italic mt-2">
+          <p className="text-on-surface-variant font-body opacity-80 mt-2">
             {t.postNeed.subtitle}
           </p>
         </div>

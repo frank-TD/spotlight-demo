@@ -104,7 +104,7 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
           </div>
           <div>
             <h1 className="font-headline text-headline-md text-on-surface">{headerTitle}</h1>
-            <p className="font-body text-sm text-on-surface-variant italic mt-1">{headerSub}</p>
+            <p className="font-body text-sm text-on-surface-variant mt-1">{headerSub}</p>
           </div>
         </div>
 
