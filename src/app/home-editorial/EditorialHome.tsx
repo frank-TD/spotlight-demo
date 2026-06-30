@@ -19,8 +19,6 @@ const mont = Montserrat({ subsets: ["latin"], weight: ["400", "500", "600", "700
 
 const bg = (name: string) => ({ backgroundImage: `url(/posters/${name}.jpg)` });
 
-const GENRES = ["Sci-Fi", "Drama", "Anime", "Documentary", "Music", "Action", "Fantasy"];
-
 const FAQ_ITEMS = [
   {
     q: "Is this like Fiverr or Upwork?",
@@ -66,13 +64,6 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
         <span className={`${styles.axis} ${styles.axisLeft}`} />
         <span className={`${styles.axis} ${styles.axisRight}`} />
 
-        <div className={`${styles.cornerNote} ${styles.noteRightTop}`}>
-          AI film
-          <br />
-          marketplace
-          <i />
-        </div>
-
         <header className={styles.heroNav}>
           <div className={styles.wrap}>
             <div className={styles.heroNavInner}>
@@ -92,18 +83,6 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
             </div>
           </div>
         </header>
-
-        <aside className={styles.heroRail} aria-hidden="true">
-          <span className={styles.rule} />
-          <ul>
-            {GENRES.map((g) => (
-              <li key={g} className={g === "Sci-Fi" ? styles.on : undefined}>
-                {g}
-              </li>
-            ))}
-          </ul>
-          <span className={styles.heroShare}>Share</span>
-        </aside>
 
         <div className={styles.heroBody}>
           <div className={styles.wrap}>
