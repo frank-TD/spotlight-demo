@@ -80,6 +80,10 @@ const FILMS: Film[] = [
   },
 ];
 
+// Map a film's status to a colour tone for the slate card pill.
+const statusTone = (status: string) =>
+  status === "Released" ? "released" : status === "In production" ? "prod" : "back";
+
 export default function EditorialSpotlight() {
   const [active, setActive] = useState(0);
   const [motionAllowed, setMotionAllowed] = useState(false);
@@ -132,32 +136,39 @@ export default function EditorialSpotlight() {
         </div>
       </div>
 
-      <div className={styles.spotSwitch}>
-        {FILMS.map((f, i) => (
-          <button
-            key={f.id}
-            type="button"
-            onClick={() => setActive(i)}
-            aria-label={`Show ${f.title}`}
-            aria-pressed={i === active}
-            className={i === active ? styles.spotThumbOn : styles.spotThumb}
-          >
-            <span
-              className={styles.spotThumbImg}
-              style={{ backgroundImage: `url(${f.poster ?? f.still})` }}
+      <div className={styles.slate}>
+        <div className={styles.slateHead}>
+          <span className={styles.slateLabel}>On the slate</span>
+          <Link href="/market" className={styles.slateMore}>
+            Discover more →
+          </Link>
+        </div>
+        <div className={styles.slateRow}>
+          {FILMS.map((f, i) => (
+            <button
+              key={f.id}
+              type="button"
+              onClick={() => setActive(i)}
+              aria-label={`Show ${f.title}`}
+              aria-pressed={i === active}
+              className={i === active ? styles.slateCardOn : styles.slateCard}
             >
-              {f.clip ? (
-                <span className={styles.spotPlay}>
-                  <span>▶</span>
+              <span
+                className={styles.slatePoster}
+                style={{ backgroundImage: `url(${f.poster ?? f.still})` }}
+              >
+                {f.clip ? <span className={styles.slatePlay}>▶</span> : null}
+              </span>
+              <span className={styles.slateText}>
+                <span className={styles.slateTitle}>{f.title}</span>
+                <span className={styles.slateStatus} data-tone={statusTone(f.status)}>
+                  {f.status}
                 </span>
-              ) : null}
-            </span>
-          </button>
-        ))}
-
-        <Link href="/market" className={`${styles.btn} ${styles.btnGhost} ${styles.discoverBtn}`}>
-          Discover More →
-        </Link>
+                <span className={styles.slateMeta}>{f.meta}</span>
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
     </div>
   );
