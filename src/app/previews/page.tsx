@@ -32,10 +32,17 @@ const DRAFTS: Draft[] = [
   {
     name: "Spotlight",
     route: "/",
+    thumb: "/previews/home-editorial-lime.jpg",
+    accent: "#c6ff34",
+    desc: "The live homepage — Black + Lime editorial: all-dark charcoal + pure-black stages with an electric lime accent.",
+    live: true,
+  },
+  {
+    name: "Spotlight — Cinematic (archived)",
+    route: "/home-spotlight",
     thumb: "/previews/home-live.jpg",
     accent: "#d4af37",
-    desc: "The live homepage — black-and-gold cinematic, Cormorant serif, gold, WebGL aurora hero.",
-    live: true,
+    desc: "The previous homepage — black-and-gold cinematic, Cormorant serif, WebGL aurora hero. Archived after the Black + Lime promotion.",
   },
   {
     name: "Editorial — A United",
@@ -50,13 +57,6 @@ const DRAFTS: Draft[] = [
     thumb: "/previews/home-editorial-fanvue.jpg",
     accent: "#1fe96b",
     desc: "The editorial layout retinted to Fanvue's fluorescent brand green — same Swiss grid, orange swapped for vivid neon green.",
-  },
-  {
-    name: "Editorial — Black + Lime",
-    route: "/home-editorial-lime",
-    thumb: "/previews/home-editorial-lime.jpg",
-    accent: "#c6ff34",
-    desc: "An all-dark take: charcoal and pure-black stages with an electric lime accent — the cream paper sections go black.",
   },
   {
     name: "ONYX",
