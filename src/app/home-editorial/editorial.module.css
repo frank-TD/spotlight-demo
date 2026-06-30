@@ -127,6 +127,34 @@
    would inherit the panel's now-dark copy. Pin it: a pure-black button with lime
    type — the sharpest Black + Lime pairing on the lime field. */
 .root.themeLime .join .btnDark { background: #000000; color: var(--orange); }
+/* Data highlight (homepage only): the headline figures were white-on-dark and
+   read flat. Pull the trust stats into a framed lime data panel — lime numbers,
+   a tinted hairline border with column dividers, and lifted labels — and echo
+   the lime figures in the distribution report so both data blocks pop. */
+.root.themeLime .trustRow {
+  gap: 0;
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+  border: 1px solid color-mix(in srgb, var(--orange) 32%, transparent);
+  border-radius: 16px;
+  background: color-mix(in srgb, var(--orange) 6%, transparent);
+  padding: clamp(26px, 3.4vw, 38px) clamp(8px, 1.6vw, 20px);
+}
+.root.themeLime .stat { padding: 0 clamp(26px, 4.2vw, 60px); }
+.root.themeLime .stat + .stat {
+  border-left: 1px solid color-mix(in srgb, var(--orange) 20%, transparent);
+}
+.root.themeLime .stat b {
+  color: var(--orange);
+  font-size: clamp(42px, 4.8vw, 58px);
+}
+/* The figure comes through StatCountUp as <b><span>…</span></b>; colour that
+   inner span too so it isn't caught by the label rule below. */
+.root.themeLime .stat b span { color: var(--orange); }
+.root.themeLime .stat > span { color: rgba(244, 240, 232, 0.72); }
+.root.themeLime .relMetric b { color: var(--orange); }
+.root.themeLime .relMetric span { color: rgba(244, 240, 232, 0.72); }
 
 /* ── Shared stages / grid scaffolding ────────────────────────────────────── */
 .gridStage {
