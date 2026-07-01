@@ -2,6 +2,7 @@
 import Link from "next/link";
 import TopNav from "./TopNav";
 import AgentFloat from "./AgentFloat";
+import SignupGate from "@/components/common/SignupGate";
 
 export default function AppShell({
   children,
@@ -20,6 +21,7 @@ export default function AppShell({
       <main className={heroUnderNav ? "flex-1" : "flex-1 pt-[80px]"}>{children}</main>
       {!hideFooter && <Footer />}
       <AgentFloat />
+      <SignupGate />
     </div>
   );
 }

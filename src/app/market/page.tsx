@@ -114,6 +114,7 @@ export default function MarketPage() {
     appendAgentMessages,
     openAgent,
     setAgentThinking,
+    openSignupGate,
   } = useStore();
   const router = useRouter();
   const [query, setQuery] = useState("");
@@ -152,20 +153,26 @@ export default function MarketPage() {
     setFilter(r === "backer" ? "All" : "All Briefs");
   };
 
-  // Browsing is free; acting gates on signup.
-  const requireSignup = () => {
-    toast.info("Sign up to continue.");
-    router.push("/register");
+  // Browsing is free; acting (and opening full detail) converges on the single
+  // signup gate. returnTo drops the user back where they were after auth.
+  const requireSignup = (returnTo?: string) => openSignupGate(returnTo);
+  // Guard for full-detail navigation: guests get the gate with the locked page
+  // as returnTo; members follow the link normally.
+  const gateDetail = (href: string) => (e: React.MouseEvent) => {
+    if (!isLoggedIn) {
+      e.preventDefault();
+      openSignupGate(href);
+    }
   };
   const handlePostNeed = () => (isLoggedIn ? router.push("/market/needs/new") : requireSignup());
   const handleStartCreating = () =>
     isLoggedIn ? router.push("/discovery/workspace") : requireSignup();
   const handleApply = (n: Brief) =>
-    isLoggedIn ? toast.success(`Application started · ${n.title}`) : requireSignup();
+    isLoggedIn ? toast.success(`Application started · ${n.title}`) : requireSignup(`/market/needs/${n.id}`);
   const handleInvite = (c: Creator) => (isLoggedIn ? setInviteFor(c) : requireSignup());
   const startConversation = (creatorId: string) => {
     setOpenWork(null);
-    if (!isLoggedIn) return requireSignup();
+    if (!isLoggedIn) return requireSignup(`/market/creators/${creatorId}`);
     const sid = findSessionForCounterpart("backer", creatorId);
     router.push(sid ? `/messages/sessions/${sid}` : "/messages");
   };
@@ -304,13 +311,41 @@ export default function MarketPage() {
               {briefs.length ? (
                 <div className="columns-1 sm:columns-2 lg:columns-3 gap-5">
                   {briefs.map((n) => (
-                    <BriefCard key={n.id} n={n} onApply={handleApply} />
+                    <BriefCard key={n.id} n={n} onApply={handleApply} onGate={gateDetail} />
                   ))}
                 </div>
               ) : (
                 <Empty label="briefs" />
               )}
             </section>
+
+            {/* AIGC CTA — the "Get funded" side's path into the studio; gates for guests. */}
+            <section className="mt-10">
+              <div className="rounded-3xl border border-primary/30 bg-primary/[0.06] px-8 py-8 md:px-12 md:py-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+                <div className="max-w-xl">
+                  <span className="font-label text-[11px] uppercase tracking-[0.3em] text-primary">
+                    AIGC Studio
+                  </span>
+                  <h3 className="mt-2 font-headline text-2xl md:text-3xl font-extrabold uppercase tracking-tight text-on-surface leading-tight">
+                    Pitch it with AI, then win the brief
+                  </h3>
+                  <p className="mt-2 font-body text-sm text-on-surface-variant leading-relaxed">
+                    Generate moodboards, shots and voiceover in the AIGC studio, attach them to your bid, and stand out
+                    to backers.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleStartCreating}
+                  className="group shrink-0 inline-flex items-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-8 py-4 rounded-full hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_8px_30px_rgba(198,255,52,0.25)]"
+                >
+                  <Wand2 className="w-4 h-4" />
+                  Open AIGC Studio
+                  <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                </button>
+              </div>
+            </section>
+
             <section>
               <div className="text-center max-w-2xl mx-auto my-16 md:my-20">
                 <span className="font-label text-[11px] uppercase tracking-[0.3em] text-primary">
@@ -336,6 +371,7 @@ export default function MarketPage() {
         viewerIsBacker={isBacker}
         onClose={() => setOpenWork(null)}
         onStartConversation={startConversation}
+        onGate={gateDetail}
       />
 
       {inviteFor && <InviteDialog creator={inviteFor} onClose={() => setInviteFor(null)} />}
@@ -531,8 +567,8 @@ function WorkCard({
 
 function RoleSwitch({ role, onChange }: { role: Role; onChange: (r: Role) => void }) {
   const segs: [Role, string, string][] = [
-    ["backer", "Hire Creators", "Backer"],
-    ["creator", "Find Projects", "Creator"],
+    ["backer", "Fund it", "Backer"],
+    ["creator", "Get funded", "Creator"],
   ];
   return (
     <div className="grid grid-cols-2 gap-1 p-1 rounded-2xl border border-outline-variant/40 bg-surface-container-low w-full lg:w-auto shrink-0">
@@ -566,12 +602,24 @@ function RoleSwitch({ role, onChange }: { role: Role; onChange: (r: Role) => voi
   );
 }
 
-function BriefCard({ n, onApply }: { n: Brief; onApply: (n: Brief) => void }) {
+function BriefCard({
+  n,
+  onApply,
+  onGate,
+}: {
+  n: Brief;
+  onApply: (n: Brief) => void;
+  onGate: (href: string) => (e: React.MouseEvent) => void;
+}) {
   const poster = BRIEF_POSTER[n.id];
   return (
     <article className="group break-inside-avoid mb-5 flex flex-col rounded-2xl border border-outline-variant/40 bg-surface-container-lowest overflow-hidden transition-colors hover:border-primary/40">
       {poster && (
-        <Link href={`/market/needs/${n.id}`} className="relative block aspect-[16/10] overflow-hidden">
+        <Link
+          href={`/market/needs/${n.id}`}
+          onClick={onGate(`/market/needs/${n.id}`)}
+          className="relative block aspect-[16/10] overflow-hidden"
+        >
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src={poster}
@@ -633,6 +681,7 @@ function BriefCard({ n, onApply }: { n: Brief; onApply: (n: Brief) => void }) {
         <div className="mt-5 flex items-center gap-2.5">
           <Link
             href={`/market/needs/${n.id}`}
+            onClick={onGate(`/market/needs/${n.id}`)}
             className="flex-1 inline-flex items-center justify-center gap-1.5 bg-primary text-on-primary font-label text-[11px] uppercase tracking-widest px-4 py-2.5 rounded-full hover:opacity-90 transition-opacity"
           >
             View Brief
@@ -658,11 +707,13 @@ function WorkDialog({
   viewerIsBacker,
   onClose,
   onStartConversation,
+  onGate,
 }: {
   work: Work | null;
   viewerIsBacker: boolean;
   onClose: () => void;
   onStartConversation: (creatorId: string) => void;
+  onGate: (href: string) => (e: React.MouseEvent) => void;
 }) {
   const creator = work ? CREATORS.find((c) => c.id === work.creatorId) : undefined;
   return (
@@ -756,7 +807,10 @@ function WorkDialog({
                   )}
                   <Link
                     href={`/market/creators/${creator.id}`}
-                    onClick={onClose}
+                    onClick={(e) => {
+                      onGate(`/market/creators/${creator.id}`)(e);
+                      onClose();
+                    }}
                     className="w-full flex items-center justify-center gap-1.5 font-label text-label-md uppercase tracking-wider py-3 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors"
                   >
                     View Profile <ArrowUpRight className="w-3.5 h-3.5" />

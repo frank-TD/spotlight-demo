@@ -185,6 +185,14 @@ interface AppState {
   isLoggedIn: boolean;
   activeRole: Role;
 
+  // Signup gate — the single "Sign up or Log in" modal that guest conversion
+  // points (locked full detail, transactional actions) converge on. returnTo is
+  // where login/register should send the user back to.
+  signupGateOpen: boolean;
+  signupGateReturnTo: string | null;
+  openSignupGate: (returnTo?: string) => void;
+  closeSignupGate: () => void;
+
   // Locale
   locale: Locale;
   setLocale: (locale: Locale) => void;
@@ -466,6 +474,11 @@ export const useStore = create<AppState>()(
       login: (role = "backer") => set({ isLoggedIn: true, activeRole: role }),
       logout: () => set({ isLoggedIn: false, onboardingComplete: false, userPreferences: {} }),
       switchRole: (role) => set({ activeRole: role }),
+
+      signupGateOpen: false,
+      signupGateReturnTo: null,
+      openSignupGate: (returnTo) => set({ signupGateOpen: true, signupGateReturnTo: returnTo ?? null }),
+      closeSignupGate: () => set({ signupGateOpen: false }),
 
       hasHydrated: false,
       setHasHydrated: (v) => set({ hasHydrated: v }),
