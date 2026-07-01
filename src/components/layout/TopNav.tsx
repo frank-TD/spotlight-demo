@@ -55,7 +55,15 @@ export default function TopNav() {
   // `match` controls how the active state is decided. Discover has merged into
   // the Marketplace (one tab → /market). Workspace is a sub-route of /discovery,
   // so we let AIGC Studio claim the workspace prefix.
-  const NAV_ITEMS = [
+  //
+  // Nav is auth-aware (guest flow): logged-out visitors see only the public
+  // surface — Marketplace + How It Works — with Log In on the right. The full
+  // app surface (Studio / My Projects / Messages) appears once you sign in.
+  const GUEST_NAV = [
+    { label: t.nav.marketplace, href: "/market", match: (p: string) => p.startsWith("/market") },
+    { label: "How it works", href: "/how-it-works", match: (p: string) => p.startsWith("/how-it-works") },
+  ];
+  const USER_NAV = [
     { label: t.nav.marketplace, href: "/market", match: (p: string) => p.startsWith("/market") },
     {
       label: t.nav.studio,
@@ -65,6 +73,7 @@ export default function TopNav() {
     { label: t.nav.myProjects, href: "/projects", match: (p: string) => p.startsWith("/projects") },
     { label: t.nav.messages, href: "/messages", match: (p: string) => p.startsWith("/messages") },
   ];
+  const NAV_ITEMS = isLoggedIn ? USER_NAV : GUEST_NAV;
 
   // Temporary entry to the homepage style-draft gallery. Kept visually distinct
   // from the primary tabs (outlined pill) so it reads as an internal preview
