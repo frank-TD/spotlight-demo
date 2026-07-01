@@ -1,5 +1,5 @@
 "use client";
-import { use, useEffect, useRef, useState } from "react";
+import { use, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -17,6 +17,7 @@ import {
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import AppShell from "@/components/layout/AppShell";
+import LockedDetail from "@/components/common/LockedDetail";
 import { useStore } from "@/lib/store";
 import { NEEDS, BIDS_NEED_001 } from "@/lib/mock-data";
 import {
@@ -41,10 +42,6 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
     Array<{ id: string; name: string; size: string; note: string }>
   >([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (hasHydrated && !isLoggedIn) router.push("/login");
-  }, [hasHydrated, isLoggedIn, router]);
 
   const need = NEEDS.find((n) => n.id === id) ?? NEEDS[0];
   const bids = id === "need_001" ? BIDS_NEED_001 : [];
@@ -84,7 +81,15 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
     setAttachments((prev) => prev.filter((a) => a.id !== id));
   const resetBidForm = () => setAttachments([]);
 
-  if (!hasHydrated || !isLoggedIn) return null;
+  if (!hasHydrated) return null;
+  // Full brief detail is members-only; guests get the unified signup gate plus
+  // a locked teaser (returnTo brings them back here after auth).
+  if (!isLoggedIn)
+    return (
+      <AppShell>
+        <LockedDetail returnTo={`/market/needs/${id}`} kind="brief" title={need.title} />
+      </AppShell>
+    );
 
   const inputCls =
     "w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm";

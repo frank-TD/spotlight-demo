@@ -20,6 +20,7 @@ import {
 import { toast } from "sonner";
 import { useStore } from "@/lib/store";
 import AppShell from "@/components/layout/AppShell";
+import LockedDetail from "@/components/common/LockedDetail";
 import {
   CREATORS,
   PRESET_SPECIALTY_TAGS,
@@ -52,8 +53,15 @@ type EditField = "nickname" | "bio" | "tags" | "rate" | "hours" | null;
 
 export default function CreatorProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const { activeRole, creatorEdits, updateCreatorEdits, showcaseEdits, setShowcaseEdits } =
-    useStore();
+  const {
+    activeRole,
+    creatorEdits,
+    updateCreatorEdits,
+    showcaseEdits,
+    setShowcaseEdits,
+    isLoggedIn,
+    hasHydrated,
+  } = useStore();
   const router = useRouter();
   const t = useT();
   const [showcaseOpen, setShowcaseOpen] = useState(false);
@@ -310,6 +318,16 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
       </button>
     </div>
   );
+
+  if (!hasHydrated) return null;
+  // Full creator detail is members-only; guests get the unified signup gate plus
+  // a locked teaser (returnTo brings them back here after auth).
+  if (!isLoggedIn)
+    return (
+      <AppShell>
+        <LockedDetail returnTo={`/market/creators/${id}`} kind="creator" title={creator.nickname} />
+      </AppShell>
+    );
 
   return (
     <AppShell>
