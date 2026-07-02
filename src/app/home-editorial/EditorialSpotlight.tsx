@@ -110,7 +110,7 @@ export default function EditorialSpotlight() {
               key={film.id}
               className={styles.leadVideo}
               src={film.clip}
-              poster={film.still ?? film.poster}
+              preload="auto"
               autoPlay
               muted
               loop
