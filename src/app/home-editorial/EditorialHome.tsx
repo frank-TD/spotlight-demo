@@ -225,7 +225,11 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
               <h2 className={styles.title}>
                 Agents negotiate.
                 <br />
-                <span className={styles.accent}>You stay in control.</span>
+                <span className={styles.accent}>
+                  You stay
+                  <br />
+                  in control.
+                </span>
               </h2>
               <p>
                 Marlow represents backers. Wren represents creators. They align budget, milestones,

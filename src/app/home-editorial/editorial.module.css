@@ -754,7 +754,9 @@
   align-items: center;
   margin-top: clamp(36px, 5vh, 56px);
 }
-.agentsCopy .title { margin-bottom: 22px; }
+/* Scoped smaller than the shared display .title so the two sentences sit on a
+   clean 3 lines (AGENTS NEGOTIATE. / YOU STAY / IN CONTROL.) with no orphan. */
+.agentsCopy .title { margin-bottom: 22px; font-size: clamp(28px, 2.8vw, 40px); line-height: 1.03; }
 .agentsCopy p { max-width: 40ch; font-size: 15px; line-height: 1.6; font-weight: 600; color: rgba(244, 240, 232, 0.72); }
 .agentCards { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .agentCard {
