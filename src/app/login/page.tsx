@@ -22,9 +22,9 @@ export default function LoginPage() {
     // them right back where they left off (guarded to internal paths only).
     const raw = new URLSearchParams(window.location.search).get("returnTo");
     const returnTo = raw && raw.startsWith("/") && !raw.startsWith("//") ? raw : null;
-    // Otherwise: returning users that finished onboarding head straight to
-    // Discovery; anyone still in the funnel resumes at the role picker.
-    router.push(returnTo ?? (onboardingComplete ? "/discovery" : "/onboarding/role"));
+    // Otherwise: returning users that finished onboarding head straight to the
+    // marketplace; anyone still in the funnel resumes at the role picker.
+    router.push(returnTo ?? (onboardingComplete ? "/market" : "/onboarding/role"));
   };
 
   return (

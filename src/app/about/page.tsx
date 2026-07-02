@@ -113,7 +113,7 @@ export default function AboutPage() {
             {t.aboutPage.ctaTitle}
           </h2>
           <Link
-            href="/discovery"
+            href="/market"
             className="group inline-flex items-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-7 py-4 rounded-full hover:opacity-90 active:scale-95 transition-all shadow-[0_8px_30px_rgba(198,255,52,0.25)] mt-10"
           >
             {t.homeV2.ctaPrimary}

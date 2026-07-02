@@ -9,7 +9,7 @@ import { useT } from "@/hooks/useT";
 export default function SiteFooter({ oversized = false }: { oversized?: boolean }) {
   const t = useT();
   const links = [
-    { label: t.homeV2.footerProjects, href: "/discovery" },
+    { label: t.homeV2.footerProjects, href: "/market" },
     { label: t.homeV2.footerDistribution, href: "/distribution" },
     { label: t.homeV2.footerHiw, href: "/how-it-works" },
     { label: t.landing.footerAbout, href: "/about" },

@@ -91,7 +91,7 @@ export default function HeroCinematic() {
           style={{ animationDelay: "560ms" }}
         >
           <Link
-            href="/discovery"
+            href="/market"
             className="group inline-flex items-center justify-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-7 py-4 rounded-full hover:opacity-90 active:scale-95 transition-all shadow-[0_8px_30px_rgba(212,175,55,0.25)]"
           >
             {t.homeV2.ctaPrimary}
