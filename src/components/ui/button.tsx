@@ -55,4 +55,19 @@ function Button({
   );
 }
 
+export const pillVariants = cva(
+  "inline-flex items-center justify-center gap-2 rounded-full font-label uppercase tracking-widest transition-all active:scale-95 disabled:opacity-50 disabled:pointer-events-none",
+  {
+    variants: {
+      variant: {
+        primary: "bg-primary text-on-primary hover:opacity-90",
+        outline: "border border-outline-variant/60 text-on-surface hover:border-primary/60 hover:text-primary",
+        outlinePrimary: "border border-primary/60 text-on-primary-container hover:bg-primary/10",
+      },
+      size: { sm: "text-[11px] px-5 py-2.5", md: "text-label-md px-7 py-4", lg: "text-label-md px-8 py-4" },
+    },
+    defaultVariants: { variant: "primary", size: "md" },
+  }
+);
+
 export { Button, buttonVariants };

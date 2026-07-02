@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { LogIn, UserPlus } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { pillVariants } from "@/components/ui/button";
 import { useStore } from "@/lib/store";
 import { useT } from "@/hooks/useT";
 
@@ -29,7 +30,7 @@ export default function SignupGate() {
           <Link
             href={`/register${rt}`}
             onClick={closeSignupGate}
-            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary text-on-primary font-label text-[12px] uppercase tracking-[0.12em] px-6 py-3.5 hover:opacity-90 active:scale-95 transition-all"
+            className={pillVariants({ size: "md" })}
           >
             <UserPlus className="w-4 h-4" />
             {t.signupGate.createAccount}
@@ -37,7 +38,7 @@ export default function SignupGate() {
           <Link
             href={`/login${rt}`}
             onClick={closeSignupGate}
-            className="inline-flex items-center justify-center gap-2 rounded-full border border-outline-variant/60 text-on-surface font-label text-[12px] uppercase tracking-[0.12em] px-6 py-3.5 hover:border-primary/60 hover:text-primary transition-colors"
+            className={pillVariants({ variant: "outline", size: "md" })}
           >
             <LogIn className="w-4 h-4" />
             {t.signupGate.logIn}
