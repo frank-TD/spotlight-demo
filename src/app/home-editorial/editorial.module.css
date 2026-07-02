@@ -790,6 +790,123 @@
 .agentAwait { margin-top: 14px; display: flex; align-items: center; gap: 8px; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(244, 240, 232, 0.55); }
 .agentAwait::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--orange); }
 
+/* ── Agents: live negotiation demo card ──────────────────────────────────── */
+.negCard {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid rgba(244, 240, 232, 0.2);
+  background: rgba(255, 255, 255, 0.02);
+}
+.negHeader {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 20px;
+  border-bottom: 1px solid rgba(244, 240, 232, 0.14);
+}
+.negDots { display: inline-flex; gap: 6px; flex-shrink: 0; }
+.negDots i { width: 9px; height: 9px; border-radius: 50%; background: rgba(244, 240, 232, 0.22); }
+.negDots i:first-child { background: color-mix(in srgb, var(--orange) 75%, transparent); }
+.negSession { font-size: 13px; font-weight: 700; color: var(--white); }
+.negMeta {
+  margin-top: 3px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: rgba(244, 240, 232, 0.55);
+}
+.negBody {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 22px 20px;
+  min-height: 336px;
+}
+.negBubble {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+.negBubbleWren { flex-direction: row-reverse; }
+.negShown { opacity: 1; transform: none; }
+.negAvatar {
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 800;
+  border: 1px solid color-mix(in srgb, var(--orange) 50%, transparent);
+  color: var(--orange);
+  background: color-mix(in srgb, var(--orange) 12%, transparent);
+}
+.negBubbleWren .negAvatar {
+  border-color: rgba(244, 240, 232, 0.3);
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.05);
+}
+.negMsg { max-width: 80%; }
+.negBubbleWren .negMsg { text-align: right; }
+.negRole {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: var(--orange);
+  margin-bottom: 6px;
+}
+.negBubbleWren .negRole { color: rgba(244, 240, 232, 0.7); }
+.negText {
+  font-size: 13px;
+  line-height: 1.55;
+  font-weight: 600;
+  color: rgba(244, 240, 232, 0.9);
+  border: 1px solid rgba(244, 240, 232, 0.16);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 11px 14px;
+}
+.negBubbleWren .negText {
+  border-color: color-mix(in srgb, var(--orange) 22%, transparent);
+  background: color-mix(in srgb, var(--orange) 6%, transparent);
+}
+.negTyping { display: flex; gap: 5px; padding-left: 46px; }
+.negDeal {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 20px;
+  border-top: 1px solid color-mix(in srgb, var(--orange) 30%, transparent);
+  opacity: 0.4;
+  transition: opacity 0.5s ease, background 0.5s ease;
+}
+.negDealDone { opacity: 1; background: color-mix(in srgb, var(--orange) 8%, transparent); }
+.negDeal b {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: var(--orange);
+}
+.negDeal span {
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(244, 240, 232, 0.6);
+}
+
 /* ── Distribution (paper) ────────────────────────────────────────────────── */
 .dist {
   position: relative;
