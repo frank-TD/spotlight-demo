@@ -51,16 +51,30 @@ function ProfileForm({ role }: { role: "backer" | "creator" }) {
 
       <div className="space-y-5">
         <div>
-          <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2">
+          <label
+            htmlFor="profile-name"
+            className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2"
+          >
             {t.profile.displayName}
           </label>
-          <input value={name} onChange={(e) => setName(e.target.value)} className={inputCls} />
+          <input
+            id="profile-name"
+            aria-label={t.profile.displayName}
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            className={inputCls}
+          />
         </div>
         <div>
-          <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2">
+          <label
+            htmlFor="profile-email"
+            className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2"
+          >
             {t.profile.email}
           </label>
           <input
+            id="profile-email"
+            aria-label={t.profile.email}
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
@@ -68,10 +82,15 @@ function ProfileForm({ role }: { role: "backer" | "creator" }) {
           />
         </div>
         <div>
-          <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2">
+          <label
+            htmlFor="profile-bio"
+            className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2"
+          >
             {t.profile.bio}
           </label>
           <textarea
+            id="profile-bio"
+            aria-label={t.profile.bio}
             rows={3}
             value={bio}
             onChange={(e) => setBio(e.target.value)}

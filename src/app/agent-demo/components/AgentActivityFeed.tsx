@@ -26,7 +26,7 @@ export default function AgentActivityFeed({ events }: { events: AgentEvent[] }) 
             <div className="min-w-0 pt-1">
               <div className="flex items-baseline gap-2 flex-wrap">
                 <p className="font-body text-sm font-medium text-on-surface">{e.title}</p>
-                <span className="font-label text-[10px] uppercase tracking-[0.1em] text-on-surface-variant/70">{e.time}</span>
+                <span className="font-label text-[10px] uppercase tracking-[0.1em] text-on-surface-variant/85">{e.time}</span>
               </div>
               {e.detail ? <p className="font-body text-[13px] text-on-surface-variant mt-0.5 leading-snug">{e.detail}</p> : null}
             </div>

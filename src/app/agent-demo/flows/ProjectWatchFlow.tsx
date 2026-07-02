@@ -93,12 +93,12 @@ export default function ProjectWatchFlow() {
                     ? "bg-[#46d18b]/15 border-[#46d18b]/50 text-[#46d18b]"
                     : m.state === "active"
                       ? "bg-agent/15 border-agent/50 text-agent"
-                      : "border-outline-variant/50 text-on-surface-variant/50",
+                      : "border-outline-variant/50 text-on-surface-variant/85",
                 ].join(" ")}
               >
                 {m.state === "done" ? <Check className="w-3.5 h-3.5" /> : <CircleDot className="w-3.5 h-3.5" />}
               </span>
-              <span className={["font-body text-[12px] leading-tight", m.state === "todo" ? "text-on-surface-variant/60" : "text-on-surface"].join(" ")}>
+              <span className={["font-body text-[12px] leading-tight", m.state === "todo" ? "text-on-surface-variant/85" : "text-on-surface"].join(" ")}>
                 {m.label}
               </span>
             </div>
@@ -167,7 +167,7 @@ export default function ProjectWatchFlow() {
 function Meta({ label, value, warn }: { label: string; value: string; warn?: boolean }) {
   return (
     <div>
-      <dt className="font-label text-[10px] uppercase tracking-[0.12em] text-on-surface-variant/70">{label}</dt>
+      <dt className="font-label text-[10px] uppercase tracking-[0.12em] text-on-surface-variant/85">{label}</dt>
       <dd className={["font-body text-[13px] mt-0.5", warn ? "text-[#ff5d5d]" : "text-on-surface"].join(" ")}>{value}</dd>
     </div>
   );

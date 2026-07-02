@@ -37,7 +37,7 @@ export default function AgentDemo() {
               </span>
             </div>
             <div className="flex items-center gap-4">
-              <span className="hidden md:inline font-label text-[10px] uppercase tracking-[0.14em] text-on-surface-variant/60">
+              <span className="hidden md:inline font-label text-[10px] uppercase tracking-[0.14em] text-on-surface-variant/85">
                 Frontend demo · mock data · no real AI
               </span>
               <Link
@@ -74,7 +74,7 @@ export default function AgentDemo() {
                   </span>
                   <span className="text-left">
                     <span className="block font-body text-sm font-semibold leading-tight">{t.label}</span>
-                    <span className="hidden md:block font-label text-[9px] uppercase tracking-[0.12em] text-on-surface-variant/70">{t.desc}</span>
+                    <span className="hidden md:block font-label text-[9px] uppercase tracking-[0.12em] text-on-surface-variant/85">{t.desc}</span>
                   </span>
                   <span
                     className={[

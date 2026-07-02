@@ -365,6 +365,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
           </DialogHeader>
           <textarea
             rows={3}
+            aria-label={t.orderDetail.rejectPlaceholder}
             className={cn(inputCls, "resize-none")}
             placeholder={t.orderDetail.rejectPlaceholder}
           />

@@ -27,7 +27,7 @@ import { useT } from "@/hooks/useT";
 import AppShell from "@/components/layout/AppShell";
 import { CREATORS, NEEDS, findSessionForCounterpart } from "@/lib/mock-data";
 import { getAgentReply } from "@/lib/agent-response";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { cn } from "@/lib/utils";
 
 // Marketplace = the merged Discover + Marketplace surface, role-driven and
@@ -256,7 +256,7 @@ export default function MarketPage() {
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={copy.searchPlaceholder}
                 aria-label={copy.searchPlaceholder}
-                className="w-full pl-12 pr-4 py-3.5 rounded-full bg-surface-container-low border border-outline-variant/60 font-body text-sm text-on-surface placeholder:text-on-surface-variant/70 focus:border-primary focus:outline-none transition-colors"
+                className="w-full pl-12 pr-4 py-3.5 rounded-full bg-surface-container-low border border-outline-variant/60 font-body text-sm text-on-surface placeholder:text-on-surface-variant/75 focus:border-primary focus:outline-none transition-colors"
               />
             </div>
             <div className="flex gap-2 overflow-x-auto no-scrollbar md:flex-wrap md:overflow-visible -mx-1 px-1">
@@ -264,6 +264,7 @@ export default function MarketPage() {
                 <button
                   key={f}
                   type="button"
+                  aria-pressed={activeFilter === f}
                   onClick={() => setFilter(f)}
                   className={cn(
                     "shrink-0 font-label text-[11px] uppercase tracking-wider px-4 py-2 rounded-full border whitespace-nowrap transition-colors",
@@ -370,9 +371,11 @@ export default function MarketPage() {
           promptExpanded ? "bottom-10" : "bottom-8"
         )}
       >
+        {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions, jsx-a11y/click-events-have-key-events -- click-to-expand convenience wrapper around a textarea and controls; keyboard users focus those, which expands the dock via onFocus */}
         <div
           ref={promptRef}
           onClick={() => setPromptExpanded(true)}
+          onFocus={() => setPromptExpanded(true)}
           className={cn(
             "pointer-events-auto rounded-[28px] border border-outline-variant/40 transition-all duration-500 ease-out overflow-hidden",
             promptExpanded ? "shadow-[0_24px_60px_rgba(0,0,0,0.6)] ring-1 ring-primary/20" : "shadow-2xl"
@@ -425,7 +428,7 @@ export default function MarketPage() {
               placeholder={copy.prompt}
               aria-label={copy.prompt}
               className={cn(
-                "flex-1 bg-transparent border-none resize-none focus:outline-none focus:ring-0 font-body text-base md:text-lg placeholder:text-on-surface-variant/60 transition-all duration-500 ease-out",
+                "flex-1 bg-transparent border-none resize-none focus:outline-none focus:ring-0 font-body text-base md:text-lg placeholder:text-on-surface-variant/75 transition-all duration-500 ease-out",
                 promptExpanded ? "min-h-[96px]" : "min-h-[28px]"
               )}
               style={{ maxHeight: promptExpanded ? 200 : 28 }}
@@ -459,7 +462,7 @@ export default function MarketPage() {
               >
                 <Paperclip className="w-3.5 h-3.5" /> {t.market.guest.attach}
               </button>
-              <span className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/60">
+              <span className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/85">
                 {t.market.guest.fileCount(files.length)}
               </span>
             </div>
@@ -476,7 +479,7 @@ function SectionHead({ label, hint }: { label: string; hint: string }) {
   return (
     <div className="flex items-end justify-between gap-4 mb-6">
       <h2 className="font-label text-[12px] uppercase tracking-[0.2em] text-on-surface-variant">{label}</h2>
-      <span className="font-label text-[11px] uppercase tracking-wider text-on-surface-variant/60">{hint}</span>
+      <span className="font-label text-[11px] uppercase tracking-wider text-on-surface-variant/85">{hint}</span>
     </div>
   );
 }
@@ -568,6 +571,7 @@ function RoleSwitch({ role, onChange }: { role: Role; onChange: (r: Role) => voi
           <button
             key={r}
             type="button"
+            aria-pressed={active}
             onClick={() => onChange(r)}
             className={cn(
               "flex flex-col items-center lg:items-start px-6 md:px-8 py-3 rounded-xl transition-colors",
@@ -580,7 +584,7 @@ function RoleSwitch({ role, onChange }: { role: Role; onChange: (r: Role) => voi
             <span
               className={cn(
                 "mt-1.5 font-label text-[10px] uppercase tracking-[0.2em]",
-                active ? "text-on-primary/80" : "text-on-surface-variant/70"
+                active ? "text-on-primary/80" : "text-on-surface-variant/85"
               )}
             >
               {cap}
@@ -662,9 +666,9 @@ function BriefCard({
           </div>
           <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 font-label text-[10px] uppercase tracking-wider text-on-surface-variant">
             <span>{g.daysLeft(n.deliveryDays)}</span>
-            <span className="text-on-surface-variant/40">·</span>
+            <span className="text-on-surface-variant/85">·</span>
             <span>{g.bidsCount(n.bids)}</span>
-            <span className="text-on-surface-variant/40">·</span>
+            <span className="text-on-surface-variant/85">·</span>
             <span>{g.revisions(n.modifyLimit)}</span>
             <span className="inline-flex items-center gap-1 text-on-surface-variant/90">
               <ShieldCheck className="w-3 h-3 text-primary" />
@@ -717,6 +721,7 @@ function WorkDialog({
       <DialogContent className="sm:max-w-5xl p-0 overflow-hidden max-h-[90vh]">
         {work && (
           <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] max-h-[90vh] overflow-hidden">
+            <DialogTitle className="sr-only">{work.title}</DialogTitle>
             <div className="bg-[#08080a] p-6 md:p-7 flex flex-col gap-4 overflow-y-auto">
               <div className="aspect-video relative rounded-xl overflow-hidden bg-surface-container group">
                 <Image
@@ -831,6 +836,7 @@ function InviteDialog({ creator, onClose }: { creator: Creator; onClose: () => v
   const t = useT();
   const myNeeds = NEEDS.filter((n) => n.backerId === "u_backer_01" && n.status === "open");
   const [sel, setSel] = useState(myNeeds[0]?.id ?? "");
+  const dialogRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -839,6 +845,14 @@ function InviteDialog({ creator, onClose }: { creator: Creator; onClose: () => v
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
   }, [onClose]);
+
+  // Move focus into the dialog on open, and restore it to the control that
+  // opened it on close (this component unmounts when the invite flow closes).
+  useEffect(() => {
+    const prevFocused = document.activeElement as HTMLElement | null;
+    dialogRef.current?.focus();
+    return () => prevFocused?.focus?.();
+  }, []);
 
   const send = () => {
     const n = myNeeds.find((x) => x.id === sel);
@@ -855,13 +869,21 @@ function InviteDialog({ creator, onClose }: { creator: Creator; onClose: () => v
         className="absolute inset-0 bg-[rgba(8,8,10,0.72)] backdrop-blur-sm"
       />
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
-        className="relative w-full max-w-md rounded-2xl border border-outline-variant/50 bg-surface-container-lowest p-6 shadow-[0_30px_80px_rgba(0,0,0,0.6)]"
+        aria-labelledby="invite-dialog-title"
+        tabIndex={-1}
+        className="relative w-full max-w-md rounded-2xl border border-outline-variant/50 bg-surface-container-lowest p-6 shadow-[0_30px_80px_rgba(0,0,0,0.6)] focus:outline-none"
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="font-headline text-[22px] text-on-surface">{t.market.guest.inviteTitle(creator.nickname)}</h3>
+            <h3
+              id="invite-dialog-title"
+              className="font-headline text-[22px] text-on-surface"
+            >
+              {t.market.guest.inviteTitle(creator.nickname)}
+            </h3>
             <p className="mt-1 font-body text-sm text-on-surface-variant">
               {t.market.guest.inviteSubtitle}
             </p>

@@ -326,7 +326,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                         <Bot className="w-2.5 h-2.5" /> {roleLabel(sender)}
                       </span>
                     ) : (
-                      <span className="text-on-surface-variant/70">· {msg.senderRole}</span>
+                      <span className="text-on-surface-variant/85">· {msg.senderRole}</span>
                     )}
                   </span>
                 )}
@@ -345,7 +345,7 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                 >
                   {msg.text}
                 </div>
-                <span className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant/70 px-1">
+                <span className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant/85 px-1">
                   {msg.ts}
                 </span>
               </div>
@@ -356,10 +356,11 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
 
       {/* Input */}
       <div className="flex items-center gap-3 px-5 py-3 border-t border-outline-variant/30 shrink-0">
-        <button className="text-on-surface-variant hover:text-on-surface p-2">
+        <button type="button" aria-label="attach file" className="text-on-surface-variant hover:text-on-surface p-2">
           <Paperclip className="w-5 h-5" />
         </button>
         <input
+          aria-label={t.chat.messagePlaceholder}
           className="flex-1 font-body text-sm rounded-xl border border-outline-variant px-4 py-3 bg-surface-container-low focus:border-primary focus:outline-none"
           placeholder={t.chat.messagePlaceholder}
           value={input}
@@ -367,7 +368,9 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
           onKeyDown={(e) => e.key === "Enter" && sendMsg()}
         />
         <button
+          type="button"
           onClick={sendMsg}
+          aria-label="send message"
           className="rounded-xl px-5 py-3 bg-primary text-on-primary hover:opacity-90 transition-opacity"
         >
           <Send className="w-4 h-4" />
@@ -403,6 +406,8 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                     <button
                       key={need.id}
                       type="button"
+                      aria-label={need.title}
+                      aria-pressed={selected}
                       onClick={() => setSelectedNeedId(need.id)}
                       className={cn(
                         "w-full text-left rounded-xl border p-4 transition-colors",

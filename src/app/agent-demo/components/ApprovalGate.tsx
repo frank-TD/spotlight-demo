@@ -52,7 +52,7 @@ export default function ApprovalGate({
           </div>
         ) : null}
 
-        <p className="font-label text-[11px] uppercase tracking-[0.12em] text-on-surface-variant/70 mt-1">
+        <p className="font-label text-[11px] uppercase tracking-[0.12em] text-on-surface-variant/85 mt-1">
           You are the final approver — the Agent never publishes on its own.
         </p>
 

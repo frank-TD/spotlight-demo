@@ -4,7 +4,7 @@ import Image from "next/image";
 import { Play, Download, Repeat, Paperclip } from "lucide-react";
 import { toast } from "sonner";
 import BrandGlyph from "./BrandGlyph";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import type { StudioAsset } from "@/lib/store";
 import { useT } from "@/hooks/useT";
 import { MODELS_BY_MODE } from "@/lib/studio-mock";
@@ -50,6 +50,7 @@ export default function AssetLightbox({
         className="sm:max-w-5xl p-0 overflow-hidden max-h-[92vh] bg-surface"
         showCloseButton
       >
+        <DialogTitle className="sr-only">{asset.prompt}</DialogTitle>
         <div className="grid grid-cols-1 md:grid-cols-[2fr_1fr] max-h-[92vh]">
           {/* Left: preview */}
           <div className="bg-[#0f0d0c] p-6 flex items-center justify-center min-h-[300px] max-h-[92vh] overflow-hidden relative">

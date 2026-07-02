@@ -395,16 +395,29 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
-              <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2">
+              <label
+                htmlFor="bid-quote"
+                className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2"
+              >
                 {t.needDetail.yourQuote}
               </label>
-              <input className={inputCls} defaultValue="3800" />
+              <input
+                id="bid-quote"
+                aria-label={t.needDetail.yourQuote}
+                className={inputCls}
+                defaultValue="3800"
+              />
             </div>
             <div>
-              <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2">
+              <label
+                htmlFor="bid-proposal"
+                className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2"
+              >
                 {t.needDetail.proposal}
               </label>
               <textarea
+                id="bid-proposal"
+                aria-label={t.needDetail.proposal}
                 rows={4}
                 className={cn(inputCls, "resize-none")}
                 defaultValue={t.needDetail.proposalDefault}
@@ -428,6 +441,7 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
                 ref={fileInputRef}
                 type="file"
                 multiple
+                aria-label={t.needDetail.addAttachment}
                 className="hidden"
                 onChange={handleFilePick}
               />
@@ -461,6 +475,7 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
                       <input
                         value={a.note}
                         onChange={(e) => updateAttachmentNote(a.id, e.target.value)}
+                        aria-label={t.needDetail.attachmentNotePlaceholder}
                         placeholder={t.needDetail.attachmentNotePlaceholder}
                         className="mt-2 w-full px-3 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg focus:border-primary focus:outline-none font-body text-xs"
                       />

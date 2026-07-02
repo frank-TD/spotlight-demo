@@ -149,7 +149,7 @@ export default function AgentFloat() {
           <div className="p-3 border-t border-outline-variant/30 flex gap-2">
             <input
               aria-label={t.agent.placeholder}
-              className="flex-1 font-body text-xs rounded-xl border border-outline-variant px-3 py-2 bg-surface-container-low focus:border-primary focus:outline-none placeholder:text-on-surface-variant/60"
+              className="flex-1 font-body text-xs rounded-xl border border-outline-variant px-3 py-2 bg-surface-container-low focus:border-primary focus:outline-none placeholder:text-on-surface-variant/75"
               placeholder={t.agent.placeholder}
               value={input}
               onChange={(e) => setInput(e.target.value)}

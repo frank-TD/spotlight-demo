@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -51,6 +51,28 @@ export default function TopNav() {
   } = useStore();
   const t = useT();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const mobileToggleRef = useRef<HTMLButtonElement>(null);
+  const mobileCloseRef = useRef<HTMLButtonElement>(null);
+  const prevMobileOpen = useRef(false);
+
+  // Mobile drawer focus management: on open, move focus into the drawer (its
+  // close button) and enable Escape-to-close; on close, return focus to the
+  // hamburger that opened it. The drawer stays mounted for its transition but is
+  // `inert` while closed (see the overlay below), so it never traps the tab ring.
+  useEffect(() => {
+    if (mobileOpen && !prevMobileOpen.current) {
+      mobileCloseRef.current?.focus();
+    } else if (!mobileOpen && prevMobileOpen.current) {
+      mobileToggleRef.current?.focus();
+    }
+    prevMobileOpen.current = mobileOpen;
+    if (!mobileOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setMobileOpen(false);
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [mobileOpen]);
 
   // `match` controls how the active state is decided. Discover has merged into
   // the Marketplace (one tab → /market). Workspace is a sub-route of /discovery,
@@ -103,13 +125,14 @@ export default function TopNav() {
             </Link>
             {/* Tabs stay visible for anonymous visitors too — the homepage must
               always offer a way into the rest of the product. */}
-            <nav className="hidden md:flex gap-5 lg:gap-7">
+            <nav aria-label="Primary" className="hidden md:flex gap-5 lg:gap-7">
               {NAV_ITEMS.map((item) => {
                 const active = item.match(pathname);
                 return (
                   <Link
                     key={item.href}
                     href={item.href}
+                    aria-current={active ? "page" : undefined}
                     className={cn(
                       "font-label text-label-md uppercase tracking-widest transition-colors duration-300 whitespace-nowrap",
                       active
@@ -123,6 +146,7 @@ export default function TopNav() {
               })}
               <Link
                 href="/previews"
+                aria-current={previewsActive ? "page" : undefined}
                 className={cn(
                   "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border font-label text-label-md uppercase tracking-widest whitespace-nowrap transition-colors",
                   previewsActive
@@ -135,6 +159,7 @@ export default function TopNav() {
               </Link>
               <Link
                 href="/agent-demo"
+                aria-current={agentActive ? "page" : undefined}
                 className={cn(
                   "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border font-label text-label-md uppercase tracking-widest whitespace-nowrap transition-colors",
                   agentActive
@@ -275,6 +300,7 @@ export default function TopNav() {
             )}
 
             <button
+              ref={mobileToggleRef}
               type="button"
               onClick={() => setMobileOpen(true)}
               className="md:hidden flex items-center justify-center w-9 h-9 rounded-lg hover:bg-surface-container transition-colors text-on-surface-variant"
@@ -290,6 +316,7 @@ export default function TopNav() {
           on an ancestor turns it into the containing block for fixed
           descendants, which would trap this overlay inside the 80px bar. */}
       <div
+        inert={!mobileOpen}
         className={cn(
           "md:hidden fixed inset-0 z-[60] transition-opacity duration-300",
           mobileOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
@@ -313,6 +340,7 @@ export default function TopNav() {
               Spotlight
             </span>
             <button
+              ref={mobileCloseRef}
               type="button"
               onClick={() => setMobileOpen(false)}
               className="w-9 h-9 flex items-center justify-center rounded-lg hover:bg-surface-container text-on-surface-variant"
@@ -321,7 +349,7 @@ export default function TopNav() {
               <X className="w-5 h-5" />
             </button>
           </div>
-          <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
+          <nav aria-label="Mobile" className="flex-1 overflow-y-auto px-3 py-4 space-y-0.5">
             {NAV_ITEMS.map((item) => {
               const active = item.match(pathname);
               return (
@@ -329,6 +357,7 @@ export default function TopNav() {
                   key={item.href}
                   href={item.href}
                   onClick={() => setMobileOpen(false)}
+                  aria-current={active ? "page" : undefined}
                   className={cn(
                     "block px-4 py-3 rounded-lg font-label text-label-md uppercase tracking-widest transition-colors",
                     active
@@ -343,6 +372,7 @@ export default function TopNav() {
             <Link
               href="/previews"
               onClick={() => setMobileOpen(false)}
+              aria-current={previewsActive ? "page" : undefined}
               className={cn(
                 "flex items-center gap-3 px-4 py-3 rounded-lg font-label text-label-md uppercase tracking-widest transition-colors",
                 previewsActive
@@ -355,6 +385,7 @@ export default function TopNav() {
             <Link
               href="/agent-demo"
               onClick={() => setMobileOpen(false)}
+              aria-current={agentActive ? "page" : undefined}
               className={cn(
                 "flex items-center gap-3 px-4 py-3 rounded-lg font-label text-label-md uppercase tracking-widest transition-colors",
                 agentActive

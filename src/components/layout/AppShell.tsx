@@ -3,6 +3,7 @@ import Link from "next/link";
 import TopNav from "./TopNav";
 import AgentFloat from "./AgentFloat";
 import SignupGate from "@/components/common/SignupGate";
+import { useT } from "@/hooks/useT";
 
 export default function AppShell({
   children,
@@ -15,10 +16,21 @@ export default function AppShell({
   // homepage so the transparent nav overlays the cinematic hero).
   heroUnderNav?: boolean;
 }) {
+  const t = useT();
   return (
     <div className="min-h-screen flex flex-col bg-surface text-on-surface">
+      {/* Skip link — hidden until focused, lets keyboard users jump past the
+          fixed nav straight to the page content. */}
+      <a
+        href="#main-content"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:font-label focus:text-label-md focus:uppercase focus:tracking-wider focus:text-on-primary"
+      >
+        {t.nav.skipToContent}
+      </a>
       <TopNav />
-      <main className={heroUnderNav ? "flex-1" : "flex-1 pt-[80px]"}>{children}</main>
+      <main id="main-content" className={heroUnderNav ? "flex-1" : "flex-1 pt-[80px]"}>
+        {children}
+      </main>
       {!hideFooter && <Footer />}
       <AgentFloat />
       <SignupGate />
@@ -38,7 +50,7 @@ function Footer() {
             © 2026 Spotlight Technologies
           </p>
         </div>
-        <nav className="flex gap-8">
+        <nav aria-label="Footer" className="flex gap-8">
           {[
             { label: "About", href: "/about" },
             { label: "Support", href: "#" },

@@ -54,6 +54,7 @@ export default function ProjectsPage() {
             <div className="relative flex-grow md:flex-grow-0 min-w-[280px]">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-outline" />
               <input
+                aria-label={t.creators.searchPlaceholder}
                 className="w-full pl-12 pr-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none focus:ring-0 font-body text-sm transition-all"
                 placeholder={t.creators.searchPlaceholder}
                 type="text"
@@ -81,7 +82,7 @@ export default function ProjectsPage() {
                         <span className="bg-tertiary-container text-on-tertiary-container text-[11px] font-label uppercase tracking-[0.1em] px-3 py-1 rounded-full">
                           {t.projects.statusInProgress}
                         </span>
-                        <span className="text-on-surface-variant/60 text-[11px] font-label uppercase tracking-[0.1em]">
+                        <span className="text-on-surface-variant/85 text-[11px] font-label uppercase tracking-[0.1em]">
                           {t.projects.stagePendingReview}
                         </span>
                       </div>
@@ -192,7 +193,7 @@ export default function ProjectsPage() {
                 <MoreVertical className="w-4 h-4 text-outline" />
               </div>
               <h4 className="font-body font-bold mb-1">{ORDER_COMPLETED.title}</h4>
-              <p className="text-sm text-on-surface-variant/70">
+              <p className="text-sm text-on-surface-variant/85">
                 {activeRole === "backer"
                   ? t.projects.counterpartCreator
                   : t.projects.counterpartBacker}

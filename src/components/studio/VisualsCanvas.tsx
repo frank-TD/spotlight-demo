@@ -66,7 +66,7 @@ export default function VisualsCanvas({
           )}
         </div>
         {assets.length > 0 && (
-          <span className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/60 shrink-0">
+          <span className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/85 shrink-0">
             {t.aigc.assetCount(assets.length)}
           </span>
         )}

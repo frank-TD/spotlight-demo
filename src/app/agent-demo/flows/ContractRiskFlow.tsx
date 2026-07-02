@@ -165,7 +165,7 @@ export default function ContractRiskFlow() {
 function Meta({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="font-label text-[10px] uppercase tracking-[0.12em] text-on-surface-variant/70">{label}</dt>
+      <dt className="font-label text-[10px] uppercase tracking-[0.12em] text-on-surface-variant/85">{label}</dt>
       <dd className="font-body text-[13px] text-on-surface mt-0.5">{value}</dd>
     </div>
   );

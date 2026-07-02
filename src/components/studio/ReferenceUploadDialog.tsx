@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { Upload, X, FileIcon } from "lucide-react";
 import { toast } from "sonner";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useT } from "@/hooks/useT";
 import { cn } from "@/lib/utils";
 
@@ -92,10 +92,13 @@ export default function ReferenceUploadDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-lg p-0 overflow-hidden" showCloseButton>
+        <DialogTitle className="sr-only">{t.aigc.refTitle}</DialogTitle>
         <div className="p-6">
           <h2 className="font-headline text-2xl text-on-surface mb-5">{t.aigc.refTitle}</h2>
 
-          {/* Drop zone */}
+          {/* Drop zone — drag-and-drop is a progressive enhancement; the
+              accessible path is the keyboard-operable "Browse files" button below. */}
+          {/* eslint-disable-next-line jsx-a11y/no-static-element-interactions */}
           <div
             onDrop={onDrop}
             onDragOver={(e) => {
@@ -128,6 +131,7 @@ export default function ReferenceUploadDialog({
               ref={fileInputRef}
               type="file"
               multiple
+              aria-label={t.aigc.refTitle}
               className="hidden"
               onChange={(e) => {
                 if (e.target.files?.length) addFiles(e.target.files);
@@ -175,7 +179,7 @@ export default function ReferenceUploadDialog({
               ))}
             </div>
           ) : (
-            <p className="font-body text-sm text-on-surface-variant/70 text-center mt-5">
+            <p className="font-body text-sm text-on-surface-variant/85 text-center mt-5">
               {t.aigc.refEmpty}
             </p>
           )}

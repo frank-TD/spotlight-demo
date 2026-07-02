@@ -174,6 +174,7 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
               {isDraft ? (
                 <input
                   type="number"
+                  aria-label={t.contract.totalAmount}
                   value={total}
                   onChange={(e) => setTotal(Math.max(0, Number(e.target.value)))}
                   className={fieldCls}
@@ -188,6 +189,7 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
               </span>
               {isDraft ? (
                 <select
+                  aria-label={t.contract.copyrightLabel}
                   value={copyright}
                   onChange={(e) => setCopyright(e.target.value)}
                   className={`${fieldCls} cursor-pointer`}
@@ -210,6 +212,7 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
+                    aria-label={t.contract.revisionLimit}
                     value={revisionLimit}
                     onChange={(e) => setRevisionLimit(Math.max(0, Number(e.target.value)))}
                     className={`${fieldCls} w-20`}
@@ -232,6 +235,7 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
                 <div className="flex items-center gap-2">
                   <input
                     type="number"
+                    aria-label={t.contract.autoAcceptance}
                     value={autoAcceptDays}
                     onChange={(e) => setAutoAcceptDays(Math.max(1, Number(e.target.value)))}
                     className={`${fieldCls} w-20`}

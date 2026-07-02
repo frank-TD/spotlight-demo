@@ -113,10 +113,10 @@ export default function WalletPage() {
                 <p className="font-label text-label-md uppercase tracking-widest text-on-surface-variant mb-2">
                   {t.wallet.shellBalance}
                 </p>
-                <p className="font-headline text-[44px] leading-none text-on-surface-variant/40">
+                <p className="font-headline text-[44px] leading-none text-on-surface-variant/85">
                   ◉ 0
                 </p>
-                <p className="font-body text-sm text-on-surface-variant/60 mt-2">
+                <p className="font-body text-sm text-on-surface-variant/85 mt-2">
                   {t.wallet.emptyDash}
                 </p>
                 <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-4">
@@ -130,7 +130,7 @@ export default function WalletPage() {
                 <p className="font-label text-label-md uppercase tracking-widest text-on-surface-variant mb-2">
                   {t.wallet.diamondBalance}
                 </p>
-                <p className="font-headline text-[44px] leading-none text-on-surface-variant/40">
+                <p className="font-headline text-[44px] leading-none text-on-surface-variant/85">
                   ◆ 0
                 </p>
                 <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mt-4">
@@ -173,7 +173,7 @@ export default function WalletPage() {
               <h2 className="font-label text-label-md uppercase tracking-[0.2em] text-on-surface-variant flex items-center gap-2">
                 <CreditCard className="w-4 h-4" /> {t.wallet.bankCardsTitle}
               </h2>
-              <p className="font-body text-xs text-on-surface-variant/70 mt-1">
+              <p className="font-body text-xs text-on-surface-variant/85 mt-1">
                 {t.wallet.bankCardsManage}
               </p>
             </div>
@@ -318,6 +318,7 @@ export default function WalletPage() {
             </div>
             <input
               type="number"
+              aria-label={t.wallet.recharge}
               value={amount}
               onChange={(e) => setAmount(Number(e.target.value))}
               className="w-full px-4 py-2 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm"
@@ -377,6 +378,7 @@ export default function WalletPage() {
             </div>
             <input
               type="number"
+              aria-label={t.wallet.withdraw}
               value={amount}
               onChange={(e) => setAmount(Math.min(Number(e.target.value), creatorShell))}
               className="w-full px-4 py-2 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm"

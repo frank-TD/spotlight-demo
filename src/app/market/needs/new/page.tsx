@@ -94,8 +94,12 @@ export default function NewNeedPage() {
               {t.postNeed.basicInfo}
             </h2>
             <div>
-              <label className={labelCls}>{t.postNeed.projectTitle}</label>
+              <label htmlFor="need-title" className={labelCls}>
+                {t.postNeed.projectTitle}
+              </label>
               <input
+                id="need-title"
+                aria-label={t.postNeed.projectTitle}
                 className={inputCls}
                 placeholder={t.postNeed.projectTitlePlaceholder}
                 value={title}
@@ -103,8 +107,11 @@ export default function NewNeedPage() {
               />
             </div>
             <div>
-              <label className={labelCls}>{t.postNeed.contentType}</label>
+              <label htmlFor="need-content-type" className={labelCls}>
+                {t.postNeed.contentType}
+              </label>
               <select
+                id="need-content-type"
                 className={inputCls}
                 value={contentType}
                 onChange={(e) => setContentType(e.target.value)}
@@ -121,6 +128,7 @@ export default function NewNeedPage() {
                   <button
                     key={s}
                     type="button"
+                    aria-pressed={selectedStyles.includes(s)}
                     onClick={() => toggle(selectedStyles, setSelectedStyles, s)}
                     className={cn(
                       "font-label text-label-md uppercase tracking-wider px-3 py-1.5 rounded-full border transition-colors",
@@ -135,8 +143,12 @@ export default function NewNeedPage() {
               </div>
             </div>
             <div>
-              <label className={labelCls}>{t.postNeed.projectBrief}</label>
+              <label htmlFor="need-brief" className={labelCls}>
+                {t.postNeed.projectBrief}
+              </label>
               <textarea
+                id="need-brief"
+                aria-label={t.postNeed.projectBrief}
                 rows={4}
                 className={cn(inputCls, "resize-none")}
                 placeholder={t.postNeed.projectBriefPlaceholder}
@@ -153,8 +165,12 @@ export default function NewNeedPage() {
             </h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className={labelCls}>{t.postNeed.duration}</label>
+                <label htmlFor="need-duration" className={labelCls}>
+                  {t.postNeed.duration}
+                </label>
                 <input
+                  id="need-duration"
+                  aria-label={t.postNeed.duration}
                   className={inputCls}
                   type="number"
                   value={duration}
@@ -162,8 +178,12 @@ export default function NewNeedPage() {
                 />
               </div>
               <div>
-                <label className={labelCls}>{t.postNeed.episodesLabel}</label>
+                <label htmlFor="need-episodes" className={labelCls}>
+                  {t.postNeed.episodesLabel}
+                </label>
                 <input
+                  id="need-episodes"
+                  aria-label={t.postNeed.episodesLabel}
                   className={inputCls}
                   type="number"
                   value={episodes}
@@ -171,8 +191,10 @@ export default function NewNeedPage() {
                 />
               </div>
               <div>
-                <label className={labelCls}>{t.postNeed.aspectRatio}</label>
-                <select className={inputCls}>
+                <label htmlFor="need-aspect-ratio" className={labelCls}>
+                  {t.postNeed.aspectRatio}
+                </label>
+                <select id="need-aspect-ratio" className={inputCls}>
                   <option>16:9</option>
                   <option>9:16</option>
                   <option>1:1</option>
@@ -180,8 +202,16 @@ export default function NewNeedPage() {
                 </select>
               </div>
               <div>
-                <label className={labelCls}>{t.postNeed.revisionLimit}</label>
-                <input className={inputCls} type="number" defaultValue="3" />
+                <label htmlFor="need-revision" className={labelCls}>
+                  {t.postNeed.revisionLimit}
+                </label>
+                <input
+                  id="need-revision"
+                  aria-label={t.postNeed.revisionLimit}
+                  className={inputCls}
+                  type="number"
+                  defaultValue="3"
+                />
               </div>
             </div>
             <div>
@@ -191,6 +221,7 @@ export default function NewNeedPage() {
                   <button
                     key={p}
                     type="button"
+                    aria-pressed={selectedPlatforms.includes(p)}
                     onClick={() => toggle(selectedPlatforms, setSelectedPlatforms, p)}
                     className={cn(
                       "font-label text-label-md uppercase tracking-wider px-3 py-1.5 rounded-full border transition-colors",
@@ -213,8 +244,12 @@ export default function NewNeedPage() {
             </h2>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className={labelCls}>{t.postNeed.budget}</label>
+                <label htmlFor="need-budget" className={labelCls}>
+                  {t.postNeed.budget}
+                </label>
                 <input
+                  id="need-budget"
+                  aria-label={t.postNeed.budget}
                   className={inputCls}
                   type="number"
                   value={budget}
@@ -222,8 +257,12 @@ export default function NewNeedPage() {
                 />
               </div>
               <div>
-                <label className={labelCls}>{t.postNeed.deliveryDays}</label>
+                <label htmlFor="need-delivery-days" className={labelCls}>
+                  {t.postNeed.deliveryDays}
+                </label>
                 <input
+                  id="need-delivery-days"
+                  aria-label={t.postNeed.deliveryDays}
                   className={inputCls}
                   type="number"
                   value={deliveryDays}
@@ -232,24 +271,33 @@ export default function NewNeedPage() {
               </div>
             </div>
             <div>
-              <label className={labelCls}>{t.postNeed.copyrightLabel}</label>
-              <select className={inputCls}>
+              <label htmlFor="need-copyright" className={labelCls}>
+                {t.postNeed.copyrightLabel}
+              </label>
+              <select id="need-copyright" className={inputCls}>
                 {t.postNeed.copyrightOptions.map((co) => (
                   <option key={co}>{co}</option>
                 ))}
               </select>
             </div>
             <div className="flex items-center gap-6 font-body text-sm">
-              <label className="flex items-center gap-2 cursor-pointer">
+              <label htmlFor="need-ai-allowed" className="flex items-center gap-2 cursor-pointer">
                 <input
+                  id="need-ai-allowed"
+                  aria-label={t.postNeed.aiAllowed}
                   type="checkbox"
                   defaultChecked
                   className="rounded border-outline-variant accent-primary"
                 />
                 {t.postNeed.aiAllowed}
               </label>
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" className="rounded border-outline-variant accent-primary" />
+              <label htmlFor="need-nda-required" className="flex items-center gap-2 cursor-pointer">
+                <input
+                  id="need-nda-required"
+                  aria-label={t.postNeed.ndaRequired}
+                  type="checkbox"
+                  className="rounded border-outline-variant accent-primary"
+                />
                 {t.postNeed.ndaRequired}
               </label>
             </div>

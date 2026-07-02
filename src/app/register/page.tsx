@@ -46,39 +46,59 @@ export default function RegisterPage() {
         >
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2">
+              <label
+                htmlFor="register-first-name"
+                className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2"
+              >
                 {t.register.firstName}
               </label>
               <input
+                id="register-first-name"
+                aria-label={t.register.firstName}
                 placeholder="Alex"
                 className="w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm"
               />
             </div>
             <div>
-              <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2">
+              <label
+                htmlFor="register-last-name"
+                className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2"
+              >
                 {t.register.lastName}
               </label>
               <input
+                id="register-last-name"
+                aria-label={t.register.lastName}
                 placeholder="Kim"
                 className="w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm"
               />
             </div>
           </div>
           <div>
-            <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2">
+            <label
+              htmlFor="register-email"
+              className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2"
+            >
               {t.register.email}
             </label>
             <input
+              id="register-email"
+              aria-label={t.register.email}
               type="email"
               placeholder="you@studio.com"
               className="w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm"
             />
           </div>
           <div>
-            <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2">
+            <label
+              htmlFor="register-password"
+              className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2"
+            >
               {t.register.password}
             </label>
             <input
+              id="register-password"
+              aria-label={t.register.password}
               type="password"
               placeholder={t.register.passwordPlaceholder}
               className="w-full px-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm"

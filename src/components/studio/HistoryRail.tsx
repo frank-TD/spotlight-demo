@@ -222,7 +222,7 @@ export default function HistoryRail({
 
       <div className="flex-1 overflow-y-auto space-y-3 -mr-1 pr-1">
         {sessions.length === 0 && groups.length === 0 ? (
-          <p className="font-body text-sm text-on-surface-variant/60 px-2 py-3">
+          <p className="font-body text-sm text-on-surface-variant/85 px-2 py-3">
             {t.aigc.noSessions}
           </p>
         ) : (
@@ -328,6 +328,7 @@ function GroupSection({
   const over = dragApi.drag.overGroupKey === group.id;
 
   return (
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- drag-and-drop reorder target; keyboard reordering is out of scope for this bundle
     <div
       onDragOver={(e) => dragApi.onGroupDragOver(e, group.id)}
       onDrop={(e) => dragApi.onGroupDrop(e, group.id)}
@@ -366,7 +367,7 @@ function GroupSection({
             {group.name}
           </button>
         )}
-        <span className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant/70 shrink-0">
+        <span className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant/85 shrink-0">
           {sessions.length}
         </span>
         <DropdownMenu>
@@ -396,7 +397,7 @@ function GroupSection({
       {!collapsed && (
         <div className="pl-3 mt-0.5 space-y-0.5 border-l border-outline-variant/40 ml-3">
           {sessions.length === 0 ? (
-            <p className="font-body text-xs text-on-surface-variant/50 px-2 py-1.5">
+            <p className="font-body text-xs text-on-surface-variant/85 px-2 py-1.5">
               {t.aigc.noSessions}
             </p>
           ) : (
@@ -453,6 +454,7 @@ function UngroupedSection({
   const t = useT();
   const over = dragApi.drag.overGroupKey === UNGROUPED_KEY;
   return (
+    // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- drag-and-drop reorder target; keyboard reordering is out of scope for this bundle
     <div
       onDragOver={(e) => dragApi.onGroupDragOver(e, UNGROUPED_KEY)}
       onDrop={(e) => dragApi.onGroupDrop(e, null)}
@@ -462,13 +464,13 @@ function UngroupedSection({
       )}
     >
       {showHeader && (
-        <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/60 px-2 pb-1.5">
+        <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/85 px-2 pb-1.5">
           {t.aigc.ungrouped}
         </p>
       )}
       <div className="space-y-0.5 min-h-[2px]">
         {sessions.length === 0 ? (
-          <p className="font-body text-xs text-on-surface-variant/40 px-2 py-1">·</p>
+          <p className="font-body text-xs text-on-surface-variant/85 px-2 py-1">·</p>
         ) : (
           sessions.map((s) => (
             <SessionRow
@@ -532,6 +534,9 @@ function SessionRow({
   return (
     <div
       draggable={!isEditing}
+      role="button"
+      tabIndex={isEditing ? -1 : 0}
+      aria-current={active ? true : undefined}
       onDragStart={(e) => dragApi.onSessionDragStart(e, session.id)}
       onDragOver={(e) => dragApi.onSessionDragOver(e, session.id)}
       onDrop={(e) => dragApi.onSessionDrop(e, session.id)}
@@ -542,6 +547,12 @@ function SessionRow({
         isDragging && "opacity-40"
       )}
       onClick={() => !isEditing && onSelect(session.id)}
+      onKeyDown={(e) => {
+        if (!isEditing && (e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          onSelect(session.id);
+        }
+      }}
     >
       {showTopIndicator && (
         <span className="absolute left-0 right-0 -top-0.5 h-0.5 bg-primary rounded-full" />
@@ -564,6 +575,7 @@ function SessionRow({
           className="font-body text-sm"
         />
       ) : (
+        // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- double-click-to-rename is an enhancement; the Rename action is also in the row menu
         <span
           className="flex-1 min-w-0 font-body text-sm text-on-surface truncate"
           onDoubleClick={(e) => {
@@ -664,6 +676,7 @@ function InlineEdit({
   return (
     <input
       ref={ref}
+      aria-label="rename"
       value={value}
       onChange={(e) => setValue(e.target.value)}
       onKeyDown={(e) => {

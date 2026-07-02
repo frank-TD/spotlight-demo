@@ -184,6 +184,7 @@ export default function PromptDock({
             <div className="flex items-start gap-3 px-4 py-2">
               <textarea
                 ref={taRef}
+                aria-label={placeholder}
                 rows={2}
                 value={prompt}
                 onChange={(e) => onPromptChange(e.target.value)}
@@ -194,7 +195,7 @@ export default function PromptDock({
                   }
                 }}
                 placeholder={placeholder}
-                className="flex-1 bg-transparent border-none resize-none focus:outline-none focus:ring-0 font-body text-base placeholder:text-on-surface-variant/60 min-h-[56px] max-h-[160px]"
+                className="flex-1 bg-transparent border-none resize-none focus:outline-none focus:ring-0 font-body text-base placeholder:text-on-surface-variant/75 min-h-[56px] max-h-[160px]"
               />
               <Sparkles className="w-4 h-4 text-primary/50 mt-2 shrink-0" />
             </div>

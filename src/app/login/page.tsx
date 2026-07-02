@@ -84,10 +84,15 @@ export default function LoginPage() {
             style={{ animationDelay: "160ms" }}
           >
             <div>
-              <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2">
+              <label
+                htmlFor="login-email"
+                className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2"
+              >
                 {t.login.email}
               </label>
               <input
+                id="login-email"
+                aria-label={t.login.email}
                 type="email"
                 defaultValue="you@spotlight.demo"
                 readOnly
@@ -95,10 +100,15 @@ export default function LoginPage() {
               />
             </div>
             <div>
-              <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2">
+              <label
+                htmlFor="login-password"
+                className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2"
+              >
                 {t.login.password}
               </label>
               <input
+                id="login-password"
+                aria-label={t.login.password}
                 type="password"
                 defaultValue="••••••••"
                 readOnly

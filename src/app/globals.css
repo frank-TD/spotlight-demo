@@ -225,6 +225,16 @@
   html {
     @apply font-sans;
   }
+  /* Global keyboard focus ring — a11y. Uses :focus-visible so it appears only
+     for keyboard / assistive-tech navigation, never on mouse click. :where()
+     keeps specificity at zero, so any component with its own focus styles keeps
+     them; this only fills the gap on interactive elements that have none. The
+     lime primary reads clearly on the dark surfaces. The outline follows each
+     element's own border-radius, so pill/rounded controls stay their shape. */
+  :where(a, button, [role="button"], input, select, textarea, [tabindex]):focus-visible {
+    outline: 2px solid var(--md-primary);
+    outline-offset: 2px;
+  }
 }
 
 /* Material Symbols Outlined defaults */
