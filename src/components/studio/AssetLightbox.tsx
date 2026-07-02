@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image";
 import { Play, Download, Repeat, Paperclip } from "lucide-react";
 import { toast } from "sonner";
 import BrandGlyph from "./BrandGlyph";
@@ -25,6 +26,13 @@ export default function AssetLightbox({
   const model = MODELS_BY_MODE[asset.mode].find((m) => m.id === asset.modelId);
   const isVideo = asset.mode === "video";
 
+  // Picsum stills encode their intrinsic size in the URL (…/seed/<s>/<w>/<h>).
+  // Parse it so <Image> reserves the correct aspect ratio (fallback 3:2). The
+  // still is shown at natural size via object-contain + w-auto/h-auto below.
+  const dimMatch = asset.imageUrl?.match(/\/(\d+)\/(\d+)$/);
+  const imgW = dimMatch ? Number(dimMatch[1]) : 1200;
+  const imgH = dimMatch ? Number(dimMatch[2]) : 800;
+
   // Build a settings summary line, mode-aware.
   const settingsLine = (() => {
     const s = asset.settings;
@@ -46,12 +54,14 @@ export default function AssetLightbox({
           {/* Left: preview */}
           <div className="bg-[#0f0d0c] p-6 flex items-center justify-center min-h-[300px] max-h-[92vh] overflow-hidden relative">
             {imgOk && asset.imageUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
+              <Image
                 src={asset.imageUrl}
                 alt={asset.prompt}
+                width={imgW}
+                height={imgH}
                 onError={() => setImgOk(false)}
-                className="max-w-full max-h-[80vh] object-contain"
+                sizes="(max-width: 768px) 100vw, 800px"
+                className="max-w-full max-h-[80vh] object-contain w-auto h-auto"
               />
             ) : (
               <div className="w-full aspect-video rounded-xl bg-gradient-to-br from-primary-container via-primary-fixed to-tertiary-container flex items-end p-6">

@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { Upload, X, FileIcon } from "lucide-react";
 import { toast } from "sonner";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
@@ -144,10 +145,12 @@ export default function ReferenceUploadDialog({
                   className="relative group rounded-xl overflow-hidden bg-surface-container border border-outline-variant/40"
                 >
                   {r.previewUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Image
                       src={r.previewUrl}
                       alt={r.name}
+                      width={160}
+                      height={160}
+                      sizes="(max-width: 640px) 33vw, 160px"
                       className="w-full aspect-square object-cover"
                     />
                   ) : (

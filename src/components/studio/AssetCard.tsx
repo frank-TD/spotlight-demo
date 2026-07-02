@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import Image from "next/image";
 import { Play, Pause, Download, Music2, Mic, Paperclip } from "lucide-react";
 import { toast } from "sonner";
 import Waveform from "./Waveform";
@@ -212,12 +213,13 @@ function VisualCard({
       )}
     >
       {imgOk && asset.imageUrl && (
-        // eslint-disable-next-line @next/next/no-img-element
-        <img
+        <Image
           src={asset.imageUrl}
           alt={asset.prompt}
           onError={() => setImgOk(false)}
-          className="absolute inset-0 w-full h-full object-cover"
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          className="absolute inset-0 object-cover"
         />
       )}
       {/* Fallback overlay shows the prompt-as-poster, used when the image can't load. */}
