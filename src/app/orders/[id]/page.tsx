@@ -72,7 +72,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
         </Link>
 
         {/* Header */}
-        <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-8 mb-6">
+        <div className="animate-fade-up bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-8 mb-6">
           <div className="flex items-start justify-between gap-4 mb-6 flex-wrap">
             <div className="min-w-0">
               <h1 className="font-headline text-headline-md text-on-surface leading-snug">

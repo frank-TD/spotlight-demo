@@ -29,12 +29,21 @@ export default function RegisterPage() {
           Spotlight
         </Link>
 
-        <h1 className="font-headline text-[40px] font-extrabold uppercase tracking-tight text-on-surface mb-2 leading-[1.05]">
+        <h1 className="animate-fade-up font-headline text-[40px] font-extrabold uppercase tracking-tight text-on-surface mb-2 leading-[1.05]">
           {t.register.title}
         </h1>
-        <p className="text-on-surface-variant font-body mb-8">{t.register.subtitle}</p>
+        <p
+          className="animate-fade-up text-on-surface-variant font-body mb-8"
+          style={{ animationDelay: "80ms" }}
+        >
+          {t.register.subtitle}
+        </p>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form
+          onSubmit={handleSubmit}
+          className="animate-fade-up space-y-4"
+          style={{ animationDelay: "160ms" }}
+        >
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2">

@@ -68,12 +68,21 @@ export default function LoginPage() {
             Spotlight
           </Link>
 
-          <h1 className="font-headline text-[40px] font-extrabold uppercase tracking-tight text-on-surface mb-2 leading-[1.05]">
+          <h1 className="animate-fade-up font-headline text-[40px] font-extrabold uppercase tracking-tight text-on-surface mb-2 leading-[1.05]">
             {t.login.welcomeBack}
           </h1>
-          <p className="text-on-surface-variant font-body mb-8">{t.login.subtitle}</p>
+          <p
+            className="animate-fade-up text-on-surface-variant font-body mb-8"
+            style={{ animationDelay: "80ms" }}
+          >
+            {t.login.subtitle}
+          </p>
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form
+            onSubmit={handleLogin}
+            className="animate-fade-up space-y-4"
+            style={{ animationDelay: "160ms" }}
+          >
             <div>
               <label className="font-label text-label-md uppercase tracking-wider text-on-surface-variant block mb-2">
                 {t.login.email}

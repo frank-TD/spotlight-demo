@@ -208,7 +208,7 @@ export default function DistributePage({ params }: { params: Promise<{ id: strin
         </Link>
 
         {/* Header */}
-        <div className="flex items-start gap-4 mb-6">
+        <div className="animate-fade-up flex items-start gap-4 mb-6">
           <div className="w-12 h-12 rounded-2xl bg-primary-container flex items-center justify-center shrink-0">
             <Sparkles className="w-5 h-5 text-on-primary-container" />
           </div>

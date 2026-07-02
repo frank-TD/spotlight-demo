@@ -26,7 +26,7 @@ export default function BackerProfilePage({ params }: { params: Promise<{ id: st
           <ArrowLeft className="w-4 h-4" /> {t.chat.backerBackToList}
         </Link>
 
-        <div className="space-y-6">
+        <div className="animate-fade-up space-y-6">
           {/* Header card */}
           <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-8">
             <div className="flex items-start gap-5">

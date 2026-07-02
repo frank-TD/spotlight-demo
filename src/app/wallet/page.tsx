@@ -80,10 +80,10 @@ export default function WalletPage() {
   return (
     <AppShell>
       <div className="max-w-4xl mx-auto px-6 md:px-12 pt-10 pb-16">
-        <h1 className="font-headline text-headline-lg text-on-surface mb-10">{t.wallet.title}</h1>
+        <h1 className="animate-fade-up font-headline text-headline-lg text-on-surface mb-10">{t.wallet.title}</h1>
 
         {/* Balance cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+        <div className="animate-fade-up grid grid-cols-1 md:grid-cols-2 gap-6 mb-10" style={{ animationDelay: "120ms" }}>
           {activeRole === "backer" ? (
             <>
               <div className="bg-primary text-on-primary rounded-2xl p-8">

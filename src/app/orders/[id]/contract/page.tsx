@@ -98,7 +98,7 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
           <ArrowLeft className="w-4 h-4" /> {backLabel}
         </Link>
 
-        <div className="flex items-center gap-4 mb-10">
+        <div className="animate-fade-up flex items-center gap-4 mb-10">
           <div className="w-12 h-12 rounded-2xl bg-primary-container flex items-center justify-center shrink-0">
             <FileText className="w-5 h-5 text-on-primary-container" />
           </div>
@@ -109,7 +109,7 @@ export default function ContractPage({ params }: { params: Promise<{ id: string 
         </div>
 
         {/* Parties */}
-        <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-6 mb-5">
+        <div className="animate-fade-up bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-6 mb-5" style={{ animationDelay: "120ms" }}>
           <h2 className="font-label text-label-md uppercase tracking-[0.2em] text-on-surface-variant mb-4">
             {t.contract.parties}
           </h2>

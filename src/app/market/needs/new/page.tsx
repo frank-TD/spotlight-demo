@@ -80,14 +80,14 @@ export default function NewNeedPage() {
           <ArrowLeft className="w-4 h-4" /> {t.common.back}
         </Link>
 
-        <div className="mb-10">
+        <div className="animate-fade-up mb-10">
           <h1 className="font-headline text-headline-lg text-on-surface">{t.postNeed.title}</h1>
           <p className="text-on-surface-variant font-body opacity-80 mt-2">
             {t.postNeed.subtitle}
           </p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit} className="animate-fade-up space-y-6" style={{ animationDelay: "120ms" }}>
           {/* Basic info */}
           <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-7 space-y-5">
             <h2 className="font-label text-label-md uppercase tracking-[0.2em] text-on-surface-variant">
