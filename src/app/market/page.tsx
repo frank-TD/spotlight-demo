@@ -22,6 +22,7 @@ import {
   MessageCircle,
 } from "lucide-react";
 import { useStore } from "@/lib/store";
+import { useT } from "@/hooks/useT";
 import AppShell from "@/components/layout/AppShell";
 import { CREATORS, NEEDS, findSessionForCounterpart } from "@/lib/mock-data";
 import { getAgentReply } from "@/lib/agent-response";
@@ -33,7 +34,7 @@ import { cn } from "@/lib/utils";
 // Need". Creator: open briefs then an inspiration feed + "Start Creating". Any
 // transaction action (post / apply / invite / start / chat / send) gates on
 // signup. The old /discovery path redirects here (see next.config). Copy is
-// hardcoded English for this design pass.
+// localized via the i18n system (t.market.guest).
 
 type Role = "backer" | "creator";
 type Aspect = "portrait" | "tall" | "landscape" | "wide" | "square";
@@ -71,38 +72,14 @@ const WORKS: Work[] = [
 const CATEGORIES = ["All", "Drama", "Romance", "Thriller", "Comedy", "Documentary"];
 const BRIEF_FILTERS = ["All Briefs", "AI Film", "Brand Film", "Music Video", "Trailer", "High Budget"];
 
-const COPY = {
-  backer: {
-    subtitle: "Discover creators through their work — then post your need.",
-    searchPlaceholder: "Search creators, styles, tools...",
-    prompt: "Describe the film you want to commission…",
-  },
-  creator: {
-    subtitle: "Find film projects ready for creators — and fuel your next one.",
-    searchPlaceholder: "Search briefs, genres, budgets...",
-    prompt: "Describe what you want to create…",
-  },
-} as const;
-
 const BRIEF_POSTER: Record<string, string> = {
   need_001: "/posters/the-bear.jpg",
   need_003: "/posters/exit-8.jpg",
   need_006: "/posters/marty-supreme.jpg",
 };
-const TYPE_WORD: Record<string, string> = {
-  Commercial: "Hero Video",
-  "Music Video": "MV",
-  "Narrative Short Film": "Film",
-  Trailer: "Trailer",
-};
 
 type Creator = (typeof CREATORS)[number];
 type Brief = (typeof NEEDS)[number];
-
-const deliverableFor = (n: Brief) => {
-  const dur = n.durationSec < 120 ? `${n.durationSec}s` : `${Math.round(n.durationSec / 60)} min`;
-  return `${dur} ${TYPE_WORD[n.contentType] ?? "Video"}`;
-};
 
 export default function MarketPage() {
   const {
@@ -116,6 +93,7 @@ export default function MarketPage() {
     setAgentThinking,
     openSignupGate,
   } = useStore();
+  const t = useT();
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [filter, setFilter] = useState("All");
@@ -143,8 +121,9 @@ export default function MarketPage() {
   if (!hasHydrated) return null; // public, but wait for persisted role to avoid a flip
 
   const isBacker = activeRole === "backer";
-  const copy = isBacker ? COPY.backer : COPY.creator;
+  const copy = isBacker ? t.market.guest.backer : t.market.guest.creator;
   const chips = isBacker ? CATEGORIES : BRIEF_FILTERS;
+  const chipLabels = isBacker ? t.market.guest.categories : t.market.guest.briefFilters;
   const activeFilter = chips.includes(filter) ? filter : chips[0];
 
   const setRole = (r: Role) => {
@@ -168,7 +147,7 @@ export default function MarketPage() {
   const handleStartCreating = () =>
     isLoggedIn ? router.push("/discovery/workspace") : requireSignup();
   const handleApply = (n: Brief) =>
-    isLoggedIn ? toast.success(`Application started · ${n.title}`) : requireSignup(`/market/needs/${n.id}`);
+    isLoggedIn ? toast.success(t.market.guest.applicationStarted(n.title)) : requireSignup(`/market/needs/${n.id}`);
   const handleInvite = (c: Creator) => (isLoggedIn ? setInviteFor(c) : requireSignup());
   const startConversation = (creatorId: string) => {
     setOpenWork(null);
@@ -189,7 +168,7 @@ export default function MarketPage() {
     if (!qq && files.length === 0) return;
     if (!isLoggedIn) return requireSignup();
     const attached = files.length > 0 ? ` 📎 ${files.map((f) => f.name).join(", ")}` : "";
-    const text = (qq || "Files attached") + attached;
+    const text = (qq || t.market.guest.filesAttached) + attached;
     appendAgentMessages([{ role: "user", text }]);
     setPrompt("");
     setFiles([]);
@@ -240,7 +219,7 @@ export default function MarketPage() {
           <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
             <div className="max-w-2xl">
               <h1 className="animate-fade-up font-headline text-5xl md:text-6xl font-extrabold uppercase tracking-tight text-on-surface leading-[1.02]">
-                Marketplace
+                {t.market.title}
               </h1>
               <p
                 className="animate-fade-up mt-3 font-body text-lg md:text-xl text-on-surface-variant"
@@ -255,7 +234,7 @@ export default function MarketPage() {
                   className="group inline-flex items-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-8 py-4 rounded-full hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_8px_30px_rgba(198,255,52,0.25)]"
                 >
                   {isBacker ? <PlusCircle className="w-4 h-4" /> : <Wand2 className="w-4 h-4" />}
-                  {isBacker ? "Post a Need" : "Start Creating"}
+                  {isBacker ? t.market.postANeed : t.market.guest.startCreating}
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </button>
               </div>
@@ -292,7 +271,7 @@ export default function MarketPage() {
                       : "border-outline-variant/70 text-on-surface-variant hover:text-on-surface hover:border-primary/40"
                   )}
                 >
-                  {f}
+                  {chipLabels[f] ?? f}
                 </button>
               ))}
             </div>
@@ -303,19 +282,19 @@ export default function MarketPage() {
         {isBacker ? (
           <section>
             <SectionHead
-              label={`${backerWorks.length} works in the spotlight`}
-              hint="Tap a still to open the creator"
+              label={t.market.guest.worksInSpotlight(backerWorks.length)}
+              hint={t.market.guest.tapStill}
             />
             {backerWorks.length ? (
               <Masonry works={backerWorks} onOpen={setOpenWork} onInvite={handleInvite} showInvite />
             ) : (
-              <Empty label="works" />
+              <Empty label={t.market.guest.nounWorks} />
             )}
           </section>
         ) : (
           <div className="flex flex-col">
             <section>
-              <SectionHead label="Open briefs" hint={`${briefs.length} ready for creators`} />
+              <SectionHead label={t.market.guest.openBriefs} hint={t.market.guest.readyForCreators(briefs.length)} />
               {briefs.length ? (
                 <div className="columns-1 sm:columns-2 lg:columns-3 gap-5">
                   {briefs.map((n) => (
@@ -323,7 +302,7 @@ export default function MarketPage() {
                   ))}
                 </div>
               ) : (
-                <Empty label="briefs" />
+                <Empty label={t.market.guest.nounBriefs} />
               )}
             </section>
 
@@ -332,14 +311,13 @@ export default function MarketPage() {
               <div className="rounded-3xl border border-primary/30 bg-primary/[0.06] px-8 py-8 md:px-12 md:py-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
                 <div className="max-w-xl">
                   <span className="font-label text-[11px] uppercase tracking-[0.3em] text-primary">
-                    AIGC Studio
+                    {t.market.guest.aigcEyebrow}
                   </span>
                   <h3 className="mt-2 font-headline text-2xl md:text-3xl font-extrabold uppercase tracking-tight text-on-surface leading-tight">
-                    Pitch it with AI, then win the brief
+                    {t.market.guest.aigcHeading}
                   </h3>
                   <p className="mt-2 font-body text-sm text-on-surface-variant leading-relaxed">
-                    Generate moodboards, shots and voiceover in the AIGC studio, attach them to your bid, and stand out
-                    to backers.
+                    {t.market.guest.aigcBody}
                   </p>
                 </div>
                 <button
@@ -348,7 +326,7 @@ export default function MarketPage() {
                   className="group shrink-0 inline-flex items-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-8 py-4 rounded-full hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_8px_30px_rgba(198,255,52,0.25)]"
                 >
                   <Wand2 className="w-4 h-4" />
-                  Open AIGC Studio
+                  {t.market.guest.openAigcStudio}
                   <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </button>
               </div>
@@ -357,16 +335,16 @@ export default function MarketPage() {
             <section>
               <div className="text-center max-w-2xl mx-auto my-16 md:my-20">
                 <span className="font-label text-[11px] uppercase tracking-[0.3em] text-primary">
-                  For Inspiration
+                  {t.market.guest.forInspiration}
                 </span>
                 <h2 className="mt-3 font-headline text-4xl md:text-5xl font-extrabold uppercase tracking-tight text-on-surface leading-[1.02]">
-                  What the network is making
+                  {t.market.guest.networkMaking}
                 </h2>
               </div>
               {worksQ.length ? (
                 <Masonry works={worksQ} onOpen={setOpenWork} onInvite={handleInvite} showInvite={false} />
               ) : (
-                <Empty label="works" />
+                <Empty label={t.market.guest.nounWorks} />
               )}
             </section>
           </div>
@@ -421,7 +399,7 @@ export default function MarketPage() {
                       setFiles((prev) => prev.filter((_, idx) => idx !== i));
                     }}
                     className="ml-0.5 w-4 h-4 rounded-full hover:bg-on-primary-container/10 flex items-center justify-center"
-                    aria-label="remove attachment"
+                    aria-label={t.market.guest.removeAttachment}
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -457,7 +435,7 @@ export default function MarketPage() {
               disabled={!prompt.trim() && files.length === 0}
               className="bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-5 md:px-6 py-3 rounded-2xl hover:opacity-95 active:scale-95 transition-all flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
             >
-              <span className="hidden sm:inline">Send</span>
+              <span className="hidden sm:inline">{t.common.send}</span>
               <Send className="w-3.5 h-3.5" />
             </button>
           </div>
@@ -468,7 +446,7 @@ export default function MarketPage() {
                 ref={fileInputRef}
                 type="file"
                 multiple
-                aria-label="Attach files"
+                aria-label={t.market.guest.attachFiles}
                 className="hidden"
                 onChange={onFilePick}
               />
@@ -478,10 +456,10 @@ export default function MarketPage() {
                 disabled={files.length >= 5}
                 className="flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider px-3 py-1.5 rounded-lg border border-outline-variant/40 hover:border-primary/40 hover:text-primary text-on-surface-variant transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
               >
-                <Paperclip className="w-3.5 h-3.5" /> Attach
+                <Paperclip className="w-3.5 h-3.5" /> {t.market.guest.attach}
               </button>
               <span className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/60">
-                {files.length}/5
+                {t.market.guest.fileCount(files.length)}
               </span>
             </div>
           )}
@@ -533,6 +511,7 @@ function WorkCard({
   onInvite: (c: Creator) => void;
   showInvite: boolean;
 }) {
+  const t = useT();
   const creator = CREATORS.find((c) => c.id === w.creatorId);
   return (
     <div className="group break-inside-avoid mb-4 relative rounded-2xl overflow-hidden border border-outline-variant/30 bg-surface-container">
@@ -554,7 +533,7 @@ function WorkCard({
               {w.category}
             </span>
             <p className="font-label text-[10px] uppercase tracking-widest text-on-surface/65 mt-1">
-              by {w.creator}
+              {t.market.guest.byCreator(w.creator)}
             </p>
           </div>
         </div>
@@ -566,7 +545,7 @@ function WorkCard({
           className="absolute top-3 right-3 inline-flex items-center gap-1.5 font-label text-[10px] uppercase tracking-wider px-3 py-1.5 rounded-full bg-[rgba(8,8,10,0.5)] backdrop-blur-sm border border-primary/40 text-primary opacity-0 group-hover:opacity-100 hover:bg-primary hover:text-on-primary transition-all"
         >
           <UserPlus className="w-3 h-3" />
-          Invite
+          {t.market.guest.invite}
         </button>
       )}
     </div>
@@ -574,9 +553,10 @@ function WorkCard({
 }
 
 function RoleSwitch({ role, onChange }: { role: Role; onChange: (r: Role) => void }) {
+  const t = useT();
   const segs: [Role, string, string][] = [
-    ["backer", "Fund it", "Backer"],
-    ["creator", "Get funded", "Creator"],
+    ["backer", t.market.guest.fundIt, t.market.roleBacker],
+    ["creator", t.market.guest.getFunded, t.market.roleCreator],
   ];
   return (
     <div className="grid grid-cols-2 gap-1 p-1 rounded-2xl border border-outline-variant/40 bg-surface-container-low w-full lg:w-auto shrink-0">
@@ -619,7 +599,11 @@ function BriefCard({
   onApply: (n: Brief) => void;
   onGate: (href: string) => (e: React.MouseEvent) => void;
 }) {
+  const t = useT();
+  const g = t.market.guest;
   const poster = BRIEF_POSTER[n.id];
+  const dur = n.durationSec < 120 ? g.durSeconds(n.durationSec) : g.durMinutes(Math.round(n.durationSec / 60));
+  const deliverable = g.deliverable(dur, g.deliverableWords[n.contentType] ?? g.deliverableWordDefault);
   return (
     <article className="group break-inside-avoid mb-5 flex flex-col rounded-2xl border border-outline-variant/40 bg-surface-container-lowest overflow-hidden transition-colors hover:border-primary/40">
       {poster && (
@@ -663,25 +647,25 @@ function BriefCard({
           <span className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant">
             {n.backerNickname}
           </span>
-          <BadgeCheck className="w-3.5 h-3.5 text-primary" aria-label="Verified buyer" />
+          <BadgeCheck className="w-3.5 h-3.5 text-primary" aria-label={g.verifiedBuyer} />
         </div>
 
         <div className="mt-4 pt-4 border-t border-outline-variant/30">
           <div className="flex items-baseline justify-between gap-3">
             <span className="font-headline text-[26px] text-primary">¥{n.budget.toLocaleString()}</span>
             <span className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant">
-              {deliverableFor(n)}
+              {deliverable}
             </span>
           </div>
           <div className="mt-2.5 flex flex-wrap items-center gap-x-3 gap-y-1.5 font-label text-[10px] uppercase tracking-wider text-on-surface-variant">
-            <span>{n.deliveryDays} days left</span>
+            <span>{g.daysLeft(n.deliveryDays)}</span>
             <span className="text-on-surface-variant/40">·</span>
-            <span>{n.bids} bids</span>
+            <span>{g.bidsCount(n.bids)}</span>
             <span className="text-on-surface-variant/40">·</span>
-            <span>{n.modifyLimit} revisions</span>
+            <span>{g.revisions(n.modifyLimit)}</span>
             <span className="inline-flex items-center gap-1 text-on-surface-variant/90">
               <ShieldCheck className="w-3 h-3 text-primary" />
-              Escrow
+              {g.escrow}
             </span>
           </div>
         </div>
@@ -692,7 +676,7 @@ function BriefCard({
             onClick={onGate(`/market/needs/${n.id}`)}
             className="flex-1 inline-flex items-center justify-center gap-1.5 bg-primary text-on-primary font-label text-[11px] uppercase tracking-widest px-4 py-2.5 rounded-full hover:opacity-90 transition-opacity"
           >
-            View Brief
+            {g.viewBrief}
             <ArrowUpRight className="w-3.5 h-3.5" />
           </Link>
           <button
@@ -700,7 +684,7 @@ function BriefCard({
             onClick={() => onApply(n)}
             className="inline-flex items-center gap-1.5 border border-primary/50 text-on-primary-container font-label text-[11px] uppercase tracking-widest px-5 py-2.5 rounded-full hover:bg-primary/10 transition-colors"
           >
-            Apply
+            {g.apply}
           </button>
         </div>
       </div>
@@ -723,6 +707,7 @@ function WorkDialog({
   onStartConversation: (creatorId: string) => void;
   onGate: (href: string) => (e: React.MouseEvent) => void;
 }) {
+  const t = useT();
   const creator = work ? CREATORS.find((c) => c.id === work.creatorId) : undefined;
   return (
     <Dialog open={!!work} onOpenChange={(o) => !o && onClose()}>
@@ -735,9 +720,9 @@ function WorkDialog({
                 <img src={work.poster} alt={work.title} className="absolute inset-0 w-full h-full object-cover" />
                 <button
                   type="button"
-                  onClick={() => toast.info("Playback is a demo placeholder.")}
+                  onClick={() => toast.info(t.market.guest.playbackDemo)}
                   className="absolute inset-0 flex items-center justify-center bg-black/30 group-hover:bg-black/45 transition-colors"
-                  aria-label="play"
+                  aria-label={t.market.guest.play}
                 >
                   <span className="w-16 h-16 rounded-full bg-primary/95 text-on-primary shadow-xl flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Play className="w-7 h-7 ml-1" fill="currentColor" />
@@ -752,7 +737,7 @@ function WorkDialog({
                   {work.title}
                 </h2>
                 <p className="font-label text-white/60 text-[11px] uppercase tracking-widest mt-2">
-                  by {work.creator}
+                  {t.market.guest.byCreator(work.creator)}
                 </p>
               </div>
             </div>
@@ -773,7 +758,7 @@ function WorkDialog({
                     <div className="flex items-center gap-1.5 mt-0.5">
                       <Star className="w-3 h-3 fill-primary text-primary" />
                       <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
-                        {creator.rating} · {creator.orders} completed
+                        {creator.rating} · {t.market.guest.completedCount(creator.orders)}
                       </span>
                     </div>
                   </div>
@@ -796,7 +781,7 @@ function WorkDialog({
 
                 <div className="bg-surface-container rounded-xl p-4 mb-4 flex items-center justify-between">
                   <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
-                    From
+                    {t.common.from}
                   </span>
                   <span className="font-headline text-[20px] text-on-surface">
                     ¥{creator.rateCard.from.toLocaleString()}+
@@ -810,7 +795,7 @@ function WorkDialog({
                       onClick={() => onStartConversation(creator.id)}
                       className="w-full flex items-center justify-center gap-2 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider py-3 rounded-lg hover:opacity-90 active:scale-95 transition-all"
                     >
-                      <MessageCircle className="w-4 h-4" /> Start conversation
+                      <MessageCircle className="w-4 h-4" /> {t.market.guest.startConversation}
                     </button>
                   )}
                   <Link
@@ -821,7 +806,7 @@ function WorkDialog({
                     }}
                     className="w-full flex items-center justify-center gap-1.5 font-label text-label-md uppercase tracking-wider py-3 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container-high transition-colors"
                   >
-                    View Profile <ArrowUpRight className="w-3.5 h-3.5" />
+                    {t.market.guest.viewProfile} <ArrowUpRight className="w-3.5 h-3.5" />
                   </Link>
                 </div>
               </div>
@@ -835,6 +820,7 @@ function WorkDialog({
 
 // Invite flow — pick which of the backer's open briefs to invite the creator to.
 function InviteDialog({ creator, onClose }: { creator: Creator; onClose: () => void }) {
+  const t = useT();
   const myNeeds = NEEDS.filter((n) => n.backerId === "u_backer_01" && n.status === "open");
   const [sel, setSel] = useState(myNeeds[0]?.id ?? "");
 
@@ -848,7 +834,7 @@ function InviteDialog({ creator, onClose }: { creator: Creator; onClose: () => v
 
   const send = () => {
     const n = myNeeds.find((x) => x.id === sel);
-    toast.success(n ? `Invited ${creator.nickname} to “${n.title}”` : `Invited ${creator.nickname}`);
+    toast.success(n ? t.market.guest.invitedTo(creator.nickname, n.title) : t.market.guest.invited(creator.nickname));
     onClose();
   };
 
@@ -856,7 +842,7 @@ function InviteDialog({ creator, onClose }: { creator: Creator; onClose: () => v
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       <button
         type="button"
-        aria-label="Close"
+        aria-label={t.market.guest.close}
         onClick={onClose}
         className="absolute inset-0 bg-[rgba(8,8,10,0.72)] backdrop-blur-sm"
       />
@@ -867,15 +853,15 @@ function InviteDialog({ creator, onClose }: { creator: Creator; onClose: () => v
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h3 className="font-headline text-[22px] text-on-surface">Invite {creator.nickname}</h3>
+            <h3 className="font-headline text-[22px] text-on-surface">{t.market.guest.inviteTitle(creator.nickname)}</h3>
             <p className="mt-1 font-body text-sm text-on-surface-variant">
-              Choose a brief to invite them to.
+              {t.market.guest.inviteSubtitle}
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Close"
+            aria-label={t.market.guest.close}
             className="shrink-0 w-9 h-9 rounded-full border border-outline-variant/50 flex items-center justify-center text-on-surface-variant hover:text-on-surface hover:border-primary/40 transition-colors"
           >
             <X className="w-4 h-4" />
@@ -884,7 +870,7 @@ function InviteDialog({ creator, onClose }: { creator: Creator; onClose: () => v
 
         <div className="mt-5 space-y-2">
           {myNeeds.length === 0 ? (
-            <p className="font-body text-sm text-on-surface-variant py-4">You have no open briefs yet.</p>
+            <p className="font-body text-sm text-on-surface-variant py-4">{t.market.guest.noOpenBriefs}</p>
           ) : (
             myNeeds.map((n) => {
               const active = sel === n.id;
@@ -903,7 +889,7 @@ function InviteDialog({ creator, onClose }: { creator: Creator; onClose: () => v
                     {active && <Check className="w-4 h-4 text-primary shrink-0" />}
                   </div>
                   <div className="mt-1 font-label text-[10px] uppercase tracking-wider text-on-surface-variant">
-                    ¥{n.budget.toLocaleString()} · {n.bids} bids
+                    ¥{n.budget.toLocaleString()} · {t.market.guest.bidsCount(n.bids)}
                   </div>
                 </button>
               );
@@ -914,7 +900,7 @@ function InviteDialog({ creator, onClose }: { creator: Creator; onClose: () => v
             className="flex items-center gap-2 rounded-xl border border-dashed border-outline-variant/50 p-4 font-label text-[11px] uppercase tracking-widest text-on-surface-variant hover:text-primary hover:border-primary/40 transition-colors"
           >
             <Plus className="w-4 h-4" />
-            Post a new need
+            {t.market.guest.postNewNeed}
           </Link>
         </div>
 
@@ -924,7 +910,7 @@ function InviteDialog({ creator, onClose }: { creator: Creator; onClose: () => v
             onClick={onClose}
             className="font-label text-[11px] uppercase tracking-widest text-on-surface-variant px-5 py-2.5 rounded-full border border-outline-variant/50 hover:text-on-surface transition-colors"
           >
-            Cancel
+            {t.common.cancel}
           </button>
           <button
             type="button"
@@ -933,7 +919,7 @@ function InviteDialog({ creator, onClose }: { creator: Creator; onClose: () => v
             className="inline-flex items-center gap-1.5 bg-primary text-on-primary font-label text-[11px] uppercase tracking-widest px-6 py-2.5 rounded-full hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
           >
             <UserPlus className="w-3.5 h-3.5" />
-            Send invite
+            {t.market.guest.sendInvite}
           </button>
         </div>
       </div>
@@ -942,7 +928,8 @@ function InviteDialog({ creator, onClose }: { creator: Creator; onClose: () => v
 }
 
 function Empty({ label }: { label: string }) {
+  const t = useT();
   return (
-    <p className="text-center py-24 font-body text-on-surface-variant">No {label} match your search.</p>
+    <p className="text-center py-24 font-body text-on-surface-variant">{t.market.guest.emptyMatch(label)}</p>
   );
 }
