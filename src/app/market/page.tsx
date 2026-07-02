@@ -146,8 +146,9 @@ export default function MarketPage() {
     }
   };
   const handlePostNeed = () => (isLoggedIn ? router.push("/market/needs/new") : requireSignup());
-  const handleStartCreating = () =>
-    isLoggedIn ? router.push("/discovery/workspace") : requireSignup();
+  // Guests may enter the AIGC studio to look around; the gate fires only when
+  // they hit Generate (handled inside StudioWorkspace).
+  const handleStartCreating = () => router.push("/discovery/workspace");
   const handleApply = (n: Brief) =>
     isLoggedIn ? toast.success(t.market.guest.applicationStarted(n.title)) : requireSignup(`/market/needs/${n.id}`);
   const handleInvite = (c: Creator) => (isLoggedIn ? setInviteFor(c) : requireSignup());
