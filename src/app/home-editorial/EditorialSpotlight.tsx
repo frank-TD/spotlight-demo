@@ -31,7 +31,7 @@ const FILMS: Film[] = [
       "One restless night in the city, two strangers make a pact to stay awake until sunrise — and decide whether the morning gets to change everything.",
     credit: "A film by Noa Vance · Berlin",
     seeking: "Seeking a backer · Est. ¥150K–520K",
-    clip: "/videos/clips/hero-1.mp4",
+    clip: "/videos/clips/hero-0.mp4",
     still: "/posters/stay-for-tonight.webp",
   },
   {
@@ -43,6 +43,7 @@ const FILMS: Film[] = [
       "Two childhood friends, separated as kids in Seoul, reunite two decades later — caught between the life they imagined and the one they chose.",
     credit: "A film by Aria Song · Seoul",
     seeking: "Seeking a backer · Est. ¥120K–480K",
+    clip: "/videos/clips/hero-0b.mp4",
     poster: "/posters/past-lives.jpg",
   },
   {
@@ -54,6 +55,7 @@ const FILMS: Film[] = [
       "A fine-dining chef comes home to run his late brother's chaotic sandwich shop — one impossible dinner service at a time.",
     credit: "A film by Marco Reyes · Chicago",
     seeking: "Commissioned · In production",
+    clip: "/videos/clips/hero-1.mp4",
     poster: "/posters/the-bear.jpg",
   },
   {
@@ -65,6 +67,7 @@ const FILMS: Film[] = [
       "A new mother slowly unravels in a remote farmhouse, where love curdles into something feral and unrecognisable.",
     credit: "A film by Yuki Tanaka · Montana",
     seeking: "Seeking a backer · Est. ¥200K–600K",
+    clip: "/videos/clips/hero-2.mp4",
     poster: "/posters/die-my-love.jpg",
   },
   {
@@ -76,6 +79,7 @@ const FILMS: Film[] = [
       "Two sisters gut the day's catch in a steaming back-kitchen, and old wounds rise to the surface with the tide.",
     credit: "A film by Sofia Okonkwo · Wenzhou",
     seeking: "Released · Streaming worldwide",
+    clip: "/videos/clips/hero-3.mp4",
     poster: "/posters/fish-bone.jpg",
   },
 ];
@@ -106,7 +110,7 @@ export default function EditorialSpotlight() {
               key={film.id}
               className={styles.leadVideo}
               src={film.clip}
-              poster={film.still}
+              poster={film.still ?? film.poster}
               autoPlay
               muted
               loop
