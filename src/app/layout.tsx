@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
+import HtmlLangSync from "@/components/common/HtmlLangSync";
 
 // Site-wide type is now Montserrat (matching the editorial homepage) — one
 // geometric sans drives the headline / body / label slots via globals.css.
@@ -25,6 +26,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {children}
         <div className="film-grain" aria-hidden="true" />
         <Toaster position="top-center" />
+        <HtmlLangSync />
       </body>
     </html>
   );

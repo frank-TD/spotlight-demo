@@ -27,7 +27,7 @@ export default function AgentDemo() {
         <div className="max-w-[1180px] mx-auto px-4 md:px-8">
           <div className="flex items-center justify-between gap-4 h-[64px]">
             <div className="flex items-center gap-3 min-w-0">
-              <Link href="/" className="font-headline text-2xl md:text-[26px] italic font-bold text-primary leading-none whitespace-nowrap">
+              <Link href="/" className="font-headline text-2xl md:text-[26px] font-extrabold tracking-tight text-primary leading-none whitespace-nowrap">
                 Spotlight
               </Link>
               <span className="hidden sm:inline-block w-px h-5 bg-outline-variant/40" />

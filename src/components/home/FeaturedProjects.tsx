@@ -38,7 +38,7 @@ export default function FeaturedProjects() {
 
       {/* Lead spread */}
       <Link
-        href="/discovery"
+        href="/market"
         className="scroll-reveal group grid md:grid-cols-[7fr_5fr] gap-8 md:gap-16 items-center"
       >
         <div className="relative aspect-[3/2] rounded-md overflow-hidden bg-surface-container-low ring-1 ring-outline-variant/40 group-hover:ring-primary/50 transition-all duration-500">
@@ -83,7 +83,7 @@ export default function FeaturedProjects() {
 
       <div className="scroll-reveal text-center mt-16 md:mt-20">
         <Link
-          href="/discovery"
+          href="/market"
           className="inline-block font-label text-[13px] uppercase tracking-[0.18em] text-primary border-b border-primary/60 pb-2 hover:text-on-primary-container transition-colors"
         >
           {t.homeV2.exploreAll} →

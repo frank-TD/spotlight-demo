@@ -17,7 +17,7 @@ export default function OnboardingRolePage() {
   useEffect(() => {
     if (!hasHydrated) return;
     if (!isLoggedIn) router.replace("/register");
-    else if (onboardingComplete) router.replace("/discovery");
+    else if (onboardingComplete) router.replace("/market");
   }, [hasHydrated, isLoggedIn, onboardingComplete, router]);
 
   if (!hasHydrated || !isLoggedIn || onboardingComplete) return null;

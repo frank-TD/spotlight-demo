@@ -39,10 +39,15 @@ function Footer() {
           </p>
         </div>
         <nav className="flex gap-8">
-          {["About", "Support", "Terms", "Privacy"].map((label) => (
+          {[
+            { label: "About", href: "/about" },
+            { label: "Support", href: "#" },
+            { label: "Terms", href: "#" },
+            { label: "Privacy", href: "#" },
+          ].map(({ label, href }) => (
             <Link
               key={label}
-              href="#"
+              href={href}
               className="font-body text-on-surface-variant hover:text-primary transition-colors text-sm"
             >
               {label}

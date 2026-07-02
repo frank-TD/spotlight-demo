@@ -98,7 +98,7 @@ export default function HowItWorksBand() {
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
           </Link>
           <Link
-            href="/discovery"
+            href="/market"
             className="inline-flex items-center font-label text-label-md uppercase tracking-widest text-on-primary-container border border-primary/55 px-7 py-4 rounded-full hover:bg-primary/10 transition-colors"
           >
             {t.homeV2.stepsCtaSecondary}

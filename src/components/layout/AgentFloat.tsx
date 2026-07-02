@@ -111,11 +111,18 @@ export default function AgentFloat() {
                       : "bg-surface-container text-on-surface rounded-bl-sm"
                   )}
                 >
-                  <span
-                    dangerouslySetInnerHTML={{
-                      __html: m.text.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>"),
-                    }}
-                  />
+                  <span>
+                    {/* Render **bold** as <strong> via React nodes — never raw
+                        HTML: m.text includes unescaped user input, so
+                        dangerouslySetInnerHTML here would be an XSS vector. */}
+                    {m.text.split(/(\*\*.+?\*\*)/g).map((part, pi) =>
+                      /^\*\*.+\*\*$/.test(part) ? (
+                        <strong key={pi}>{part.slice(2, -2)}</strong>
+                      ) : (
+                        part
+                      )
+                    )}
+                  </span>
                   {m.link && (
                     <a
                       href={m.link.href}

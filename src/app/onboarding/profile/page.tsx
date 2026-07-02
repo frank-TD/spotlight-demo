@@ -24,7 +24,7 @@ export default function OnboardingProfilePage() {
   useEffect(() => {
     if (!hasHydrated) return;
     if (!isLoggedIn) router.replace("/register");
-    else if (onboardingComplete) router.replace("/discovery");
+    else if (onboardingComplete) router.replace("/market");
   }, [hasHydrated, isLoggedIn, onboardingComplete, router]);
 
   if (!hasHydrated || !isLoggedIn || onboardingComplete) return null;
@@ -32,7 +32,7 @@ export default function OnboardingProfilePage() {
   const finish = () => {
     setOnboardingComplete(true);
     toast.success(t.onboarding.finishedToast);
-    router.replace("/discovery");
+    router.replace("/market");
   };
 
   const isBacker = activeRole === "backer";

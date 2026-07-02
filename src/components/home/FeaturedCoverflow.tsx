@@ -408,7 +408,7 @@ function ProjectDialog({
                 {project.city ? ` · ${project.city}` : ""}
               </p>
               <Link
-                href="/discovery"
+                href="/market"
                 className="group inline-flex items-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-6 py-3.5 rounded-full hover:opacity-90 active:scale-95 transition-all shadow-[0_8px_30px_rgba(212,175,55,0.25)] mt-auto self-start"
               >
                 {project.status === "open" ? t.homeV2.backProject : t.homeV2.viewProject}
