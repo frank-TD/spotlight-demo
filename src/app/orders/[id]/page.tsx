@@ -1,6 +1,7 @@
 "use client";
 import { use, useState } from "react";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import {
   ArrowLeft,
   Upload,
@@ -36,6 +37,8 @@ const STATUS_PILL: Record<string, string> = {
 
 export default function OrderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  // Only two mock orders exist; any other id → 404.
+  if (id !== "ord_001" && id !== "ord_002") notFound();
   const { activeRole, sessionFlows, payDeposit, submitDelivery, approveDelivery, requestRevision } =
     useStore();
   const t = useT();

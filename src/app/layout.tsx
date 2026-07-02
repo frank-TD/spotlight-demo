@@ -13,10 +13,25 @@ const montserrat = Montserrat({
   display: "swap",
 });
 
+const SITE_TITLE = "Spotlight — Fund it. Own it. Stream it.";
+const SITE_DESCRIPTION =
+  "Discover AI-powered films, back the stories you believe in — and let AI distribute them to the world.";
+
 export const metadata: Metadata = {
-  title: "Spotlight — Fund it. Own it. Stream it.",
-  description:
-    "Discover AI-powered films, back the stories you believe in — and let AI distribute them to the world.",
+  metadataBase: new URL("https://spotlight.demo"),
+  title: SITE_TITLE,
+  description: SITE_DESCRIPTION,
+  openGraph: {
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+    siteName: "Spotlight",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: SITE_TITLE,
+    description: SITE_DESCRIPTION,
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
