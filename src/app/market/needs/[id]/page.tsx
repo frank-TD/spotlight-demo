@@ -1,6 +1,6 @@
 "use client";
 import { use, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, notFound } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -31,7 +31,8 @@ import { useT } from "@/hooks/useT";
 
 export default function NeedDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
-  const { isLoggedIn, activeRole, appliedNeeds, submitBid, acceptBid, hasHydrated } = useStore();
+  const { isLoggedIn, activeRole, appliedNeeds, submitBid, acceptBid, hasHydrated, postedNeeds } =
+    useStore();
   const router = useRouter();
   const t = useT();
   const [bidOpen, setBidOpen] = useState(false);
@@ -82,6 +83,8 @@ export default function NeedDetailPage({ params }: { params: Promise<{ id: strin
   const resetBidForm = () => setAttachments([]);
 
   if (!hasHydrated) return null;
+  // Unknown brief id (not a seed brief nor a user-posted one) → 404.
+  if (!NEEDS.some((n) => n.id === id) && !postedNeeds.some((n) => n.id === id)) notFound();
   // Full brief detail is members-only; guests get the unified signup gate plus
   // a locked teaser (returnTo brings them back here after auth).
   if (!isLoggedIn)

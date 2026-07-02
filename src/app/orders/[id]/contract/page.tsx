@@ -1,6 +1,6 @@
 "use client";
 import { use, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, notFound } from "next/navigation";
 import { ArrowLeft, Check, Shield, FileText } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -14,6 +14,8 @@ const COPYRIGHT_CHOICES = ["Buyout", "Sub-licensable", "Licensed"];
 
 export default function ContractPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  // Only two mock orders exist; any other id → 404.
+  if (id !== "ord_001" && id !== "ord_002") notFound();
   const router = useRouter();
   const t = useT();
   const { sessionFlows, submitContract, confirmContract, rejectContract } = useStore();

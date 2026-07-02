@@ -1,7 +1,7 @@
 "use client";
 import { use, useRef, useState } from "react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, notFound } from "next/navigation";
 import Link from "next/link";
 import {
   ArrowLeft,
@@ -54,6 +54,8 @@ type EditField = "nickname" | "bio" | "tags" | "rate" | "hours" | null;
 
 export default function CreatorProfilePage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = use(params);
+  // Unknown creator id → 404 (rather than silently showing the first creator).
+  if (!CREATORS.some((c) => c.id === id)) notFound();
   const {
     activeRole,
     creatorEdits,
