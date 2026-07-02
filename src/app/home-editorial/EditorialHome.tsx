@@ -3,7 +3,8 @@ import { Montserrat } from "next/font/google";
 import EditorialDistribution from "./EditorialDistribution";
 import EditorialHeroVideo from "./EditorialHeroVideo";
 import EditorialSpotlight from "./EditorialSpotlight";
-import { GlowDealCard, DrawLine, FaqAccordion } from "./motion";
+import EditorialNegotiationCard from "./EditorialNegotiationCard";
+import { DrawLine, FaqAccordion } from "./motion";
 import styles from "./editorial.module.css";
 import StatCountUp from "@/components/home/StatCountUp";
 import ScrollReveal from "@/components/home/ScrollReveal";
@@ -224,7 +225,11 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
               <h2 className={styles.title}>
                 Agents negotiate.
                 <br />
-                <span className={styles.accent}>You stay in control.</span>
+                <span className={styles.accent}>
+                  You stay
+                  <br />
+                  in control.
+                </span>
               </h2>
               <p>
                 Marlow represents backers. Wren represents creators. They align budget, milestones,
@@ -240,37 +245,8 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
               </div>
             </div>
 
-            <div className={`${styles.agentCards} scroll-reveal`}>
-              <GlowDealCard>
-                <h4>Marlow</h4>
-                <p className={styles.agentRole}>Backer&apos;s AI Agent</p>
-                <div className={styles.agentTags}>
-                  <span>Budget</span>
-                  <span>Rights</span>
-                  <span>Milestones</span>
-                  <span>Escrow</span>
-                </div>
-                <div className={styles.agentDeal}>
-                  <b>✓ Deal Summary Ready</b>
-                  <p>US$4,200 · 5 milestones · 3 revisions · escrow protected</p>
-                </div>
-                <p className={styles.agentAwait}>Awaiting your approval</p>
-              </GlowDealCard>
-              <GlowDealCard>
-                <h4>Wren</h4>
-                <p className={styles.agentRole}>Creator&apos;s AI Agent</p>
-                <div className={styles.agentTags}>
-                  <span>Budget</span>
-                  <span>Rights</span>
-                  <span>Milestones</span>
-                  <span>Escrow</span>
-                </div>
-                <div className={styles.agentDeal}>
-                  <b>✓ Deal Summary Ready</b>
-                  <p>US$4,200 · portfolio rights retained · 5 milestones · escrow protected</p>
-                </div>
-                <p className={styles.agentAwait}>Awaiting your approval</p>
-              </GlowDealCard>
+            <div className="scroll-reveal">
+              <EditorialNegotiationCard />
             </div>
           </div>
         </div>
