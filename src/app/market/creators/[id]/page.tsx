@@ -331,7 +331,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
 
   return (
     <AppShell>
-      <div className="max-w-3xl mx-auto px-6 md:px-12 pt-8 pb-16">
+      <div className="animate-fade-up max-w-3xl mx-auto px-6 md:px-12 pt-8 pb-16">
         <Link
           href="/market/creators"
           className="inline-flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider text-on-surface-variant hover:text-on-surface mb-8"

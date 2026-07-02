@@ -36,7 +36,7 @@ export default function CreatorsPage() {
   return (
     <AppShell>
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 pt-10 pb-16">
-        <div className="flex flex-col md:flex-row justify-between md:items-end gap-6 mb-10">
+        <div className="animate-fade-up flex flex-col md:flex-row justify-between md:items-end gap-6 mb-10">
           <div>
             <h1 className="font-headline text-headline-lg text-on-surface">{t.creators.title}</h1>
             <p className="text-on-surface-variant mt-2 font-body opacity-80">
@@ -49,7 +49,7 @@ export default function CreatorsPage() {
         </div>
 
         {/* Search + filters */}
-        <div className="flex flex-wrap items-center gap-3 mb-10">
+        <div className="animate-fade-up flex flex-wrap items-center gap-3 mb-10" style={{ animationDelay: "120ms" }}>
           <div className="relative flex-1 min-w-[280px] max-w-md">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-outline" />
             <input

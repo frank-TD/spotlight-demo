@@ -93,11 +93,11 @@ export default function AddBankCardPage() {
           <ArrowLeft className="w-4 h-4" /> {t.wallet.addCardBack}
         </Link>
 
-        <h1 className="font-headline text-headline-md text-on-surface mb-2 flex items-center gap-2">
+        <h1 className="animate-fade-up font-headline text-headline-md text-on-surface mb-2 flex items-center gap-2">
           <CreditCard className="w-6 h-6" /> {t.wallet.addCardTitle}
         </h1>
 
-        <div className="bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-8 mt-6 space-y-6">
+        <div className="animate-fade-up bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-8 mt-6 space-y-6" style={{ animationDelay: "120ms" }}>
           {/* Card number */}
           <div>
             <label className={labelCls}>{t.wallet.cardNumberLabel}</label>

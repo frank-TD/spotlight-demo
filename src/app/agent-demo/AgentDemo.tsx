@@ -90,7 +90,7 @@ export default function AgentDemo() {
       </header>
 
       {/* Active flow */}
-      <main className="max-w-[1180px] mx-auto px-4 md:px-8 py-10 pb-32">
+      <main className="animate-fade-up max-w-[1180px] mx-auto px-4 md:px-8 py-10 pb-32">
         {flow === "brief" ? <BriefAgentFlow /> : null}
         {flow === "match" ? <CreatorMatchFlow /> : null}
         {flow === "contract" ? <ContractRiskFlow /> : null}

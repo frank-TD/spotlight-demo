@@ -103,9 +103,9 @@ export default function ProfilePage() {
   return (
     <AppShell>
       <div className="max-w-3xl mx-auto px-6 md:px-12 pt-10 pb-16">
-        <h1 className="font-headline text-headline-lg text-on-surface mb-10">{t.profile.title}</h1>
+        <h1 className="animate-fade-up font-headline text-headline-lg text-on-surface mb-10">{t.profile.title}</h1>
 
-        <div className="space-y-6">
+        <div className="animate-fade-up space-y-6" style={{ animationDelay: "120ms" }}>
           {/* Avatar + form (remounts on role switch to reload the right values) */}
           <ProfileForm key={activeRole} role={activeRole} />
 
