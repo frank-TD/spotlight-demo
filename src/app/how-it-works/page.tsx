@@ -10,6 +10,7 @@ import SiteFooter from "@/components/home/SiteFooter";
 import { useStore } from "@/lib/store";
 import { useT } from "@/hooks/useT";
 import { cn } from "@/lib/utils";
+import { pillVariants } from "@/components/ui/button";
 
 type Role = "backer" | "creator";
 
@@ -122,7 +123,7 @@ export default function HowItWorksPage() {
             {role === "creator" && (
               <Link
                 href="/discovery/workspace"
-                className="group inline-flex items-center justify-center gap-2 font-label text-label-md uppercase tracking-widest text-on-primary-container border border-primary/60 px-7 py-4 rounded-full hover:bg-primary/10 transition-colors"
+                className={cn(pillVariants({ variant: "outlinePrimary", size: "md" }), "group")}
               >
                 <Wand2 className="w-4 h-4" />
                 {journey.seeAigcStudio}
@@ -131,7 +132,7 @@ export default function HowItWorksPage() {
             <Link
               href="/market"
               onClick={() => switchRole(role)}
-              className="group inline-flex items-center justify-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-7 py-4 rounded-full hover:opacity-90 active:scale-95 transition-all shadow-[0_8px_30px_rgba(198,255,52,0.25)]"
+              className={cn(pillVariants({ size: "md" }), "group shadow-[0_8px_30px_rgba(198,255,52,0.25)]")}
             >
               {view.ctaLabel}
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -178,7 +179,7 @@ export default function HowItWorksPage() {
           </div>
           <Link
             href="/distribution"
-            className="group inline-flex items-center gap-2.5 font-label text-label-md uppercase tracking-widest text-on-primary-container border border-primary/60 px-7 py-4 rounded-full hover:bg-primary/10 transition-colors shrink-0"
+            className={cn(pillVariants({ variant: "outlinePrimary", size: "md" }), "group shrink-0")}
           >
             {t.howItWorks.distCta}
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -192,7 +193,7 @@ export default function HowItWorksPage() {
           </h2>
           <Link
             href="/market"
-            className="group inline-flex items-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-7 py-4 rounded-full hover:opacity-90 active:scale-95 transition-all shadow-[0_8px_30px_rgba(198,255,52,0.25)] mt-10"
+            className={cn(pillVariants({ size: "md" }), "group shadow-[0_8px_30px_rgba(198,255,52,0.25)] mt-10")}
           >
             {t.homeV2.ctaPrimary}
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />

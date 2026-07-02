@@ -2,6 +2,8 @@
 import Link from "next/link";
 import { ArrowRight, ShieldCheck, Key, ListChecks } from "lucide-react";
 import AppShell from "@/components/layout/AppShell";
+import { pillVariants } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import ScrollReveal from "@/components/home/ScrollReveal";
 import SectionLabel from "@/components/home/SectionLabel";
 import SiteFooter from "@/components/home/SiteFooter";
@@ -114,7 +116,7 @@ export default function AboutPage() {
           </h2>
           <Link
             href="/market"
-            className="group inline-flex items-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-7 py-4 rounded-full hover:opacity-90 active:scale-95 transition-all shadow-[0_8px_30px_rgba(198,255,52,0.25)] mt-10"
+            className={cn(pillVariants({ size: "md" }), "group shadow-[0_8px_30px_rgba(198,255,52,0.25)] mt-10")}
           >
             {t.homeV2.ctaPrimary}
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />

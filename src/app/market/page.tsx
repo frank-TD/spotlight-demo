@@ -25,6 +25,7 @@ import {
 import { useStore } from "@/lib/store";
 import { useT } from "@/hooks/useT";
 import AppShell from "@/components/layout/AppShell";
+import { pillVariants } from "@/components/ui/button";
 import { CREATORS, NEEDS, findSessionForCounterpart } from "@/lib/mock-data";
 import { getAgentReply } from "@/lib/agent-response";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
@@ -232,7 +233,7 @@ export default function MarketPage() {
                 <button
                   type="button"
                   onClick={isBacker ? handlePostNeed : handleStartCreating}
-                  className="group inline-flex items-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-8 py-4 rounded-full hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_8px_30px_rgba(198,255,52,0.25)]"
+                  className={cn(pillVariants({ size: "lg" }), "group shadow-[0_8px_30px_rgba(198,255,52,0.25)]")}
                 >
                   {isBacker ? <PlusCircle className="w-4 h-4" /> : <Wand2 className="w-4 h-4" />}
                   {isBacker ? t.market.postANeed : t.market.guest.startCreating}
@@ -325,7 +326,7 @@ export default function MarketPage() {
                 <button
                   type="button"
                   onClick={handleStartCreating}
-                  className="group shrink-0 inline-flex items-center gap-2.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-widest px-8 py-4 rounded-full hover:opacity-90 active:scale-[0.98] transition-all shadow-[0_8px_30px_rgba(198,255,52,0.25)]"
+                  className={cn(pillVariants({ size: "lg" }), "group shrink-0 shadow-[0_8px_30px_rgba(198,255,52,0.25)]")}
                 >
                   <Wand2 className="w-4 h-4" />
                   {t.market.guest.openAigcStudio}
@@ -681,7 +682,7 @@ function BriefCard({
           <Link
             href={`/market/needs/${n.id}`}
             onClick={onGate(`/market/needs/${n.id}`)}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 bg-primary text-on-primary font-label text-[11px] uppercase tracking-widest px-4 py-2.5 rounded-full hover:opacity-90 transition-opacity"
+            className={cn(pillVariants({ size: "sm" }), "flex-1")}
           >
             {g.viewBrief}
             <ArrowUpRight className="w-3.5 h-3.5" />
@@ -938,7 +939,7 @@ function InviteDialog({ creator, onClose }: { creator: Creator; onClose: () => v
           <button
             type="button"
             onClick={onClose}
-            className="font-label text-[11px] uppercase tracking-widest text-on-surface-variant px-5 py-2.5 rounded-full border border-outline-variant/50 hover:text-on-surface transition-colors"
+            className={pillVariants({ variant: "outline", size: "sm" })}
           >
             {t.common.cancel}
           </button>
@@ -946,7 +947,7 @@ function InviteDialog({ creator, onClose }: { creator: Creator; onClose: () => v
             type="button"
             onClick={send}
             disabled={!sel}
-            className="inline-flex items-center gap-1.5 bg-primary text-on-primary font-label text-[11px] uppercase tracking-widest px-6 py-2.5 rounded-full hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed transition-opacity"
+            className={pillVariants({ size: "sm" })}
           >
             <UserPlus className="w-3.5 h-3.5" />
             {t.market.guest.sendInvite}

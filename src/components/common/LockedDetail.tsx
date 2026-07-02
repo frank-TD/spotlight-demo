@@ -2,8 +2,10 @@
 import { useEffect } from "react";
 import Link from "next/link";
 import { ArrowLeft, Lock, UserPlus } from "lucide-react";
+import { pillVariants } from "@/components/ui/button";
 import { useStore } from "@/lib/store";
 import { useT } from "@/hooks/useT";
+import { cn } from "@/lib/utils";
 
 // Full project/creator detail is members-only. Guests who reach a detail URL
 // (direct link, refresh, or the returnTo redirect edge) land here: we auto-open
@@ -53,7 +55,7 @@ export default function LockedDetail({
         <button
           type="button"
           onClick={() => openSignupGate(returnTo)}
-          className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary text-on-primary font-label text-[12px] uppercase tracking-[0.12em] px-8 py-4 hover:opacity-90 active:scale-95 transition-all"
+          className={cn(pillVariants({ size: "lg" }), "mt-8")}
         >
           <UserPlus className="w-4 h-4" /> {t.signupGate.signUpToView}
         </button>
