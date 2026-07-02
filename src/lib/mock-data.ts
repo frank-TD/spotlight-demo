@@ -342,8 +342,9 @@ export interface VideoClip {
 export const HERO_VIDEO_POSTER =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='8' height='8' fill='%2308080a'/%3E%3C/svg%3E";
 
-// Hero background pool — the three uploaded films cross-fade as the hero reel.
-const HERO_CLIP_IDS = ["hero-1", "hero-2", "hero-3"];
+// Hero background pool — cross-fade reel; hero-0 (newest) plays first, then the
+// three earlier films cycle after it.
+const HERO_CLIP_IDS = ["hero-0", "hero-1", "hero-2", "hero-3"];
 // Older clips stay available only for the "In the Spotlight" preview lookups.
 const FEATURED_CLIP_IDS = ["3917525", "8059683", "7596081", "3917513"];
 
