@@ -13,78 +13,8 @@ import { cn } from "@/lib/utils";
 
 type Role = "backer" | "creator";
 
-// Two role-specific journeys behind a view toggle (per the guest flow). Copy is
-// hardcoded English for this design pass, matching the marketplace convention.
-const JOURNEY: Record<
-  Role,
-  {
-    toggle: string;
-    caption: string;
-    steps: { num: string; title: string; body: string }[];
-    ctaTitle: string;
-    ctaBody: string;
-    ctaLabel: string;
-  }
-> = {
-  backer: {
-    toggle: "For Backers",
-    caption: "Fund it",
-    steps: [
-      {
-        num: "01",
-        title: "Post your brief",
-        body: "Describe the film you want made — format, budget, references and timeline. Marlow, your deal agent, shapes it into a clear, biddable brief.",
-      },
-      {
-        num: "02",
-        title: "Match with creators",
-        body: "Browse creator portfolios or field incoming bids. Compare them side by side while the agents surface the strongest fits.",
-      },
-      {
-        num: "03",
-        title: "Fund in escrow",
-        body: "Lock your budget in escrow. Funds release stage by stage as the work is delivered — never everything up front.",
-      },
-      {
-        num: "04",
-        title: "Approve & distribute",
-        body: "Review each cut, request revisions, and approve delivery. Take the finished film straight to distribution.",
-      },
-    ],
-    ctaTitle: "Ready to fund your film?",
-    ctaBody: "Post a brief and let creators come to you — browsing is free, and every stage is protected by escrow.",
-    ctaLabel: "Fund a project",
-  },
-  creator: {
-    toggle: "For Creators",
-    caption: "Get funded",
-    steps: [
-      {
-        num: "01",
-        title: "Build your portfolio",
-        body: "Showcase your best work and specialties so backers — and the matching agents — can discover you.",
-      },
-      {
-        num: "02",
-        title: "Find briefs & pitch",
-        body: "Discover open briefs across genres and budgets, then pitch. Attach AIGC previews to stand out from the field.",
-      },
-      {
-        num: "03",
-        title: "Create with AIGC",
-        body: "Generate moodboards, shots, voiceover and music in the AIGC studio, then assemble your delivery.",
-      },
-      {
-        num: "04",
-        title: "Deliver & get paid",
-        body: "Submit each stage, clear review, and get paid from escrow as milestones are approved.",
-      },
-    ],
-    ctaTitle: "Ready to get funded?",
-    ctaBody: "Build a portfolio, bid on briefs, and create with AI — get paid from escrow as each milestone lands.",
-    ctaLabel: "Get funded",
-  },
-};
+// Two role-specific journeys behind a view toggle (per the guest flow). Copy
+// lives in the i18n system (t.howItWorks.journey) and is localized per role.
 
 // The full process story moved off the homepage: a role-toggled journey, the
 // Marlow/Wren negotiation replay, the mechanics FAQ, and the distribution
@@ -93,7 +23,8 @@ export default function HowItWorksPage() {
   const t = useT();
   const { switchRole } = useStore();
   const [role, setRole] = useState<Role>("backer");
-  const view = JOURNEY[role];
+  const journey = t.howItWorks.journey;
+  const view = journey[role];
 
   const faqs = [
     { q: t.landing.faqQ3, a: t.landing.faqA3 },
@@ -120,7 +51,7 @@ export default function HowItWorksPage() {
           <div
             className="inline-grid grid-cols-2 gap-1 p-1 rounded-2xl border border-outline-variant/40 bg-surface-container-low"
             role="tablist"
-            aria-label="Choose your perspective"
+            aria-label={journey.perspectiveAria}
           >
             {(["backer", "creator"] as Role[]).map((r) => {
               const active = role === r;
@@ -138,14 +69,14 @@ export default function HowItWorksPage() {
                       : "text-on-surface-variant hover:text-on-surface"
                   )}
                 >
-                  <span className="font-headline text-[19px] leading-none">{JOURNEY[r].toggle}</span>
+                  <span className="font-headline text-[19px] leading-none">{journey[r].toggle}</span>
                   <span
                     className={cn(
                       "mt-1.5 font-label text-[10px] uppercase tracking-[0.2em]",
                       active ? "text-on-primary/80" : "text-on-surface-variant/70"
                     )}
                   >
-                    {JOURNEY[r].caption}
+                    {journey[r].caption}
                   </span>
                 </button>
               );
@@ -194,7 +125,7 @@ export default function HowItWorksPage() {
                 className="group inline-flex items-center justify-center gap-2 font-label text-label-md uppercase tracking-widest text-on-primary-container border border-primary/60 px-7 py-4 rounded-full hover:bg-primary/10 transition-colors"
               >
                 <Wand2 className="w-4 h-4" />
-                See the AIGC studio
+                {journey.seeAigcStudio}
               </Link>
             )}
             <Link
