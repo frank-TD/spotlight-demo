@@ -56,6 +56,8 @@ export default function StudioWorkspace() {
     deleteStudioGroup,
     toggleStudioGroupCollapsed,
     hasHydrated,
+    isLoggedIn,
+    openSignupGate,
   } = useStore();
 
   const [mode, setMode] = useState<StudioMode>("image");
@@ -196,6 +198,12 @@ export default function StudioWorkspace() {
   };
 
   const onGenerate = () => {
+    // Guests browse the studio freely; Generate is the conversion point — send
+    // them to the signup gate and bring them back here after they authenticate.
+    if (!isLoggedIn) {
+      openSignupGate("/discovery/workspace");
+      return;
+    }
     if (studioGenerating) return;
     if (!prompt.trim()) {
       toast.error(t.aigc.emptyPromptToast);
