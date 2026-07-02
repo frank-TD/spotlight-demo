@@ -488,6 +488,7 @@
   position: relative;
   aspect-ratio: 2 / 3;
   overflow: hidden;
+  background-color: #0c0c0e;
   background-position: center;
   background-size: cover;
   border: 1px solid rgba(244, 240, 232, 0.16);
