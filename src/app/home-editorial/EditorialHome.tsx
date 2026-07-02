@@ -219,18 +219,20 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
       {/* ── Agents ───────────────────────────────────────────────────────── */}
       <section className={`${styles.sec} ${styles.gridStage}`}>
         <div className={styles.wrap}>
+          <div className={`${styles.agentsHead} scroll-reveal`}>
+            <span className={styles.eyebrow}>Your AI Agent</span>
+            <h2 className={styles.title}>
+              Agents negotiate.
+              <br />
+              <span className={styles.accent}>
+                You stay
+                <br />
+                in control.
+              </span>
+            </h2>
+          </div>
           <div className={styles.agentsGrid}>
             <div className={`${styles.agentsCopy} scroll-reveal`}>
-              <span className={styles.eyebrow}>Your AI Agent</span>
-              <h2 className={styles.title}>
-                Agents negotiate.
-                <br />
-                <span className={styles.accent}>
-                  You stay
-                  <br />
-                  in control.
-                </span>
-              </h2>
               <p>
                 Marlow represents backers. Wren represents creators. They align budget, milestones,
                 rights, and escrow — then prepare the deal for your approval.

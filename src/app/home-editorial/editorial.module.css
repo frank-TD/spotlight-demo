@@ -747,16 +747,19 @@
 }
 
 /* ── Agents ──────────────────────────────────────────────────────────────── */
+/* Heading spans full width (base display .title size, matching the other
+   section slogans); copy + negotiation card sit side by side below it. */
+.agentsHead { margin-top: clamp(36px, 5vh, 56px); margin-bottom: clamp(28px, 4.5vh, 48px); }
+.agentsHead .title { margin-top: 12px; }
 .agentsGrid {
   display: grid;
-  grid-template-columns: 1.4fr 1fr;
+  grid-template-columns: 0.9fr 1fr;
   gap: clamp(32px, 4vw, 64px);
   align-items: center;
-  margin-top: clamp(36px, 5vh, 56px);
 }
 /* Scoped smaller than the shared display .title so the two sentences sit on a
    clean 3 lines (AGENTS NEGOTIATE. / YOU STAY / IN CONTROL.) with no orphan. */
-.agentsCopy .title { margin-bottom: 22px; font-size: clamp(34px, 4.2vw, 54px); line-height: 1.02; }
+.agentsCopy p { margin-top: 0; }
 .agentsCopy p { max-width: 40ch; font-size: 15px; line-height: 1.6; font-weight: 600; color: rgba(244, 240, 232, 0.72); }
 .agentCards { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
 .agentCard {
