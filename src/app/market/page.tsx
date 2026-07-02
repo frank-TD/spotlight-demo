@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -517,12 +518,13 @@ function WorkCard({
     <div className="group break-inside-avoid mb-4 relative rounded-2xl overflow-hidden border border-outline-variant/30 bg-surface-container">
       <button type="button" onClick={() => onOpen(w)} className="block w-full text-left">
         <div className={cn("relative", ASPECT[w.aspect])}>
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={w.poster}
             alt={w.title}
+            fill
             loading="lazy"
-            className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 240px"
+            className="absolute inset-0 object-cover transition-transform duration-700 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,8,10,0.05)_0%,transparent_34%,rgba(8,8,10,0.5)_70%,rgba(8,8,10,0.92)_100%)]" />
           <span className="absolute top-3 left-3 inline-flex items-center justify-center w-9 h-9 rounded-full bg-[rgba(8,8,10,0.5)] backdrop-blur-sm border border-outline-variant/40 text-primary opacity-0 group-hover:opacity-100 transition-opacity">
@@ -612,12 +614,13 @@ function BriefCard({
           onClick={onGate(`/market/needs/${n.id}`)}
           className="relative block aspect-[16/10] overflow-hidden"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={poster}
             alt=""
+            fill
             loading="lazy"
-            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 400px"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
           <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(8,8,10,0.05)_0%,transparent_45%,rgba(8,8,10,0.7)_100%)]" />
           <span className="absolute top-3 left-3 font-label text-[10px] uppercase tracking-widest px-3 py-1 rounded-full bg-[rgba(8,8,10,0.55)] backdrop-blur-sm border border-outline-variant/40 text-primary">
@@ -716,8 +719,13 @@ function WorkDialog({
           <div className="grid grid-cols-1 md:grid-cols-[3fr_2fr] max-h-[90vh] overflow-hidden">
             <div className="bg-[#08080a] p-6 md:p-7 flex flex-col gap-4 overflow-y-auto">
               <div className="aspect-video relative rounded-xl overflow-hidden bg-surface-container group">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={work.poster} alt={work.title} className="absolute inset-0 w-full h-full object-cover" />
+                <Image
+                  src={work.poster}
+                  alt={work.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 800px"
+                  className="absolute inset-0 object-cover"
+                />
                 <button
                   type="button"
                   onClick={() => toast.info(t.market.guest.playbackDemo)}

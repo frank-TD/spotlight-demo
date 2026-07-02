@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
+    formats: ["image/avif", "image/webp"],
     // Sample imagery is served from picsum (which redirects to its fastly CDN).
     remotePatterns: [
       { protocol: "https", hostname: "picsum.photos" },

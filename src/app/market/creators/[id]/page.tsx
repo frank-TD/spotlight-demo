@@ -1,5 +1,6 @@
 "use client";
 import { use, useRef, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import {
@@ -363,10 +364,11 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
               {/* Avatar */}
               <div className="relative shrink-0">
                 {creator.avatarUrl ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
+                  <Image
                     src={creator.avatarUrl}
                     alt={creator.nickname}
+                    width={80}
+                    height={80}
                     className="w-20 h-20 rounded-full object-cover"
                   />
                 ) : (

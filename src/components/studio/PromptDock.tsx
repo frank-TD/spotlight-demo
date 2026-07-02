@@ -1,5 +1,6 @@
 "use client";
 import { useRef, useState } from "react";
+import Image from "next/image";
 import {
   ImageIcon,
   Clapperboard,
@@ -157,8 +158,13 @@ export default function PromptDock({
                   className="inline-flex items-center gap-1.5 px-2 py-1 rounded-full bg-primary-container/40 text-on-primary-container max-w-[180px]"
                 >
                   {r.previewUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img src={r.previewUrl} alt="" className="w-4 h-4 rounded object-cover" />
+                    <Image
+                      src={r.previewUrl}
+                      alt=""
+                      width={16}
+                      height={16}
+                      className="w-4 h-4 rounded object-cover"
+                    />
                   ) : (
                     <FileIcon className="w-3 h-3" />
                   )}

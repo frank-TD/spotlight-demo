@@ -1,5 +1,6 @@
 "use client";
 import { use, useState } from "react";
+import Image from "next/image";
 import { Send, Paperclip, Star, Film, FileVideo, Bot, Sparkles, Plus, Check } from "lucide-react";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -181,11 +182,12 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
             {groupMembers.map((m) => {
               const showImg = m.id === "u_creator_01" && ariaProfile.avatarUrl;
               return showImg ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img
+                <Image
                   key={m.id}
-                  src={ariaProfile.avatarUrl}
+                  src={showImg}
                   alt={m.nickname}
+                  width={32}
+                  height={32}
                   className="w-8 h-8 rounded-full object-cover border-2 border-surface-container-lowest"
                 />
               ) : (
@@ -286,10 +288,11 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                   aria-label="view member"
                 >
                   {isAriaSender && ariaProfile.avatarUrl ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
+                    <Image
                       src={ariaProfile.avatarUrl}
                       alt={msg.senderName}
+                      width={32}
+                      height={32}
                       className="w-8 h-8 object-cover"
                     />
                   ) : isAgent ? (
@@ -492,10 +495,11 @@ export default function SessionPage({ params }: { params: Promise<{ id: string }
                   className="flex items-start gap-3 p-3 rounded-xl border border-outline-variant/30 bg-surface-container-low"
                 >
                   {showImg ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      src={ariaProfile.avatarUrl}
+                    <Image
+                      src={showImg}
                       alt={m.nickname}
+                      width={40}
+                      height={40}
                       className="w-10 h-10 rounded-full object-cover shrink-0"
                     />
                   ) : (
@@ -612,10 +616,11 @@ function CreatorProfileBody({ data }: { data: CreatorProfileData }) {
     <div className="py-2 space-y-5">
       <div className="flex items-start gap-4">
         {data.avatarUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={data.avatarUrl}
             alt={data.name}
+            width={64}
+            height={64}
             className="w-16 h-16 rounded-full object-cover shrink-0"
           />
         ) : (
