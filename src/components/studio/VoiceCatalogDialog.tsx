@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Check, Play, Pause } from "lucide-react";
 import { toast } from "sonner";
 import Waveform from "./Waveform";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useT } from "@/hooks/useT";
 import { VOICES, type StudioVoice } from "@/lib/studio-mock";
 import { cn } from "@/lib/utils";
@@ -38,6 +38,7 @@ export default function VoiceCatalogDialog({
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-3xl p-0 overflow-hidden max-h-[85vh]" showCloseButton>
+        <DialogTitle className="sr-only">{t.aigc.voiceCatalog}</DialogTitle>
         <div className="flex flex-col max-h-[85vh]">
           {/* Header */}
           <div className="px-6 pt-6 pb-4 flex items-center justify-between gap-4 flex-wrap">

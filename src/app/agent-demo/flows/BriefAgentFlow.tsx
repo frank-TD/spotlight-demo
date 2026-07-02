@@ -108,7 +108,7 @@ export default function BriefAgentFlow() {
           value={brief}
           onChange={(e) => setBrief(e.target.value)}
           rows={4}
-          className="w-full resize-none rounded-xl border border-outline-variant/50 bg-surface-container-lowest/80 px-4 py-3 font-body text-sm text-on-surface placeholder:text-on-surface-variant/60 outline-none focus:border-agent/50 transition-colors"
+          className="w-full resize-none rounded-xl border border-outline-variant/50 bg-surface-container-lowest/80 px-4 py-3 font-body text-sm text-on-surface placeholder:text-on-surface-variant/75 outline-none focus:border-agent/50 transition-colors"
           placeholder="Describe the film you want to commission…"
         />
         <div className="flex items-center justify-end mt-3">
@@ -137,7 +137,7 @@ export default function BriefAgentFlow() {
               <dl className="grid sm:grid-cols-2 gap-x-5 gap-y-3.5">
                 {fields.map((f) => (
                   <div key={f.key}>
-                    <dt className="font-label text-[10px] uppercase tracking-[0.12em] text-on-surface-variant/70">{f.label}</dt>
+                    <dt className="font-label text-[10px] uppercase tracking-[0.12em] text-on-surface-variant/85">{f.label}</dt>
                     <dd className={f.filled ? "font-body text-[13px] text-on-surface mt-0.5 leading-snug" : "font-body text-[13px] text-[#d4af37] mt-0.5"}>
                       {f.filled ? f.value : "Missing — Agent flagged"}
                     </dd>
@@ -195,7 +195,7 @@ export default function BriefAgentFlow() {
                   >
                     {published ? "Published ✓" : "Publish brief"}
                   </button>
-                  <span className="font-label text-[10px] uppercase tracking-[0.12em] text-on-surface-variant/60">
+                  <span className="font-label text-[10px] uppercase tracking-[0.12em] text-on-surface-variant/85">
                     Opens an approval gate first
                   </span>
                 </>
@@ -254,7 +254,7 @@ function CanvasBody() {
             {BRIEF_CANVAS.timeline.map((t) => (
               <li key={t.label} className="flex items-center justify-between gap-3">
                 <span className="font-body text-[13px] text-on-surface-variant">{t.label}</span>
-                <span className="font-mono text-[11px] text-on-surface-variant/70">{t.days}</span>
+                <span className="font-mono text-[11px] text-on-surface-variant/85">{t.days}</span>
               </li>
             ))}
           </ul>

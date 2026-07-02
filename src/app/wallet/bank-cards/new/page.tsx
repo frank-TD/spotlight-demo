@@ -100,8 +100,12 @@ export default function AddBankCardPage() {
         <div className="animate-fade-up bg-surface-container-lowest border border-outline-variant/30 rounded-2xl p-8 mt-6 space-y-6" style={{ animationDelay: "120ms" }}>
           {/* Card number */}
           <div>
-            <label className={labelCls}>{t.wallet.cardNumberLabel}</label>
+            <label htmlFor="bankcard-number" className={labelCls}>
+              {t.wallet.cardNumberLabel}
+            </label>
             <input
+              id="bankcard-number"
+              aria-label={t.wallet.cardNumberLabel}
               inputMode="numeric"
               value={formatCard(number)}
               onChange={(e) => setNumber(e.target.value)}
@@ -125,7 +129,7 @@ export default function AddBankCardPage() {
                   {network || t.wallet.emptyDash}
                 </div>
               </div>
-              <p className="col-span-2 -mt-2 font-label text-[10px] uppercase tracking-wider text-on-surface-variant/70">
+              <p className="col-span-2 -mt-2 font-label text-[10px] uppercase tracking-wider text-on-surface-variant/85">
                 {t.wallet.detectHint}
               </p>
             </div>
@@ -140,15 +144,19 @@ export default function AddBankCardPage() {
                 <ShieldCheck className="w-3.5 h-3.5" /> {t.common.kycVerified}
               </span>
             </div>
-            <p className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant/70 mt-1.5">
+            <p className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant/85 mt-1.5">
               {t.wallet.holderHint}
             </p>
           </div>
 
           {/* Reserved phone */}
           <div>
-            <label className={labelCls}>{t.wallet.phoneLabel}</label>
+            <label htmlFor="bankcard-phone" className={labelCls}>
+              {t.wallet.phoneLabel}
+            </label>
             <input
+              id="bankcard-phone"
+              aria-label={t.wallet.phoneLabel}
               inputMode="numeric"
               value={phone}
               onChange={(e) => setPhone(e.target.value)}
@@ -160,9 +168,13 @@ export default function AddBankCardPage() {
 
           {/* SMS verification */}
           <div>
-            <label className={labelCls}>{t.wallet.codeLabel}</label>
+            <label htmlFor="bankcard-code" className={labelCls}>
+              {t.wallet.codeLabel}
+            </label>
             <div className="flex gap-2">
               <input
+                id="bankcard-code"
+                aria-label={t.wallet.codeLabel}
                 inputMode="numeric"
                 value={code}
                 onChange={(e) => setCode(e.target.value.replace(/\D/g, "").slice(0, 6))}

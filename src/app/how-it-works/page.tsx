@@ -73,7 +73,7 @@ export default function HowItWorksPage() {
                   <span
                     className={cn(
                       "mt-1.5 font-label text-[10px] uppercase tracking-[0.2em]",
-                      active ? "text-on-primary/80" : "text-on-surface-variant/70"
+                      active ? "text-on-primary/80" : "text-on-surface-variant/85"
                     )}
                   >
                     {journey[r].caption}

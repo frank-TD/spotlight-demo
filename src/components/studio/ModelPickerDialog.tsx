@@ -2,7 +2,7 @@
 import { useState } from "react";
 import BrandGlyph from "./BrandGlyph";
 import MiniSelect from "./MiniSelect";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useT } from "@/hooks/useT";
 import {
   MODELS_BY_MODE,
@@ -30,9 +30,11 @@ export default function ModelPickerDialog(props: {
   onConfirm: (modelId: string, settings: StudioAssetSettings) => void;
 }) {
   const { open, onOpenChange, mode, modelId } = props;
+  const t = useT();
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-4xl p-0 overflow-hidden max-h-[85vh]" showCloseButton>
+        <DialogTitle className="sr-only">{t.aigc.modelPickerAllModels}</DialogTitle>
         {/* Remount on each open so the draft initializes fresh from props. */}
         {open && <PickerBody key={`${mode}-${modelId}`} {...props} />}
       </DialogContent>
@@ -158,7 +160,11 @@ function PickerBody({
                 />
               </Row>
               <Row label={t.aigc.audio}>
-                <Toggle on={draft.audio ?? true} onChange={(v) => set({ audio: v })} />
+                <Toggle
+                  on={draft.audio ?? true}
+                  onChange={(v) => set({ audio: v })}
+                  label={t.aigc.audio}
+                />
               </Row>
               <Row label={t.aigc.duration}>
                 <MiniSelect
@@ -251,15 +257,25 @@ function Row({ label, children }: { label: string; children: React.ReactNode }) 
   );
 }
 
-function Toggle({ on, onChange }: { on: boolean; onChange: (v: boolean) => void }) {
+function Toggle({
+  on,
+  onChange,
+  label,
+}: {
+  on: boolean;
+  onChange: (v: boolean) => void;
+  label: string;
+}) {
   return (
     <button
+      type="button"
       onClick={() => onChange(!on)}
       className={cn(
         "relative w-10 h-6 rounded-full transition-colors",
         on ? "bg-primary" : "bg-outline-variant"
       )}
       aria-pressed={on}
+      aria-label={label}
     >
       <span
         className={cn(

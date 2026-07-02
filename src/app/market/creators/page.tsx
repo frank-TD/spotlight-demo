@@ -53,6 +53,7 @@ export default function CreatorsPage() {
           <div className="relative flex-1 min-w-[280px] max-w-md">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-outline" />
             <input
+              aria-label={t.creators.searchPlaceholder}
               className="w-full pl-12 pr-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm"
               placeholder={t.creators.searchPlaceholder}
               value={query}

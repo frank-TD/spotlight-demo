@@ -8,7 +8,7 @@ import BorderGlow from "./BorderGlow";
 import { useT } from "@/hooks/useT";
 import { useStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 type AgentKind = "marlow" | "wren";
 
@@ -406,6 +406,7 @@ function AgentIntroDialog({
       <DialogContent className="sm:max-w-md p-0 overflow-hidden">
         {data && (
           <div className="p-7 md:p-8">
+            <DialogTitle className="sr-only">{data.name}</DialogTitle>
             <div className="flex items-center gap-4 mb-5">
               <div
                 className={cn(

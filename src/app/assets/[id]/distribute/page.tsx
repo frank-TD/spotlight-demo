@@ -371,7 +371,7 @@ function StageTracker({ currentIdx, status }: { currentIdx: number; status: Dist
                   "font-label text-[10px] uppercase tracking-widest text-center leading-tight",
                   done && "text-on-surface-variant",
                   (active || isLive) && "text-primary font-bold",
-                  !done && !active && !isLive && "text-on-surface-variant/40"
+                  !done && !active && !isLive && "text-on-surface-variant/85"
                 )}
               >
                 {labels[s]}
@@ -431,6 +431,7 @@ function MetadataStep({
       <div>
         <label className={labelCls}>{t.distribute.fieldTitle}</label>
         <input
+          aria-label={t.distribute.fieldTitle}
           value={metadata.title}
           onChange={(e) => setMetadata({ ...metadata, title: e.target.value })}
           className={inputCls}
@@ -440,6 +441,7 @@ function MetadataStep({
       <div>
         <label className={labelCls}>{t.distribute.fieldDescription}</label>
         <textarea
+          aria-label={t.distribute.fieldDescription}
           value={metadata.description}
           onChange={(e) => setMetadata({ ...metadata, description: e.target.value })}
           rows={4}
@@ -480,6 +482,7 @@ function MetadataStep({
       <div>
         <label className={labelCls}>{t.distribute.fieldTags}</label>
         <input
+          aria-label={t.distribute.fieldTags}
           value={tagsInput}
           onChange={(e) => setTagsInput(e.target.value)}
           placeholder="Cinematic, Brand, AI..."
@@ -538,6 +541,7 @@ function MetadataStep({
           <input
             type="number"
             min={0}
+            aria-label={t.distribute.fieldPrice}
             value={metadata.price}
             onChange={(e) => setMetadata({ ...metadata, price: Number(e.target.value) || 0 })}
             className={inputCls}
@@ -614,6 +618,8 @@ function PlatformsStep({
             <button
               key={p.id}
               type="button"
+              aria-pressed={selected}
+              aria-label={p.name}
               onClick={() => toggle(p.id)}
               className={cn(
                 "flex items-center justify-between gap-3 p-4 rounded-xl border transition-colors text-left",

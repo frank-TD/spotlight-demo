@@ -398,6 +398,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                       ref={avatarInputRef}
                       type="file"
                       accept="image/*"
+                      aria-label={t.creatorProfile.uploadAvatar}
                       className="hidden"
                       onChange={handleAvatarPick}
                     />
@@ -412,6 +413,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                       <input
                         value={draftNickname}
                         onChange={(e) => setDraftNickname(e.target.value)}
+                        aria-label="Display name"
                         className="flex-1 px-3 py-2 bg-surface-container-low border border-outline-variant rounded-lg focus:border-primary focus:outline-none font-headline text-[24px]"
                         autoFocus
                       />
@@ -514,6 +516,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                             addCustomTag();
                           }
                         }}
+                        aria-label={t.creatorProfile.tagCustomPlaceholder}
                         placeholder={t.creatorProfile.tagCustomPlaceholder}
                         className="flex-1 px-3 py-2 bg-surface-container-lowest border border-outline-variant rounded-lg focus:border-primary focus:outline-none font-body text-sm"
                       />
@@ -551,6 +554,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                   value={draftBio}
                   onChange={(e) => setDraftBio(e.target.value)}
                   rows={3}
+                  aria-label={t.creatorProfile.bioLabel}
                   className="flex-1 px-4 py-3 bg-surface-container-low border border-outline-variant rounded-xl focus:border-primary focus:outline-none font-body text-sm resize-none"
                   autoFocus
                 />
@@ -575,6 +579,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                   <input
                     value={draftHours}
                     onChange={(e) => setDraftHours(e.target.value)}
+                    aria-label={t.creatorProfile.activeHoursLabel}
                     className="flex-1 min-w-0 px-3 py-1.5 bg-surface-container-low border border-outline-variant rounded-lg focus:border-primary focus:outline-none font-body text-sm"
                     autoFocus
                   />
@@ -587,7 +592,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                   {editIcon("hours")}
                 </span>
               )}
-              <span className="text-on-surface-variant/40">·</span>
+              <span className="text-on-surface-variant/85">·</span>
               {editingField === "rate" ? (
                 <div className="flex items-center gap-2">
                   <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
@@ -597,6 +602,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                     type="number"
                     value={draftRate}
                     onChange={(e) => setDraftRate(e.target.value)}
+                    aria-label={t.creatorProfile.rateLabel}
                     className="w-24 px-3 py-1.5 bg-surface-container-low border border-outline-variant rounded-lg focus:border-primary focus:outline-none font-body text-sm"
                     autoFocus
                   />
@@ -700,6 +706,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {formShowcase.map((work, i) => (
+                // eslint-disable-next-line jsx-a11y/no-static-element-interactions -- drag-and-drop reorder target; keyboard reordering is out of scope for this bundle
                 <div
                   key={work.id}
                   draggable
@@ -753,7 +760,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                         </>
                       ) : (
                         <>
-                          <FileVideo className="w-7 h-7 text-on-surface-variant/60 mb-2" />
+                          <FileVideo className="w-7 h-7 text-on-surface-variant/85 mb-2" />
                           <p className="font-body text-xs text-on-surface-variant">
                             {t.creatorProfile.noAttachedFile}
                           </p>
@@ -768,6 +775,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                         }}
                         type="file"
                         accept="video/*,image/*"
+                        aria-label={t.creatorProfile.uploadFile}
                         className="hidden"
                         onChange={(e) => onLocalFilePick(i, e)}
                       />
@@ -796,6 +804,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                         <input
                           value={work.title}
                           onChange={(e) => updateShowcaseField(i, "title", e.target.value)}
+                          aria-label={t.creatorProfile.workTitle}
                           className="w-full px-3 py-2 bg-surface-container-low border border-outline-variant rounded-lg focus:border-primary focus:outline-none font-body text-sm"
                         />
                       </div>
@@ -810,6 +819,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                           value={work.duration}
                           readOnly
                           tabIndex={-1}
+                          aria-label={t.creatorProfile.workDuration}
                           placeholder={t.creatorProfile.workDurationPlaceholder}
                           className="w-full px-3 py-2 bg-surface-container border border-outline-variant rounded-lg cursor-default font-body text-sm focus:outline-none"
                         />
@@ -821,6 +831,7 @@ export default function CreatorProfilePage({ params }: { params: Promise<{ id: s
                         <textarea
                           value={work.description ?? ""}
                           onChange={(e) => updateShowcaseField(i, "description", e.target.value)}
+                          aria-label={t.creatorProfile.workDescription}
                           placeholder={t.creatorProfile.workDescriptionPlaceholder}
                           rows={2}
                           className="w-full px-3 py-2 bg-surface-container-low border border-outline-variant rounded-lg focus:border-primary focus:outline-none font-body text-sm resize-none"

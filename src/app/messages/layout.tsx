@@ -55,6 +55,7 @@ export default function MessagesLayout({ children }: { children: React.ReactNode
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-outline" />
                 <input
+                  aria-label={t.chat.listSearch}
                   className="w-full pl-9 pr-3 py-2 bg-surface-container-low border border-outline-variant rounded-lg focus:border-primary focus:outline-none font-body text-sm"
                   placeholder={t.chat.listSearch}
                   value={query}
@@ -123,7 +124,7 @@ export default function MessagesLayout({ children }: { children: React.ReactNode
                         >
                           {cp.nickname}
                         </p>
-                        <span className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant/70 shrink-0">
+                        <span className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant/85 shrink-0">
                           {sessionTimestamp(s).slice(5, 10)}
                         </span>
                       </div>

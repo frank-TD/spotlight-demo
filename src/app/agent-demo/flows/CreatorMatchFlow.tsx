@@ -180,7 +180,7 @@ export default function CreatorMatchFlow() {
               <thead>
                 <tr className="border-b border-outline-variant/40">
                   {["Creator", "Style", "Price fit", "Speed", "Reliability", "Risk", "Suggested action"].map((h) => (
-                    <th key={h} className="py-2.5 pr-4 font-label text-[10px] uppercase tracking-[0.12em] text-on-surface-variant/70 whitespace-nowrap">
+                    <th key={h} className="py-2.5 pr-4 font-label text-[10px] uppercase tracking-[0.12em] text-on-surface-variant/85 whitespace-nowrap">
                       {h}
                     </th>
                   ))}
@@ -223,7 +223,7 @@ function Score({ label, value }: { label: string; value: number }) {
   return (
     <div>
       <div className="flex items-center justify-between">
-        <span className="font-label text-[9px] uppercase tracking-[0.1em] text-on-surface-variant/70">{label}</span>
+        <span className="font-label text-[9px] uppercase tracking-[0.1em] text-on-surface-variant/85">{label}</span>
         <span className="font-mono text-[10px] text-on-surface-variant">{value}</span>
       </div>
       <div className="h-1 mt-1 rounded-full bg-on-surface/10 overflow-hidden">

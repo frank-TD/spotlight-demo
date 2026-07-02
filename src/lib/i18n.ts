@@ -17,6 +17,7 @@ const en = {
     wallet: "Wallet",
     signOut: "Sign out",
     language: "Language",
+    skipToContent: "Skip to content",
   },
   common: {
     cancel: "Cancel",
@@ -1519,6 +1520,7 @@ const zhCN: typeof en = {
     wallet: "钱包",
     signOut: "退出登录",
     language: "语言",
+    skipToContent: "跳到主要内容",
   },
   common: {
     cancel: "取消",
@@ -2889,6 +2891,7 @@ const zhTW: typeof en = {
     wallet: "錢包",
     signOut: "退出登入",
     language: "語言",
+    skipToContent: "跳至主要內容",
   },
   common: {
     cancel: "取消",

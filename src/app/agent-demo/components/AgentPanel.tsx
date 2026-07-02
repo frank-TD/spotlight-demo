@@ -81,7 +81,7 @@ export default function AgentPanel() {
             <SectionTitle icon={<Sparkles className="w-3.5 h-3.5" />} label="Agent suggestions" />
             <div className="mt-3 space-y-3">
               {panel.suggestions.length === 0 ? (
-                <p className="font-body text-[13px] text-on-surface-variant/70 italic">
+                <p className="font-body text-[13px] text-on-surface-variant/85 italic">
                   No active suggestions — the Agent is watching this step.
                 </p>
               ) : (
@@ -144,7 +144,7 @@ export default function AgentPanel() {
               }}
               aria-label="Ask the Agent"
               placeholder="Ask the Agent…"
-              className="flex-1 bg-transparent font-body text-sm text-on-surface placeholder:text-on-surface-variant/60 outline-none"
+              className="flex-1 bg-transparent font-body text-sm text-on-surface placeholder:text-on-surface-variant/75 outline-none"
             />
             <button
               type="button"
@@ -156,7 +156,7 @@ export default function AgentPanel() {
               <ArrowUp className="w-4 h-4" />
             </button>
           </div>
-          <p className="mt-2 px-1 font-label text-[10px] uppercase tracking-[0.12em] text-on-surface-variant/50">
+          <p className="mt-2 px-1 font-label text-[10px] uppercase tracking-[0.12em] text-on-surface-variant/85">
             Demo · canned responses · no real model
           </p>
         </div>
