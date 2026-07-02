@@ -239,13 +239,16 @@ export default function MarketPage() {
         <header className="flex flex-col gap-7 mb-12">
           <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
             <div className="max-w-2xl">
-              <h1 className="font-headline text-5xl md:text-6xl font-extrabold uppercase tracking-tight text-on-surface leading-[1.02]">
+              <h1 className="animate-fade-up font-headline text-5xl md:text-6xl font-extrabold uppercase tracking-tight text-on-surface leading-[1.02]">
                 Marketplace
               </h1>
-              <p className="mt-3 font-body text-lg md:text-xl text-on-surface-variant">
+              <p
+                className="animate-fade-up mt-3 font-body text-lg md:text-xl text-on-surface-variant"
+                style={{ animationDelay: "80ms" }}
+              >
                 {copy.subtitle}
               </p>
-              <div className="mt-6">
+              <div className="animate-fade-up mt-6" style={{ animationDelay: "160ms" }}>
                 <button
                   type="button"
                   onClick={isBacker ? handlePostNeed : handleStartCreating}
@@ -257,10 +260,15 @@ export default function MarketPage() {
                 </button>
               </div>
             </div>
-            <RoleSwitch role={activeRole} onChange={setRole} />
+            <div
+              className="animate-fade-up w-full lg:w-auto shrink-0"
+              style={{ animationDelay: "120ms" }}
+            >
+              <RoleSwitch role={activeRole} onChange={setRole} />
+            </div>
           </div>
 
-          <div className="flex flex-col gap-4">
+          <div className="animate-fade-up flex flex-col gap-4" style={{ animationDelay: "220ms" }}>
             <div className="relative max-w-xl">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-on-surface-variant" />
               <input
