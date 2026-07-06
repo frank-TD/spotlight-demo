@@ -1220,3 +1220,85 @@
   .agentCards { grid-template-columns: 1fr; }
   .noteRightTop { display: none; }
 }
+
+/* ═══ themeLime, light reading: charcoal stages → white, black paper kept.
+   The charcoal sections (trust, In the Spotlight, Agents, FAQ, footer) flip
+   to white with ink copy; How-it-works + Distribution stay pure black with
+   light copy; hero + the lime Join panel are untouched. No green *type* on
+   white — lime keeps to fills, bars and hairlines (lime text on white is
+   ~1.4:1). The negotiation card pins an explicit dark surface so it floats
+   like a screen mockup on the white page. These overrides intentionally sit
+   last in the file so they win over the dark-reading themeLime block above. */
+.root.themeLime {
+  background: #ffffff;
+}
+.root.themeLime .gridStage {
+  background:
+    linear-gradient(90deg, transparent 12.35%, rgba(28, 28, 28, 0.06) 12.35%, rgba(28, 28, 28, 0.06) 12.55%, transparent 12.55%),
+    linear-gradient(90deg, transparent 49.9%, rgba(28, 28, 28, 0.06) 49.9%, rgba(28, 28, 28, 0.06) 50.15%, transparent 50.15%),
+    linear-gradient(90deg, transparent 87.45%, rgba(28, 28, 28, 0.06) 87.45%, rgba(28, 28, 28, 0.06) 87.65%, transparent 87.65%),
+    #ffffff;
+}
+.root.themeLime .trust .axis,
+.root.themeLime .sec .axis { background: rgba(28, 28, 28, 0.08); }
+.root.themeLime .trust,
+.root.themeLime .sec,
+.root.themeLime .footer { color: #1c1c1c; }
+
+/* Trust band: ink figures, lime ticks/dots stay */
+.root.themeLime .stat b,
+.root.themeLime .stat b span { color: #1c1c1c; }
+.root.themeLime .stat > span { color: rgba(28, 28, 28, 0.6); }
+.root.themeLime .trustProof span { color: rgba(28, 28, 28, 0.62); }
+
+/* Section furniture on white */
+.root.themeLime .sec .eyebrow { color: #1c1c1c; }
+.root.themeLime .sec .outlineTitle { -webkit-text-stroke-color: rgba(28, 28, 28, 0.1); }
+.root.themeLime .sec .title { color: #101010; }
+.root.themeLime .sec .title .accent { color: inherit; }
+.root.themeLime .sec .btnGhost { border-color: rgba(28, 28, 28, 0.4); color: #1c1c1c; text-shadow: none; }
+.root.themeLime .sec .btnGhost:hover { border-color: #1c1c1c; }
+
+/* In the Spotlight on white */
+.root.themeLime .statusPill { color: #1c1c1c; }
+.root.themeLime .leadInfo h3 { color: #101010; }
+.root.themeLime .leadMeta { color: rgba(28, 28, 28, 0.66); }
+.root.themeLime .leadLog { color: rgba(28, 28, 28, 0.7); }
+.root.themeLime .leadCredit { border-top-color: rgba(28, 28, 28, 0.2); }
+.root.themeLime .leadCredit b { color: #1c1c1c; }
+.root.themeLime .leadCredit span { color: rgba(28, 28, 28, 0.58); }
+.root.themeLime .leadMedia { border-color: rgba(28, 28, 28, 0.18); }
+.root.themeLime .slate { border-top-color: rgba(28, 28, 28, 0.2); }
+.root.themeLime .slateLabel { color: rgba(28, 28, 28, 0.55); }
+.root.themeLime .slateMore { color: #1c1c1c; }
+.root.themeLime .slateCard { border-color: rgba(28, 28, 28, 0.16); background: rgba(28, 28, 28, 0.03); }
+.root.themeLime .slateCard:hover { border-color: rgba(28, 28, 28, 0.34); }
+.root.themeLime .slateCardOn { background: color-mix(in srgb, var(--orange) 16%, transparent); }
+.root.themeLime .slatePoster { border-color: rgba(28, 28, 28, 0.2); }
+.root.themeLime .slateTitle { color: #1c1c1c; }
+.root.themeLime .slateMeta { color: rgba(28, 28, 28, 0.55); }
+.root.themeLime .slateStatus[data-tone="back"] { color: #1c1c1c; background: color-mix(in srgb, var(--orange) 30%, transparent); }
+.root.themeLime .slateStatus[data-tone="prod"] { color: rgba(28, 28, 28, 0.72); background: rgba(28, 28, 28, 0.08); }
+.root.themeLime .slateStatus[data-tone="released"] { color: #0c6b3d; background: rgba(70, 209, 139, 0.18); }
+
+/* Agents copy + the pinned-dark negotiation card */
+.root.themeLime .agentsCopy p { color: rgba(28, 28, 28, 0.7); }
+.root.themeLime .negCard {
+  background: #101013;
+  border-color: rgba(28, 28, 28, 0.35);
+  box-shadow: 0 28px 60px rgba(12, 12, 14, 0.28);
+}
+
+/* FAQ on white */
+.root.themeLime .faqAnchor p { color: #101010; }
+.root.themeLime .faqRow { border-top-color: rgba(28, 28, 28, 0.18); }
+.root.themeLime .faqRow:last-child { border-bottom-color: rgba(28, 28, 28, 0.18); }
+.root.themeLime .faqQ { color: #1c1c1c; }
+.root.themeLime .faqIcon,
+.root.themeLime .faqIconOpen { border-color: rgba(28, 28, 28, 0.4); color: #1c1c1c; }
+.root.themeLime .faqIconOpen { border-color: var(--orange); }
+.root.themeLime .faqA { color: rgba(28, 28, 28, 0.66); }
+
+/* Footer on white */
+.root.themeLime .footerWord { color: #101010; }
+.root.themeLime .footerMeta { color: rgba(28, 28, 28, 0.5); }
