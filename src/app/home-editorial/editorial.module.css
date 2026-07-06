@@ -68,17 +68,20 @@
 }
 
 /* ── Black + Lime variant (themeLime) ────────────────────────────────────────
-   An all-dark reading of the Black + Lime palette: charcoal stages (--ink, kept)
-   and pure-black stages (the former cream "paper" sections, --paper → #000),
-   unified by an electric lime accent. Lime is so luminous that every filled-lime
-   surface (buttons, badges) takes dark ink text, and the now-black paper sections
-   invert their copy + hairlines from charcoal to light. The Join field becomes a
-   full lime panel with charcoal type — the "lime panel, black type" pairing from
-   the palette card. */
+   The Black + Lime palette on an alternating rhythm: charcoal stages (--ink,
+   kept) for the cinematic sections, and pure-white "paper" stages (--paper)
+   for How-it-works + Distribution so the page breathes. Lime is so luminous
+   that every filled-lime surface (buttons, badges) takes dark ink text, and on
+   the white stages lime is decoration-only (button fills, bars, hairlines) —
+   every piece of *type* there stays ink, because lime text on white is
+   unreadable (~1.4:1). The base .steps/.dist rules are already ink-on-paper,
+   so the white stages mostly ride on them. The Join field stays a full lime
+   panel with charcoal type — the "lime panel, black type" pairing from the
+   palette card. */
 .root.themeLime {
   --orange: #c6ff34;
   --orange-deep: #aee62a;
-  --paper: #000000;
+  --paper: #ffffff;
 }
 /* Dark text on every filled-lime surface. */
 .root.themeLime .btnOrange,
@@ -88,29 +91,15 @@
 .root.themeLime .relBadge::before {
   background: var(--ink);
 }
-/* Former cream stages are now pure black — flip copy + hairlines to light. */
-.root.themeLime .steps,
-.root.themeLime .dist,
-.root.themeLime .eyebrowDark,
-.root.themeLime .titleDark,
-.root.themeLime .step h4,
-.root.themeLime .relMeta h3,
-.root.themeLime .relMetric b {
-  color: var(--white);
+/* White stages: accent *text* flips to ink (lime keeps to fills and lines). */
+.root.themeLime .steps .accent,
+.root.themeLime .dist .accent {
+  color: inherit;
 }
-.root.themeLime .step p { color: rgba(244, 240, 232, 0.66); }
-.root.themeLime .distBody { color: rgba(244, 240, 232, 0.68); }
-.root.themeLime .relHead { color: rgba(244, 240, 232, 0.6); border-bottom-color: rgba(244, 240, 232, 0.2); }
-.root.themeLime .relMetric span { color: rgba(244, 240, 232, 0.6); }
-.root.themeLime .relMetrics { border-top-color: rgba(244, 240, 232, 0.2); }
-.root.themeLime .relSwitch { border-top-color: rgba(244, 240, 232, 0.2); }
-.root.themeLime .relThumbDate { color: rgba(244, 240, 232, 0.55); }
-.root.themeLime .relPoster { border-color: rgba(244, 240, 232, 0.18); }
-.root.themeLime .relThumbImg { border-color: rgba(244, 240, 232, 0.25); }
-.root.themeLime .step .num { -webkit-text-stroke-color: rgba(244, 240, 232, 0.22); }
-.root.themeLime .outlineDark { -webkit-text-stroke-color: rgba(244, 240, 232, 0.16); }
-.root.themeLime .btnGhostDark { border-color: rgba(244, 240, 232, 0.4); color: var(--white); }
-.root.themeLime .btnGhostDark:hover { border-color: var(--white); }
+.root.themeLime .relReport { color: #1c1c1c; }
+.root.themeLime .relType { color: rgba(28, 28, 28, 0.66); }
+.root.themeLime .relMetric em { color: inherit; }
+.root.themeLime .relThumbOn .relThumbDate { color: #1c1c1c; }
 /* Join: a full lime field → charcoal copy; the dark .btnDark button reads well. */
 .root.themeLime .join,
 .root.themeLime .joinTitle { color: var(--ink); }
@@ -125,8 +114,8 @@
 .root.themeLime .join .btnDark { background: #000000; color: var(--orange); }
 /* Data highlight (homepage only): the headline figures were white-on-dark and
    read flat. Pull the trust stats into a framed lime data panel — lime numbers,
-   a tinted hairline border with column dividers, and lifted labels — and echo
-   the lime figures in the distribution report so both data blocks pop. */
+   a tinted hairline border with column dividers, and lifted labels. (The
+   distribution report keeps ink figures — it sits on the white stage.) */
 .root.themeLime .trustRow {
   gap: 0;
   width: fit-content;
@@ -149,8 +138,6 @@
    inner span too so it isn't caught by the label rule below. */
 .root.themeLime .stat b span { color: var(--orange); }
 .root.themeLime .stat > span { color: rgba(244, 240, 232, 0.72); }
-.root.themeLime .relMetric b { color: var(--orange); }
-.root.themeLime .relMetric span { color: rgba(244, 240, 232, 0.72); }
 
 /* ── Shared stages / grid scaffolding ────────────────────────────────────── */
 .gridStage {
