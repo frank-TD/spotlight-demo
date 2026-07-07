@@ -1,7 +1,8 @@
 "use client";
-import { ImageIcon, Clapperboard, Mic, Music2 } from "lucide-react";
+import { ImageIcon, Clapperboard, Mic, Music2, Workflow } from "lucide-react";
 import AssetCard from "./AssetCard";
 import { SuperstarTaskCard, type SuperstarTask } from "./SuperstarProvider";
+import { SuperstarProductionBoard } from "./SuperstarAgentBoard";
 import type { StudioAsset, StudioMode, StudioSession } from "@/lib/store";
 import { useT } from "@/hooks/useT";
 import { cn } from "@/lib/utils";
@@ -22,6 +23,8 @@ export default function VisualsCanvas({
   superstarTasks = [],
   onRegenerateTask,
   onTaskMockAction,
+  agentMode = false,
+  onAgentRequireAuth = () => true,
 }: {
   mode: StudioMode;
   session: StudioSession | null;
@@ -31,6 +34,8 @@ export default function VisualsCanvas({
   superstarTasks?: SuperstarTask[];
   onRegenerateTask?: (task: SuperstarTask) => void;
   onTaskMockAction?: (action: string) => void;
+  agentMode?: boolean;
+  onAgentRequireAuth?: () => boolean;
 }) {
   const t = useT();
   const assets = session?.assets ?? [];
@@ -63,13 +68,24 @@ export default function VisualsCanvas({
           when there's no session yet) so the canvas isn't anonymous. */}
       <div className="flex items-center justify-between gap-3 px-5 py-3 border-b border-outline-variant/30">
         <div className="flex items-center gap-2 min-w-0">
-          <Icon className="w-3.5 h-3.5 text-on-surface-variant shrink-0" />
-          {session && session.assets.length > 0 ? (
-            <span className="font-body text-sm text-on-surface truncate">{session.title}</span>
+          {agentMode ? (
+            <>
+              <Workflow className="w-3.5 h-3.5 text-primary shrink-0" />
+              <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                Superstar Agent · Production Board
+              </span>
+            </>
           ) : (
-            <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
-              {t.aigc.modes[mode]}
-            </span>
+            <>
+              <Icon className="w-3.5 h-3.5 text-on-surface-variant shrink-0" />
+              {session && session.assets.length > 0 ? (
+                <span className="font-body text-sm text-on-surface truncate">{session.title}</span>
+              ) : (
+                <span className="font-label text-label-md uppercase tracking-wider text-on-surface-variant">
+                  {t.aigc.modes[mode]}
+                </span>
+              )}
+            </>
           )}
         </div>
         {assets.length > 0 && (
@@ -81,7 +97,9 @@ export default function VisualsCanvas({
 
       {/* Body */}
       <div className="flex-1 overflow-y-auto p-5">
-        {!hasContent ? (
+        {agentMode ? (
+          <SuperstarProductionBoard onRequireAuth={onAgentRequireAuth} />
+        ) : !hasContent ? (
           <div className="h-full min-h-[420px] flex flex-col items-center justify-center text-center">
             <div className="w-16 h-16 rounded-2xl bg-surface-container flex items-center justify-center mb-5 text-on-surface-variant">
               <Icon className="w-7 h-7" />

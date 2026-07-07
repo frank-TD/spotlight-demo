@@ -238,18 +238,31 @@ export function SuperstarParamsDialog({
   onOpenChange,
   settings,
   onConfirm,
+  title = "Superstar output",
+  subtitle = "External Provider · Mock mode",
+  durationOptions = ["5s", "10s"],
 }: {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   settings: SuperstarSettings;
   onConfirm: (s: SuperstarSettings) => void;
+  title?: string;
+  subtitle?: string;
+  durationOptions?: string[];
 }) {
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-md p-0 overflow-hidden" showCloseButton>
-        <DialogTitle className="sr-only">Superstar output settings</DialogTitle>
+        <DialogTitle className="sr-only">{title} settings</DialogTitle>
         {open && (
-          <ParamsBody settings={settings} onConfirm={onConfirm} onOpenChange={onOpenChange} />
+          <ParamsBody
+            settings={settings}
+            onConfirm={onConfirm}
+            onOpenChange={onOpenChange}
+            title={title}
+            subtitle={subtitle}
+            durationOptions={durationOptions}
+          />
         )}
       </DialogContent>
     </Dialog>
@@ -260,10 +273,16 @@ function ParamsBody({
   settings,
   onConfirm,
   onOpenChange,
+  title,
+  subtitle,
+  durationOptions,
 }: {
   settings: SuperstarSettings;
   onConfirm: (s: SuperstarSettings) => void;
   onOpenChange: (o: boolean) => void;
+  title: string;
+  subtitle: string;
+  durationOptions: string[];
 }) {
   const [draft, setDraft] = useState<SuperstarSettings>(settings);
   const set = (patch: Partial<SuperstarSettings>) => setDraft((d) => ({ ...d, ...patch }));
@@ -272,10 +291,10 @@ function ParamsBody({
     <div className="p-6">
       <div className="flex items-center gap-2.5 mb-1">
         <SuperstarGlyph size="md" />
-        <h2 className="font-headline text-xl text-on-surface">Superstar output</h2>
+        <h2 className="font-headline text-xl text-on-surface">{title}</h2>
       </div>
       <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-5">
-        External Provider · Mock mode
+        {subtitle}
       </p>
 
       <div className="space-y-4">
@@ -296,7 +315,7 @@ function ParamsBody({
         <ParamRow label="Duration">
           <MiniSelect
             value={draft.duration}
-            options={["5s", "10s"]}
+            options={durationOptions}
             onChange={(v) => set({ duration: v })}
           />
         </ParamRow>

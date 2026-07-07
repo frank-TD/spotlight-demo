@@ -11,6 +11,7 @@ import AssetLightbox from "./AssetLightbox";
 import {
   SuperstarParamsDialog,
   SUPERSTAR_DEFAULT_SETTINGS,
+  superstarSummary,
   type SuperstarGenMode,
   type SuperstarSettings,
   type SuperstarTask,
@@ -92,6 +93,15 @@ export default function StudioWorkspace() {
   const [superstarTasks, setSuperstarTasks] = useState<SuperstarTask[]>([]);
   const superstarTaskSeq = useRef(0);
   const superstarTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  // Superstar Agent (short-drama production workflow) — v2 mock state.
+  const [agentSettings, setAgentSettings] = useState<SuperstarSettings>({
+    aspect: "16:9",
+    resolution: "720p",
+    duration: "8s",
+    quantity: 1,
+  });
+  const [agentParamsOpen, setAgentParamsOpen] = useState(false);
 
   const progressTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const doneTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -272,11 +282,26 @@ export default function StudioWorkspace() {
     }
   };
 
+  // Board actions (episode Generate etc.) share the same signup gate.
+  const requireAuth = () => {
+    if (!isLoggedIn) {
+      openSignupGate("/discovery/workspace");
+      return false;
+    }
+    return true;
+  };
+
   const onGenerate = () => {
     // Guests browse the studio freely; Generate is the conversion point — send
     // them to the signup gate and bring them back here after they authenticate.
     if (!isLoggedIn) {
       openSignupGate("/discovery/workspace");
+      return;
+    }
+    if (provider === "superstarAgent") {
+      // Mock kickoff — the Production Board already shows the plan state.
+      toast.info("Superstar Agent started — parsing brief into episodes (mock mode · API token pending)");
+      setPrompt("");
       return;
     }
     if (provider === "superstar") {
@@ -416,6 +441,16 @@ export default function StudioWorkspace() {
             onRenameGroup={renameStudioGroup}
             onDeleteGroup={deleteStudioGroup}
             onToggleGroup={toggleStudioGroupCollapsed}
+            agentItem={
+              provider === "superstarAgent"
+                ? {
+                    label: "Superstar Agent",
+                    status: "3 episodes · 1 generating",
+                    active: true,
+                    onClick: () => {},
+                  }
+                : null
+            }
           />
         </div>
 
@@ -430,6 +465,8 @@ export default function StudioWorkspace() {
               superstarTasks={provider === "superstar" ? superstarTasks : []}
               onRegenerateTask={onRegenerateTask}
               onTaskMockAction={onTaskMockAction}
+              agentMode={provider === "superstarAgent"}
+              onAgentRequireAuth={requireAuth}
             />
           </div>
         </main>
@@ -463,6 +500,8 @@ export default function StudioWorkspace() {
           superstarSettings={superstarSettings}
           onOpenSuperstarParams={() => setSuperstarParamsOpen(true)}
           onSuperstarHelper={onSuperstarHelper}
+          agentSummary={superstarSummary(agentSettings)}
+          onOpenAgentParams={() => setAgentParamsOpen(true)}
         />
       </div>
 
@@ -479,6 +518,15 @@ export default function StudioWorkspace() {
         onOpenChange={setSuperstarParamsOpen}
         settings={superstarSettings}
         onConfirm={setSuperstarSettings}
+      />
+      <SuperstarParamsDialog
+        open={agentParamsOpen}
+        onOpenChange={setAgentParamsOpen}
+        settings={agentSettings}
+        onConfirm={setAgentSettings}
+        title="Superstar Agent output"
+        subtitle="Production Agent · Mock mode"
+        durationOptions={["5s", "8s", "10s"]}
       />
       <VoiceCatalogDialog
         open={voiceCatalogOpen}
