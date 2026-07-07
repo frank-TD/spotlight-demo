@@ -1,6 +1,7 @@
 "use client";
 import { ImageIcon, Clapperboard, Mic, Music2 } from "lucide-react";
 import AssetCard from "./AssetCard";
+import { SuperstarTaskCard, type SuperstarTask } from "./SuperstarProvider";
 import type { StudioAsset, StudioMode, StudioSession } from "@/lib/store";
 import { useT } from "@/hooks/useT";
 import { cn } from "@/lib/utils";
@@ -18,12 +19,18 @@ export default function VisualsCanvas({
   generating,
   progress,
   onOpenAsset,
+  superstarTasks = [],
+  onRegenerateTask,
+  onTaskMockAction,
 }: {
   mode: StudioMode;
   session: StudioSession | null;
   generating: boolean;
   progress: number;
   onOpenAsset?: (asset: StudioAsset) => void;
+  superstarTasks?: SuperstarTask[];
+  onRegenerateTask?: (task: SuperstarTask) => void;
+  onTaskMockAction?: (action: string) => void;
 }) {
   const t = useT();
   const assets = session?.assets ?? [];
@@ -48,7 +55,7 @@ export default function VisualsCanvas({
           ? t.aigc.generatingVoiceover
           : t.aigc.generatingMusic;
 
-  const hasContent = generating || assets.length > 0;
+  const hasContent = generating || assets.length > 0 || superstarTasks.length > 0;
 
   return (
     <div className="h-full flex flex-col rounded-3xl border border-outline-variant/40 bg-surface-container-lowest/60 overflow-hidden">
@@ -86,6 +93,20 @@ export default function VisualsCanvas({
           </div>
         ) : (
           <div className="space-y-5">
+            {/* Superstar external-provider tasks, newest on top */}
+            {superstarTasks.length > 0 && (
+              <div className="space-y-4 max-w-xl mx-auto">
+                {[...superstarTasks].reverse().map((task) => (
+                  <SuperstarTaskCard
+                    key={task.id}
+                    task={task}
+                    onRegenerate={(tk) => onRegenerateTask?.(tk)}
+                    onMockAction={(a) => onTaskMockAction?.(a)}
+                  />
+                ))}
+              </div>
+            )}
+
             {/* In-flight placeholder, newest on top */}
             {generating && (
               <div className={cn(isAudio ? "" : "max-w-md mx-auto")}>
