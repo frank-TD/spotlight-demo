@@ -126,9 +126,9 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
             </div>
             <div className={styles.stat}>
               <b>
-                <StatCountUp value="¥18M+" />
+                <StatCountUp value="1,000+" />
               </b>
-              <span>Commissioned</span>
+              <span>Backers</span>
             </div>
             <div className={styles.stat}>
               <b>
