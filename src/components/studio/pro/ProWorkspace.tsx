@@ -4,6 +4,7 @@ import { Video, UsersRound, Mountain, Box, Clapperboard, Zap } from "lucide-reac
 import ShotsBoard from "./ShotsBoard";
 import AssetLibrary from "./AssetLibrary";
 import EditorPanel from "./EditorPanel";
+import { readSession, writeSession, SK } from "./pro-mock";
 import { useStore, type ProAssetKind } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
@@ -22,9 +23,27 @@ const RAIL: { id: ProSection; icon: typeof Video; label: string }[] = [
   { id: "editor", icon: Clapperboard, label: "Editor" },
 ];
 
+const SECTIONS: ProSection[] = ["shots", "character", "scene", "prop", "editor"];
+
 export default function ProWorkspace() {
-  const [section, setSection] = useState<ProSection>("shots");
+  // Restore the last section across the signup-gate round-trip / reloads.
+  const [section, setSection] = useState<ProSection>(() => {
+    const saved = readSession<ProSection>(SK.section);
+    return saved && SECTIONS.includes(saved) ? saved : "shots";
+  });
   const proCredits = useStore((s) => s.proCredits);
+
+  const changeSection = (s: ProSection) => {
+    setSection(s);
+    writeSession(SK.section, s);
+  };
+
+  // "Use in Shots" from an asset library: park the mention and hand over to
+  // the Shots board, which opens a composer that consumes it.
+  const useInShot = (name: string) => {
+    writeSession(SK.mention, name);
+    changeSection("shots");
+  };
 
   return (
     <div className="flex gap-4 items-start">
@@ -39,7 +58,7 @@ export default function ProWorkspace() {
             {i === 4 && <span className="w-7 h-px bg-outline-variant/40 my-1.5" aria-hidden="true" />}
             <button
               type="button"
-              onClick={() => setSection(id)}
+              onClick={() => changeSection(id)}
               aria-current={section === id ? "page" : undefined}
               className={cn(
                 "w-12 py-2 rounded-xl flex flex-col items-center gap-1 transition-colors",
@@ -73,12 +92,12 @@ export default function ProWorkspace() {
         </div>
 
         {section === "shots" && (
-          <ShotsBoard onGoEditor={() => setSection("editor")} />
+          <ShotsBoard onGoEditor={() => changeSection("editor")} />
         )}
         {(section === "character" || section === "scene" || section === "prop") && (
-          <AssetLibrary key={section} kind={section as ProAssetKind} />
+          <AssetLibrary key={section} kind={section as ProAssetKind} onUseInShot={useInShot} />
         )}
-        {section === "editor" && <EditorPanel onGoShots={() => setSection("shots")} />}
+        {section === "editor" && <EditorPanel onGoShots={() => changeSection("shots")} />}
       </div>
     </div>
   );

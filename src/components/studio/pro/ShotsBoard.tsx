@@ -16,9 +16,9 @@ import {
   FileText,
 } from "lucide-react";
 import { toast } from "sonner";
-import ScriptStepper from "./ScriptStepper";
+import ScriptStepper, { type StepperDraft } from "./ScriptStepper";
 import ShotComposer from "./ShotComposer";
-import { fmtShotNo, proId } from "./pro-mock";
+import { clearSession, fmtShotNo, proId, readSession, writeSession, SK } from "./pro-mock";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -57,13 +57,41 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
     moveProFragment,
   } = useStore();
 
-  const [stepperOpen, setStepperOpen] = useState(false);
-  const [composerId, setComposerId] = useState<string | null>(null);
+  const project = proProjects.find((p) => p.id === currentProProjectId) ?? null;
+  const fragments = project ? proFragments.filter((f) => f.projectId === project.id) : [];
+
+  /* Restore-on-mount, resolved inside initializers (render-safe): a script
+     draft interrupted by the signup gate reopens the stepper; a pending
+     @mention or a previously open composer reopens the composer. */
+  const [stepperOpen, setStepperOpen] = useState(() => {
+    const d = readSession<StepperDraft>(SK.stepper);
+    return !!(d?.open && (d.title || d.script || (d.drafts?.length ?? 0) > 0));
+  });
+  const [composerId, setComposerId] = useState<string | null>(() => {
+    const d = readSession<StepperDraft>(SK.stepper);
+    if (d?.open && (d.title || d.script)) return null; // stepper wins
+    const lastOpen = readSession<string>(SK.composerOpen);
+    if (readSession<string>(SK.mention) && fragments.length > 0) {
+      const target =
+        fragments.find((f) => f.id === lastOpen) ??
+        fragments.find((f) => f.status !== "directed") ??
+        fragments[0];
+      return target.id;
+    }
+    if (lastOpen && fragments.some((f) => f.id === lastOpen)) return lastOpen;
+    return null;
+  });
   const [renaming, setRenaming] = useState(false);
   const [renameDraft, setRenameDraft] = useState("");
 
-  const project = proProjects.find((p) => p.id === currentProProjectId) ?? null;
-  const fragments = project ? proFragments.filter((f) => f.projectId === project.id) : [];
+  const openComposer = (id: string) => {
+    setComposerId(id);
+    writeSession(SK.composerOpen, id);
+  };
+  const closeComposer = () => {
+    setComposerId(null);
+    clearSession(SK.composerOpen);
+  };
   const counts = fragments.reduce(
     (acc, f) => ({ ...acc, [f.status]: acc[f.status] + 1 }),
     { draft: 0, framed: 0, directed: 0 } as Record<ProFragmentStatus, number>
@@ -81,7 +109,7 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
       createdAt: Date.now(),
     };
     addProFragments([frag]);
-    setComposerId(frag.id);
+    openComposer(frag.id);
   };
 
   const onNewShot = () => {
@@ -106,7 +134,7 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
     );
   }
   if (composerId) {
-    return <ShotComposer fragmentId={composerId} onBack={() => setComposerId(null)} />;
+    return <ShotComposer fragmentId={composerId} onBack={closeComposer} />;
   }
 
   /* Empty state — no project yet: lead with the two production entries. */
@@ -271,7 +299,7 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
             <FragmentCard
               key={f.id}
               fragment={f}
-              onOpen={() => setComposerId(f.id)}
+              onOpen={() => openComposer(f.id)}
               onDuplicate={() => duplicateProFragment(f.id)}
               onDelete={() => deleteProFragment(f.id)}
               onMoveUp={i > 0 ? () => moveProFragment(f.id, -1) : undefined}

@@ -25,7 +25,11 @@ import {
   SHOT_DURATIONS,
   SHOT_TYPES,
   assetImg,
+  clearSession,
   frameImg,
+  readSession,
+  writeSession,
+  SK,
 } from "./pro-mock";
 import {
   DropdownMenu,
@@ -52,6 +56,16 @@ const KIND_ICON: Record<ProAssetKind, typeof UsersRound> = {
 
 type Phase = "framing" | "directing";
 
+// Session-parked composer fields, restored after the signup-gate round-trip.
+interface ComposerDraft {
+  prompt: string;
+  angle: string;
+  shotType: string;
+  lighting: string;
+  cameraMove: string;
+  duration: number;
+}
+
 export default function ShotComposer({
   fragmentId,
   onBack,
@@ -70,18 +84,52 @@ export default function ShotComposer({
   const fragment = proFragments.find((f) => f.id === fragmentId);
 
   const [phase, setPhase] = useState<Phase>("framing");
-  const [prompt, setPrompt] = useState(fragment?.summary ?? "");
-  const [angle, setAngle] = useState<string>(ANGLES[0]);
-  const [shotType, setShotType] = useState<string>(SHOT_TYPES[1]);
-  const [lighting, setLighting] = useState<string>(LIGHTINGS[0]);
-  const [cameraMove, setCameraMove] = useState<string>(fragment?.cameraMove ?? CAMERA_MOVES[1]);
-  const [duration, setDuration] = useState<number>(fragment?.durationSec ?? 8);
+  // Restore a parked draft (gate round-trip / reload) and fold in a pending
+  // @mention handed over from an asset library — all inside initializers so
+  // no effect ever has to set state.
+  const [saved] = useState(() => readSession<ComposerDraft>(SK.composerDraft(fragmentId)));
+  const [pendingMention] = useState(() => readSession<string>(SK.mention));
+  const [prompt, setPrompt] = useState(() => {
+    const base = saved?.prompt ?? fragment?.summary ?? "";
+    if (!pendingMention) return base;
+    return base ? `${base.trimEnd()} @${pendingMention} ` : `@${pendingMention} `;
+  });
+  const [angle, setAngle] = useState<string>(saved?.angle ?? ANGLES[0]);
+  const [shotType, setShotType] = useState<string>(saved?.shotType ?? SHOT_TYPES[1]);
+  const [lighting, setLighting] = useState<string>(saved?.lighting ?? LIGHTINGS[0]);
+  const [cameraMove, setCameraMove] = useState<string>(
+    saved?.cameraMove ?? fragment?.cameraMove ?? CAMERA_MOVES[1]
+  );
+  const [duration, setDuration] = useState<number>(saved?.duration ?? fragment?.durationSec ?? 8);
   const [busy, setBusy] = useState<null | "frame" | "video">(null);
   const [progress, setProgress] = useState(0);
   const taRef = useRef<HTMLTextAreaElement>(null);
   const timers = useRef<ReturnType<typeof setTimeout | typeof setInterval>[]>([]);
 
   useEffect(() => () => timers.current.forEach((t) => clearTimeout(t as never)), []);
+
+  // Consume the mention / announce the restore once (toast only, no state).
+  useEffect(() => {
+    if (pendingMention) {
+      clearSession(SK.mention);
+      toast.success(`@${pendingMention} added to the prompt`);
+    } else if (saved?.prompt && saved.prompt !== fragment?.summary) {
+      toast.info("Composer draft restored");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Park the draft as it changes.
+  useEffect(() => {
+    writeSession(SK.composerDraft(fragmentId), {
+      prompt,
+      angle,
+      shotType,
+      lighting,
+      cameraMove,
+      duration,
+    } satisfies ComposerDraft);
+  }, [fragmentId, prompt, angle, shotType, lighting, cameraMove, duration]);
 
   if (!fragment) {
     return (

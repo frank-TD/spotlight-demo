@@ -11,10 +11,14 @@ import {
   PRESETS,
   PRO_COSTS,
   assetImg,
+  clearSession,
   nameFromPrompt,
   nowTs,
   picsum,
   proId,
+  readSession,
+  writeSession,
+  SK,
 } from "./pro-mock";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useStore, type ProAsset, type ProAssetKind } from "@/lib/store";
@@ -34,7 +38,13 @@ interface DetailTarget {
   mineId?: string;
 }
 
-export default function AssetLibrary({ kind }: { kind: ProAssetKind }) {
+export default function AssetLibrary({
+  kind,
+  onUseInShot,
+}: {
+  kind: ProAssetKind;
+  onUseInShot?: (name: string) => void;
+}) {
   const {
     proAssets,
     addProAsset,
@@ -47,8 +57,13 @@ export default function AssetLibrary({ kind }: { kind: ProAssetKind }) {
   } = useStore();
 
   const [tab, setTab] = useState<Tab>("explore");
-  const [prompt, setPrompt] = useState("");
-  const [refs, setRefs] = useState(0);
+  // The generator prompt survives the signup-gate round-trip.
+  const [prompt, setPrompt] = useState(
+    () => readSession<{ prompt: string; refs: number }>(SK.assetGen(kind))?.prompt ?? ""
+  );
+  const [refs, setRefs] = useState(
+    () => readSession<{ prompt: string; refs: number }>(SK.assetGen(kind))?.refs ?? 0
+  );
   const [generating, setGenerating] = useState(false);
   const [progress, setProgress] = useState(0);
   const [candidates, setCandidates] = useState<string[] | null>(null);
@@ -59,6 +74,12 @@ export default function AssetLibrary({ kind }: { kind: ProAssetKind }) {
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
 
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
+
+  // Park the generator draft as it changes (write-only — lint-safe effect).
+  useEffect(() => {
+    if (prompt || refs > 0) writeSession(SK.assetGen(kind), { prompt, refs });
+    else clearSession(SK.assetGen(kind));
+  }, [kind, prompt, refs]);
 
   const mine = proAssets.filter((a) => a.kind === kind);
   const runs = proGenRuns.filter((r) => r.kind === kind);
@@ -124,6 +145,7 @@ export default function AssetLibrary({ kind }: { kind: ProAssetKind }) {
       setTab("my");
       setPrompt("");
       setRefs(0);
+      clearSession(SK.assetGen(kind));
     }
     setCandidates(null);
   };
@@ -393,7 +415,11 @@ export default function AssetLibrary({ kind }: { kind: ProAssetKind }) {
                     type="button"
                     onClick={() => {
                       setDetail(null);
-                      toast.info(`Mention @${detail.name} in a shot prompt to use it`);
+                      if (onUseInShot) {
+                        onUseInShot(detail.name);
+                      } else {
+                        toast.info(`Mention @${detail.name} in a shot prompt to use it`);
+                      }
                     }}
                     className="inline-flex items-center gap-1.5 bg-primary text-on-primary font-label text-[10px] uppercase tracking-wider px-4 py-2 rounded-full hover:opacity-90 transition-all"
                   >
@@ -468,6 +494,148 @@ function EmptyNote({ children }: { children: React.ReactNode }) {
       <p className="font-body text-sm text-on-surface-variant max-w-sm mx-auto leading-relaxed">
         {children}
       </p>
+    </div>
+  );
+}
+
+/* ── Inline mini generator ───────────────────────────────────────────────
+   Compact version of the generator bar for embedding in other flows (the
+   Script-to-Shots asset step): one-line prompt, four inline candidates,
+   click-to-save into My — without leaving the current screen. */
+
+export function InlineAssetGen({ kind }: { kind: ProAssetKind }) {
+  const { addProAsset, addProGenRun, spendProCredits, isLoggedIn, openSignupGate } = useStore();
+  const [prompt, setPrompt] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [candidates, setCandidates] = useState<string[] | null>(null);
+  const [savedName, setSavedName] = useState<string | null>(null);
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+
+  const [w, h] = ASSET_DIM[kind];
+
+  const generate = () => {
+    if (!isLoggedIn) {
+      openSignupGate("/discovery/workspace");
+      return;
+    }
+    if (!prompt.trim()) {
+      toast.error(`Describe the ${KIND_LABEL[kind].toLowerCase()} first`);
+      return;
+    }
+    if (!spendProCredits(PRO_COSTS.asset)) {
+      toast.error("Not enough credits (mock balance)");
+      return;
+    }
+    setSavedName(null);
+    setBusy(true);
+    setProgress(6);
+    const iv = setInterval(
+      () => setProgress((p) => (p >= 95 ? 95 : p + Math.ceil((100 - p) / 6))),
+      160
+    );
+    timers.current.push(iv as unknown as ReturnType<typeof setTimeout>);
+    timers.current.push(
+      setTimeout(() => {
+        clearInterval(iv);
+        const seed = `${kind}-inline-${nowTs()}`;
+        setCandidates([0, 1, 2, 3].map((i) => picsum(`${seed}-${i}`, w, h)));
+        setBusy(false);
+      }, 1600)
+    );
+  };
+
+  const pick = (url: string) => {
+    const name = nameFromPrompt(prompt, kind);
+    addProAsset({
+      id: proId("asset"),
+      kind,
+      name,
+      desc: prompt.trim().slice(0, 120),
+      imageUrl: url,
+      createdAt: nowTs(),
+    });
+    addProGenRun({
+      id: proId("run"),
+      kind,
+      prompt: prompt.trim(),
+      refs: 0,
+      candidates: candidates ?? [url],
+      pickedUrl: url,
+      createdAt: nowTs(),
+    });
+    setCandidates(null);
+    setPrompt("");
+    setSavedName(name);
+    toast.success(`${name} saved to My ${KIND_PLURAL[kind]}`);
+  };
+
+  return (
+    <div>
+      <div className="flex items-center gap-2">
+        <input
+          value={prompt}
+          onChange={(e) => setPrompt(e.target.value)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              e.preventDefault();
+              generate();
+            }
+          }}
+          placeholder={GEN_PLACEHOLDER[kind]}
+          aria-label={GEN_PLACEHOLDER[kind]}
+          className="flex-1 min-w-0 px-3.5 py-2 rounded-full bg-surface-container border border-outline-variant/40 focus:border-primary/60 focus:outline-none font-body text-xs text-on-surface placeholder:text-on-surface-variant/60"
+        />
+        <button
+          type="button"
+          onClick={generate}
+          disabled={busy}
+          className="inline-flex items-center gap-1.5 bg-primary text-on-primary font-label text-[9px] uppercase tracking-wider px-3.5 py-2 rounded-full hover:opacity-90 active:scale-95 transition-all disabled:opacity-60 shrink-0"
+        >
+          {busy ? (
+            <>
+              <Loader2 className="w-3 h-3 animate-spin" /> {progress}%
+            </>
+          ) : (
+            <>
+              <Sparkles className="w-3 h-3" /> Generate
+              <span className="inline-flex items-center gap-0.5 border-l border-on-primary/30 pl-1.5 ml-0.5">
+                <Zap className="w-2.5 h-2.5" fill="currentColor" /> {PRO_COSTS.asset}
+              </span>
+            </>
+          )}
+        </button>
+      </div>
+      {candidates && (
+        <div className="flex items-center gap-2 mt-2.5">
+          {candidates.map((url) => (
+            <button
+              key={url}
+              type="button"
+              onClick={() => pick(url)}
+              aria-label="save this result"
+              className="relative w-16 aspect-square rounded-lg overflow-hidden border-2 border-transparent hover:border-primary transition-colors shrink-0"
+            >
+              <Image
+                src={url}
+                alt="candidate"
+                width={128}
+                height={128}
+                className="w-full h-full object-cover"
+              />
+            </button>
+          ))}
+          <span className="font-label text-[8px] uppercase tracking-widest text-on-surface-variant/70">
+            Click one to save
+          </span>
+        </div>
+      )}
+      {savedName && !candidates && (
+        <span className="inline-flex items-center gap-1.5 mt-2.5 font-label text-[9px] uppercase tracking-widest text-primary">
+          <Check className="w-3 h-3" /> {savedName} saved — mention @{savedName} in any shot
+        </span>
+      )}
     </div>
   );
 }
