@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import MiniSelect from "../MiniSelect";
+import { InlineAssetGen } from "./AssetLibrary";
 import {
   DRAMA_STYLES,
   MAX_SHOTS_CAP,
@@ -22,9 +23,13 @@ import {
   SCRIPT_MAX_LEN,
   TITLE_MAX_LEN,
   assetImg,
+  clearSession,
   fmtShotNo,
   proId,
+  readSession,
   splitScript,
+  writeSession,
+  SK,
 } from "./pro-mock";
 import { useStore, type ProAssetKind, type ProFragment } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -43,6 +48,17 @@ interface Draft {
   dialogue?: string;
 }
 
+// Session-parked stepper state, restored after the signup-gate round-trip.
+export interface StepperDraft {
+  open: boolean;
+  step: number;
+  title: string;
+  style: string;
+  maxShots: string;
+  script: string;
+  drafts: Draft[];
+}
+
 export default function ScriptStepper({
   onClose,
   onGoEditor,
@@ -59,19 +75,60 @@ export default function ScriptStepper({
     proAssets,
   } = useStore();
 
-  const [step, setStep] = useState(0);
-  const [title, setTitle] = useState("");
-  const [style, setStyle] = useState<string>(DRAMA_STYLES[0]);
-  const [maxShots, setMaxShots] = useState("");
-  const [script, setScript] = useState("");
+  // Every field initializes from the parked draft so a login round-trip (or
+  // reload) resumes exactly where the writer left off — including the parsed
+  // shot drafts, which cost credits to regenerate.
+  const [saved] = useState(() => readSession<StepperDraft>(SK.stepper));
+  const [step, setStep] = useState(() => (saved?.step === 3 ? 0 : (saved?.step ?? 0)));
+  const [title, setTitle] = useState(saved?.title ?? "");
+  const [style, setStyle] = useState<string>(saved?.style ?? DRAMA_STYLES[0]);
+  const [maxShots, setMaxShots] = useState(saved?.maxShots ?? "");
+  const [script, setScript] = useState(saved?.script ?? "");
   const [parsing, setParsing] = useState(false);
-  const [drafts, setDrafts] = useState<Draft[]>([]);
+  const [drafts, setDrafts] = useState<Draft[]>(saved?.drafts ?? []);
   const [createdCount, setCreatedCount] = useState(0);
   const parseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => () => {
     if (parseTimer.current) clearTimeout(parseTimer.current);
   }, []);
+
+  // One-time restore notice (toast only — no state changes in effects).
+  useEffect(() => {
+    if (saved && (saved.title || saved.script || saved.drafts.length > 0)) {
+      toast.info("Script draft restored — pick up where you left off");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Park the draft on every change; an empty form clears the parking spot.
+  useEffect(() => {
+    if (step === 3) {
+      // Shots are created — the draft has served its purpose.
+      clearSession(SK.stepper);
+      return;
+    }
+    if (title || script || drafts.length > 0) {
+      writeSession(SK.stepper, {
+        open: true,
+        step,
+        title,
+        style,
+        maxShots,
+        script,
+        drafts,
+      } satisfies StepperDraft);
+    } else {
+      clearSession(SK.stepper);
+    }
+  }, [step, title, style, maxShots, script, drafts]);
+
+  const closeKeepingDraft = () => {
+    // Explicit close: keep the text but stop auto-reopening the stepper.
+    const cur = readSession<StepperDraft>(SK.stepper);
+    if (cur) writeSession(SK.stepper, { ...cur, open: false });
+    onClose();
+  };
 
   const submitScript = () => {
     if (!isLoggedIn) {
@@ -118,6 +175,7 @@ export default function ScriptStepper({
     );
     setCreatedCount(kept.length);
     setStep(3);
+    clearSession(SK.stepper);
     toast.success(`${kept.length} shots created in "${title.trim()}"`);
   };
 
@@ -127,7 +185,7 @@ export default function ScriptStepper({
       <div className="flex items-center gap-2 px-4 md:px-6 py-4 border-b border-outline-variant/25 overflow-x-auto">
         <button
           type="button"
-          onClick={onClose}
+          onClick={closeKeepingDraft}
           aria-label="close"
           className="w-8 h-8 rounded-full border border-outline-variant/50 flex items-center justify-center text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors shrink-0 mr-1"
         >
@@ -402,6 +460,10 @@ function AssetSuggestRow({ kind, mine }: { kind: ProAssetKind; mine: number }) {
             <p className="font-body text-[11px] text-on-surface-variant/80 truncate">{p.desc}</p>
           </div>
         ))}
+      </div>
+      {/* Generate a look without leaving the flow — saves straight into My. */}
+      <div className="mt-3 pt-3 border-t border-outline-variant/25">
+        <InlineAssetGen kind={kind} />
       </div>
     </div>
   );

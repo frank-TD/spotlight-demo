@@ -116,6 +116,50 @@ export const proId = (prefix: string) =>
 // (which flags direct Date.now() in component scope) stays quiet.
 export const nowTs = () => Date.now();
 
+/* ── Session-scoped drafts ───────────────────────────────────────────────
+   The signup gate routes guests to /login and back, unmounting the whole
+   Pro workspace on the way. Drafts (script form, composer prompt, asset
+   prompts, active section) park in sessionStorage so nothing typed is lost
+   across that round-trip — or an accidental reload. Best-effort by design:
+   storage failures must never break the flow. */
+
+export function readSession<T>(key: string): T | null {
+  if (typeof window === "undefined") return null;
+  try {
+    const raw = sessionStorage.getItem(key);
+    return raw ? (JSON.parse(raw) as T) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function writeSession(key: string, value: unknown) {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.setItem(key, JSON.stringify(value));
+  } catch {
+    /* quota/blocked — drafts are best-effort */
+  }
+}
+
+export function clearSession(key: string) {
+  if (typeof window === "undefined") return;
+  try {
+    sessionStorage.removeItem(key);
+  } catch {
+    /* noop */
+  }
+}
+
+export const SK = {
+  section: "pro.section",
+  stepper: "pro.stepper.draft",
+  composerOpen: "pro.composer.open",
+  composerDraft: (fragId: string) => `pro.composer.${fragId}`,
+  assetGen: (kind: string) => `pro.assetgen.${kind}`,
+  mention: "pro.mention.pending",
+} as const;
+
 // Derive an asset name from the generation prompt: first two words, cleaned
 // and title-cased ("young detective in noir coat" → "Young Detective").
 export function nameFromPrompt(prompt: string, kind: ProAssetKind): string {
