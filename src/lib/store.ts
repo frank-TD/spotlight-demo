@@ -234,6 +234,45 @@ export interface ProGenRun {
   createdAt: number;
 }
 
+/* Timeline (Pro editor). Both tracks are magnetic sequences: a clip's
+   position is the sum of the trimmed lengths before it, so reordering and
+   ripple-delete come for free. in/out are trim points within the source. */
+
+export interface ProClip {
+  id: string;
+  fragmentId: string;
+  inSec: number;
+  outSec: number;
+}
+
+export interface ProAudioClip {
+  id: string;
+  assetId: string; // Basic studio asset (voiceover / music)
+  title: string;
+  kind: "voiceover" | "music";
+  durationSec: number; // source length
+  inSec: number;
+  outSec: number;
+  waveformSeed: string;
+}
+
+export interface ProTimeline {
+  video: ProClip[];
+  audio: ProAudioClip[];
+}
+
+// A rendered final cut. Surfaces in /assets (created tab) and can enter the
+// distribution flow like any other asset.
+export interface ProExport {
+  id: string;
+  title: string;
+  projectTitle: string;
+  durationSec: number;
+  clipCount: number;
+  coverUrl?: string;
+  createdAt: number;
+}
+
 interface AppState {
   // Auth
   isLoggedIn: boolean;
@@ -347,6 +386,12 @@ interface AppState {
   deleteProAsset: (id: string) => void;
   proGenRuns: ProGenRun[];
   addProGenRun: (run: ProGenRun) => void;
+  // Editor timelines, one per project; committed as whole snapshots so the
+  // editor's local undo/redo stays the single source of edit history.
+  proTimelines: Record<string, ProTimeline>;
+  setProTimeline: (projectId: string, timeline: ProTimeline) => void;
+  proExports: ProExport[];
+  addProExport: (exp: ProExport) => void;
 
   // Session lifecycle flow (shared by messages + order detail)
   sessionFlows: Record<string, SessionFlow>;
@@ -833,6 +878,11 @@ export const useStore = create<AppState>()(
       proGenRuns: [],
       // Keep only the recent dozen so the localStorage footprint stays small.
       addProGenRun: (run) => set((s) => ({ proGenRuns: [run, ...s.proGenRuns].slice(0, 12) })),
+      proTimelines: {},
+      setProTimeline: (projectId, timeline) =>
+        set((s) => ({ proTimelines: { ...s.proTimelines, [projectId]: timeline } })),
+      proExports: [],
+      addProExport: (exp) => set((s) => ({ proExports: [exp, ...s.proExports] })),
 
       // Seeded so the flagship NeoVision conversation (sess_001) starts at the
       // invitation step and shares its lifecycle state with the order page.
@@ -1144,6 +1194,8 @@ export const useStore = create<AppState>()(
         proFragments: state.proFragments,
         proAssets: state.proAssets,
         proGenRuns: state.proGenRuns,
+        proTimelines: state.proTimelines,
+        proExports: state.proExports,
       }),
       onRehydrateStorage: () => (state) => {
         // Collapse any legacy grouped duplicates that pre-date the

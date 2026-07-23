@@ -86,6 +86,7 @@ export default function DistributePage({ params }: { params: Promise<{ id: strin
     backerDiamond,
     withdraw,
     spendDiamond,
+    proExports,
   } = useStore();
 
   const useShell = activeRole === "creator";
@@ -94,11 +95,15 @@ export default function DistributePage({ params }: { params: Promise<{ id: strin
 
   const createdAsset = MY_ASSETS_CREATED.find((a) => a.id === id);
   const purchasedAsset = MY_ASSETS_PURCHASED.find((a) => a.id === id);
+  // Studio Pro final cuts distribute like any created asset.
+  const proExport = proExports.find((a) => a.id === id);
   const asset = createdAsset
     ? { id: createdAsset.id, title: createdAsset.title }
     : purchasedAsset
       ? { id: purchasedAsset.id, title: purchasedAsset.title }
-      : undefined;
+      : proExport
+        ? { id: proExport.id, title: proExport.title }
+        : undefined;
   const isPurchased = !createdAsset && !!purchasedAsset;
   const purchasedCopyright = purchasedAsset?.copyright;
   const dist = distributionByAsset[id];
@@ -111,6 +116,14 @@ export default function DistributePage({ params }: { params: Promise<{ id: strin
   const [tagsInput, setTagsInput] = useState((dist?.metadata?.tags ?? []).join(", "));
   const [platforms, setPlatforms] = useState<string[]>(dist?.platforms ?? []);
   const [takedownOpen, setTakedownOpen] = useState(false);
+
+  // Store-backed assets (Studio Pro exports) resolve only after hydration, so
+  // the lazy initial state above can miss their title. Derive the backfill at
+  // render time; the first user edit writes it into real state via the form.
+  const metadataView =
+    metadata.title === "" && asset && !dist?.metadata
+      ? { ...metadata, title: asset.title }
+      : metadata;
 
   // Auto-progression timer
   useEffect(() => {
@@ -145,7 +158,7 @@ export default function DistributePage({ params }: { params: Promise<{ id: strin
 
   const saveMetadata = () => {
     const next = {
-      ...metadata,
+      ...metadataView,
       tags: tagsInput
         .split(",")
         .map((t) => t.trim())
@@ -238,7 +251,7 @@ export default function DistributePage({ params }: { params: Promise<{ id: strin
         {/* Step content */}
         {status === "metadata" && (
           <MetadataStep
-            metadata={metadata}
+            metadata={metadataView}
             setMetadata={setMetadata}
             tagsInput={tagsInput}
             setTagsInput={setTagsInput}

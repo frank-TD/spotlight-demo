@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Upload, Download, Star, ExternalLink, Film, Send, Eye, Trash2 } from "lucide-react";
 import Link from "next/link";
+import Image from "next/image";
 import { toast } from "sonner";
 import { useStore, DistStatus } from "@/lib/store";
 import AppShell from "@/components/layout/AppShell";
@@ -22,8 +23,37 @@ const STATUS_COLOR: Record<DistStatus, string> = {
 
 export default function AssetsPage() {
   const [tab, setTab] = useState<"created" | "purchased">("created");
-  const { distributionByAsset } = useStore();
+  const { distributionByAsset, proExports } = useStore();
   const t = useT();
+
+  // Studio Pro final cuts surface at the top of the created tab, shaped like
+  // the mock assets so the card + distribution flow treat them identically.
+  const createdAssets = [
+    ...proExports.map((e) => {
+      const m = Math.floor(e.durationSec / 60);
+      const s = Math.round(e.durationSec % 60);
+      return {
+        id: e.id,
+        title: e.title,
+        type: "video",
+        size: `${Math.max(24, Math.round(e.durationSec * 9))} MB`,
+        duration: `${m}:${String(s).padStart(2, "0")}`,
+        orderId: undefined as string | undefined,
+        orderTitle: undefined as string | undefined,
+        createdAt: new Date(e.createdAt).toISOString().slice(0, 10),
+        showcased: false,
+        proCover: e.coverUrl,
+        proMeta: `Studio Pro · ${e.clipCount} ${e.clipCount === 1 ? "clip" : "clips"}`,
+      };
+    }),
+    ...MY_ASSETS_CREATED.map((a) => ({
+      ...a,
+      orderId: a.orderId as string | undefined,
+      orderTitle: a.orderTitle as string | undefined,
+      proCover: undefined as string | undefined,
+      proMeta: undefined as string | undefined,
+    })),
+  ];
 
   const statusLabel = (s: DistStatus) =>
     ({
@@ -87,7 +117,7 @@ export default function AssetsPage() {
               )}
             >
               {tabKey === "created"
-                ? t.assets.myCreations(MY_ASSETS_CREATED.length)
+                ? t.assets.myCreations(createdAssets.length)
                 : t.assets.purchased(MY_ASSETS_PURCHASED.length)}
             </button>
           ))}
@@ -95,7 +125,7 @@ export default function AssetsPage() {
 
         {tab === "created" && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {MY_ASSETS_CREATED.map((asset, i) => {
+            {createdAssets.map((asset, i) => {
               const dist = distributionByAsset[asset.id];
               const stageIdx = dist ? STAGES.indexOf(dist.status) : -1;
               const isLive = dist?.status === "live";
@@ -109,6 +139,20 @@ export default function AssetsPage() {
                   className="animate-fade-up bg-surface-container-lowest border border-outline-variant/30 rounded-2xl overflow-hidden group hover:shadow-md transition-shadow flex flex-col"
                   style={{ animationDelay: `${180 + i * 80}ms` }}
                 >
+                  {asset.proCover ? (
+                    <div className="relative aspect-video overflow-hidden">
+                      <Image
+                        src={asset.proCover}
+                        alt={asset.title}
+                        width={640}
+                        height={360}
+                        className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
+                      />
+                      <span className="absolute top-2 left-2 font-label text-[9px] uppercase tracking-widest bg-primary text-on-primary px-2 py-0.5 rounded-full">
+                        Studio Pro
+                      </span>
+                    </div>
+                  ) : (
                   <div
                     className={cn(
                       "aspect-video bg-gradient-to-br flex items-center justify-center grayscale group-hover:grayscale-0 transition-all duration-500",
@@ -122,6 +166,7 @@ export default function AssetsPage() {
                   >
                     <Film className="w-10 h-10 text-primary opacity-70" />
                   </div>
+                  )}
                   <div className="p-5 flex-1 flex flex-col">
                     <div className="flex items-start justify-between gap-2 mb-2">
                       <p className="font-headline text-[18px] text-on-surface leading-snug">
@@ -133,6 +178,9 @@ export default function AssetsPage() {
                     </div>
                     <p className="font-label text-label-md uppercase tracking-wider text-on-surface-variant mb-1">
                       {asset.size} · {asset.duration}
+                      {asset.proMeta && (
+                        <span className="text-primary"> · {asset.proMeta}</span>
+                      )}
                     </p>
                     {asset.orderId && (
                       <Link
