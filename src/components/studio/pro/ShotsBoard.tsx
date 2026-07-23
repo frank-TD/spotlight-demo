@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
   FolderOpen,
@@ -14,11 +14,24 @@ import {
   ArrowDown,
   Clapperboard,
   FileText,
+  Loader2,
+  Zap,
+  Layers,
 } from "lucide-react";
 import { toast } from "sonner";
 import ScriptStepper, { type StepperDraft } from "./ScriptStepper";
 import ShotComposer from "./ShotComposer";
-import { clearSession, fmtShotNo, proId, readSession, writeSession, SK } from "./pro-mock";
+import {
+  clearSession,
+  fmtShotNo,
+  frameImg,
+  nowTs,
+  proId,
+  readSession,
+  writeSession,
+  PRO_COSTS,
+  SK,
+} from "./pro-mock";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -52,9 +65,13 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
     setCurrentProProject,
     proFragments,
     addProFragments,
+    updateProFragment,
     deleteProFragment,
     duplicateProFragment,
     moveProFragment,
+    spendProCredits,
+    isLoggedIn,
+    openSignupGate,
   } = useStore();
 
   const project = proProjects.find((p) => p.id === currentProProjectId) ?? null;
@@ -83,6 +100,50 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
   });
   const [renaming, setRenaming] = useState(false);
   const [renameDraft, setRenameDraft] = useState("");
+
+  /* Frame-all queue: sequential mock framing over every draft, driven by a
+     handler-side timeout chain (never setState-in-effect). */
+  const [framingNow, setFramingNow] = useState<string | null>(null);
+  const [frameProgress, setFrameProgress] = useState<{ done: number; total: number } | null>(null);
+  const queueTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  useEffect(() => () => queueTimers.current.forEach(clearTimeout), []);
+
+  const runFrameQueue = (ids: string[], idx: number) => {
+    if (idx >= ids.length) {
+      setFramingNow(null);
+      setFrameProgress(null);
+      toast.success(`${ids.length} shots framed — open any of them to direct`);
+      return;
+    }
+    setFramingNow(ids[idx]);
+    setFrameProgress({ done: idx, total: ids.length });
+    queueTimers.current.push(
+      setTimeout(() => {
+        const seed = `${ids[idx]}-${nowTs()}`;
+        const fresh = [frameImg(`${seed}-a`), frameImg(`${seed}-b`)];
+        // Drafts carry no frames yet, so a plain patch is safe here.
+        updateProFragment(ids[idx], { frames: fresh, frameUrl: fresh[0], status: "framed" });
+        runFrameQueue(ids, idx + 1);
+      }, 1200)
+    );
+  };
+
+  const frameAll = (drafts: ProFragment[]) => {
+    if (!isLoggedIn) {
+      openSignupGate("/discovery/workspace");
+      return;
+    }
+    if (framingNow) return;
+    const cost = drafts.length * PRO_COSTS.frame;
+    if (!spendProCredits(cost)) {
+      toast.error(`Not enough credits (mock balance) — ${cost} needed`);
+      return;
+    }
+    runFrameQueue(
+      drafts.map((d) => d.id),
+      0
+    );
+  };
 
   const openComposer = (id: string) => {
     setComposerId(id);
@@ -134,7 +195,15 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
     );
   }
   if (composerId) {
-    return <ShotComposer fragmentId={composerId} onBack={closeComposer} />;
+    // Keyed so prev/next navigation remounts with the target's own draft.
+    return (
+      <ShotComposer
+        key={composerId}
+        fragmentId={composerId}
+        onBack={closeComposer}
+        onNavigate={openComposer}
+      />
+    );
   }
 
   /* Empty state — no project yet: lead with the two production entries. */
@@ -267,6 +336,30 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
         </span>
 
         <div className="ml-auto flex items-center gap-2">
+          {counts.draft > 0 && (
+            <button
+              type="button"
+              onClick={() => frameAll(fragments.filter((f) => f.status === "draft"))}
+              disabled={!!framingNow}
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-amber-400/55 text-amber-300 font-label text-[10px] uppercase tracking-wider hover:bg-amber-400/10 transition-colors disabled:opacity-70"
+            >
+              {framingNow && frameProgress ? (
+                <>
+                  <Loader2 className="w-3 h-3 animate-spin" />
+                  Framing {frameProgress.done + 1}/{frameProgress.total}
+                </>
+              ) : (
+                <>
+                  <Layers className="w-3 h-3" />
+                  Frame all drafts
+                  <span className="inline-flex items-center gap-0.5 border-l border-amber-400/40 pl-1.5 ml-0.5">
+                    <Zap className="w-2.5 h-2.5" fill="currentColor" />
+                    {counts.draft * PRO_COSTS.frame}
+                  </span>
+                </>
+              )}
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setStepperOpen(true)}
@@ -299,6 +392,7 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
             <FragmentCard
               key={f.id}
               fragment={f}
+              busy={framingNow === f.id}
               onOpen={() => openComposer(f.id)}
               onDuplicate={() => duplicateProFragment(f.id)}
               onDelete={() => deleteProFragment(f.id)}
@@ -323,6 +417,7 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
 
 function FragmentCard({
   fragment,
+  busy,
   onOpen,
   onDuplicate,
   onDelete,
@@ -330,6 +425,7 @@ function FragmentCard({
   onMoveDown,
 }: {
   fragment: ProFragment;
+  busy?: boolean;
   onOpen: () => void;
   onDuplicate: () => void;
   onDelete: () => void;
@@ -365,6 +461,14 @@ function FragmentCard({
                 {fragment.title.replace(/\D+/g, "") || "—"}
               </span>
             </div>
+          )}
+          {busy && (
+            <span className="absolute inset-0 z-10 flex items-center justify-center bg-surface/55 backdrop-blur-[2px]">
+              <span className="shimmer-overlay" />
+              <span className="relative inline-flex items-center gap-1.5 font-label text-[9px] uppercase tracking-widest text-amber-300">
+                <Loader2 className="w-3.5 h-3.5 animate-spin" /> Framing…
+              </span>
+            </span>
           )}
           <span
             className={cn(

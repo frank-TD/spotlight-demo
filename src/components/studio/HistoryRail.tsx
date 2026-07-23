@@ -66,6 +66,7 @@ export default function HistoryRail({
   onRenameGroup,
   onDeleteGroup,
   onToggleGroup,
+  proShortcut,
 }: {
   sessions: StudioSession[];
   groups: StudioGroup[];
@@ -84,6 +85,9 @@ export default function HistoryRail({
   onRenameGroup: (id: string, name: string) => void;
   onDeleteGroup: (id: string) => void;
   onToggleGroup: (id: string) => void;
+  /* Bridge to Studio Pro: shows the Pro project count and jumps to Pro mode,
+     so the two project systems stay visible to each other. */
+  proShortcut?: { count: number; onOpen: () => void } | null;
 }) {
   const t = useT();
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -215,6 +219,26 @@ export default function HistoryRail({
           <FolderPlus className="w-3.5 h-3.5" />
         </button>
       </div>
+
+      {proShortcut && proShortcut.count > 0 && (
+        <button
+          type="button"
+          onClick={() => proShortcut.onOpen()}
+          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-primary/35 bg-primary-container/15 hover:bg-primary-container/30 text-left transition-colors"
+        >
+          <span className="shrink-0 inline-flex px-1.5 py-0.5 rounded font-label font-bold text-[9px] uppercase tracking-widest bg-primary text-on-primary">
+            Pro
+          </span>
+          <span className="flex-1 min-w-0">
+            <span className="block font-body text-sm text-on-surface truncate">
+              {proShortcut.count} short drama {proShortcut.count === 1 ? "project" : "projects"}
+            </span>
+            <span className="block font-label text-[9px] uppercase tracking-widest text-on-surface-variant/80 mt-0.5">
+              Open Studio Pro →
+            </span>
+          </span>
+        </button>
+      )}
 
       <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant px-2 pt-2">
         {t.aigc.sessionsTitle}
