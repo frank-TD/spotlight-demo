@@ -11,14 +11,15 @@ import AssetLightbox from "./AssetLightbox";
 import {
   SuperstarParamsDialog,
   SUPERSTAR_DEFAULT_SETTINGS,
-  superstarSummary,
   type SuperstarGenMode,
   type SuperstarSettings,
   type SuperstarTask,
 } from "./SuperstarProvider";
+import ProWorkspace from "./pro/ProWorkspace";
 import { MODELS_BY_MODE, DEFAULT_MODEL_BY_MODE, VOICES, type StudioVoice } from "@/lib/studio-mock";
 import { useT } from "@/hooks/useT";
 import { useStore, type StudioMode, type StudioAssetSettings, type StudioAsset } from "@/lib/store";
+import { cn } from "@/lib/utils";
 
 const DEFAULT_SETTINGS: Record<StudioMode, StudioAssetSettings> = {
   image: { aspect: "16:9", quality: "2K", count: 1 },
@@ -66,6 +67,8 @@ export default function StudioWorkspace() {
     hasHydrated,
     isLoggedIn,
     openSignupGate,
+    studioProMode,
+    setStudioProMode,
   } = useStore();
 
   const [mode, setMode] = useState<StudioMode>("image");
@@ -93,15 +96,6 @@ export default function StudioWorkspace() {
   const [superstarTasks, setSuperstarTasks] = useState<SuperstarTask[]>([]);
   const superstarTaskSeq = useRef(0);
   const superstarTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
-
-  // Superstar Agent (short-drama production workflow) — v2 mock state.
-  const [agentSettings, setAgentSettings] = useState<SuperstarSettings>({
-    aspect: "16:9",
-    resolution: "720p",
-    duration: "8s",
-    quantity: 1,
-  });
-  const [agentParamsOpen, setAgentParamsOpen] = useState(false);
 
   const progressTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const doneTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -282,26 +276,11 @@ export default function StudioWorkspace() {
     }
   };
 
-  // Board actions (episode Generate etc.) share the same signup gate.
-  const requireAuth = () => {
-    if (!isLoggedIn) {
-      openSignupGate("/discovery/workspace");
-      return false;
-    }
-    return true;
-  };
-
   const onGenerate = () => {
     // Guests browse the studio freely; Generate is the conversion point — send
     // them to the signup gate and bring them back here after they authenticate.
     if (!isLoggedIn) {
       openSignupGate("/discovery/workspace");
-      return;
-    }
-    if (provider === "superstarAgent") {
-      // Mock kickoff — the Production Board already shows the plan state.
-      toast.info("Superstar Agent started — parsing brief into episodes (mock mode · API token pending)");
-      setPrompt("");
       return;
     }
     if (provider === "superstar") {
@@ -424,7 +403,54 @@ export default function StudioWorkspace() {
   if (!hasHydrated) return null;
 
   return (
-    <div className="max-w-[1500px] mx-auto px-4 md:px-6 pt-6 pb-52">
+    <div
+      className={cn(
+        "max-w-[1500px] mx-auto px-4 md:px-6 pt-5",
+        studioProMode ? "pb-16" : "pb-52"
+      )}
+    >
+      {/* Basic | Pro mode toggle */}
+      <div className="flex justify-center mb-5 animate-fade-up">
+        <div className="inline-flex items-center rounded-full border border-outline-variant/40 bg-surface-container-low p-1">
+          {(
+            [
+              { pro: false, label: "Basic" },
+              { pro: true, label: "Pro" },
+            ] as const
+          ).map((m) => (
+            <button
+              key={m.label}
+              type="button"
+              onClick={() => setStudioProMode(m.pro)}
+              className={cn(
+                "inline-flex items-center gap-1.5 px-6 py-1.5 rounded-full font-label text-[11px] uppercase tracking-wider transition-colors",
+                studioProMode === m.pro
+                  ? "bg-primary text-on-primary"
+                  : "text-on-surface-variant hover:text-on-surface"
+              )}
+            >
+              {m.label}
+              {m.pro && (
+                <span
+                  className={cn(
+                    "font-label text-[8px] uppercase tracking-widest border px-1 py-px rounded",
+                    studioProMode ? "border-on-primary/40" : "border-primary/50 text-primary"
+                  )}
+                >
+                  New
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {studioProMode ? (
+        <div className="animate-fade-up">
+          <ProWorkspace />
+        </div>
+      ) : (
+        <>
       <div className="flex gap-5">
         <div className="animate-fade-up" style={{ animationDelay: "60ms" }}>
           <HistoryRail
@@ -441,16 +467,6 @@ export default function StudioWorkspace() {
             onRenameGroup={renameStudioGroup}
             onDeleteGroup={deleteStudioGroup}
             onToggleGroup={toggleStudioGroupCollapsed}
-            agentItem={
-              provider === "superstarAgent"
-                ? {
-                    label: "Superstar Agent",
-                    status: "3 episodes · 1 generating",
-                    active: true,
-                    onClick: () => {},
-                  }
-                : null
-            }
           />
         </div>
 
@@ -465,8 +481,6 @@ export default function StudioWorkspace() {
               superstarTasks={provider === "superstar" ? superstarTasks : []}
               onRegenerateTask={onRegenerateTask}
               onTaskMockAction={onTaskMockAction}
-              agentMode={provider === "superstarAgent"}
-              onAgentRequireAuth={requireAuth}
             />
           </div>
         </main>
@@ -500,8 +514,7 @@ export default function StudioWorkspace() {
           superstarSettings={superstarSettings}
           onOpenSuperstarParams={() => setSuperstarParamsOpen(true)}
           onSuperstarHelper={onSuperstarHelper}
-          agentSummary={superstarSummary(agentSettings)}
-          onOpenAgentParams={() => setAgentParamsOpen(true)}
+          onOpenPro={() => setStudioProMode(true)}
         />
       </div>
 
@@ -518,15 +531,6 @@ export default function StudioWorkspace() {
         onOpenChange={setSuperstarParamsOpen}
         settings={superstarSettings}
         onConfirm={setSuperstarSettings}
-      />
-      <SuperstarParamsDialog
-        open={agentParamsOpen}
-        onOpenChange={setAgentParamsOpen}
-        settings={agentSettings}
-        onConfirm={setAgentSettings}
-        title="Superstar Agent output"
-        subtitle="Production Agent · Mock mode"
-        durationOptions={["5s", "8s", "10s"]}
       />
       <VoiceCatalogDialog
         open={voiceCatalogOpen}
@@ -552,6 +556,8 @@ export default function StudioWorkspace() {
           clearReferences();
         }}
       />
+        </>
+      )}
     </div>
   );
 }

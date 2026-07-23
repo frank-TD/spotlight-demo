@@ -20,11 +20,6 @@ import {
   Video,
   Ban,
   Film,
-  Upload,
-  FolderInput,
-  FileText,
-  Scissors,
-  Calculator,
   Workflow,
 } from "lucide-react";
 import BrandGlyph from "./BrandGlyph";
@@ -59,7 +54,7 @@ const MODE_META: { id: StudioMode; icon: typeof ImageIcon }[] = [
   { id: "music", icon: Music2 },
 ];
 
-export type StudioProvider = "native" | "superstar" | "superstarAgent";
+export type StudioProvider = "native" | "superstar";
 
 /* The Model / Provider dropdown's native group. Nano Banana 2 maps onto the
    real image model; the two Spotlight entries are display-level mocks. */
@@ -107,8 +102,7 @@ export default function PromptDock({
   superstarSettings,
   onOpenSuperstarParams,
   onSuperstarHelper,
-  agentSummary,
-  onOpenAgentParams,
+  onOpenPro,
 }: {
   mode: StudioMode;
   onModeChange: (m: StudioMode) => void;
@@ -132,35 +126,31 @@ export default function PromptDock({
   superstarSettings: SuperstarSettings;
   onOpenSuperstarParams: () => void;
   onSuperstarHelper: (label: string) => void;
-  agentSummary: string;
-  onOpenAgentParams: () => void;
+  // Opens Studio Pro — the short-drama production workspace that absorbed
+  // the old Superstar Agent provider entry.
+  onOpenPro: () => void;
 }) {
   const t = useT();
   const [expanded, setExpanded] = useState(true);
   const taRef = useRef<HTMLTextAreaElement>(null);
 
   const isSuperstar = provider === "superstar";
-  const isAgent = provider === "superstarAgent";
   const model = MODELS_BY_MODE[mode].find((m) => m.id === modelId) ?? MODELS_BY_MODE[mode][0];
 
-  const placeholder = isAgent
-    ? "Paste a short drama brief, upload a script, or ask Superstar to split this story into episodes..."
-    : isSuperstar
-      ? SUPERSTAR_PROMPT_PLACEHOLDER
-      : mode === "image"
-        ? t.aigc.promptImage
-        : mode === "video"
-          ? t.aigc.promptVideo
-          : mode === "voiceover"
-            ? t.aigc.promptVoiceover
-            : t.aigc.promptMusic;
+  const placeholder = isSuperstar
+    ? SUPERSTAR_PROMPT_PLACEHOLDER
+    : mode === "image"
+      ? t.aigc.promptImage
+      : mode === "video"
+        ? t.aigc.promptVideo
+        : mode === "voiceover"
+          ? t.aigc.promptVoiceover
+          : t.aigc.promptMusic;
 
   // The settings summary chip text varies by mode (and by provider).
-  const summary = isAgent
-    ? agentSummary
-    : isSuperstar
-      ? superstarSummary(superstarSettings)
-      : mode === "image"
+  const summary = isSuperstar
+    ? superstarSummary(superstarSettings)
+    : mode === "image"
       ? `${settings.aspect ?? "16:9"} / ${settings.quality ?? "2K"} / ${settings.count ?? 1}`
       : mode === "video"
         ? `${settings.aspect ?? "16:9"} / ${settings.duration ?? "5 sec"} / ${settings.resolution ?? "1080p"}`
@@ -200,17 +190,6 @@ export default function PromptDock({
 
         {expanded && (
           <>
-            {/* Superstar Agent mode: status line (quick entries live below the
-                textarea; the plan itself renders on the Production Board) */}
-            {isAgent && (
-              <div className="flex items-center gap-2 px-4 pb-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" aria-hidden="true" />
-                <span className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
-                  Superstar Agent · Short drama production · Mock mode
-                </span>
-              </div>
-            )}
-
             {/* Superstar provider mode: status line + generation-mode tabs */}
             {isSuperstar && (
               <>
@@ -240,8 +219,7 @@ export default function PromptDock({
               </>
             )}
 
-            {/* Reference / add row (not used by the Agent composer) */}
-            {!isAgent && (
+            {/* Reference / add row */}
             <div className="flex items-center gap-2 px-4 pb-1 flex-wrap">
               {isSuperstar ? (
                 <>
@@ -337,7 +315,6 @@ export default function PromptDock({
                 </span>
               ))}
             </div>
-            )}
 
             {/* Prompt textarea */}
             <div className="flex items-start gap-3 px-4 py-2">
@@ -358,31 +335,6 @@ export default function PromptDock({
               />
               <Sparkles className="w-4 h-4 text-primary/50 mt-2 shrink-0" />
             </div>
-
-            {/* Agent quick entries (mock) */}
-            {isAgent && (
-              <div className="flex items-center gap-1.5 px-4 pb-2 flex-wrap">
-                {(
-                  [
-                    { label: "Upload Script", icon: Upload },
-                    { label: "Import from Project", icon: FolderInput },
-                    { label: "Start from Brief", icon: FileText },
-                    { label: "Parse Episodes", icon: Scissors },
-                    { label: "Estimate Cost", icon: Calculator },
-                  ] as const
-                ).map(({ label, icon: Icon }) => (
-                  <button
-                    type="button"
-                    key={label}
-                    onClick={() => onSuperstarHelper(label)}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-outline-variant/35 font-label text-[10px] uppercase tracking-wider text-on-surface-variant/85 hover:border-primary/40 hover:text-primary transition-colors"
-                  >
-                    <Icon className="w-3 h-3" />
-                    {label}
-                  </button>
-                ))}
-              </div>
-            )}
 
             {/* Superstar prompt helpers (mock) */}
             {isSuperstar && (
@@ -412,16 +364,8 @@ export default function PromptDock({
 
         {/* Summary bar */}
         <div className="flex items-center gap-2 px-3 py-2.5 border-t border-outline-variant/20 flex-wrap">
-          {/* Agent mode chip (fixed — the agent is a workflow, not a media mode) */}
-          {isAgent && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-surface-container font-label text-label-md uppercase tracking-wider text-on-surface">
-              <Workflow className="w-3.5 h-3.5 text-primary" />
-              Short Drama Agent
-            </span>
-          )}
-
           {/* Mode selector (native providers only — Superstar has its own tabs) */}
-          {!isSuperstar && !isAgent && (
+          {!isSuperstar && (
             <DropdownMenu>
               <DropdownMenuTrigger className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors font-label text-label-md uppercase tracking-wider text-on-surface">
                 <ModeIcon className="w-3.5 h-3.5" />
@@ -450,15 +394,7 @@ export default function PromptDock({
           {/* Model / Provider dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger className="inline-flex items-center gap-2 px-3 py-2 rounded-full hover:bg-surface-container transition-colors">
-              {isAgent ? (
-                <>
-                  <SuperstarGlyph size="sm" />
-                  <span className="font-label text-label-md text-on-surface">Superstar Agent</span>
-                  <span className="font-label text-[9px] uppercase tracking-widest border border-primary/40 text-primary px-1.5 py-0.5 rounded">
-                    Production Agent · Mock mode · Token pending
-                  </span>
-                </>
-              ) : isSuperstar ? (
+              {isSuperstar ? (
                 <>
                   <SuperstarGlyph size="sm" />
                   <span className="font-label text-label-md text-on-surface">Superstar</span>
@@ -543,36 +479,33 @@ export default function PromptDock({
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuLabel className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
-                  Production Agents
+                  Production Workspace
                 </DropdownMenuLabel>
+                {/* The old Superstar Agent provider moved into Studio Pro —
+                    this entry hands users over to the Pro workspace. */}
                 <DropdownMenuItem
-                  onClick={() => onSelectProvider("superstarAgent")}
+                  onClick={onOpenPro}
                   className="p-0 cursor-pointer focus:bg-transparent data-highlighted:bg-transparent"
                 >
-                  <div
-                    className={cn(
-                      "m-1 w-full rounded-xl border p-3 transition-colors",
-                      isAgent
-                        ? "border-primary/60 bg-primary-container/40"
-                        : "border-primary/30 bg-primary-container/15 hover:bg-primary-container/30"
-                    )}
-                  >
+                  <div className="m-1 w-full rounded-xl border border-primary/30 bg-primary-container/15 hover:bg-primary-container/30 p-3 transition-colors">
                     <div className="flex items-center gap-2.5">
                       <span className="shrink-0 inline-flex w-8 h-8 rounded-lg items-center justify-center bg-primary text-on-primary">
                         <Workflow className="w-4 h-4" />
                       </span>
                       <div className="flex-1 min-w-0">
                         <p className="font-label text-label-md text-on-surface flex items-center gap-2">
-                          Superstar Agent
-                          {isAgent && <Check className="w-3.5 h-3.5 text-primary" />}
+                          Studio Pro
+                          <span className="font-label text-[8px] uppercase tracking-widest border border-primary/50 text-primary px-1 py-px rounded">
+                            New
+                          </span>
                         </p>
                         <p className="font-body text-[11px] text-on-surface-variant mt-0.5">
-                          Short drama production workflow
+                          Short drama production — shots, assets, editor
                         </p>
                       </div>
                     </div>
                     <p className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant/85 mt-2">
-                      Script → Episodes → Video Tasks
+                      Superstar Agent moved here · Script → Shots → Timeline
                     </p>
                   </div>
                 </DropdownMenuItem>
@@ -598,10 +531,10 @@ export default function PromptDock({
 
           <span className="w-px h-5 bg-outline-variant/40 hidden sm:block" />
 
-          {/* Settings summary (native → model picker; Superstar/Agent → mock params) */}
+          {/* Settings summary (native → model picker; Superstar → mock params) */}
           <button
             type="button"
-            onClick={isAgent ? onOpenAgentParams : isSuperstar ? onOpenSuperstarParams : onOpenModelPicker}
+            onClick={isSuperstar ? onOpenSuperstarParams : onOpenModelPicker}
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full hover:bg-surface-container transition-colors font-label text-label-md text-on-surface-variant"
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
@@ -617,16 +550,14 @@ export default function PromptDock({
               disabled={generating}
               className="inline-flex items-center gap-2 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-6 py-3 rounded-full hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isAgent
-                ? "Start Superstar Agent"
-                : isSuperstar
-                  ? "Generate with Superstar"
-                  : generating
-                    ? t.aigc.generating
-                    : t.aigc.generate}
+              {isSuperstar
+                ? "Generate with Superstar"
+                : generating
+                  ? t.aigc.generating
+                  : t.aigc.generate}
               <Send className="w-3.5 h-3.5" />
             </button>
-            {(isSuperstar || isAgent) && (
+            {isSuperstar && (
               <span className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant/70 pr-1">
                 Mock mode · API token pending
               </span>

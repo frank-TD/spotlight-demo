@@ -180,6 +180,60 @@ export interface StudioGroup {
   createdAt: number;
 }
 
+/* ── Studio Pro (short-drama production workspace) ───────────────────────
+   Pro mode organises work as projects (episodes) → fragments (shots), plus
+   reusable generated assets (characters / scenes / props). Everything is a
+   display-level mock: picsum imagery, fake timers, a decorative credits
+   ledger — no API. */
+
+export type ProAssetKind = "character" | "scene" | "prop";
+export type ProFragmentStatus = "draft" | "framed" | "directed";
+
+export interface ProProject {
+  id: string;
+  title: string;
+  style: string; // drama art style picked at script intake
+  createdAt: number;
+}
+
+// One shot (分镜) of an episode. Framing generates candidate frames; picking
+// one sets frameUrl; Directing turns it into a (mock) video clip.
+export interface ProFragment {
+  id: string;
+  projectId: string;
+  title: string; // "Shot 01"
+  summary: string; // scene / action description
+  dialogue?: string; // pulled quote, when the script chunk had one
+  status: ProFragmentStatus;
+  frames: string[];
+  frameUrl?: string;
+  startFrame?: string;
+  endFrame?: string;
+  cameraMove?: string;
+  durationSec: number;
+  createdAt: number;
+}
+
+export interface ProAsset {
+  id: string;
+  kind: ProAssetKind;
+  name: string;
+  desc: string;
+  imageUrl: string;
+  createdAt: number;
+}
+
+// One generation run in an asset library (feeds the History tab).
+export interface ProGenRun {
+  id: string;
+  kind: ProAssetKind;
+  prompt: string;
+  refs: number;
+  candidates: string[];
+  pickedUrl?: string;
+  createdAt: number;
+}
+
 interface AppState {
   // Auth
   isLoggedIn: boolean;
@@ -268,6 +322,31 @@ interface AppState {
   renameStudioGroup: (id: string, name: string) => void;
   deleteStudioGroup: (id: string) => void;
   toggleStudioGroupCollapsed: (id: string) => void;
+
+  // Studio Pro (persisted)
+  studioProMode: boolean;
+  setStudioProMode: (v: boolean) => void;
+  proCredits: number;
+  // Returns false (and spends nothing) when the balance can't cover it.
+  spendProCredits: (n: number) => boolean;
+  proProjects: ProProject[];
+  currentProProjectId: string | null;
+  newProProject: (title?: string, style?: string) => string;
+  renameProProject: (id: string, title: string) => void;
+  deleteProProject: (id: string) => void;
+  setCurrentProProject: (id: string | null) => void;
+  proFragments: ProFragment[];
+  addProFragments: (frags: ProFragment[]) => void;
+  updateProFragment: (id: string, patch: Partial<ProFragment>) => void;
+  deleteProFragment: (id: string) => void;
+  duplicateProFragment: (id: string) => void;
+  // Swap with the neighboring fragment of the same project (board ordering).
+  moveProFragment: (id: string, dir: -1 | 1) => void;
+  proAssets: ProAsset[];
+  addProAsset: (asset: ProAsset) => void;
+  deleteProAsset: (id: string) => void;
+  proGenRuns: ProGenRun[];
+  addProGenRun: (run: ProGenRun) => void;
 
   // Session lifecycle flow (shared by messages + order detail)
   sessionFlows: Record<string, SessionFlow>;
@@ -465,7 +544,7 @@ function partyNames(sessionId: string) {
 
 export const useStore = create<AppState>()(
   persist(
-    (set) => ({
+    (set, get) => ({
       isLoggedIn: false,
       activeRole: "backer" as Role,
       locale: "en" as Locale,
@@ -674,6 +753,86 @@ export const useStore = create<AppState>()(
             g.id === id ? { ...g, collapsed: !g.collapsed } : g
           ),
         })),
+
+      // Studio Pro
+      studioProMode: false,
+      setStudioProMode: (v) => set({ studioProMode: v }),
+      proCredits: 500,
+      spendProCredits: (n) => {
+        if (get().proCredits < n) return false;
+        set((s) => ({ proCredits: Math.max(0, s.proCredits - n) }));
+        return true;
+      },
+      proProjects: [],
+      currentProProjectId: null,
+      newProProject: (title = "Untitled drama", style = "2D Anime") => {
+        const id = `pro_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+        set((s) => ({
+          proProjects: [{ id, title, style, createdAt: Date.now() }, ...s.proProjects],
+          currentProProjectId: id,
+        }));
+        return id;
+      },
+      renameProProject: (id, title) =>
+        set((s) => ({
+          proProjects: s.proProjects.map((p) => (p.id === id ? { ...p, title } : p)),
+        })),
+      deleteProProject: (id) =>
+        set((s) => {
+          const projects = s.proProjects.filter((p) => p.id !== id);
+          return {
+            proProjects: projects,
+            proFragments: s.proFragments.filter((f) => f.projectId !== id),
+            currentProProjectId:
+              s.currentProProjectId === id ? (projects[0]?.id ?? null) : s.currentProProjectId,
+          };
+        }),
+      setCurrentProProject: (id) => set({ currentProProjectId: id }),
+
+      proFragments: [],
+      addProFragments: (frags) => set((s) => ({ proFragments: [...s.proFragments, ...frags] })),
+      updateProFragment: (id, patch) =>
+        set((s) => ({
+          proFragments: s.proFragments.map((f) => (f.id === id ? { ...f, ...patch } : f)),
+        })),
+      deleteProFragment: (id) =>
+        set((s) => ({ proFragments: s.proFragments.filter((f) => f.id !== id) })),
+      duplicateProFragment: (id) =>
+        set((s) => {
+          const idx = s.proFragments.findIndex((f) => f.id === id);
+          if (idx < 0) return {};
+          const src = s.proFragments[idx];
+          const copy: ProFragment = {
+            ...src,
+            id: `frag_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
+            title: `${src.title} copy`,
+            createdAt: Date.now(),
+          };
+          const next = [...s.proFragments];
+          next.splice(idx + 1, 0, copy);
+          return { proFragments: next };
+        }),
+      moveProFragment: (id, dir) =>
+        set((s) => {
+          const all = s.proFragments;
+          const idx = all.findIndex((f) => f.id === id);
+          if (idx < 0) return {};
+          // The board shows one project at a time, so swap with the nearest
+          // same-project neighbor and skip over other projects' fragments.
+          let j = idx + dir;
+          while (j >= 0 && j < all.length && all[j].projectId !== all[idx].projectId) j += dir;
+          if (j < 0 || j >= all.length) return {};
+          const next = [...all];
+          [next[idx], next[j]] = [next[j], next[idx]];
+          return { proFragments: next };
+        }),
+
+      proAssets: [],
+      addProAsset: (asset) => set((s) => ({ proAssets: [asset, ...s.proAssets] })),
+      deleteProAsset: (id) => set((s) => ({ proAssets: s.proAssets.filter((a) => a.id !== id) })),
+      proGenRuns: [],
+      // Keep only the recent dozen so the localStorage footprint stays small.
+      addProGenRun: (run) => set((s) => ({ proGenRuns: [run, ...s.proGenRuns].slice(0, 12) })),
 
       // Seeded so the flagship NeoVision conversation (sess_001) starts at the
       // invitation step and shares its lifecycle state with the order page.
@@ -978,6 +1137,13 @@ export const useStore = create<AppState>()(
         studioSessions: state.studioSessions,
         studioGroups: state.studioGroups,
         currentStudioSessionId: state.currentStudioSessionId,
+        studioProMode: state.studioProMode,
+        proCredits: state.proCredits,
+        proProjects: state.proProjects,
+        currentProProjectId: state.currentProProjectId,
+        proFragments: state.proFragments,
+        proAssets: state.proAssets,
+        proGenRuns: state.proGenRuns,
       }),
       onRehydrateStorage: () => (state) => {
         // Collapse any legacy grouped duplicates that pre-date the
