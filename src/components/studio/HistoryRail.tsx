@@ -66,7 +66,6 @@ export default function HistoryRail({
   onRenameGroup,
   onDeleteGroup,
   onToggleGroup,
-  agentItem,
 }: {
   sessions: StudioSession[];
   groups: StudioGroup[];
@@ -85,8 +84,6 @@ export default function HistoryRail({
   onRenameGroup: (id: string, name: string) => void;
   onDeleteGroup: (id: string) => void;
   onToggleGroup: (id: string) => void;
-  /* Pinned external-agent entry (Superstar Agent mock) shown above sessions. */
-  agentItem?: { label: string; status: string; active: boolean; onClick: () => void } | null;
 }) {
   const t = useT();
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -222,31 +219,6 @@ export default function HistoryRail({
       <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant px-2 pt-2">
         {t.aigc.sessionsTitle}
       </p>
-
-      {/* Superstar Agent pinned task (mock) */}
-      {agentItem && (
-        <button
-          type="button"
-          onClick={() => agentItem.onClick()}
-          className={cn(
-            "w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border text-left transition-colors",
-            agentItem.active
-              ? "border-primary/50 bg-primary-container/25"
-              : "border-outline-variant/40 hover:border-primary/40"
-          )}
-        >
-          <span className="shrink-0 inline-flex w-6 h-6 rounded-md items-center justify-center bg-primary text-on-primary font-label font-bold text-[10px]">
-            S
-          </span>
-          <span className="flex-1 min-w-0">
-            <span className="block font-body text-sm text-on-surface truncate">{agentItem.label}</span>
-            <span className="block font-label text-[9px] uppercase tracking-widest text-on-surface-variant/80 mt-0.5">
-              {agentItem.status}
-            </span>
-          </span>
-          {agentItem.active && <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse shrink-0" />}
-        </button>
-      )}
 
       <div className="flex-1 overflow-y-auto space-y-3 -mr-1 pr-1">
         {sessions.length === 0 && groups.length === 0 ? (
