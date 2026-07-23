@@ -69,6 +69,7 @@ export default function StudioWorkspace() {
     openSignupGate,
     studioProMode,
     setStudioProMode,
+    proProjects,
   } = useStore();
 
   const [mode, setMode] = useState<StudioMode>("image");
@@ -467,6 +468,7 @@ export default function StudioWorkspace() {
             onRenameGroup={renameStudioGroup}
             onDeleteGroup={deleteStudioGroup}
             onToggleGroup={toggleStudioGroupCollapsed}
+            proShortcut={{ count: proProjects.length, onOpen: () => setStudioProMode(true) }}
           />
         </div>
 

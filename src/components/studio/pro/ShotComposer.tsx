@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import {
   ChevronLeft,
+  ChevronRight,
   Sparkles,
   Play,
   Check,
@@ -69,9 +70,12 @@ interface ComposerDraft {
 export default function ShotComposer({
   fragmentId,
   onBack,
+  onNavigate,
 }: {
   fragmentId: string;
   onBack: () => void;
+  // Jump to a sibling shot (parent remounts the composer with its draft).
+  onNavigate?: (id: string) => void;
 }) {
   const {
     proFragments,
@@ -228,6 +232,12 @@ export default function ShotComposer({
     });
   };
 
+  const siblings = proFragments.filter((f) => f.projectId === fragment.projectId);
+  const sibIdx = Math.max(
+    0,
+    siblings.findIndex((f) => f.id === fragmentId)
+  );
+
   const statusPill =
     fragment.status === "directed"
       ? "border-primary/50 text-primary bg-primary-container/30"
@@ -260,6 +270,29 @@ export default function ShotComposer({
         <span className="font-body text-xs text-on-surface-variant truncate max-w-[46ch]">
           {fragment.summary}
         </span>
+        {onNavigate && siblings.length > 1 && (
+          <span className="ml-auto inline-flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={() => onNavigate(siblings[(sibIdx - 1 + siblings.length) % siblings.length].id)}
+              aria-label="previous shot"
+              className="w-7 h-7 rounded-full border border-outline-variant/50 flex items-center justify-center text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
+            >
+              <ChevronLeft className="w-3.5 h-3.5" />
+            </button>
+            <span className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
+              {sibIdx + 1} / {siblings.length}
+            </span>
+            <button
+              type="button"
+              onClick={() => onNavigate(siblings[(sibIdx + 1) % siblings.length].id)}
+              aria-label="next shot"
+              className="w-7 h-7 rounded-full border border-outline-variant/50 flex items-center justify-center text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
+            >
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
+          </span>
+        )}
       </div>
 
       <div className="flex flex-col lg:flex-row gap-4 items-start">
