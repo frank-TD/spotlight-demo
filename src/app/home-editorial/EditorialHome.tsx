@@ -209,6 +209,12 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
             <Link href="/discovery/workspace" className={`${styles.btn} ${styles.btnOrange}`}>
               Start Creating
             </Link>
+            <Link
+              href="/discovery/workspace?mode=pro"
+              className={`${styles.btn} ${styles.btnGhostDark}`}
+            >
+              Studio Pro · Short Drama
+            </Link>
             <Link href="/market" className={`${styles.btn} ${styles.btnGhostDark}`}>
               Explore Projects
             </Link>

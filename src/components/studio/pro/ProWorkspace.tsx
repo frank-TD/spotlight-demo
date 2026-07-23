@@ -1,12 +1,26 @@
 "use client";
 import { useState } from "react";
-import { Video, UsersRound, Mountain, Box, Clapperboard, Zap } from "lucide-react";
+import { Video, UsersRound, Mountain, Box, Clapperboard, Zap, X, FileText, Scissors } from "lucide-react";
+import { toast } from "sonner";
 import ShotsBoard from "./ShotsBoard";
 import AssetLibrary from "./AssetLibrary";
 import EditorPanel from "./EditorPanel";
-import { readSession, writeSession, SK } from "./pro-mock";
+import { readSession, writeSession, PRO_COSTS, SK } from "./pro-mock";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { useStore, type ProAssetKind } from "@/lib/store";
 import { cn } from "@/lib/utils";
+
+// One-time coach mark: persists across sessions (plain localStorage — this
+// tree only mounts client-side, so reading it in an initializer is safe).
+const COACH_KEY = "spotlight.pro.coach.v1";
+const coachDismissed = () => {
+  if (typeof window === "undefined") return true;
+  try {
+    return localStorage.getItem(COACH_KEY) === "1";
+  } catch {
+    return true;
+  }
+};
 
 /* ── Studio Pro workspace ────────────────────────────────────────────────
    Artlist-style production workspace: a left icon rail switches between the
@@ -32,6 +46,17 @@ export default function ProWorkspace() {
     return saved && SECTIONS.includes(saved) ? saved : "shots";
   });
   const proCredits = useStore((s) => s.proCredits);
+  const [showCoach, setShowCoach] = useState(() => !coachDismissed());
+  const [creditsOpen, setCreditsOpen] = useState(false);
+
+  const dismissCoach = () => {
+    setShowCoach(false);
+    try {
+      localStorage.setItem(COACH_KEY, "1");
+    } catch {
+      /* best-effort */
+    }
+  };
 
   const changeSection = (s: ProSection) => {
     setSection(s);
@@ -85,11 +110,35 @@ export default function ProWorkspace() {
           <span className="font-label text-[9px] uppercase tracking-widest border border-outline-variant/50 text-on-surface-variant px-1.5 py-0.5 rounded">
             Superstar Inside · Mock mode
           </span>
-          <span className="ml-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-primary/35 bg-primary-container/20 font-label text-[10px] uppercase tracking-widest text-primary">
+          <button
+            type="button"
+            onClick={() => setCreditsOpen(true)}
+            className="ml-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-primary/35 bg-primary-container/20 font-label text-[10px] uppercase tracking-widest text-primary hover:bg-primary-container/35 transition-colors"
+          >
             <Zap className="w-3 h-3" fill="currentColor" />
             {proCredits} credits
-          </span>
+          </button>
         </div>
+
+        {/* One-time coach mark for first-time Pro visitors */}
+        {showCoach && (
+          <div className="flex items-center gap-3 flex-wrap rounded-2xl border border-primary/30 bg-primary-container/15 px-4 py-3 mb-4">
+            <span className="font-label text-[9px] uppercase tracking-widest bg-primary text-on-primary px-1.5 py-0.5 rounded shrink-0">
+              New here?
+            </span>
+            <CoachStep n={1} icon={FileText} text="Script to Shots splits a full episode into drafts" />
+            <CoachStep n={2} icon={Video} text="Frame & Direct each shot into a clip" />
+            <CoachStep n={3} icon={Scissors} text="Assemble and export on the Editor timeline" />
+            <button
+              type="button"
+              onClick={dismissCoach}
+              aria-label="dismiss guide"
+              className="ml-auto w-7 h-7 rounded-full border border-outline-variant/50 flex items-center justify-center text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors shrink-0"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        )}
 
         {section === "shots" && (
           <ShotsBoard onGoEditor={() => changeSection("editor")} />
@@ -99,6 +148,69 @@ export default function ProWorkspace() {
         )}
         {section === "editor" && <EditorPanel onGoShots={() => changeSection("shots")} />}
       </div>
+
+      {/* Credits detail (decorative ledger) */}
+      <Dialog open={creditsOpen} onOpenChange={setCreditsOpen}>
+        <DialogContent className="sm:max-w-xs p-6" showCloseButton>
+          <DialogTitle className="sr-only">Credits</DialogTitle>
+          <div className="text-center">
+            <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
+              Studio Pro balance
+            </p>
+            <p className="font-headline text-4xl text-primary mt-1 inline-flex items-center gap-2">
+              <Zap className="w-6 h-6" fill="currentColor" />
+              {proCredits}
+            </p>
+          </div>
+          <div className="rounded-xl border border-outline-variant/35 divide-y divide-outline-variant/25 mt-4">
+            <PriceRow label="Script → Shots parse" cost={PRO_COSTS.script} />
+            <PriceRow label="Frame generation" cost={PRO_COSTS.frame} />
+            <PriceRow label="Video render" cost={PRO_COSTS.video} />
+            <PriceRow label="Asset generation ×4" cost={PRO_COSTS.asset} />
+          </div>
+          <button
+            type="button"
+            onClick={() => toast.info("Top up — mock mode, billing arrives with the real API")}
+            className="mt-4 w-full bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-5 py-2.5 rounded-full hover:opacity-90 active:scale-95 transition-all"
+          >
+            Top up (mock)
+          </button>
+          <p className="font-label text-[8px] uppercase tracking-widest text-on-surface-variant/60 text-center mt-2">
+            Decorative ledger · no real billing
+          </p>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function CoachStep({
+  n,
+  icon: Icon,
+  text,
+}: {
+  n: number;
+  icon: typeof FileText;
+  text: string;
+}) {
+  return (
+    <span className="inline-flex items-center gap-1.5 font-body text-xs text-on-surface-variant">
+      <span className="inline-flex w-4 h-4 rounded-full border border-primary/60 text-primary items-center justify-center font-label text-[8px] shrink-0">
+        {n}
+      </span>
+      <Icon className="w-3 h-3 text-on-surface-variant/80 shrink-0" />
+      {text}
+    </span>
+  );
+}
+
+function PriceRow({ label, cost }: { label: string; cost: number }) {
+  return (
+    <div className="flex items-center justify-between px-3.5 py-2">
+      <span className="font-body text-xs text-on-surface-variant">{label}</span>
+      <span className="inline-flex items-center gap-1 font-label text-[10px] uppercase tracking-widest text-primary">
+        <Zap className="w-2.5 h-2.5" fill="currentColor" /> {cost}
+      </span>
     </div>
   );
 }
