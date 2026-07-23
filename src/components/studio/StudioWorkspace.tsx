@@ -101,6 +101,15 @@ export default function StudioWorkspace() {
   const progressTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const doneTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Deep links: /discovery/workspace?mode=pro|basic picks the workspace mode
+  // (used by the homepage / how-it-works CTAs). One-shot read — zustand is an
+  // external store, so syncing it from an effect is the sanctioned direction.
+  useEffect(() => {
+    const mode = new URLSearchParams(window.location.search).get("mode");
+    if (mode === "pro") setStudioProMode(true);
+    else if (mode === "basic") setStudioProMode(false);
+  }, [setStudioProMode]);
+
   useEffect(
     () => () => {
       if (progressTimer.current) clearInterval(progressTimer.current);

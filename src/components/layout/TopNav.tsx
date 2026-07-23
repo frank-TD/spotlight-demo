@@ -81,16 +81,25 @@ export default function TopNav() {
   // Nav is auth-aware (guest flow): logged-out visitors see only the public
   // surface — Marketplace + How It Works — with Log In on the right. The full
   // app surface (Studio / My Projects / Messages) appears once you sign in.
-  const GUEST_NAV = [
+  type NavItem = {
+    label: string;
+    href: string;
+    match: (p: string) => boolean;
+    // Flags a freshly shipped surface with a small dot (e.g. Studio Pro).
+    isNew?: boolean;
+  };
+  const GUEST_NAV: NavItem[] = [
     { label: t.nav.marketplace, href: "/market", match: (p: string) => p.startsWith("/market") },
     { label: "How it works", href: "/how-it-works", match: (p: string) => p.startsWith("/how-it-works") },
   ];
-  const USER_NAV = [
+  const USER_NAV: NavItem[] = [
     { label: t.nav.marketplace, href: "/market", match: (p: string) => p.startsWith("/market") },
     {
       label: t.nav.studio,
       href: "/discovery/workspace",
       match: (p: string) => p.startsWith("/discovery/workspace"),
+      // Studio Pro just shipped — a small dot flags the new workspace.
+      isNew: true,
     },
     { label: t.nav.myProjects, href: "/projects", match: (p: string) => p.startsWith("/projects") },
     { label: t.nav.messages, href: "/messages", match: (p: string) => p.startsWith("/messages") },
@@ -141,6 +150,12 @@ export default function TopNav() {
                     )}
                   >
                     {item.label}
+                    {item.isNew && (
+                      <span
+                        className="ml-1 inline-block w-1.5 h-1.5 rounded-full bg-primary align-super"
+                        aria-label="new"
+                      />
+                    )}
                   </Link>
                 );
               })}

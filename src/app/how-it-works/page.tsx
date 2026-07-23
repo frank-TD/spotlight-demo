@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Wand2 } from "lucide-react";
+import { ArrowRight, Wand2, Clapperboard } from "lucide-react";
 import AppShell from "@/components/layout/AppShell";
 import ScrollReveal from "@/components/home/ScrollReveal";
 import SectionLabel from "@/components/home/SectionLabel";
@@ -121,13 +121,23 @@ export default function HowItWorksPage() {
           </div>
           <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 shrink-0">
             {role === "creator" && (
-              <Link
-                href="/discovery/workspace"
-                className={cn(pillVariants({ variant: "outlinePrimary", size: "md" }), "group")}
-              >
-                <Wand2 className="w-4 h-4" />
-                {journey.seeAigcStudio}
-              </Link>
+              <>
+                <Link
+                  href="/discovery/workspace"
+                  className={cn(pillVariants({ variant: "outlinePrimary", size: "md" }), "group")}
+                >
+                  <Wand2 className="w-4 h-4" />
+                  {journey.seeAigcStudio}
+                </Link>
+                {/* Studio Pro deep link — the short-drama production workspace. */}
+                <Link
+                  href="/discovery/workspace?mode=pro"
+                  className={cn(pillVariants({ variant: "outlinePrimary", size: "md" }), "group")}
+                >
+                  <Clapperboard className="w-4 h-4" />
+                  Studio Pro · Short Drama
+                </Link>
+              </>
             )}
             <Link
               href="/market"
