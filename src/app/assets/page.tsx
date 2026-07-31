@@ -26,7 +26,7 @@ export default function AssetsPage() {
   const { distributionByAsset, proExports } = useStore();
   const t = useT();
 
-  // Studio Pro final cuts surface at the top of the created tab, shaped like
+  // NexGC Pro final cuts surface at the top of the created tab, shaped like
   // the mock assets so the card + distribution flow treat them identically.
   const createdAssets = [
     ...proExports.map((e) => {
@@ -43,7 +43,7 @@ export default function AssetsPage() {
         createdAt: new Date(e.createdAt).toISOString().slice(0, 10),
         showcased: false,
         proCover: e.coverUrl,
-        proMeta: `Studio Pro · ${e.clipCount} ${e.clipCount === 1 ? "clip" : "clips"}`,
+        proMeta: `NexGC Pro · ${e.clipCount} ${e.clipCount === 1 ? "clip" : "clips"}`,
       };
     }),
     ...MY_ASSETS_CREATED.map((a) => ({
@@ -149,7 +149,7 @@ export default function AssetsPage() {
                         className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform duration-500"
                       />
                       <span className="absolute top-2 left-2 font-label text-[9px] uppercase tracking-widest bg-primary text-on-primary px-2 py-0.5 rounded-full">
-                        Studio Pro
+                        NexGC Pro
                       </span>
                     </div>
                   ) : (

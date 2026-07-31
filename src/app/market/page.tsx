@@ -146,7 +146,7 @@ export default function MarketPage() {
     }
   };
   const handlePostNeed = () => (isLoggedIn ? router.push("/market/needs/new") : requireSignup());
-  // Guests may enter the AIGC studio to look around; the gate fires only when
+  // Guests may enter the NexGC studio to look around; the gate fires only when
   // they hit Generate (handled inside StudioWorkspace).
   const handleStartCreating = () => router.push("/discovery/workspace");
   const handleApply = (n: Brief) =>

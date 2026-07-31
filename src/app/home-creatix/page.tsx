@@ -36,7 +36,7 @@ export default function CreatixHome() {
         <div className={styles.heroPanel}>
           <header className={styles.navPill}>
             <Link href="/market">Marketplace</Link>
-            <Link href="/discovery/workspace">AIGC Studio</Link>
+            <Link href="/discovery/workspace">NexGC</Link>
             <Link className={styles.brand} href="/">
               <span className={styles.burst} />
               Spotlight
@@ -363,7 +363,7 @@ export default function CreatixHome() {
           </div>
           <nav>
             <Link href="/market">Marketplace</Link>
-            <Link href="/discovery/workspace">AIGC Studio</Link>
+            <Link href="/discovery/workspace">NexGC</Link>
             <Link href="/how-it-works">How it works</Link>
             <Link href="/market">Creators</Link>
             <Link href="/register">Sign in</Link>

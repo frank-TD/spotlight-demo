@@ -1,10 +1,10 @@
-// Static mock data + helpers for Studio Pro (short-drama production).
+// Static mock data + helpers for NexGC Pro (short-drama production).
 // Everything is display-level: picsum imagery with deterministic seeds, a
 // decorative credits price list, and a local script-splitting heuristic.
 // English copy is hardcoded on purpose (mockup stage), matching the
 // Superstar provider convention.
 
-import type { ProAssetKind } from "@/lib/store";
+import type { ProAssetKind, ProWorkflow } from "@/lib/store";
 
 export const PRO_COSTS = {
   script: 15, // Script → Shots parse
@@ -38,6 +38,98 @@ export const SHOT_DURATIONS = [3, 5, 8, 12] as const;
 export const MAX_SHOTS_CAP = 80;
 export const SCRIPT_MAX_LEN = 10000;
 export const TITLE_MAX_LEN = 20;
+
+/* ── Video-type workflows (OpenArt-style quick starts) ───────────────────
+   One wizard skeleton, four configurations. Each type tunes the intake
+   copy, art styles, default shot count/length and output aspect; deeper
+   per-type features (variant hooks, product frames, beat-synced boards)
+   arrive in the next batch. */
+
+export interface WorkflowCfg {
+  label: string;
+  tagline: string;
+  badge: string; // compact pill shown on the project header / cards
+  tag?: string; // corner ribbon on the quick-start card
+  aspect: string;
+  shotSec: number; // default per-shot duration
+  defaultShots: number; // parse target when max shots is left blank
+  styles: readonly string[];
+  titleHint: string;
+  scriptLabel: string;
+  scriptHint: string;
+  hasTrack?: boolean; // music video: pick a (mock) track
+}
+
+export const WORKFLOW_ORDER: ProWorkflow[] = ["ugc", "ad", "mv", "film"];
+
+export const WORKFLOWS: Record<ProWorkflow, WorkflowCfg> = {
+  ugc: {
+    label: "UGC",
+    tagline: "Authentic creator-style clips that convert",
+    badge: "UGC",
+    tag: "9:16",
+    aspect: "9:16",
+    shotSec: 5,
+    defaultShots: 4,
+    styles: ["Realistic", "K-Drama", "2D Anime"],
+    titleHint: "Name this UGC clip",
+    scriptLabel: "Creator script",
+    scriptHint:
+      "Hook first. Paste the pitch the creator delivers to camera — hook, body, call to action. Quoted lines become spoken dialogue.",
+  },
+  ad: {
+    label: "Advertisement",
+    tagline: "Polished product spots for any campaign",
+    badge: "AD",
+    tag: "New",
+    aspect: "16:9",
+    shotSec: 5,
+    defaultShots: 3,
+    styles: ["Realistic", "Cyberpunk", "Ink Wash"],
+    titleHint: "Name this campaign spot",
+    scriptLabel: "Ad brief",
+    scriptHint:
+      "Product, key selling points, mood, and the closing tagline. Three beats work best: product close-up, lifestyle scene, CTA end card.",
+  },
+  mv: {
+    label: "Music Video",
+    tagline: "Turn any track into a synced music video",
+    badge: "MV",
+    aspect: "16:9",
+    shotSec: 5,
+    defaultShots: 6,
+    styles: ["2D Anime", "Cyberpunk", "Ink Wash", "Realistic"],
+    titleHint: "Name this music video",
+    scriptLabel: "Lyrics / visual beats",
+    scriptHint:
+      "Paste lyrics or describe the visuals section by section — intro, verse, chorus, bridge. Each section becomes one or more shots.",
+    hasTrack: true,
+  },
+  film: {
+    label: "Micro Film / Short Film",
+    tagline: "Multi-scene stories worth re-watching",
+    badge: "FILM",
+    tag: "Featured",
+    aspect: "9:16",
+    shotSec: 8,
+    defaultShots: 12,
+    styles: DRAMA_STYLES,
+    titleHint: "Name this episode",
+    scriptLabel: "Script content",
+    scriptHint:
+      "Paste the complete episode script here — scene directions, dialogue, everything.",
+  },
+};
+
+// Mock track library for the Music Video workflow.
+export const MV_TRACKS = [
+  "Tense neo-noir underscore",
+  "Neon night drive · synthwave",
+  "Paper lanterns · lo-fi",
+  "Upload my own track…",
+] as const;
+
+export const workflowOf = (wf?: ProWorkflow): WorkflowCfg => WORKFLOWS[wf ?? "film"];
 
 export interface ProPreset {
   name: string;

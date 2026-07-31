@@ -95,7 +95,7 @@ export default function DistributePage({ params }: { params: Promise<{ id: strin
 
   const createdAsset = MY_ASSETS_CREATED.find((a) => a.id === id);
   const purchasedAsset = MY_ASSETS_PURCHASED.find((a) => a.id === id);
-  // Studio Pro final cuts distribute like any created asset.
+  // NexGC Pro final cuts distribute like any created asset.
   const proExport = proExports.find((a) => a.id === id);
   const asset = createdAsset
     ? { id: createdAsset.id, title: createdAsset.title }
@@ -117,7 +117,7 @@ export default function DistributePage({ params }: { params: Promise<{ id: strin
   const [platforms, setPlatforms] = useState<string[]>(dist?.platforms ?? []);
   const [takedownOpen, setTakedownOpen] = useState(false);
 
-  // Store-backed assets (Studio Pro exports) resolve only after hydration, so
+  // Store-backed assets (NexGC Pro exports) resolve only after hydration, so
   // the lazy initial state above can miss their title. Derive the backfill at
   // render time; the first user edit writes it into real state via the form.
   const metadataView =

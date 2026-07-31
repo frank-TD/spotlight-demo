@@ -16,12 +16,13 @@ import { toast } from "sonner";
 import MiniSelect from "../MiniSelect";
 import { InlineAssetGen } from "./AssetLibrary";
 import {
-  DRAMA_STYLES,
   MAX_SHOTS_CAP,
+  MV_TRACKS,
   PRESETS,
   PRO_COSTS,
   SCRIPT_MAX_LEN,
   TITLE_MAX_LEN,
+  WORKFLOWS,
   assetImg,
   clearSession,
   fmtShotNo,
@@ -31,7 +32,7 @@ import {
   writeSession,
   SK,
 } from "./pro-mock";
-import { useStore, type ProAssetKind, type ProFragment } from "@/lib/store";
+import { useStore, type ProAssetKind, type ProFragment, type ProWorkflow } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 /* ── Script → Shots stepper ──────────────────────────────────────────────
@@ -40,7 +41,8 @@ import { cn } from "@/lib/utils";
    Video editing handoff. Drafts stay local until step 3 confirms them into
    the store (so backing out costs nothing but the parse credits). */
 
-const STEPS = ["Script (full episode)", "Asset details", "Shot management", "Video editing"];
+// Step one carries the workflow's own intake label; the rest are shared.
+const stepTitles = (intake: string) => [intake, "Asset details", "Shot management", "Video editing"];
 
 interface Draft {
   id: string;
@@ -57,12 +59,19 @@ export interface StepperDraft {
   maxShots: string;
   script: string;
   drafts: Draft[];
+  workflow?: ProWorkflow;
+  track?: string;
 }
 
 export default function ScriptStepper({
+  workflow,
+  initialScript,
   onClose,
   onGoEditor,
 }: {
+  workflow: ProWorkflow;
+  // Text handed over from the Create-screen vibe bar.
+  initialScript?: string;
   onClose: () => void;
   onGoEditor: () => void;
 }) {
@@ -75,15 +84,18 @@ export default function ScriptStepper({
     proAssets,
   } = useStore();
 
+  const cfg = WORKFLOWS[workflow];
+
   // Every field initializes from the parked draft so a login round-trip (or
   // reload) resumes exactly where the writer left off — including the parsed
   // shot drafts, which cost credits to regenerate.
   const [saved] = useState(() => readSession<StepperDraft>(SK.stepper));
   const [step, setStep] = useState(() => (saved?.step === 3 ? 0 : (saved?.step ?? 0)));
   const [title, setTitle] = useState(saved?.title ?? "");
-  const [style, setStyle] = useState<string>(saved?.style ?? DRAMA_STYLES[0]);
+  const [style, setStyle] = useState<string>(saved?.style ?? cfg.styles[0]);
   const [maxShots, setMaxShots] = useState(saved?.maxShots ?? "");
-  const [script, setScript] = useState(saved?.script ?? "");
+  const [script, setScript] = useState(saved?.script ?? initialScript ?? "");
+  const [track, setTrack] = useState<string>(saved?.track ?? MV_TRACKS[0]);
   const [parsing, setParsing] = useState(false);
   const [drafts, setDrafts] = useState<Draft[]>(saved?.drafts ?? []);
   const [createdCount, setCreatedCount] = useState(0);
@@ -117,11 +129,13 @@ export default function ScriptStepper({
         maxShots,
         script,
         drafts,
+        workflow,
+        track,
       } satisfies StepperDraft);
     } else {
       clearSession(SK.stepper);
     }
-  }, [step, title, style, maxShots, script, drafts]);
+  }, [step, title, style, maxShots, script, drafts, workflow, track]);
 
   const closeKeepingDraft = () => {
     // Explicit close: keep the text but stop auto-reopening the stepper.
@@ -145,7 +159,7 @@ export default function ScriptStepper({
     }
     setParsing(true);
     parseTimer.current = setTimeout(() => {
-      const cap = Math.min(parseInt(maxShots, 10) || 12, MAX_SHOTS_CAP);
+      const cap = Math.min(parseInt(maxShots, 10) || cfg.defaultShots, MAX_SHOTS_CAP);
       setDrafts(splitScript(script, cap).map((d) => ({ ...d, id: proId("draft") })));
       setParsing(false);
       setStep(1);
@@ -158,7 +172,12 @@ export default function ScriptStepper({
       toast.error("Keep at least one shot");
       return;
     }
-    const projectId = newProProject(title.trim(), style);
+    const projectId = newProProject(
+      title.trim(),
+      style,
+      workflow,
+      cfg.hasTrack ? track : undefined
+    );
     const now = Date.now();
     addProFragments(
       kept.map((d, i) => ({
@@ -169,7 +188,7 @@ export default function ScriptStepper({
         dialogue: d.dialogue,
         status: "draft",
         frames: [],
-        durationSec: 8,
+        durationSec: cfg.shotSec,
         createdAt: now + i,
       })) satisfies ProFragment[]
     );
@@ -191,7 +210,15 @@ export default function ScriptStepper({
         >
           <X className="w-4 h-4" />
         </button>
-        {STEPS.map((label, i) => (
+        <span className="inline-flex items-center gap-1.5 shrink-0 mr-1">
+          <span className="font-label text-[8px] uppercase tracking-widest bg-primary text-on-primary px-1.5 py-0.5 rounded">
+            {cfg.badge}
+          </span>
+          <span className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant hidden md:inline">
+            {cfg.label} · {cfg.aspect}
+          </span>
+        </span>
+        {stepTitles(cfg.scriptLabel).map((label, i) => (
           <span key={label} className="flex items-center gap-2 shrink-0">
             {i > 0 && <span className="w-6 h-px bg-outline-variant/40" aria-hidden="true" />}
             <span
@@ -220,11 +247,11 @@ export default function ScriptStepper({
               <ParsingState />
             ) : (
               <div className="space-y-5">
-                <Field label="Script title" required counter={`${title.length} / ${TITLE_MAX_LEN}`}>
+                <Field label="Title" required counter={`${title.length} / ${TITLE_MAX_LEN}`}>
                   <input
                     value={title}
                     onChange={(e) => setTitle(e.target.value.slice(0, TITLE_MAX_LEN))}
-                    placeholder="Name this episode"
+                    placeholder={cfg.titleHint}
                     aria-label="script title"
                     className="w-full px-4 py-3 rounded-xl bg-surface-container border border-outline-variant/40 focus:border-primary/60 focus:outline-none font-body text-sm text-on-surface placeholder:text-on-surface-variant/60"
                   />
@@ -235,7 +262,7 @@ export default function ScriptStepper({
                     <div className="px-4 py-3 rounded-xl bg-surface-container border border-outline-variant/40 flex items-center justify-between">
                       <MiniSelect
                         value={style}
-                        options={DRAMA_STYLES}
+                        options={cfg.styles}
                         onChange={setStyle}
                         align="start"
                       />
@@ -245,7 +272,7 @@ export default function ScriptStepper({
                     <input
                       value={maxShots}
                       onChange={(e) => setMaxShots(e.target.value.replace(/\D/g, "").slice(0, 2))}
-                      placeholder="Up to 80 shots (default 12)"
+                      placeholder={`Up to ${MAX_SHOTS_CAP} shots (default ${cfg.defaultShots})`}
                       inputMode="numeric"
                       aria-label="max shots"
                       className="w-full px-4 py-3 rounded-xl bg-surface-container border border-outline-variant/40 focus:border-primary/60 focus:outline-none font-body text-sm text-on-surface placeholder:text-on-surface-variant/60"
@@ -253,15 +280,23 @@ export default function ScriptStepper({
                   </Field>
                 </div>
 
+                {cfg.hasTrack && (
+                  <Field label="Track" counter="mock library">
+                    <div className="px-4 py-3 rounded-xl bg-surface-container border border-outline-variant/40 flex items-center justify-between">
+                      <MiniSelect value={track} options={MV_TRACKS} onChange={setTrack} align="start" />
+                    </div>
+                  </Field>
+                )}
+
                 <Field
-                  label="Script content"
+                  label={cfg.scriptLabel}
                   required
                   counter={`${script.length} / ${SCRIPT_MAX_LEN}`}
                 >
                   <textarea
                     value={script}
                     onChange={(e) => setScript(e.target.value.slice(0, SCRIPT_MAX_LEN))}
-                    placeholder="Paste the complete episode script here — scene directions, dialogue, everything."
+                    placeholder={cfg.scriptHint}
                     rows={9}
                     aria-label="script content"
                     className="w-full px-4 py-3 rounded-xl bg-surface-container border border-outline-variant/40 focus:border-primary/60 focus:outline-none font-body text-sm text-on-surface placeholder:text-on-surface-variant/60 resize-y leading-relaxed"

@@ -213,7 +213,7 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
               href="/discovery/workspace?mode=pro"
               className={`${styles.btn} ${styles.btnGhostDark}`}
             >
-              Studio Pro · Short Drama
+              NexGC Pro · Short Drama
             </Link>
             <Link href="/market" className={`${styles.btn} ${styles.btnGhostDark}`}>
               Explore Projects
