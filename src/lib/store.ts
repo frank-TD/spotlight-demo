@@ -198,6 +198,9 @@ export interface ProProject {
   title: string;
   style: string; // art style picked at intake
   workflow?: ProWorkflow;
+  // Micro/Short Film picks its format at intake; other workflows inherit
+  // their workflow default.
+  aspect?: string;
   // Music Video only: the (mock) track driving the visuals.
   trackTitle?: string;
   createdAt: number;
@@ -381,7 +384,8 @@ interface AppState {
     title?: string,
     style?: string,
     workflow?: ProWorkflow,
-    trackTitle?: string
+    trackTitle?: string,
+    aspect?: string
   ) => string;
   renameProProject: (id: string, title: string) => void;
   deleteProProject: (id: string) => void;
@@ -822,11 +826,11 @@ export const useStore = create<AppState>()(
       },
       proProjects: [],
       currentProProjectId: null,
-      newProProject: (title = "Untitled drama", style = "2D Anime", workflow = "film", trackTitle) => {
+      newProProject: (title = "Untitled drama", style = "2D Anime", workflow = "film", trackTitle, aspect) => {
         const id = `pro_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
         set((s) => ({
           proProjects: [
-            { id, title, style, workflow, trackTitle, createdAt: Date.now() },
+            { id, title, style, workflow, trackTitle, aspect, createdAt: Date.now() },
             ...s.proProjects,
           ],
           currentProProjectId: id,
