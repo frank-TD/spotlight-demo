@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { Montserrat } from "next/font/google";
 import EditorialDistribution from "./EditorialDistribution";
+import EditorialDirectors from "./EditorialDirectors";
+import EditorialGhost from "./EditorialGhost";
 import EditorialHeroVideo from "./EditorialHeroVideo";
 import EditorialGetstaked from "./EditorialGetstaked";
 import EditorialNegotiationCard from "./EditorialNegotiationCard";
@@ -159,9 +161,13 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
         </span>
         <div className={styles.wrap}>
           <span className={`${styles.eyebrow} scroll-reveal`}>In the Spotlight</span>
+          <h2 className={`${styles.towTitle} scroll-reveal`}>TOP Of The Week</h2>
           <EditorialGetstaked />
         </div>
       </section>
+
+      {/* ── Featured Directors (sage interlude) ──────────────────────────── */}
+      <EditorialDirectors />
 
       {/* ── Create · Fund · Distribute (paper) ───────────────────────────── */}
       <section className={styles.steps}>
@@ -172,38 +178,36 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
           Pipeline
         </span>
         <div className={styles.wrap}>
-          <span className={`${styles.eyebrow} ${styles.eyebrowDark}`}>Create · Fund · Distribute</span>
-          <h2 className={`${styles.title} ${styles.titleDark}`}>How it works</h2>
-
-          <DrawLine />
-
-          <div className={styles.stepsGrid}>
-            <div className={`${styles.step} scroll-reveal`}>
-              <span className={styles.num}>01</span>
-              <span className={styles.bar} />
-              <h4>Create</h4>
-              <p>
-                Turn ideas into pitch-ready AI films with trailers, story packages, budgets, and
-                production assets.
+          <div className={styles.hiwGrid}>
+            <div className="scroll-reveal">
+              <span className={`${styles.eyebrow} ${styles.eyebrowDark}`}>
+                Create · Fund · Distribute
+              </span>
+              <h2 className={`${styles.title} ${styles.titleDark}`}>How it works</h2>
+              <p className={styles.hiwIntro}>
+                From creator to distributor, we&apos;ve got you covered — three moves take a story
+                from first pitch to worldwide release.
               </p>
+              <DrawLine />
             </div>
-            <div className={`${styles.step} scroll-reveal`}>
-              <span className={styles.num}>02</span>
-              <span className={styles.bar} />
-              <h4>Fund</h4>
-              <p>
-                Back the stories you believe in, support production, and secure your position in the
-                project&apos;s IP journey.
-              </p>
-            </div>
-            <div className={`${styles.step} scroll-reveal`}>
-              <span className={styles.num}>03</span>
-              <span className={styles.bar} />
-              <h4>Distribute</h4>
-              <p>
-                Release finished films across selected channels, track performance, and bring
-                AI-powered stories to global audiences.
-              </p>
+
+            {/* Glass gradient cards fan open one by one on scroll */}
+            <div className={`${styles.glassStack} scroll-reveal`}>
+              <div className={styles.glassCard}>
+                <b>01</b>
+                <h4>Create</h4>
+                <p>Turn ideas into pitch-ready AI films with trailers, story packages and budgets.</p>
+              </div>
+              <div className={styles.glassCard}>
+                <b>02</b>
+                <h4>Fund</h4>
+                <p>Back the stories you believe in and secure your position in the IP journey.</p>
+              </div>
+              <div className={styles.glassCard}>
+                <b>03</b>
+                <h4>Distribute</h4>
+                <p>Release finished films across channels and track every market they reach.</p>
+              </div>
             </div>
           </div>
 
@@ -226,36 +230,50 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
 
       {/* ── Agents ───────────────────────────────────────────────────────── */}
       <section className={`${styles.sec} ${styles.gridStage}`}>
-        <div className={styles.wrap}>
-          <div className={styles.agentsGrid}>
-            <div className={`${styles.agentsCopy} scroll-reveal`}>
-              <span className={styles.eyebrow}>Your AI Agent</span>
-              <h2 className={styles.title}>
-                Agents negotiate.
-                <br />
-                <span className={styles.accent}>
-                  You stay
-                  <br />
-                  in control.
-                </span>
-              </h2>
-              <p>
-                Marlow represents backers. Wren represents creators. They align budget, milestones,
-                rights, and escrow — then prepare the deal for your approval.
-              </p>
-              <div className={styles.ctaRow}>
-                <Link href="/register" className={`${styles.btn} ${styles.btnOrange}`}>
-                  Start a Deal
-                </Link>
-                <Link href="/how-it-works" className={`${styles.btn} ${styles.btnGhost}`}>
-                  See Agent Workflow
-                </Link>
+        <div className={`${styles.wrap} ${styles.agentsStage}`}>
+          <div className="scroll-reveal">
+            <span className={styles.eyebrow}>Your AI Agents</span>
+            <h2 className={styles.agentsTitleXl}>
+              AI Agents <span className={styles.accent}>Negotiate</span>
+            </h2>
+            <p className={styles.agentsSubXl}>
+              Marlow represents backers. Wren represents creators. They align the whole deal — then
+              hand it to you for approval.
+            </p>
+          </div>
+
+          <div className={`${styles.phoneArena} scroll-reveal`}>
+            <div className={styles.agentSide}>
+              <div className={styles.agentChip}>
+                <b>Marlow</b>
+                <span>Backer&apos;s agent</span>
+              </div>
+              <div className={styles.agentChip} data-delay="1">
+                <b>Wren</b>
+                <span>Creator&apos;s agent</span>
               </div>
             </div>
 
-            <div className="scroll-reveal">
+            <div className={styles.phoneShell}>
+              <span className={styles.phoneNotch} />
               <EditorialNegotiationCard />
             </div>
+
+            <div className={`${styles.agentPoints} ${styles.agentSideR}`}>
+              <span className={styles.agentPoint} data-delay="2"><i />They align · Budget</span>
+              <span className={styles.agentPoint} data-delay="3"><i />Milestones</span>
+              <span className={styles.agentPoint} data-delay="4"><i />Rights</span>
+              <span className={styles.agentPoint} data-delay="5"><i />Escrow — you approve the deal</span>
+            </div>
+          </div>
+
+          <div className={`${styles.agentsCtas} scroll-reveal`}>
+            <Link href="/register" className={`${styles.btn} ${styles.btnOrange}`}>
+              Start a Deal
+            </Link>
+            <Link href="/how-it-works" className={`${styles.btn} ${styles.btnGhost}`}>
+              See Agent Workflow
+            </Link>
           </div>
         </div>
       </section>
@@ -290,8 +308,9 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
       </section>
 
       {/* ── Join Getstaked (orange open call) ────────────────────────────── */}
-      <section className={styles.join}>
+      <section className={styles.join} style={{ position: "relative" }}>
         <span className={`${styles.joinGlow} spotlight-breathe`} aria-hidden="true" />
+        <EditorialGhost />
         <div className={`${styles.joinInner} scroll-reveal`}>
           <p className={styles.joinEyebrow}>Open Call · AI Film Slate</p>
           <div className={styles.joinAvatars}>

@@ -1331,3 +1331,342 @@
   background: linear-gradient(90deg, var(--flame), var(--flame-deep));
   color: #ffffff;
 }
+
+/* ═══ Getstaked Phase 2 — Top of the Week, Featured Directors, glass
+   pipeline cards, phone-mock agents, ghost cursor. Scroll choreography
+   rides the global .scroll-reveal observer: a section wrapper receives
+   `.visible`, children stagger via transition-delay. ═══ */
+
+/* ── S3 · Top of the Week ── */
+.towTitle {
+  font-size: clamp(30px, 4.4vw, 56px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin-top: 10px;
+}
+.towMedia {
+  position: relative;
+  margin-top: 26px;
+  aspect-ratio: 16 / 9;
+  max-height: 480px;
+  width: 100%;
+  border-radius: 6px;
+  overflow: hidden;
+  background: #0c231e;
+}
+.towMedia video,
+.towStill {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background-size: cover;
+  background-position: center;
+}
+.towMetaRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 22px;
+  margin-top: 18px;
+}
+.towMetaRow h3 { font-size: clamp(18px, 2vw, 26px); font-weight: 800; }
+.towMetaRow p {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  color: rgba(28, 28, 28, 0.6);
+}
+.towBack { margin-left: auto; }
+/* Poster carousel — snap-scroll, centre card scales up (Netflix-style). */
+.towCarousel {
+  display: flex;
+  gap: 18px;
+  margin-top: 34px;
+  padding: 26px 8px 10px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scrollbar-width: none;
+}
+.towCarousel::-webkit-scrollbar { display: none; }
+.towCard {
+  flex: 0 0 auto;
+  width: clamp(130px, 15vw, 185px);
+  scroll-snap-align: center;
+  border: 0;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+  text-align: left;
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: scale(var(--tow-scale, 1));
+  transform-origin: center bottom;
+}
+.towPoster {
+  display: block;
+  aspect-ratio: 2 / 3;
+  border-radius: 5px;
+  background-size: cover;
+  background-position: center;
+  border: 1px solid rgba(28, 28, 28, 0.16);
+  box-shadow: 0 14px 34px rgba(10, 31, 27, 0.18);
+}
+.towCardOn .towPoster { outline: 3px solid var(--orange); outline-offset: -3px; }
+.towCardText {
+  display: block;
+  margin-top: 10px;
+  font-size: 10.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(28, 28, 28, 0.62);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.towCardTitle { display: block; font-size: 13px; color: #101010; letter-spacing: 0.02em; }
+
+/* ── S4 · Featured Directors ── */
+.directorsStage {
+  position: relative;
+  background: #5c7a72;
+  padding: 110px 0 130px;
+  overflow: hidden;
+}
+.directorsHead { text-align: center; position: relative; z-index: 2; }
+.directorsHead .eyebrow { color: rgba(255, 255, 255, 0.85); }
+.directorsHead .eyebrow::before { background: var(--orange); }
+.directorsTitle {
+  color: #f4f7f5;
+  font-size: clamp(30px, 4.6vw, 58px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  margin-top: 10px;
+}
+.directorsSub { margin-top: 12px; color: rgba(244, 247, 245, 0.72); font-size: 14px; font-weight: 600; }
+.dirRow {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: clamp(10px, 2vw, 26px);
+  margin-top: 58px;
+  flex-wrap: wrap;
+}
+.dirCard {
+  position: relative;
+  width: clamp(128px, 13vw, 172px);
+  aspect-ratio: 3 / 4.3;
+  border-radius: 8px;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center top;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  box-shadow: 0 24px 50px rgba(10, 25, 21, 0.35);
+  transform: rotate(var(--tilt, 0deg)) translateY(var(--lift, 0px));
+  transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.dirCard:hover { transform: rotate(0deg) translateY(-14px); }
+.dirCard::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 46%, rgba(8, 21, 18, 0.88) 100%);
+}
+.dirCardText { position: absolute; left: 12px; right: 12px; bottom: 11px; z-index: 2; }
+.dirName { display: block; color: #ffffff; font-size: 14px; font-weight: 800; letter-spacing: 0.02em; }
+.dirRole {
+  display: block;
+  margin-top: 3px;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 9.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+/* Cards rise one by one once the row is in view. */
+.dirRow :global(.dir-pop) { opacity: 0; transform: translateY(56px) rotate(var(--tilt, 0deg)); }
+.dirRow:global(.visible) :global(.dir-pop) {
+  opacity: 1;
+  transform: rotate(var(--tilt, 0deg)) translateY(var(--lift, 0px));
+  transition:
+    opacity 0.6s ease,
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.directorsCta { position: relative; z-index: 2; display: flex; justify-content: center; margin-top: 52px; }
+
+/* ── S5 · How it works — glass gradient cards ── */
+.hiwGrid {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) 1.1fr;
+  gap: clamp(30px, 5vw, 80px);
+  align-items: center;
+  margin-top: 30px;
+}
+@media (max-width: 900px) { .hiwGrid { grid-template-columns: 1fr; } }
+.hiwIntro { font-size: 15px; line-height: 1.6; color: rgba(244, 240, 232, 0.66); max-width: 40ch; margin-top: 16px; }
+.glassStack {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 340px;
+}
+.glassCard {
+  position: absolute;
+  width: clamp(180px, 17vw, 230px);
+  aspect-ratio: 4 / 5.1;
+  border-radius: 18px;
+  padding: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  background:
+    linear-gradient(150deg, rgba(255, 92, 28, 0.34) 0%, rgba(255, 138, 92, 0.12) 38%, rgba(127, 247, 226, 0.14) 78%, rgba(127, 247, 226, 0.3) 100%);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
+  transform: translateX(0) rotate(0deg);
+  opacity: 0;
+  transition:
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.5s ease;
+}
+.glassCard b {
+  display: block;
+  font-size: 30px;
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.92);
+}
+.glassCard h4 { margin-top: 10px; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #ffffff; }
+.glassCard p { margin-top: 10px; font-size: 12px; line-height: 1.55; font-weight: 600; color: rgba(255, 255, 255, 0.78); }
+/* Stacked shut → fanned open, one by one. */
+.glassStack:global(.visible) .glassCard { opacity: 1; }
+.glassStack:global(.visible) .glassCard:nth-child(1) { transform: translateX(-104%) rotate(-5deg); transition-delay: 0.05s; }
+.glassStack:global(.visible) .glassCard:nth-child(2) { transform: translateX(0) rotate(0deg) translateY(16px); transition-delay: 0.22s; }
+.glassStack:global(.visible) .glassCard:nth-child(3) { transform: translateX(104%) rotate(5deg); transition-delay: 0.4s; }
+@media (max-width: 900px) {
+  .glassStack { min-height: 300px; }
+  .glassStack:global(.visible) .glassCard:nth-child(1) { transform: translateX(-72%) rotate(-5deg) scale(0.9); }
+  .glassStack:global(.visible) .glassCard:nth-child(3) { transform: translateX(72%) rotate(5deg) scale(0.9); }
+}
+
+/* ── S6 · AI Agents Negotiate — phone mock ── */
+.agentsStage { text-align: center; }
+.agentsTitleXl {
+  font-size: clamp(30px, 4.6vw, 56px);
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+.agentsSubXl { margin-top: 12px; color: rgba(244, 240, 232, 0.62); font-size: 14px; font-weight: 600; max-width: 52ch; margin-inline: auto; }
+.phoneArena {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr minmax(300px, 400px) 1fr;
+  align-items: center;
+  gap: 18px;
+  margin-top: 48px;
+}
+@media (max-width: 900px) { .phoneArena { grid-template-columns: 1fr; } }
+.phoneShell {
+  position: relative;
+  border-radius: 34px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: #060f0d;
+  padding: 16px 12px;
+  box-shadow: 0 40px 90px rgba(0, 0, 0, 0.6);
+  transform: translateY(64px) scale(0.86);
+  opacity: 0;
+  transition:
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.5s ease;
+}
+.phoneArena:global(.visible) .phoneShell { transform: translateY(0) scale(1); opacity: 1; }
+.phoneNotch {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 84px;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+}
+.agentSide { display: flex; flex-direction: column; gap: 14px; align-items: flex-end; }
+.agentSide + .agentSide,
+.agentSideR { align-items: flex-start; }
+.agentChip {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(127, 247, 226, 0.35);
+  background: rgba(12, 35, 30, 0.85);
+  text-align: left;
+  opacity: 0;
+  transform: translateY(26px);
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.45s ease;
+}
+.agentChip b { font-size: 13px; font-weight: 800; color: var(--orange); }
+.agentChip span { font-size: 9.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.12em; color: rgba(244, 240, 232, 0.6); }
+.agentPoints { display: flex; flex-direction: column; gap: 10px; align-items: flex-start; }
+.agentPoint {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 12px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: rgba(244, 240, 232, 0.82);
+  opacity: 0;
+  transform: translateY(22px);
+  transition: transform 0.55s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+}
+.agentPoint i { width: 7px; height: 7px; border-radius: 50%; background: var(--flame, #ff5c1c); }
+.phoneArena:global(.visible) .agentChip,
+.phoneArena:global(.visible) .agentPoint { opacity: 1; transform: translateY(0); }
+.phoneArena:global(.visible) [data-delay="1"] { transition-delay: 0.25s; }
+.phoneArena:global(.visible) [data-delay="2"] { transition-delay: 0.4s; }
+.phoneArena:global(.visible) [data-delay="3"] { transition-delay: 0.55s; }
+.phoneArena:global(.visible) [data-delay="4"] { transition-delay: 0.7s; }
+.phoneArena:global(.visible) [data-delay="5"] { transition-delay: 0.85s; }
+.agentsCtas { display: flex; justify-content: center; gap: 14px; margin-top: 44px; flex-wrap: wrap; }
+
+/* ── Ghost cursor (movement section easter egg) ── */
+.ghost {
+  position: absolute;
+  z-index: 5;
+  width: 46px;
+  height: 54px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  filter: drop-shadow(0 6px 18px rgba(255, 92, 28, 0.35));
+}
+.ghostOn { opacity: 1; }
+.ghost svg { width: 100%; height: 100%; animation: ghost-bob 1.6s ease-in-out infinite; }
+@keyframes ghost-bob {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+.ghostBoo {
+  position: absolute;
+  top: -18px;
+  left: 44px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: var(--flame, #ff5c1c);
+  white-space: nowrap;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ghost { display: none; }
+  .glassCard,
+  .phoneShell,
+  .agentChip,
+  .agentPoint { opacity: 1 !important; transform: none !important; transition: none !important; }
+  .dirRow :global(.dir-pop) { opacity: 1 !important; transform: rotate(var(--tilt, 0deg)) !important; }
+}
