@@ -112,7 +112,7 @@ export function flowActor(flow: SessionFlow | undefined): Role | null {
   }
 }
 
-/* ── AIGC Studio types ───────────────────────────────────────────────── */
+/* ── NexGC types ───────────────────────────────────────────────── */
 
 export type StudioMode = "image" | "video" | "voiceover" | "music";
 
@@ -180,7 +180,7 @@ export interface StudioGroup {
   createdAt: number;
 }
 
-/* ── Studio Pro (short-drama production workspace) ───────────────────────
+/* ── NexGC Pro (short-drama production workspace) ───────────────────────
    Pro mode organises work as projects (episodes) → fragments (shots), plus
    reusable generated assets (characters / scenes / props). Everything is a
    display-level mock: picsum imagery, fake timers, a decorative credits
@@ -189,10 +189,20 @@ export interface StudioGroup {
 export type ProAssetKind = "character" | "scene" | "prop";
 export type ProFragmentStatus = "draft" | "framed" | "directed";
 
+// Video-type workflows (OpenArt-style quick starts). Legacy projects without
+// the field are treated as "film".
+export type ProWorkflow = "ugc" | "ad" | "mv" | "film";
+
 export interface ProProject {
   id: string;
   title: string;
-  style: string; // drama art style picked at script intake
+  style: string; // art style picked at intake
+  workflow?: ProWorkflow;
+  // Micro/Short Film picks its format at intake; other workflows inherit
+  // their workflow default.
+  aspect?: string;
+  // Music Video only: the (mock) track driving the visuals.
+  trackTitle?: string;
   createdAt: number;
 }
 
@@ -325,7 +335,7 @@ interface AppState {
   updateBackerPrefs: (prefs: Partial<NonNullable<AppState["userPreferences"]["backer"]>>) => void;
   updateCreatorPrefs: (prefs: Partial<NonNullable<AppState["userPreferences"]["creator"]>>) => void;
 
-  // AIGC Studio sessions (persisted)
+  // NexGC sessions (persisted)
   studioSessions: StudioSession[];
   studioGroups: StudioGroup[];
   currentStudioSessionId: string | null;
@@ -362,7 +372,7 @@ interface AppState {
   deleteStudioGroup: (id: string) => void;
   toggleStudioGroupCollapsed: (id: string) => void;
 
-  // Studio Pro (persisted)
+  // NexGC Pro (persisted)
   studioProMode: boolean;
   setStudioProMode: (v: boolean) => void;
   proCredits: number;
@@ -370,7 +380,13 @@ interface AppState {
   spendProCredits: (n: number) => boolean;
   proProjects: ProProject[];
   currentProProjectId: string | null;
-  newProProject: (title?: string, style?: string) => string;
+  newProProject: (
+    title?: string,
+    style?: string,
+    workflow?: ProWorkflow,
+    trackTitle?: string,
+    aspect?: string
+  ) => string;
   renameProProject: (id: string, title: string) => void;
   deleteProProject: (id: string) => void;
   setCurrentProProject: (id: string | null) => void;
@@ -626,7 +642,7 @@ export const useStore = create<AppState>()(
           },
         })),
 
-      // AIGC Studio
+      // NexGC
       studioSessions: [],
       studioGroups: [],
       currentStudioSessionId: null,
@@ -799,7 +815,7 @@ export const useStore = create<AppState>()(
           ),
         })),
 
-      // Studio Pro
+      // NexGC Pro
       studioProMode: false,
       setStudioProMode: (v) => set({ studioProMode: v }),
       proCredits: 500,
@@ -810,10 +826,13 @@ export const useStore = create<AppState>()(
       },
       proProjects: [],
       currentProProjectId: null,
-      newProProject: (title = "Untitled drama", style = "2D Anime") => {
+      newProProject: (title = "Untitled drama", style = "2D Anime", workflow = "film", trackTitle, aspect) => {
         const id = `pro_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
         set((s) => ({
-          proProjects: [{ id, title, style, createdAt: Date.now() }, ...s.proProjects],
+          proProjects: [
+            { id, title, style, workflow, trackTitle, aspect, createdAt: Date.now() },
+            ...s.proProjects,
+          ],
           currentProProjectId: id,
         }));
         return id;

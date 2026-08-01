@@ -85,7 +85,7 @@ export default function HistoryRail({
   onRenameGroup: (id: string, name: string) => void;
   onDeleteGroup: (id: string) => void;
   onToggleGroup: (id: string) => void;
-  /* Bridge to Studio Pro: shows the Pro project count and jumps to Pro mode,
+  /* Bridge to NexGC Pro: shows the Pro project count and jumps to Pro mode,
      so the two project systems stay visible to each other. */
   proShortcut?: { count: number; onOpen: () => void } | null;
 }) {
@@ -234,7 +234,7 @@ export default function HistoryRail({
               {proShortcut.count} short drama {proShortcut.count === 1 ? "project" : "projects"}
             </span>
             <span className="block font-label text-[9px] uppercase tracking-widest text-on-surface-variant/80 mt-0.5">
-              Open Studio Pro →
+              Open NexGC Pro →
             </span>
           </span>
         </button>

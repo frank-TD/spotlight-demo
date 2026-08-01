@@ -13,10 +13,13 @@ import {
   ArrowUp,
   ArrowDown,
   Clapperboard,
-  FileText,
   Loader2,
   Zap,
   Layers,
+  Megaphone,
+  Music2,
+  Smartphone,
+  Wand2,
 } from "lucide-react";
 import { toast } from "sonner";
 import ScriptStepper, { type StepperDraft } from "./ScriptStepper";
@@ -29,8 +32,11 @@ import {
   proId,
   readSession,
   writeSession,
+  workflowOf,
   PRO_COSTS,
   SK,
+  WORKFLOWS,
+  WORKFLOW_ORDER,
 } from "./pro-mock";
 import {
   DropdownMenu,
@@ -41,8 +47,22 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useStore, type ProFragment, type ProFragmentStatus } from "@/lib/store";
+import { useStore, type ProFragment, type ProFragmentStatus, type ProWorkflow } from "@/lib/store";
 import { cn } from "@/lib/utils";
+
+/* Quick-start card visuals per workflow. */
+const WF_ICON: Record<ProWorkflow, typeof Smartphone> = {
+  ugc: Smartphone,
+  ad: Megaphone,
+  mv: Music2,
+  film: Clapperboard,
+};
+const WF_TINT: Record<ProWorkflow, string> = {
+  ugc: "linear-gradient(150deg, #16181c 20%, rgba(198,255,52,0.18) 100%)",
+  ad: "linear-gradient(150deg, #16181c 20%, rgba(255,184,64,0.16) 100%)",
+  mv: "linear-gradient(150deg, #16181c 20%, rgba(150,120,255,0.18) 100%)",
+  film: "linear-gradient(150deg, #101014 10%, rgba(198,255,52,0.30) 100%)",
+};
 
 /* ── Shots board — fragment management ───────────────────────────────────
    Projects (episodes) hold fragments (shots). Two production entries: the
@@ -80,10 +100,16 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
   /* Restore-on-mount, resolved inside initializers (render-safe): a script
      draft interrupted by the signup gate reopens the stepper; a pending
      @mention or a previously open composer reopens the composer. */
-  const [stepperOpen, setStepperOpen] = useState(() => {
+  // Which workflow's wizard is open (null = closed). Restored drafts reopen
+  // with their own workflow.
+  const [stepperWf, setStepperWf] = useState<ProWorkflow | null>(() => {
     const d = readSession<StepperDraft>(SK.stepper);
-    return !!(d?.open && (d.title || d.script || (d.drafts?.length ?? 0) > 0));
+    if (d?.open && (d.title || d.script || (d.drafts?.length ?? 0) > 0)) return d.workflow ?? "film";
+    return null;
   });
+  // Text typed into the Create-screen vibe bar, seeded into the wizard.
+  const [vibeText, setVibeText] = useState("");
+  const [stepperSeed, setStepperSeed] = useState<string | undefined>(undefined);
   const [composerId, setComposerId] = useState<string | null>(() => {
     const d = readSession<StepperDraft>(SK.stepper);
     if (d?.open && (d.title || d.script)) return null; // stepper wins
@@ -167,7 +193,7 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
       status: "draft",
       frames: [],
       durationSec: 8,
-      createdAt: Date.now(),
+      createdAt: nowTs(),
     };
     addProFragments([frag]);
     openComposer(frag.id);
@@ -183,12 +209,19 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
   };
 
   // Stepper and composer take over the whole section area.
-  if (stepperOpen) {
+  if (stepperWf) {
     return (
       <ScriptStepper
-        onClose={() => setStepperOpen(false)}
+        key={stepperWf}
+        workflow={stepperWf}
+        initialScript={stepperSeed}
+        onClose={() => {
+          setStepperWf(null);
+          setStepperSeed(undefined);
+        }}
         onGoEditor={() => {
-          setStepperOpen(false);
+          setStepperWf(null);
+          setStepperSeed(undefined);
           onGoEditor();
         }}
       />
@@ -206,44 +239,121 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
     );
   }
 
-  /* Empty state — no project yet: lead with the two production entries. */
+  /* Create screen — no project selected: vibe bar + workflow quick starts
+     (OpenArt-style). Picking a card opens that workflow's wizard. */
   if (!project) {
+    const startWizard = (wf: ProWorkflow, seed?: string) => {
+      setStepperSeed(seed && seed.trim() ? seed.trim() : undefined);
+      setStepperWf(wf);
+    };
     return (
-      <div className="rounded-3xl border border-outline-variant/40 bg-surface-container-lowest/60 px-6 py-16">
-        <div className="max-w-2xl mx-auto text-center">
-          <h3 className="font-headline text-2xl text-on-surface">Start a production</h3>
-          <p className="font-body text-sm text-on-surface-variant mt-2">
-            Split a full episode script into shots with the Superstar agent, or start from a single
-            blank shot.
-          </p>
-          <div className="grid sm:grid-cols-2 gap-4 mt-8 text-left">
+      <div className="rounded-3xl border border-outline-variant/40 bg-surface-container-lowest/60 px-5 md:px-8 py-10">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center">
+            <h3 className="font-headline text-3xl text-on-surface" style={{ textWrap: "balance" }}>
+              Direct your next video
+            </h3>
+            <p className="font-body text-sm text-on-surface-variant mt-2">
+              Describe the idea, pick a workflow, and NexGC turns it into shots, clips and a cut.
+            </p>
+          </div>
+
+          {/* Vibe bar */}
+          <div className="mt-6 rounded-[22px] border border-outline-variant/40 bg-surface-container/60 p-2 pl-4 flex items-center gap-2">
+            <Wand2 className="w-4 h-4 text-primary shrink-0" />
+            <input
+              value={vibeText}
+              onChange={(e) => setVibeText(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") startWizard("film", vibeText);
+              }}
+              placeholder="Describe your video — “a rain-soaked revenge micro drama”, “a 15s serum ad”…"
+              aria-label="describe your video"
+              className="flex-1 min-w-0 bg-transparent border-none focus:outline-none font-body text-sm text-on-surface placeholder:text-on-surface-variant/60"
+            />
             <button
               type="button"
-              onClick={() => setStepperOpen(true)}
-              className="rounded-2xl border border-primary/45 bg-primary-container/15 hover:bg-primary-container/30 transition-colors p-5"
+              onClick={() => startWizard("film", vibeText)}
+              className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-on-primary font-label text-[10px] uppercase tracking-wider hover:opacity-90 active:scale-95 transition-all"
             >
-              <FileText className="w-5 h-5 text-primary" />
-              <p className="font-label text-label-md uppercase tracking-wider text-on-surface mt-3">
-                Script to Shots
-              </p>
-              <p className="font-body text-xs text-on-surface-variant mt-1.5 leading-relaxed">
-                Paste one full episode — the agent splits it into up to 80 shot drafts with detected
-                cast, scenes and props.
-              </p>
+              Guide me
             </button>
+            <button
+              type="button"
+              onClick={() => toast.info("Just make it — one-shot auto mode arrives in the next update")}
+              className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-outline-variant/50 font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
+            >
+              Just make it
+            </button>
+          </div>
+
+          {/* Quick starts */}
+          <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mt-8 mb-3">
+            Quick Starts
+          </p>
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
+            {WORKFLOW_ORDER.map((wf) => {
+              const cfg = WORKFLOWS[wf];
+              const Icon = WF_ICON[wf];
+              return (
+                <button
+                  key={wf}
+                  type="button"
+                  onClick={() => startWizard(wf, vibeText)}
+                  className="group text-left rounded-2xl border border-outline-variant/40 overflow-hidden hover:border-primary/50 transition-colors bg-surface-container-low"
+                >
+                  <div
+                    className="relative aspect-[4/3] flex items-center justify-center"
+                    style={{ background: WF_TINT[wf] }}
+                  >
+                    <Icon className="w-8 h-8 text-on-surface/85 group-hover:scale-110 transition-transform duration-300" />
+                    {cfg.tag && (
+                      <span
+                        className={cn(
+                          "absolute top-2 left-2 font-label text-[8px] uppercase tracking-widest px-1.5 py-0.5 rounded",
+                          cfg.tag === "Featured"
+                            ? "bg-primary text-on-primary"
+                            : "border border-outline-variant/50 text-on-surface-variant bg-surface/50"
+                        )}
+                      >
+                        {cfg.tag}
+                      </span>
+                    )}
+                    <span className="absolute bottom-2 right-2 font-label text-[8px] uppercase tracking-widest text-on-surface-variant/80 border border-outline-variant/40 bg-surface/50 px-1.5 py-0.5 rounded">
+                      {cfg.aspect}
+                    </span>
+                  </div>
+                  <div className="px-3.5 py-3">
+                    <p className="font-label text-label-md uppercase tracking-wider text-on-surface">
+                      {cfg.label}
+                    </p>
+                    <p className="font-body text-[11px] text-on-surface-variant mt-1 leading-snug">
+                      {cfg.tagline}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Secondary entries */}
+          <div className="flex items-center justify-center gap-2 mt-7">
             <button
               type="button"
               onClick={onNewShot}
-              className="rounded-2xl border border-outline-variant/40 bg-surface-container-low hover:border-primary/40 transition-colors p-5"
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-outline-variant/50 font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
             >
-              <Plus className="w-5 h-5 text-on-surface-variant" />
-              <p className="font-label text-label-md uppercase tracking-wider text-on-surface mt-3">
-                Blank shot
-              </p>
-              <p className="font-body text-xs text-on-surface-variant mt-1.5 leading-relaxed">
-                Open the composer directly — frame it, direct it, add more shots as you go.
-              </p>
+              <Plus className="w-3 h-3" /> Blank project
             </button>
+            {proProjects.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setCurrentProProject(proProjects[0].id)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-outline-variant/50 font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
+              >
+                <FolderOpen className="w-3 h-3" /> Open recent · {proProjects[0].title}
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -278,8 +388,11 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
             <DropdownMenuTrigger className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors font-label text-label-md text-on-surface">
               <FolderOpen className="w-3.5 h-3.5 text-on-surface-variant" />
               {project.title}
+              <span className="font-label text-[8px] uppercase tracking-widest bg-primary text-on-primary px-1.5 py-0.5 rounded">
+                {workflowOf(project.workflow).badge}
+              </span>
               <span className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant/75">
-                {project.style}
+                {project.style} · {workflowOf(project.workflow).aspect}
               </span>
               <ChevronDown className="w-3 h-3 opacity-60" />
             </DropdownMenuTrigger>
@@ -314,7 +427,11 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
               >
                 <Pencil className="w-3.5 h-3.5" /> Rename
               </DropdownMenuItem>
-              <DropdownMenuItem onClick={() => newProProject()} className="gap-2 cursor-pointer">
+              {/* Route through the Create screen so the new project picks a workflow. */}
+              <DropdownMenuItem
+                onClick={() => setCurrentProProject(null)}
+                className="gap-2 cursor-pointer"
+              >
                 <Plus className="w-3.5 h-3.5" /> New project
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -362,7 +479,7 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
           )}
           <button
             type="button"
-            onClick={() => setStepperOpen(true)}
+            onClick={() => setStepperWf(project.workflow ?? "film")}
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-primary/45 text-primary font-label text-[10px] uppercase tracking-wider hover:bg-primary-container/25 transition-colors"
           >
             <Sparkles className="w-3 h-3" /> Script to Shots

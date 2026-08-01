@@ -76,7 +76,7 @@ export default function TopNav() {
 
   // `match` controls how the active state is decided. Discover has merged into
   // the Marketplace (one tab → /market). Workspace is a sub-route of /discovery,
-  // so we let AIGC Studio claim the workspace prefix.
+  // so we let NexGC claim the workspace prefix.
   //
   // Nav is auth-aware (guest flow): logged-out visitors see only the public
   // surface — Marketplace + How It Works — with Log In on the right. The full
@@ -85,7 +85,7 @@ export default function TopNav() {
     label: string;
     href: string;
     match: (p: string) => boolean;
-    // Flags a freshly shipped surface with a small dot (e.g. Studio Pro).
+    // Flags a freshly shipped surface with a small dot (e.g. NexGC Pro).
     isNew?: boolean;
   };
   const GUEST_NAV: NavItem[] = [
@@ -98,7 +98,7 @@ export default function TopNav() {
       label: t.nav.studio,
       href: "/discovery/workspace",
       match: (p: string) => p.startsWith("/discovery/workspace"),
-      // Studio Pro just shipped — a small dot flags the new workspace.
+      // NexGC Pro just shipped — a small dot flags the new workspace.
       isNew: true,
     },
     { label: t.nav.myProjects, href: "/projects", match: (p: string) => p.startsWith("/projects") },

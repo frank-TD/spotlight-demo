@@ -129,13 +129,13 @@ export default function HowItWorksPage() {
                   <Wand2 className="w-4 h-4" />
                   {journey.seeAigcStudio}
                 </Link>
-                {/* Studio Pro deep link — the short-drama production workspace. */}
+                {/* NexGC Pro deep link — the short-drama production workspace. */}
                 <Link
                   href="/discovery/workspace?mode=pro"
                   className={cn(pillVariants({ variant: "outlinePrimary", size: "md" }), "group")}
                 >
                   <Clapperboard className="w-4 h-4" />
-                  Studio Pro · Short Drama
+                  NexGC Pro · Short Drama
                 </Link>
               </>
             )}

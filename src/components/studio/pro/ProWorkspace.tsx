@@ -22,7 +22,7 @@ const coachDismissed = () => {
   }
 };
 
-/* ── Studio Pro workspace ────────────────────────────────────────────────
+/* ── NexGC Pro workspace ────────────────────────────────────────────────
    Artlist-style production workspace: a left icon rail switches between the
    Shots board, the three asset libraries and the Editor. Lives behind the
    Basic | Pro toggle in StudioWorkspace; everything inside is mock. */
@@ -74,7 +74,7 @@ export default function ProWorkspace() {
     <div className="flex gap-4 items-start">
       {/* Icon rail */}
       <nav
-        aria-label="Studio Pro sections"
+        aria-label="NexGC Pro sections"
         className="sticky top-24 shrink-0 w-[64px] rounded-2xl border border-outline-variant/40 bg-surface-container-lowest/60 py-3 flex flex-col items-center gap-1"
       >
         {RAIL.map(({ id, icon: Icon, label }, i) => (
@@ -103,7 +103,7 @@ export default function ProWorkspace() {
       <div className="flex-1 min-w-0">
         {/* Slim workspace header */}
         <div className="flex items-center gap-2.5 flex-wrap mb-4">
-          <h2 className="font-headline text-xl text-on-surface leading-none">Studio Pro</h2>
+          <h2 className="font-headline text-xl text-on-surface leading-none">NexGC Pro</h2>
           <span className="font-label text-[9px] uppercase tracking-widest border border-primary/40 text-primary px-1.5 py-0.5 rounded">
             Short Drama Production
           </span>
@@ -155,7 +155,7 @@ export default function ProWorkspace() {
           <DialogTitle className="sr-only">Credits</DialogTitle>
           <div className="text-center">
             <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
-              Studio Pro balance
+              NexGC Pro balance
             </p>
             <p className="font-headline text-4xl text-primary mt-1 inline-flex items-center gap-2">
               <Zap className="w-6 h-6" fill="currentColor" />

@@ -126,7 +126,7 @@ export default function PromptDock({
   superstarSettings: SuperstarSettings;
   onOpenSuperstarParams: () => void;
   onSuperstarHelper: (label: string) => void;
-  // Opens Studio Pro — the short-drama production workspace that absorbed
+  // Opens NexGC Pro — the short-drama production workspace that absorbed
   // the old Superstar Agent provider entry.
   onOpenPro: () => void;
 }) {
@@ -481,7 +481,7 @@ export default function PromptDock({
                 <DropdownMenuLabel className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
                   Production Workspace
                 </DropdownMenuLabel>
-                {/* The old Superstar Agent provider moved into Studio Pro —
+                {/* The old Superstar Agent provider moved into NexGC Pro —
                     this entry hands users over to the Pro workspace. */}
                 <DropdownMenuItem
                   onClick={onOpenPro}
@@ -494,7 +494,7 @@ export default function PromptDock({
                       </span>
                       <div className="flex-1 min-w-0">
                         <p className="font-label text-label-md text-on-surface flex items-center gap-2">
-                          Studio Pro
+                          NexGC Pro
                           <span className="font-label text-[8px] uppercase tracking-widest border border-primary/50 text-primary px-1 py-px rounded">
                             New
                           </span>

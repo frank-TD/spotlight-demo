@@ -35,7 +35,7 @@ export default function SculptHome() {
           </span>
           <nav className={styles.nav}>
             <Link href="/market">Marketplace</Link>
-            <Link href="/discovery/workspace">AIGC Studio</Link>
+            <Link href="/discovery/workspace">NexGC</Link>
             <Link href="/how-it-works">How it works</Link>
             <Link href="/market">Creators</Link>
             <Link href="/register">Sign in</Link>
