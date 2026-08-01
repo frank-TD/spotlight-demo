@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Space_Grotesk, Inter } from "next/font/google";
 import styles from "./creatix.module.css";
 
-// Homepage style draft #4 — the live Spotlight homepage's own modules
+// Homepage style draft #4 — the live Getstaked homepage's own modules
 // (hero / trust / featured / how-it-works / agents / distribution / creator
 // callout / faq / contact / footer), restyled in the "Creatix" playful-agency
 // language (near-black + off-white + vivid lime, Space Grotesk + Inter, rounded
@@ -11,7 +11,7 @@ import styles from "./creatix.module.css";
 // numbered pill links, rotated ticker, green footer). Same information, new
 // skin. Self-contained route; does not touch the live homepage.
 
-export const metadata: Metadata = { title: "Spotlight — Creatix draft" };
+export const metadata: Metadata = { title: "Getstaked — Creatix draft" };
 
 const display = Space_Grotesk({
   subsets: ["latin"],
@@ -39,7 +39,7 @@ export default function CreatixHome() {
             <Link href="/discovery/workspace">NexGC</Link>
             <Link className={styles.brand} href="/">
               <span className={styles.burst} />
-              Spotlight
+              Getstaked
             </Link>
             <Link href="/market">Creators</Link>
             <Link href="/register">Sign in</Link>
@@ -51,7 +51,7 @@ export default function CreatixHome() {
           <div className={styles.heroGrid}>
             <article className={styles.heroCopy}>
               <p>
-                From first frame to final cut, Spotlight pairs AI filmmakers with backers who fund
+                From first frame to final cut, Getstaked pairs AI filmmakers with backers who fund
                 the work — escrow-protected, milestone by milestone.
               </p>
               <Link className={`${styles.button} ${styles.ghost}`} href="/market">
@@ -125,7 +125,7 @@ export default function CreatixHome() {
           <h2 className={styles.head2}>
             Now in the
             <br />
-            Spotlight
+            Getstaked
           </h2>
           <p>
             Celestial Entity — a deep-space salvage feature made with AI — is open to back right now.
@@ -274,11 +274,11 @@ export default function CreatixHome() {
             needs its next creators.
           </h2>
           <p>
-            Start creating with AI, enter the Spotlight slate, and let backers carry your story from
+            Start creating with AI, enter the Getstaked slate, and let backers carry your story from
             idea to screen.
           </p>
           <Link className={styles.button} href="/discovery/workspace">
-            Join Spotlight
+            Join Getstaked
           </Link>
         </div>
       </section>
@@ -323,7 +323,7 @@ export default function CreatixHome() {
       </section>
 
       {/* ── Ticker ───────────────────────────────────────────────────────── */}
-      <section className={`${styles.ticker} ${styles.sectionFull}`} aria-label="Spotlight lifecycle">
+      <section className={`${styles.ticker} ${styles.sectionFull}`} aria-label="Getstaked lifecycle">
         <div>
           Create <em>+</em> Fund <em>+</em> Distribute <em>+</em> Stream <em>+</em> Own
         </div>
@@ -336,7 +336,7 @@ export default function CreatixHome() {
             <h2>Get in touch today</h2>
             <p>
               Whether you&apos;re backing your first film or pitching your next one, tell us where to
-              reach you and the Spotlight team will follow up.
+              reach you and the Getstaked team will follow up.
             </p>
             <form className={styles.contactForm}>
               <input type="email" aria-label="Email address" placeholder="Enter your email" />
@@ -346,7 +346,7 @@ export default function CreatixHome() {
           <figure
             className={`${styles.contactPerson} ${styles.personCutout}`}
             style={bg("golden-core")}
-            aria-label="A Spotlight creator"
+            aria-label="A Getstaked creator"
           />
         </div>
       </section>
@@ -355,7 +355,7 @@ export default function CreatixHome() {
       <footer className={`${styles.footer} ${styles.sectionFull}`}>
         <div className={`${styles.footerInner} ${styles.sectionInner}`}>
           <div>
-            <h2>Spotlight</h2>
+            <h2>Getstaked</h2>
             <p>
               A marketplace for AI film — fund it, own it, stream it. Built for the creators and
               backers of the next slate.

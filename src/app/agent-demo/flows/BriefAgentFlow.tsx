@@ -211,7 +211,7 @@ export default function BriefAgentFlow() {
         open={gate}
         onOpenChange={setGate}
         title="Publish this brief?"
-        summary="The Agent will publish your brief to the Spotlight marketplace and begin matching creators. Confirm the essentials below."
+        summary="The Agent will publish your brief to the Getstaked marketplace and begin matching creators. Confirm the essentials below."
         checklist={BRIEF_CANVAS.risks}
         approveLabel="Approve & publish"
         onApprove={publish}

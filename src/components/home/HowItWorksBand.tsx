@@ -5,7 +5,7 @@ import { ArrowRight, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useT } from "@/hooks/useT";
 
-// "Create. Fund. Distribute." — Spotlight's platform loop told as a production
+// "Create. Fund. Distribute." — Getstaked's platform loop told as a production
 // pipeline: three process cards wired by a gold line that draws on entry, with
 // a creator-first CTA pair below. The mechanics still live on /how-it-works.
 export default function HowItWorksBand() {

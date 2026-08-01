@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "AI Distribution — Spotlight",
+  title: "AI Distribution — Getstaked",
   description: "Let AI distribute your film to audiences and platforms worldwide.",
 };
 

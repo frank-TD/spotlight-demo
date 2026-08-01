@@ -12,7 +12,7 @@ const prefersReducedMotion = () =>
 
 // "In the Spotlight" — the editorial heart of the homepage. One lead project
 // gets a full magazine spread; the rest spin through a 3D coverflow you can
-// drag, step, or click into. Spotlight commissions creators, so cards
+// drag, step, or click into. Getstaked commissions creators, so cards
 // foreground who is making each film and whether it is open to back.
 export default function FeaturedProjects() {
   const t = useT();

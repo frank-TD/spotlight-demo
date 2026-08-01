@@ -655,7 +655,7 @@ function EmptyCanvas() {
             style={{
               background:
                 i === 1
-                  ? "linear-gradient(135deg, #16181c 0%, rgba(198,255,52,0.14) 100%)"
+                  ? "linear-gradient(135deg, #16181c 0%, rgba(127,247,226,0.14) 100%)"
                   : undefined,
             }}
           />

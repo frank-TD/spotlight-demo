@@ -110,7 +110,7 @@ export default function TopNav() {
   // from the primary tabs (outlined pill) so it reads as an internal preview
   // link, not a product section. Remove once a direction is chosen.
   const previewsActive = pathname.startsWith("/previews");
-  // Standalone entry to the Spotlight Agent prototype. Uses the cool agent
+  // Standalone entry to the Getstaked Agent prototype. Uses the cool agent
   // accent (not gold) so it reads as the embedded intelligence layer.
   const agentActive = pathname.startsWith("/agent-demo");
 
@@ -128,9 +128,14 @@ export default function TopNav() {
           <div className="flex items-center gap-8">
             <Link
               href="/"
-              className="font-headline text-[26px] md:text-[30px] text-primary font-extrabold tracking-tight leading-none whitespace-nowrap"
+              className="inline-flex items-center gap-2 font-headline text-[26px] md:text-[30px] text-primary font-extrabold tracking-tight leading-none whitespace-nowrap"
             >
-              Spotlight
+              {/* Getstaked play-mark */}
+              <svg viewBox="0 0 100 100" aria-hidden="true" className="w-6 h-6 md:w-7 md:h-7 fill-current">
+                <rect x="4" y="4" width="92" height="92" rx="24" />
+                <path d="M40 30 74 50 40 70Z" className="fill-surface" />
+              </svg>
+              Getstaked
             </Link>
             {/* Tabs stay visible for anonymous visitors too — the homepage must
               always offer a way into the rest of the product. */}
@@ -352,7 +357,7 @@ export default function TopNav() {
         >
           <div className="flex items-center justify-between px-5 py-4 border-b border-outline-variant/30">
             <span className="font-headline text-2xl font-bold text-on-surface">
-              Spotlight
+              Getstaked
             </span>
             <button
               ref={mobileCloseRef}

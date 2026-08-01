@@ -269,7 +269,7 @@ function AgentCard({
       className={cn(
         "rounded-2xl p-5 border bg-surface-container-lowest text-left transition-all hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2",
         accent === "gold"
-          ? "border-primary/30 hover:border-primary/60 hover:shadow-[0_12px_40px_rgba(198,255,52,0.18)] focus-visible:ring-primary"
+          ? "border-primary/30 hover:border-primary/60 hover:shadow-[0_12px_40px_rgba(127,247,226,0.18)] focus-visible:ring-primary"
           : "border-secondary/30 hover:border-secondary/60 hover:shadow-[0_12px_40px_rgba(168,196,229,0.18)] focus-visible:ring-secondary"
       )}
     >
@@ -310,7 +310,7 @@ function GlowAgentCard({
   const [sweep, setSweep] = useState(0);
   const isGold = accent === "gold";
   const glow = isGold
-    ? { glowColor: "198 255 52", colors: ["#c6ff34", "#d8ff95", "#2f4712"] }
+    ? { glowColor: "198 255 52", colors: ["#7ff7e2", "#d8ff95", "#2f4712"] }
     : { glowColor: "211 55 78", colors: ["#a8c4e5", "#c5d6e8", "#1c2a3a"] };
 
   const handleClick = () => {

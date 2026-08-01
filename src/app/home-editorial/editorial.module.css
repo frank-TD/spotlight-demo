@@ -1,4 +1,4 @@
-/* "A United" editorial language built out into a COMPLETE Spotlight homepage,
+/* "A United" editorial language built out into a COMPLETE Getstaked homepage,
    scoped to this route only. Strict palette + structural grid, axis ticks,
    corner notes, outlined watermark titles, orange marks; alternating ink /
    sand / orange stages. The signature dark screen-mockup is promoted to a
@@ -76,8 +76,8 @@
    full lime panel with charcoal type — the "lime panel, black type" pairing from
    the palette card. */
 .root.themeLime {
-  --orange: #c6ff34;
-  --orange-deep: #aee62a;
+  --orange: #7ff7e2;
+  --orange-deep: #5adfc8;
   --paper: #000000;
 }
 /* Dark text on every filled-lime surface. */
@@ -127,26 +127,8 @@
    read flat. Pull the trust stats into a framed lime data panel — lime numbers,
    a tinted hairline border with column dividers, and lifted labels — and echo
    the lime figures in the distribution report so both data blocks pop. */
-.root.themeLime .trustRow {
-  gap: 0;
-  width: fit-content;
-  max-width: 100%;
-  margin-inline: auto;
-  border: 1px solid color-mix(in srgb, var(--orange) 32%, transparent);
-  border-radius: 16px;
-  background: color-mix(in srgb, var(--orange) 6%, transparent);
-  padding: clamp(26px, 3.4vw, 38px) clamp(8px, 1.6vw, 20px);
-}
-.root.themeLime .stat { padding: 0 clamp(26px, 4.2vw, 60px); }
-.root.themeLime .stat + .stat {
-  border-left: 1px solid color-mix(in srgb, var(--orange) 20%, transparent);
-}
-.root.themeLime .stat b {
-  color: var(--orange);
-  font-size: clamp(42px, 4.8vw, 58px);
-}
-/* The figure comes through StatCountUp as <b><span>…</span></b>; colour that
-   inner span too so it isn't caught by the label rule below. */
+/* Stat pills on the lime theme: black pill, mint figure. */
+.root.themeLime .stat b,
 .root.themeLime .stat b span { color: var(--orange); }
 .root.themeLime .stat > span { color: rgba(244, 240, 232, 0.72); }
 .root.themeLime .relMetric b { color: var(--orange); }
@@ -431,30 +413,36 @@
   position: relative;
   padding: 70px 0;
 }
+/* Stacked stat lines (Getstaked redesign): number sits in a solid pill,
+   label rides beside it; rows stagger in on scroll. */
 .trustRow {
   display: flex;
-  flex-wrap: wrap;
-  gap: 36px 56px;
-  justify-content: center;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  width: fit-content;
+  margin: 0 auto;
 }
-.stat { text-align: center; }
-.stat b { display: block; font-size: clamp(34px, 4vw, 44px); font-weight: 800; color: var(--white); line-height: 1; }
+.stat { display: flex; align-items: center; gap: 22px; text-align: left; }
+.stat b {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 150px;
+  padding: 12px 26px;
+  border-radius: 4px;
+  background: #000000;
+  color: var(--orange);
+  font-size: clamp(26px, 3vw, 36px);
+  font-weight: 800;
+  line-height: 1;
+}
 .stat span {
-  display: block;
-  margin-top: 10px;
-  color: rgba(244, 240, 232, 0.5);
-  font-size: 10px;
-  font-weight: 700;
+  color: rgba(244, 240, 232, 0.6);
+  font-size: 12px;
+  font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-}
-.stat b::before {
-  content: "";
-  display: block;
-  width: 22px;
-  height: 3px;
-  margin: 0 auto 16px;
-  background: var(--orange);
 }
 .trustProof {
   display: flex;
@@ -1066,7 +1054,7 @@
 }
 .relThumbOn .relThumbDate { color: var(--orange-deep); }
 
-/* ── Join Spotlight (orange) ─────────────────────────────────────────────── */
+/* ── Join Getstaked (orange) ─────────────────────────────────────────────── */
 .join {
   position: relative;
   padding: clamp(100px, 14vh, 168px) var(--gutter);
@@ -1245,10 +1233,11 @@
 .root.themeLime .sec,
 .root.themeLime .footer { color: #1c1c1c; }
 
-/* Trust band: ink figures, lime ticks/dots stay */
+/* Trust band on white: the pill stays black with a mint figure; labels ink. */
+.root.themeLime .stat b { background: #0a1f1b; }
 .root.themeLime .stat b,
-.root.themeLime .stat b span { color: #1c1c1c; }
-.root.themeLime .stat > span { color: rgba(28, 28, 28, 0.6); }
+.root.themeLime .stat b span { color: var(--orange); }
+.root.themeLime .stat > span { color: rgba(28, 28, 28, 0.66); }
 .root.themeLime .trustProof span { color: rgba(28, 28, 28, 0.62); }
 
 /* Section furniture on white */
@@ -1302,3 +1291,43 @@
 /* Footer on white */
 .root.themeLime .footerWord { color: #101010; }
 .root.themeLime .footerMeta { color: rgba(28, 28, 28, 0.5); }
+
+
+/* ═══ Getstaked flame accents (PR-1): deep-pine Join with a flame glow, a
+   flame FAQ wordmark, and a white→flame footer. Sits last so it wins over
+   both the lime-theme block and the white-stage layer above. ═══ */
+.root.themeLime {
+  --flame: #ff5c1c;
+  --flame-deep: #e04a10;
+}
+/* Join / movement call: lime field → near-black pine with a flame glow. */
+.root.themeLime .join { background: #071512; }
+.root.themeLime .join,
+.root.themeLime .joinTitle { color: var(--white); }
+.root.themeLime .joinEyebrow { color: rgba(255, 138, 92, 0.9); }
+.root.themeLime .joinSlateMeta { color: rgba(244, 240, 232, 0.72); }
+.root.themeLime .joinSub { color: rgba(244, 240, 232, 0.8); }
+.root.themeLime .joinAvatars span { border-color: rgba(244, 240, 232, 0.45); }
+.root.themeLime .joinGlow {
+  background:
+    radial-gradient(ellipse 52% 46% at 50% 88%, rgba(255, 92, 28, 0.5), transparent 68%),
+    radial-gradient(ellipse 30% 26% at 50% 96%, rgba(255, 138, 92, 0.55), transparent 70%);
+}
+.root.themeLime .join .btnDark {
+  background: linear-gradient(90deg, var(--flame), var(--flame-deep));
+  color: #ffffff;
+}
+/* FAQ wordmark + accents go flame. */
+.root.themeLime .faqAnchor h2 {
+  color: var(--flame);
+  -webkit-text-stroke-color: var(--flame);
+}
+.root.themeLime .faqQ i { color: var(--flame); }
+/* Footer: white fades into flame, CTA flips to flame fill. */
+.root.themeLime .footer {
+  background: linear-gradient(180deg, #ffffff 0%, #ffe6d8 55%, #ffab84 115%);
+}
+.root.themeLime .footer .btnOrange {
+  background: linear-gradient(90deg, var(--flame), var(--flame-deep));
+  color: #ffffff;
+}

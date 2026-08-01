@@ -715,7 +715,7 @@ export default function EditorPanel({ onGoShots }: { onGoShots: () => void }) {
               value={pps}
               onChange={(e) => setPps(Number(e.target.value))}
               aria-label="timeline zoom"
-              className="w-24 accent-[var(--md-primary,#c6ff34)]"
+              className="w-24 accent-[var(--md-primary,#7ff7e2)]"
             />
             <TransportBtn label="Zoom in" onClick={() => setPps((p) => Math.min(PPS_MAX, p + 16))}>
               <ZoomIn className="w-3.5 h-3.5" />

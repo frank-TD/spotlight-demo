@@ -44,7 +44,7 @@ export default function OnboardingRolePage() {
             className="block font-headline animate-fade-up"
             style={{
               animationDelay: "260ms",
-              background: "linear-gradient(135deg, #c6ff34 0%, #d8ff95 60%, #c6ff34 100%)",
+              background: "linear-gradient(135deg, #7ff7e2 0%, #d8ff95 60%, #7ff7e2 100%)",
               WebkitBackgroundClip: "text",
               WebkitTextFillColor: "transparent",
               backgroundClip: "text",

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Montserrat } from "next/font/google";
 import EditorialDistribution from "./EditorialDistribution";
 import EditorialHeroVideo from "./EditorialHeroVideo";
-import EditorialSpotlight from "./EditorialSpotlight";
+import EditorialGetstaked from "./EditorialGetstaked";
 import EditorialNegotiationCard from "./EditorialNegotiationCard";
 import { DrawLine, FaqAccordion } from "./motion";
 import styles from "./editorial.module.css";
@@ -23,7 +23,7 @@ const bg = (name: string) => ({ backgroundImage: `url(/posters/${name}.jpg)` });
 const FAQ_ITEMS = [
   {
     q: "Is this like Fiverr or Upwork?",
-    a: "No. Spotlight is a content commissioning platform, not a task marketplace. You commission full productions — brief to broadcast-ready — with IP protection and AI-managed delivery. Think executive producer, not task manager.",
+    a: "No. Getstaked is a content commissioning platform, not a task marketplace. You commission full productions — brief to broadcast-ready — with IP protection and AI-managed delivery. Think executive producer, not task manager.",
   },
   {
     q: "What does a Patron do?",
@@ -38,15 +38,17 @@ const FAQ_ITEMS = [
     a: "Your full project budget is locked in escrow at signing. Creators receive payment at each approved milestone. Final IP transfers to you only when you approve delivery and release the final payment.",
   },
   {
-    q: "Who backs Spotlight?",
-    a: "Spotlight is backed by one of Asia's most respected independent film production groups, with over 20 years of production experience across Hong Kong, Taiwan, and Southeast Asia.",
+    q: "Who backs Getstaked?",
+    a: "Getstaked is backed by one of Asia's most respected independent film production groups, with over 20 years of production experience across Hong Kong, Taiwan, and Southeast Asia.",
   },
 ];
 
 function Mark({ className }: { className?: string }) {
+  // Getstaked play-mark: rounded tile with a play triangle.
   return (
-    <svg className={className} viewBox="0 0 100 92" aria-hidden="true">
-      <path d="M50 0 100 82H72L50 40 28 82H0L50 0Z" />
+    <svg className={className} viewBox="0 0 100 100" aria-hidden="true">
+      <rect x="4" y="4" width="92" height="92" rx="24" />
+      <path d="M40 30 74 50 40 70Z" fill="var(--ink, #0a1f1b)" />
     </svg>
   );
 }
@@ -70,7 +72,7 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
             <div className={styles.heroNavInner}>
               <Link href="/" className={styles.heroBrand}>
                 <Mark />
-                Spotlight
+                Getstaked
               </Link>
               <nav className={styles.heroLinks}>
                 <Link href="/market">Marketplace</Link>
@@ -117,20 +119,20 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
         <span className={`${styles.axis} ${styles.axisLeft}`} />
         <span className={`${styles.axis} ${styles.axisRight}`} />
         <div className={styles.wrap}>
-          <div className={`${styles.trustRow} scroll-reveal`}>
-            <div className={styles.stat}>
+          <div className={styles.trustRow}>
+            <div className={`${styles.stat} scroll-reveal`}>
               <b>
                 <StatCountUp value="2,400+" />
               </b>
               <span>Creators</span>
             </div>
-            <div className={styles.stat}>
+            <div className={`${styles.stat} scroll-reveal`} style={{ animationDelay: "0.14s" }}>
               <b>
                 <StatCountUp value="1,000+" />
               </b>
               <span>Backers</span>
             </div>
-            <div className={styles.stat}>
+            <div className={`${styles.stat} scroll-reveal`} style={{ animationDelay: "0.28s" }}>
               <b>
                 <StatCountUp value="98%" />
               </b>
@@ -153,11 +155,11 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
       {/* ── In the Spotlight (creator works) ─────────────────────────────── */}
       <section className={`${styles.sec} ${styles.gridStage}`}>
         <span className={`${styles.outlineTitle} ${styles.spotlightWatermark}`} aria-hidden="true">
-          Spotlight
+          Getstaked
         </span>
         <div className={styles.wrap}>
           <span className={`${styles.eyebrow} scroll-reveal`}>In the Spotlight</span>
-          <EditorialSpotlight />
+          <EditorialGetstaked />
         </div>
       </section>
 
@@ -270,7 +272,7 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
                 <span className={styles.accent}>Seen everywhere.</span>
               </h2>
               <p className={styles.distBody}>
-                From final cut to global release, Spotlight helps films reach platforms, regions, and
+                From final cut to global release, Getstaked helps films reach platforms, regions, and
                 audiences — with post-release performance clearly tracked.
               </p>
               <div className={styles.ctaRow}>
@@ -287,7 +289,7 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
         </div>
       </section>
 
-      {/* ── Join Spotlight (orange open call) ────────────────────────────── */}
+      {/* ── Join Getstaked (orange open call) ────────────────────────────── */}
       <section className={styles.join}>
         <span className={`${styles.joinGlow} spotlight-breathe`} aria-hidden="true" />
         <div className={`${styles.joinInner} scroll-reveal`}>
@@ -300,11 +302,11 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
           <p className={styles.joinSlateMeta}>2026 Creator Slate · Now accepting AI-powered films</p>
           <h2 className={styles.joinTitle}>The AI film movement needs its next creators.</h2>
           <p className={styles.joinSub}>
-            Start creating with AI, enter the Spotlight slate, and let backers carry your story from
+            Start creating with AI, enter the Getstaked slate, and let backers carry your story from
             idea to screen.
           </p>
           <Link href="/register" className={`${styles.btn} ${styles.btnDark}`}>
-            Join Spotlight →
+            Join Getstaked →
           </Link>
         </div>
       </section>
@@ -327,13 +329,13 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
         <span className={styles.topRule} />
         <div className={styles.wrap}>
           <div className={`${styles.footerInner} scroll-reveal`}>
-            <div className={styles.footerWord}>Spotlight</div>
+            <div className={styles.footerWord}>Getstaked</div>
             <Link href="/register" className={`${styles.btn} ${styles.btnOrange}`}>
-              Join Spotlight →
+              Join Getstaked →
             </Link>
           </div>
           <div className={styles.footerMeta}>
-            <span>© 2026 Spotlight Technologies</span>
+            <span>© 2026 Getstaked Technologies</span>
             <span>Fund · Own · Stream</span>
             <span>Editorial Draft · 2026</span>
           </div>

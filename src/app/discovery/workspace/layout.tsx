@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "NexGC — Spotlight",
-  description: "Generate AI films in the Spotlight NexGC workspace.",
+  title: "NexGC — Getstaked",
+  description: "Generate AI films in the Getstaked NexGC workspace.",
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {

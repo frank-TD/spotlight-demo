@@ -58,10 +58,10 @@ const WF_ICON: Record<ProWorkflow, typeof Smartphone> = {
   film: Clapperboard,
 };
 const WF_TINT: Record<ProWorkflow, string> = {
-  ugc: "linear-gradient(150deg, #16181c 20%, rgba(198,255,52,0.18) 100%)",
+  ugc: "linear-gradient(150deg, #16181c 20%, rgba(127,247,226,0.18) 100%)",
   ad: "linear-gradient(150deg, #16181c 20%, rgba(255,184,64,0.16) 100%)",
   mv: "linear-gradient(150deg, #16181c 20%, rgba(150,120,255,0.18) 100%)",
-  film: "linear-gradient(150deg, #101014 10%, rgba(198,255,52,0.30) 100%)",
+  film: "linear-gradient(150deg, #101014 10%, rgba(127,247,226,0.30) 100%)",
 };
 
 /* ── Shots board — fragment management ───────────────────────────────────
@@ -568,7 +568,7 @@ function FragmentCard({
               className="absolute inset-0 flex items-center justify-center"
               style={{
                 background:
-                  "linear-gradient(135deg, #101014 0%, #16181c 55%, rgba(198,255,52,0.10) 100%)",
+                  "linear-gradient(135deg, #101014 0%, #16181c 55%, rgba(127,247,226,0.10) 100%)",
               }}
             >
               <span

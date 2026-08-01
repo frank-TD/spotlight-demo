@@ -2,13 +2,13 @@ import type { Metadata } from "next";
 import { Archivo_Black, Montserrat } from "next/font/google";
 import styles from "./onyx.module.css";
 
-// Homepage style draft #2 — Spotlight's homepage themes re-expressed in the
+// Homepage style draft #2 — Getstaked's homepage themes re-expressed in the
 // "ONYX" brutalist brand-portfolio language (vivid red + charcoal + cream,
 // Archivo Black display, grayscale-duotone imagery, a 2-column board of poster
 // "page" panels). Self-contained route; does not touch the live homepage.
 // Local /posters keep it offline-renderable.
 
-export const metadata: Metadata = { title: "Spotlight — ONYX draft" };
+export const metadata: Metadata = { title: "Getstaked — ONYX draft" };
 
 const archivo = Archivo_Black({ subsets: ["latin"], weight: "400", variable: "--onyx-headline", display: "swap" });
 const mont = Montserrat({
@@ -27,7 +27,7 @@ export default function OnyxHome() {
         {/* ── Hero ─────────────────────────────────────────────────────── */}
         <section className={`${styles.hero} ${styles.frame}`}>
           <div className={styles.heroRed}>
-            <h1>Spotlight</h1>
+            <h1>Getstaked</h1>
             <p className={styles.heroSub}>
               AI Film
               <br />
@@ -60,7 +60,7 @@ export default function OnyxHome() {
               Films
             </h2>
             <p>
-              Spotlight is the marketplace where AI-powered films are created, funded, and
+              Getstaked is the marketplace where AI-powered films are created, funded, and
               distributed. Creators turn ideas into pitch-ready films; backers fund the stories they
               believe in — budgets held in escrow, released stage by stage.
             </p>
@@ -119,12 +119,12 @@ export default function OnyxHome() {
         <section className={`${styles.story} ${styles.frame} ${styles.dark}`}>
           <div className={styles.storyCopy}>
             <h2 className={styles.bigHead}>
-              Spotlight
+              Getstaked
               <br />
               Story
             </h2>
             <p>
-              Spotlight began with one belief: the next great films will be made by creators amplified
+              Getstaked began with one belief: the next great films will be made by creators amplified
               by AI — and owned by the people who back them. From a single slate to a global
               marketplace, we fund the stories that matter.
             </p>
@@ -152,7 +152,7 @@ export default function OnyxHome() {
           <div className={styles.studioTitle}>
             <h2 className={styles.bigHead}>AIGC</h2>
             <p>
-              The Spotlight Studio turns a prompt into a pitch — trailers, story packages, budgets and
+              The Getstaked Studio turns a prompt into a pitch — trailers, story packages, budgets and
               production assets, all in one place.
             </p>
           </div>
@@ -185,7 +185,7 @@ export default function OnyxHome() {
           <h2 className={styles.bigHead}>
             In The
             <br />
-            Spotlight
+            Getstaked
           </h2>
           <p className={styles.actionNote}>Now Showing</p>
         </section>

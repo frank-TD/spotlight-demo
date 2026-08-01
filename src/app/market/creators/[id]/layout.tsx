@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Creator — Spotlight",
-  description: "View a creator profile and showcase on Spotlight.",
+  title: "Creator — Getstaked",
+  description: "View a creator profile and showcase on Getstaked.",
 };
 
 export default function Layout({ children }: { children: React.ReactNode }) {

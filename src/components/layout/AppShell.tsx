@@ -44,10 +44,10 @@ function Footer() {
       <div className="flex flex-col md:flex-row justify-between items-center px-12 max-w-[1280px] mx-auto gap-8">
         <div className="flex flex-col items-center md:items-start gap-2">
           <span className="font-headline text-headline-md text-primary font-bold">
-            Spotlight
+            Getstaked
           </span>
           <p className="font-body text-on-surface-variant opacity-80 text-sm">
-            © 2026 Spotlight Technologies
+            © 2026 Getstaked Technologies
           </p>
         </div>
         <nav aria-label="Footer" className="flex gap-8">

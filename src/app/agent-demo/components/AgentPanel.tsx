@@ -47,7 +47,7 @@ export default function AgentPanel() {
               <Sparkles className="relative w-4 h-4" />
             </span>
             <div>
-              <p className="font-label text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">Spotlight Agent</p>
+              <p className="font-label text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">Getstaked Agent</p>
               <p className="font-headline text-lg text-on-surface leading-tight">{panel.title}</p>
             </div>
           </div>

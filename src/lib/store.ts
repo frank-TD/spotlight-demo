@@ -583,7 +583,7 @@ function appendCard(
   const msg = {
     id: `flw_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`,
     senderId: "system",
-    senderName: "Spotlight",
+    senderName: "Getstaked",
     senderRole: "system",
     text,
     ts,

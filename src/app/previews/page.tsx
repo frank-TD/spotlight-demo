@@ -8,7 +8,7 @@ import styles from "./previews.module.css";
 // with screenshot thumbnails. Not linked from the production nav.
 
 export const metadata: Metadata = {
-  title: "Spotlight — Homepage drafts",
+  title: "Getstaked — Homepage drafts",
   robots: { index: false, follow: false },
 };
 
@@ -30,15 +30,15 @@ type Draft = {
 
 const DRAFTS: Draft[] = [
   {
-    name: "Spotlight",
+    name: "Getstaked",
     route: "/",
     thumb: "/previews/home-editorial-lime.jpg",
-    accent: "#c6ff34",
+    accent: "#7ff7e2",
     desc: "The live homepage — Black + Lime editorial: all-dark charcoal + pure-black stages with an electric lime accent.",
     live: true,
   },
   {
-    name: "Spotlight — Cinematic (archived)",
+    name: "Getstaked — Cinematic (archived)",
     route: "/home-spotlight",
     thumb: "/previews/home-live.jpg",
     accent: "#d4af37",
@@ -89,7 +89,7 @@ export default function PreviewsGallery() {
         <h1>Homepage style drafts</h1>
         <p>
           Four alternative homepage directions alongside the live site, each restyling the same
-          Spotlight content in a different visual language. Open any of them to compare — they&apos;re
+          Getstaked content in a different visual language. Open any of them to compare — they&apos;re
           drafts for picking a direction, not production pages.
         </p>
       </header>

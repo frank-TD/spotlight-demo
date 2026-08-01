@@ -1,6 +1,6 @@
 /* Temporary internal gallery that links out to every homepage style draft.
    Neutral dark chrome (so it doesn't favour any one draft), gold accent to
-   match the Spotlight app. Each card carries the draft's own accent color via
+   match the Getstaked app. Each card carries the draft's own accent color via
    the --accent custom property. Scoped under .root so nothing leaks. */
 
 .root {

@@ -148,10 +148,10 @@ export function SuperstarTaskCard({
           className="relative aspect-video flex items-center justify-center"
           style={{
             background:
-              "linear-gradient(135deg, #101014 0%, #16181c 45%, rgba(198,255,52,0.12) 100%)",
+              "linear-gradient(135deg, #101014 0%, #16181c 45%, rgba(127,247,226,0.12) 100%)",
           }}
         >
-          <span className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(198,255,52,0.08),transparent_65%)]" />
+          <span className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(127,247,226,0.08),transparent_65%)]" />
           <span className="relative w-14 h-14 rounded-full border border-primary/50 bg-surface/60 backdrop-blur flex items-center justify-center text-primary">
             <Play className="w-6 h-6 translate-x-[1px]" fill="currentColor" />
           </span>

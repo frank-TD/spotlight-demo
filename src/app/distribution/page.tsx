@@ -121,7 +121,7 @@ export default function DistributionPage() {
           <button
             type="button"
             onClick={distribute}
-            className={cn(pillVariants({ size: "md" }), "group shadow-[0_8px_30px_rgba(198,255,52,0.25)] mt-10")}
+            className={cn(pillVariants({ size: "md" }), "group shadow-[0_8px_30px_rgba(127,247,226,0.25)] mt-10")}
           >
             {t.distribution.cta}
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />

@@ -4,31 +4,31 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* ─── Cinematic dark tokens — Spotlight Phase A rebrand ──────────────────
+/* ─── Cinematic dark tokens — Getstaked Phase A rebrand ──────────────────
    Inspired by the netlify sample (dark backdrop + warm gold + cool blue).
    Token slots match the prior M3 schema so every existing utility class
    (bg-surface, text-on-surface-variant, etc.) keeps working — we just
    redefined the values. */
 :root {
-  /* Primary = electric lime (Black + Lime rebrand, was cinematic gold). Drives
+  /* Primary = mint (#7FF7E2) — Getstaked pine/mint/flame rebrand. Drives
      the wordmark, accent text, and the primary CTA across the whole app. Lime
      is luminous, so on-primary stays dark for legible button text. */
-  --md-primary: #c6ff34;
-  --md-on-primary: #08080a;
-  --md-primary-container: #20300d;
-  --md-on-primary-container: #d8ff95;
+  --md-primary: #7ff7e2;
+  --md-on-primary: #04231c;
+  --md-primary-container: #0d3b31;
+  --md-on-primary-container: #a9fbe9;
   /* *-fixed are used as gradient stops on placeholder cards — keep them in the
      dim lime/olive range so cards read as moody, not neon-flat. */
-  --md-primary-fixed: #2f4712;
-  --md-primary-fixed-dim: #20300d;
-  --md-on-primary-fixed: #d8ff95;
-  --md-on-primary-fixed-variant: #d8ff95;
-  --md-inverse-primary: #6f9233;
+  --md-primary-fixed: #0f4a3d;
+  --md-primary-fixed-dim: #0d3b31;
+  --md-on-primary-fixed: #a9fbe9;
+  --md-on-primary-fixed-variant: #a9fbe9;
+  --md-inverse-primary: #3f8b7b;
 
   /* Secondary = cool slate blue (Creator / Wren accent, "I'M A CREATOR" chip,
      Sci-Fi category). */
   --md-secondary: #a8c4e5;
-  --md-on-secondary: #08080a;
+  --md-on-secondary: #06120f;
   --md-secondary-container: #1c2a3a;
   --md-on-secondary-container: #a8c4e5;
   --md-secondary-fixed: #2c3a4a;
@@ -37,41 +37,41 @@
   --md-on-secondary-fixed-variant: #c5d6e8;
 
   /* Tertiary = muted moss (Documentary chip, supporting accent). */
-  --md-tertiary: #c9c8ab;
-  --md-on-tertiary: #08080a;
-  --md-tertiary-container: #2d2e1f;
-  --md-on-tertiary-container: #e5e4c6;
-  --md-tertiary-fixed: #3d3e2c;
-  --md-tertiary-fixed-dim: #2d2e1f;
-  --md-on-tertiary-fixed: #c9c8ab;
-  --md-on-tertiary-fixed-variant: #c9c8ab;
+  --md-tertiary: #ff8a5c;
+  --md-on-tertiary: #2b0d02;
+  --md-tertiary-container: #43190a;
+  --md-on-tertiary-container: #ffc7ad;
+  --md-tertiary-fixed: #54200c;
+  --md-tertiary-fixed-dim: #43190a;
+  --md-on-tertiary-fixed: #ffb494;
+  --md-on-tertiary-fixed-variant: #ffb494;
 
   /* Dark surface scale — graduated near-black to slightly lifted greys for
      stacked card layers (banner > section > card > raised card). */
-  --md-background: #08080a;
+  --md-background: #0a1f1b;
   --md-on-background: #ffffff;
-  --md-surface: #08080a;
-  --md-surface-bright: #1a1a1f;
-  --md-surface-dim: #050507;
-  --md-surface-container-lowest: #0c0c0e;
-  --md-surface-container-low: #101012;
-  --md-surface-container: #14141a;
-  --md-surface-container-high: #1a1a22;
-  --md-surface-container-highest: #22222a;
-  --md-surface-variant: #1a1a22;
-  --md-surface-tint: #c6ff34;
+  --md-surface: #0a1f1b;
+  --md-surface-bright: #16332c;
+  --md-surface-dim: #06120f;
+  --md-surface-container-lowest: #0c231e;
+  --md-surface-container-low: #0f2822;
+  --md-surface-container: #123028;
+  --md-surface-container-high: #17382f;
+  --md-surface-container-highest: #1c4137;
+  --md-surface-variant: #17382f;
+  --md-surface-tint: #7ff7e2;
   --md-on-surface: #ffffff;
-  --md-on-surface-variant: #a8a8b0;
-  --md-inverse-surface: #f6efed;
-  --md-inverse-on-surface: #1d1b1a;
+  --md-on-surface-variant: #9fb5ae;
+  --md-inverse-surface: #eef6f2;
+  --md-inverse-on-surface: #12211d;
 
   /* Outline */
-  --md-outline: #44444c;
-  --md-outline-variant: #2a2a32;
+  --md-outline: #3a544c;
+  --md-outline-variant: #24403a;
 
   /* Error */
   --md-error: #ff6b6b;
-  --md-on-error: #08080a;
+  --md-on-error: #06120f;
   --md-error-container: #4a1818;
   --md-on-error-container: #ffb4ab;
 
@@ -375,7 +375,7 @@
     transform 0.3s ease;
 }
 .glow-hover:hover {
-  box-shadow: 0 0 24px rgba(198, 255, 52, 0.35);
+  box-shadow: 0 0 24px rgba(127, 247, 226, 0.35);
 }
 
 /* Hide the scrollbar on horizontal rails (featured posters) while keeping the
@@ -526,7 +526,7 @@
   border-radius: inherit;
   background: radial-gradient(
     300px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
-    var(--spotlight-color, rgba(198, 255, 52, 0.22)),
+    var(--spotlight-color, rgba(127, 247, 226, 0.22)),
     transparent 72%
   );
   opacity: 0;
@@ -559,7 +559,7 @@
   background: conic-gradient(
     from calc(var(--cursor-angle, 90deg) - 30deg) at 50% 50%,
     transparent 0deg,
-    var(--glow-color, #c6ff34) 30deg,
+    var(--glow-color, #7ff7e2) 30deg,
     transparent 60deg
   );
   filter: blur(8px);
@@ -631,13 +631,13 @@
 /* Live pulse halo — slow breathing ring used by status dots */
 @keyframes live-pulse {
   0% {
-    box-shadow: 0 0 0 0 rgba(198, 255, 52, 0.55);
+    box-shadow: 0 0 0 0 rgba(127, 247, 226, 0.55);
   }
   70% {
-    box-shadow: 0 0 0 8px rgba(198, 255, 52, 0);
+    box-shadow: 0 0 0 8px rgba(127, 247, 226, 0);
   }
   100% {
-    box-shadow: 0 0 0 0 rgba(198, 255, 52, 0);
+    box-shadow: 0 0 0 0 rgba(127, 247, 226, 0);
   }
 }
 .live-dot {

@@ -26,7 +26,7 @@ export default function RegisterPage() {
           href="/"
           className="font-headline text-[28px] font-extrabold tracking-tight text-on-surface block mb-10"
         >
-          Spotlight
+          Getstaked
         </Link>
 
         <h1 className="animate-fade-up font-headline text-[40px] font-extrabold uppercase tracking-tight text-on-surface mb-2 leading-[1.05]">

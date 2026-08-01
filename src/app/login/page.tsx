@@ -35,7 +35,7 @@ export default function LoginPage() {
           href="/"
           className="font-headline text-[32px] font-extrabold tracking-tight leading-none text-primary"
         >
-          Spotlight
+          Getstaked
         </Link>
         <div className="relative z-10">
           <blockquote className="font-headline text-[28px] leading-snug mb-6">
@@ -65,7 +65,7 @@ export default function LoginPage() {
             href="/"
             className="lg:hidden font-headline text-[28px] font-extrabold tracking-tight text-on-surface block mb-10"
           >
-            Spotlight
+            Getstaked
           </Link>
 
           <h1 className="animate-fade-up font-headline text-[40px] font-extrabold uppercase tracking-tight text-on-surface mb-2 leading-[1.05]">

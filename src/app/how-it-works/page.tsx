@@ -66,7 +66,7 @@ export default function HowItWorksPage() {
                   className={cn(
                     "flex flex-col items-center px-8 md:px-12 py-3 rounded-xl transition-colors",
                     active
-                      ? "bg-primary text-on-primary shadow-[0_8px_24px_rgba(198,255,52,0.22)]"
+                      ? "bg-primary text-on-primary shadow-[0_8px_24px_rgba(127,247,226,0.22)]"
                       : "text-on-surface-variant hover:text-on-surface"
                   )}
                 >
@@ -142,7 +142,7 @@ export default function HowItWorksPage() {
             <Link
               href="/market"
               onClick={() => switchRole(role)}
-              className={cn(pillVariants({ size: "md" }), "group shadow-[0_8px_30px_rgba(198,255,52,0.25)]")}
+              className={cn(pillVariants({ size: "md" }), "group shadow-[0_8px_30px_rgba(127,247,226,0.25)]")}
             >
               {view.ctaLabel}
               <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
@@ -203,7 +203,7 @@ export default function HowItWorksPage() {
           </h2>
           <Link
             href="/market"
-            className={cn(pillVariants({ size: "md" }), "group shadow-[0_8px_30px_rgba(198,255,52,0.25)] mt-10")}
+            className={cn(pillVariants({ size: "md" }), "group shadow-[0_8px_30px_rgba(127,247,226,0.25)] mt-10")}
           >
             {t.homeV2.ctaPrimary}
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
