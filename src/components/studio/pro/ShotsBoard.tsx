@@ -20,6 +20,8 @@ import {
   Music2,
   Smartphone,
   Wand2,
+  ImagePlus,
+  UsersRound,
 } from "lucide-react";
 import { toast } from "sonner";
 import ScriptStepper, { type StepperDraft } from "./ScriptStepper";
@@ -57,6 +59,16 @@ const WF_ICON: Record<ProWorkflow, typeof Smartphone> = {
   mv: Music2,
   film: Clapperboard,
 };
+/* Viral-template inspirations (local poster art; prompts prefill the vibe box). */
+const INSPIRATIONS = [
+  { title: "Rain-soaked rooftop revenge", img: "/posters/crimson-mirage.jpg", prompt: "A rain-soaked rooftop revenge micro drama — neon reflections, betrayal at midnight, 9:16." },
+  { title: "Golden-hour perfume spot", img: "/posters/golden-core.jpg", prompt: "A 15s golden-hour perfume ad — macro product shots, silk and light, a whispered tagline." },
+  { title: "Synthwave night drive", img: "/posters/aurora-crystal.jpg", prompt: "A synthwave night-drive music video — chrome, violet skyline, looping highway lights." },
+  { title: "The printer is sentient", img: "/posters/exit-8.jpg", prompt: "A deadpan office comedy short where the printer becomes sentient and starts negotiating." },
+  { title: "Lantern festival romance", img: "/posters/love-tears-us-apart.jpg", prompt: "A lantern festival romance micro film — paper light, missed trains, one shared umbrella." },
+  { title: "Backstage in 22 minutes", img: "/posters/marty-supreme.jpg", prompt: "A backstage sports drama short — 22 minutes before the final, one taped-up racket." },
+] as const;
+
 const WF_TINT: Record<ProWorkflow, string> = {
   ugc: "linear-gradient(150deg, #16181c 20%, rgba(127,247,226,0.18) 100%)",
   ad: "linear-gradient(150deg, #16181c 20%, rgba(255,184,64,0.16) 100%)",
@@ -239,122 +251,259 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
     );
   }
 
-  /* Create screen — no project selected: vibe bar + workflow quick starts
-     (OpenArt-style). Picking a card opens that workflow's wizard. */
+  /* Create home — Director-style (OpenArt): a large vibe prompt with
+     reference attachments, example chips, quick starts, the project rack
+     and viral-template inspirations. */
   if (!project) {
     const startWizard = (wf: ProWorkflow, seed?: string) => {
       setStepperSeed(seed && seed.trim() ? seed.trim() : undefined);
       setStepperWf(wf);
     };
+    const coverOf = (pid: string) =>
+      proFragments.find((f) => f.projectId === pid && (f.frameUrl || f.frames[0]))?.frameUrl;
+    const statsOf = (pid: string) => {
+      const fs = proFragments.filter((f) => f.projectId === pid);
+      return `${fs.length} shots · ${fs.filter((f) => f.status === "directed").length} directed`;
+    };
     return (
-      <div className="rounded-3xl border border-outline-variant/40 bg-surface-container-lowest/60 px-5 md:px-8 py-10">
-        <div className="max-w-3xl mx-auto">
-          <div className="text-center">
-            <h3 className="font-headline text-3xl text-on-surface" style={{ textWrap: "balance" }}>
-              Direct your next video
-            </h3>
-            <p className="font-body text-sm text-on-surface-variant mt-2">
-              Describe the idea, pick a workflow, and NexGC turns it into shots, clips and a cut.
-            </p>
-          </div>
+      <div className="max-w-[1080px] mx-auto pb-4">
+        {/* ── Vibe prompt ── */}
+        <div className="text-center pt-4">
+          <h3
+            className="font-headline text-[34px] leading-tight text-on-surface"
+            style={{ textWrap: "balance" }}
+          >
+            Vibe Direct Your Next Video
+          </h3>
+          <p className="font-body text-sm text-on-surface-variant mt-1.5">
+            Create videos by chatting with AI.
+          </p>
+        </div>
 
-          {/* Vibe bar */}
-          <div className="mt-6 rounded-[22px] border border-outline-variant/40 bg-surface-container/60 p-2 pl-4 flex items-center gap-2">
-            <Wand2 className="w-4 h-4 text-primary shrink-0" />
-            <input
-              value={vibeText}
-              onChange={(e) => setVibeText(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") startWizard("film", vibeText);
-              }}
-              placeholder="Describe your video — “a rain-soaked revenge micro drama”, “a 15s serum ad”…"
-              aria-label="describe your video"
-              className="flex-1 min-w-0 bg-transparent border-none focus:outline-none font-body text-sm text-on-surface placeholder:text-on-surface-variant/60"
-            />
+        <div className="mt-6 max-w-[760px] mx-auto rounded-[26px] border border-outline-variant/40 bg-surface-container-low/80 p-4 shadow-[0_24px_60px_rgba(0,0,0,0.35)]">
+          <textarea
+            value={vibeText}
+            onChange={(e) => setVibeText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault();
+                startWizard("film", vibeText);
+              }
+            }}
+            rows={2}
+            placeholder="Describe the video in your head — the story, the mood, the style…"
+            aria-label="describe your video"
+            className="w-full bg-transparent border-none resize-none focus:outline-none font-body text-[15px] text-on-surface placeholder:text-on-surface-variant/60 leading-relaxed"
+          />
+          <div className="flex items-center gap-2 pt-2.5 mt-1 border-t border-outline-variant/25">
+            <DropdownMenu>
+              <DropdownMenuTrigger
+                aria-label="add a reference"
+                className="w-8 h-8 rounded-full border border-outline-variant/50 flex items-center justify-center text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
+              >
+                <Plus className="w-4 h-4" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-[210px]">
+                <DropdownMenuGroup>
+                  <DropdownMenuLabel className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
+                    Guide it with a reference
+                  </DropdownMenuLabel>
+                  {[
+                    { icon: ImagePlus, label: "Add an image" },
+                    { icon: Music2, label: "Add a track" },
+                    { icon: UsersRound, label: "Mention a character" },
+                  ].map(({ icon: Icon, label }) => (
+                    <DropdownMenuItem
+                      key={label}
+                      onClick={() =>
+                        toast.info(`${label} — lands with the agent workspace update`)
+                      }
+                      className="gap-2.5 cursor-pointer"
+                    >
+                      <Icon className="w-3.5 h-3.5" />
+                      {label}
+                    </DropdownMenuItem>
+                  ))}
+                </DropdownMenuGroup>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <span className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant/60">
+              Image · Track · @Character
+            </span>
+            <span className="flex-1" />
             <button
               type="button"
-              onClick={() => startWizard("film", vibeText)}
-              className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-on-primary font-label text-[10px] uppercase tracking-wider hover:opacity-90 active:scale-95 transition-all"
-            >
-              Guide me
-            </button>
-            <button
-              type="button"
-              onClick={() => toast.info("Just make it — one-shot auto mode arrives in the next update")}
-              className="shrink-0 inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-outline-variant/50 font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
+              onClick={() => toast.info("Just make it — one-shot auto mode arrives with the agent workspace")}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-outline-variant/50 font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
             >
               Just make it
             </button>
+            <button
+              type="button"
+              onClick={() => startWizard("film", vibeText)}
+              className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-primary text-on-primary font-label text-[10px] uppercase tracking-wider hover:opacity-90 active:scale-95 transition-all"
+            >
+              <Wand2 className="w-3 h-3" /> Guide me
+            </button>
           </div>
+        </div>
 
-          {/* Quick starts */}
-          <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mt-8 mb-3">
-            Quick Starts
-          </p>
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5">
-            {WORKFLOW_ORDER.map((wf) => {
-              const cfg = WORKFLOWS[wf];
-              const Icon = WF_ICON[wf];
-              return (
-                <button
-                  key={wf}
-                  type="button"
-                  onClick={() => startWizard(wf, vibeText)}
-                  className="group text-left rounded-2xl border border-outline-variant/40 overflow-hidden hover:border-primary/50 transition-colors bg-surface-container-low"
+        {/* Example chips */}
+        <div className="flex items-center justify-center gap-2 mt-4 flex-wrap">
+          {[
+            "Create an anime micro drama",
+            "Create a 15s glow serum ad",
+            "Create a synthwave music video",
+          ].map((c) => (
+            <button
+              key={c}
+              type="button"
+              onClick={() => setVibeText(c)}
+              className="px-3.5 py-1.5 rounded-full border border-outline-variant/40 font-body text-xs text-on-surface-variant hover:border-primary/50 hover:text-on-surface transition-colors"
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+
+        {/* ── Quick Starts ── */}
+        <div className="flex items-baseline justify-between mt-12 mb-3">
+          <p className="font-headline text-lg text-on-surface">Quick Starts</p>
+          <span className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant/70">
+            4 workflows
+          </span>
+        </div>
+        <div className="flex gap-3 overflow-x-auto pb-2">
+          {WORKFLOW_ORDER.map((wf) => {
+            const cfg = WORKFLOWS[wf];
+            const Icon = WF_ICON[wf];
+            return (
+              <button
+                key={wf}
+                type="button"
+                onClick={() => startWizard(wf, vibeText)}
+                className="group shrink-0 w-[240px] text-left rounded-2xl border border-outline-variant/40 overflow-hidden hover:border-primary/50 transition-colors bg-surface-container-low flex items-stretch"
+              >
+                <span
+                  className="w-[76px] shrink-0 flex items-center justify-center"
+                  style={{ background: WF_TINT[wf] }}
                 >
-                  <div
-                    className="relative aspect-[4/3] flex items-center justify-center"
-                    style={{ background: WF_TINT[wf] }}
-                  >
-                    <Icon className="w-8 h-8 text-on-surface/85 group-hover:scale-110 transition-transform duration-300" />
+                  <Icon className="w-6 h-6 text-on-surface/85 group-hover:scale-110 transition-transform duration-300" />
+                </span>
+                <span className="px-3 py-2.5 min-w-0">
+                  <span className="flex items-center gap-1.5">
+                    <span className="font-label text-[11px] uppercase tracking-wider text-on-surface truncate">
+                      {cfg.label}
+                    </span>
                     {cfg.tag && (
                       <span
                         className={cn(
-                          "absolute top-2 left-2 font-label text-[8px] uppercase tracking-widest px-1.5 py-0.5 rounded",
+                          "font-label text-[7px] uppercase tracking-widest px-1 py-px rounded shrink-0",
                           cfg.tag === "Featured"
                             ? "bg-primary text-on-primary"
-                            : "border border-outline-variant/50 text-on-surface-variant bg-surface/50"
+                            : "border border-outline-variant/50 text-on-surface-variant"
                         )}
                       >
                         {cfg.tag}
                       </span>
                     )}
-                    <span className="absolute bottom-2 right-2 font-label text-[8px] uppercase tracking-widest text-on-surface-variant/80 border border-outline-variant/40 bg-surface/50 px-1.5 py-0.5 rounded">
-                      {cfg.aspect}
-                    </span>
-                  </div>
-                  <div className="px-3.5 py-3">
-                    <p className="font-label text-label-md uppercase tracking-wider text-on-surface">
-                      {cfg.label}
-                    </p>
-                    <p className="font-body text-[11px] text-on-surface-variant mt-1 leading-snug">
-                      {cfg.tagline}
-                    </p>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Secondary entries */}
-          <div className="flex items-center justify-center gap-2 mt-7">
-            <button
-              type="button"
-              onClick={onNewShot}
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-outline-variant/50 font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
-            >
-              <Plus className="w-3 h-3" /> Blank project
-            </button>
-            {proProjects.length > 0 && (
-              <button
-                type="button"
-                onClick={() => setCurrentProProject(proProjects[0].id)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-outline-variant/50 font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
-              >
-                <FolderOpen className="w-3 h-3" /> Open recent · {proProjects[0].title}
+                  </span>
+                  <span className="block font-body text-[10.5px] text-on-surface-variant mt-1 leading-snug">
+                    {cfg.tagline}
+                  </span>
+                </span>
               </button>
-            )}
-          </div>
+            );
+          })}
+          <button
+            type="button"
+            onClick={onNewShot}
+            className="shrink-0 w-[130px] rounded-2xl border border-dashed border-outline-variant/50 hover:border-primary/50 hover:text-primary transition-colors flex flex-col items-center justify-center gap-1.5 text-on-surface-variant"
+          >
+            <Plus className="w-4 h-4" />
+            <span className="font-label text-[9px] uppercase tracking-wider">Blank project</span>
+          </button>
+        </div>
+
+        {/* ── Director Projects ── */}
+        {proProjects.length > 0 && (
+          <>
+            <div className="flex items-baseline justify-between mt-10 mb-3">
+              <p className="font-headline text-lg text-on-surface">Director Projects</p>
+              <span className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant/70">
+                {proProjects.length} {proProjects.length === 1 ? "project" : "projects"}
+              </span>
+            </div>
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5">
+              {proProjects.slice(0, 8).map((pr) => {
+                const cover = coverOf(pr.id);
+                return (
+                  <button
+                    key={pr.id}
+                    type="button"
+                    onClick={() => setCurrentProProject(pr.id)}
+                    aria-label={`Open project ${pr.title}`}
+                    className="group text-left rounded-2xl border border-outline-variant/40 overflow-hidden hover:border-primary/50 transition-colors bg-surface-container-low"
+                  >
+                    <span
+                      className="block aspect-video bg-surface-container"
+                      style={
+                        cover
+                          ? { backgroundImage: `url(${cover})`, backgroundSize: "cover", backgroundPosition: "center" }
+                          : { background: WF_TINT[pr.workflow ?? "film"] }
+                      }
+                    />
+                    <span className="block px-3 py-2.5">
+                      <span className="flex items-center gap-1.5">
+                        <span className="font-body text-sm text-on-surface truncate">{pr.title}</span>
+                        <span className="font-label text-[7px] uppercase tracking-widest bg-primary text-on-primary px-1 py-px rounded shrink-0">
+                          {workflowOf(pr.workflow).badge}
+                        </span>
+                      </span>
+                      <span className="block font-label text-[9px] uppercase tracking-widest text-on-surface-variant/75 mt-1">
+                        {statsOf(pr.id)} · {new Date(pr.createdAt).toLocaleDateString()}
+                      </span>
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </>
+        )}
+
+        {/* ── Inspirations · Viral Templates ── */}
+        <div className="flex items-baseline justify-between mt-10 mb-3">
+          <p className="font-headline text-lg text-on-surface">Inspirations</p>
+          <span className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant/70">
+            Viral templates · recreate with your cast
+          </span>
+        </div>
+        <div className="flex gap-3 overflow-x-auto pb-2">
+          {INSPIRATIONS.map((t) => (
+            <button
+              key={t.title}
+              type="button"
+              onClick={() => {
+                setVibeText(t.prompt);
+                toast.success("Template loaded — press Guide me to direct it");
+              }}
+              aria-label={`Use template ${t.title}`}
+              className="group relative shrink-0 w-[148px] rounded-xl overflow-hidden border border-outline-variant/40 hover:border-primary/60 transition-colors"
+            >
+              <span
+                className="block aspect-[2/3]"
+                style={{ backgroundImage: `url(${t.img})`, backgroundSize: "cover", backgroundPosition: "center" }}
+              />
+              <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent pt-8 pb-2 px-2.5">
+                <span className="block font-body text-[11.5px] text-white leading-snug">{t.title}</span>
+              </span>
+              <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30">
+                <span className="px-3 py-1.5 rounded-full bg-primary text-on-primary font-label text-[9px] uppercase tracking-wider">
+                  Remake
+                </span>
+              </span>
+            </button>
+          ))}
         </div>
       </div>
     );
