@@ -36,7 +36,7 @@ export default function EditorialDistribution() {
   return (
     <div className={styles.relShowcase} ref={rootRef}>
       <div className={styles.relHead}>
-        <span>Released through Spotlight</span>
+        <span>Released through Getstaked</span>
         <span className={styles.relReport}>Distribution Report</span>
       </div>
 

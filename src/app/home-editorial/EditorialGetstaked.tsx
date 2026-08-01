@@ -88,7 +88,7 @@ const FILMS: Film[] = [
 const statusTone = (status: string) =>
   status === "Released" ? "released" : status === "In production" ? "prod" : "back";
 
-export default function EditorialSpotlight() {
+export default function EditorialGetstaked() {
   const [active, setActive] = useState(0);
   const [motionAllowed, setMotionAllowed] = useState(false);
   const film = FILMS[active];

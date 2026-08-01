@@ -40,7 +40,7 @@ export default function GlobalError({
             fontSize: "12px",
             letterSpacing: "0.3em",
             textTransform: "uppercase",
-            color: "#c6ff34",
+            color: "#7ff7e2",
           }}
         >
           Something went wrong
@@ -57,7 +57,7 @@ export default function GlobalError({
             fontSize: "13px",
             letterSpacing: "0.05em",
             textTransform: "uppercase",
-            backgroundColor: "#c6ff34",
+            backgroundColor: "#7ff7e2",
             color: "#08080a",
             padding: "12px 24px",
             borderRadius: "8px",

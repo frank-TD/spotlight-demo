@@ -13,7 +13,7 @@ const montserrat = Montserrat({
   display: "swap",
 });
 
-const SITE_TITLE = "Spotlight — Fund it. Own it. Stream it.";
+const SITE_TITLE = "Getstaked — Fund it. Own it. Stream it.";
 const SITE_DESCRIPTION =
   "Discover AI-powered films, back the stories you believe in — and let AI distribute them to the world.";
 
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    siteName: "Spotlight",
+    siteName: "Getstaked",
     type: "website",
   },
   twitter: {

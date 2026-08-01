@@ -57,16 +57,16 @@ const MODE_META: { id: StudioMode; icon: typeof ImageIcon }[] = [
 export type StudioProvider = "native" | "superstar";
 
 /* The Model / Provider dropdown's native group. Nano Banana 2 maps onto the
-   real image model; the two Spotlight entries are display-level mocks. */
+   real image model; the two Getstaked entries are display-level mocks. */
 const NATIVE_ENTRIES: { id: string; label: string }[] = [
   { id: "nano-banana-2", label: "Nano Banana 2" },
-  { id: "spotlight-image", label: "Spotlight Image Model" },
-  { id: "spotlight-video", label: "Spotlight Video Model" },
+  { id: "spotlight-image", label: "Getstaked Image Model" },
+  { id: "spotlight-video", label: "Getstaked Video Model" },
 ];
 
 const COMING_SOON = ["Runway", "Kling", "Luma"];
 
-/* Outline mark for Spotlight-native mock entries (the filled lime square is
+/* Outline mark for Getstaked-native mock entries (the filled lime square is
    reserved for the Superstar provider). */
 function NativeGlyph() {
   return (
@@ -420,7 +420,7 @@ export default function PromptDock({
             <DropdownMenuContent align="start" side="top" className="w-[300px]">
               <DropdownMenuGroup>
                 <DropdownMenuLabel className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
-                  Spotlight Native
+                  Getstaked Native
                 </DropdownMenuLabel>
                 {NATIVE_ENTRIES.map((entry) => {
                   const realModel = MODELS_BY_MODE[mode].find((m) => m.id === entry.id);

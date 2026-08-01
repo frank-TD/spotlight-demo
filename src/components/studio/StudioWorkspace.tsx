@@ -280,7 +280,7 @@ export default function StudioWorkspace() {
         setModelByMode((m) => ({ ...m, [mode]: entry.id }));
         setNativeDisplay(null);
       } else {
-        // Display-level mock entry (Spotlight Image / Video Model).
+        // Display-level mock entry (Getstaked Image / Video Model).
         setNativeDisplay(entry);
       }
     }
@@ -340,7 +340,7 @@ export default function StudioWorkspace() {
   const onConfirmModel = (newModelId: string, newSettings: StudioAssetSettings) => {
     setModelByMode((m) => ({ ...m, [mode]: newModelId }));
     setSettingsByMode((s) => ({ ...s, [mode]: newSettings }));
-    // Picking a real model supersedes the display-only Spotlight mock entry.
+    // Picking a real model supersedes the display-only Getstaked mock entry.
     setNativeDisplay(null);
   };
 

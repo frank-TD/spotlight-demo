@@ -33,7 +33,7 @@ export default function AboutPage() {
       <ScrollReveal />
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 pt-14 pb-20">
         <div className="animate-fade-up max-w-2xl">
-          <SectionLabel>Spotlight</SectionLabel>
+          <SectionLabel>Getstaked</SectionLabel>
           <h1 className="font-headline text-5xl md:text-6xl font-extrabold uppercase tracking-tight text-on-surface leading-[1.02] mt-6">
             {t.aboutPage.title}
           </h1>
@@ -116,7 +116,7 @@ export default function AboutPage() {
           </h2>
           <Link
             href="/market"
-            className={cn(pillVariants({ size: "md" }), "group shadow-[0_8px_30px_rgba(198,255,52,0.25)] mt-10")}
+            className={cn(pillVariants({ size: "md" }), "group shadow-[0_8px_30px_rgba(127,247,226,0.25)] mt-10")}
           >
             {t.homeV2.ctaPrimary}
             <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />

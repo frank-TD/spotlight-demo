@@ -75,7 +75,7 @@ export default function ReleasePerformanceShowcase() {
       {/* Header — report framing */}
       <div className="flex items-center justify-between pb-6">
         <span className="font-label text-[12px] uppercase tracking-[0.2em] text-on-surface-variant">
-          Released through Spotlight
+          Released through Getstaked
         </span>
         <span className="font-label text-[12px] uppercase tracking-[0.18em] text-primary">
           Distribution Report

@@ -4,14 +4,14 @@ import { Cormorant_Garamond, Inter } from "next/font/google";
 import { Film, Gem, Radio, Compass } from "lucide-react";
 import styles from "./sculpt.module.css";
 
-// Homepage style draft #3 — the live Spotlight homepage's own modules
+// Homepage style draft #3 — the live Getstaked homepage's own modules
 // (hero / trust / featured / how-it-works / agents / distribution / creator
 // callout / faq / contact), restyled in the "SCUL.PT" museum-editorial language
 // (warm charcoal + bone + copper, Cormorant Garamond + Inter, grayscale duotone,
 // hairline section titles, outline buttons, vertical rails). Same information,
 // new skin. Self-contained route; does not touch the live homepage.
 
-export const metadata: Metadata = { title: "Spotlight — SCUL.PT draft" };
+export const metadata: Metadata = { title: "Getstaked — SCUL.PT draft" };
 
 const serif = Cormorant_Garamond({
   subsets: ["latin"],
@@ -31,7 +31,7 @@ export default function SculptHome() {
         <header className={styles.header}>
           <span className={styles.logo}>
             <i />
-            Spotlight
+            Getstaked
           </span>
           <nav className={styles.nav}>
             <Link href="/market">Marketplace</Link>
@@ -223,7 +223,7 @@ export default function SculptHome() {
             <h3>Neon Requiem</h3>
             <p>
               From a backed brief to a worldwide release — distributed, measured, and paid out stage
-              by stage through Spotlight. <b>MORE</b>
+              by stage through Getstaked. <b>MORE</b>
             </p>
           </article>
         </div>
@@ -234,11 +234,11 @@ export default function SculptHome() {
         <div className={styles.callout}>
           <h2>The AI film movement needs its next creators.</h2>
           <p>
-            Start creating with AI, enter the Spotlight slate, and let backers carry your story from
+            Start creating with AI, enter the Getstaked slate, and let backers carry your story from
             idea to screen.
           </p>
           <Link href="/market" className={styles.outlineBtn}>
-            Join Spotlight
+            Join Getstaked
           </Link>
         </div>
       </section>
@@ -288,7 +288,7 @@ export default function SculptHome() {
             <h2>Stay in touch</h2>
             <p className={styles.phone}>+1 (415) 872 3578</p>
             <address className={styles.addr}>
-              Spotlight Technologies
+              Getstaked Technologies
               <br />
               San Francisco
               <br />
@@ -321,7 +321,7 @@ export default function SculptHome() {
             <span className={styles.pin} />
           </div>
         </div>
-        <footer className={styles.footer}>Spotlight Technologies © 2026 — Fund it. Own it. Stream it.</footer>
+        <footer className={styles.footer}>Getstaked Technologies © 2026 — Fund it. Own it. Stream it.</footer>
       </section>
     </main>
   );

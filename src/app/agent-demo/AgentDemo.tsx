@@ -28,7 +28,7 @@ export default function AgentDemo() {
           <div className="flex items-center justify-between gap-4 h-[64px]">
             <div className="flex items-center gap-3 min-w-0">
               <Link href="/" className="font-headline text-2xl md:text-[26px] font-extrabold tracking-tight text-primary leading-none whitespace-nowrap">
-                Spotlight
+                Getstaked
               </Link>
               <span className="hidden sm:inline-block w-px h-5 bg-outline-variant/40" />
               <span className="hidden sm:inline-flex items-center gap-2 font-label text-[11px] uppercase tracking-[0.18em] text-agent">

@@ -234,7 +234,7 @@ export default function MarketPage() {
                 <button
                   type="button"
                   onClick={isBacker ? handlePostNeed : handleStartCreating}
-                  className={cn(pillVariants({ size: "lg" }), "group shadow-[0_8px_30px_rgba(198,255,52,0.25)]")}
+                  className={cn(pillVariants({ size: "lg" }), "group shadow-[0_8px_30px_rgba(127,247,226,0.25)]")}
                 >
                   {isBacker ? <PlusCircle className="w-4 h-4" /> : <Wand2 className="w-4 h-4" />}
                   {isBacker ? t.market.postANeed : t.market.guest.startCreating}
@@ -286,7 +286,7 @@ export default function MarketPage() {
         {isBacker ? (
           <section>
             <SectionHead
-              label={t.market.guest.worksInSpotlight(backerWorks.length)}
+              label={t.market.guest.worksInGetstaked(backerWorks.length)}
               hint={t.market.guest.tapStill}
             />
             {backerWorks.length ? (
@@ -327,7 +327,7 @@ export default function MarketPage() {
                 <button
                   type="button"
                   onClick={handleStartCreating}
-                  className={cn(pillVariants({ size: "lg" }), "group shrink-0 shadow-[0_8px_30px_rgba(198,255,52,0.25)]")}
+                  className={cn(pillVariants({ size: "lg" }), "group shrink-0 shadow-[0_8px_30px_rgba(127,247,226,0.25)]")}
                 >
                   <Wand2 className="w-4 h-4" />
                   {t.market.guest.openAigcStudio}
@@ -578,7 +578,7 @@ function RoleSwitch({ role, onChange }: { role: Role; onChange: (r: Role) => voi
             className={cn(
               "flex flex-col items-center lg:items-start px-6 md:px-8 py-3 rounded-xl transition-colors",
               active
-                ? "bg-primary text-on-primary shadow-[0_8px_24px_rgba(198,255,52,0.22)]"
+                ? "bg-primary text-on-primary shadow-[0_8px_24px_rgba(127,247,226,0.22)]"
                 : "text-on-surface-variant hover:text-on-surface"
             )}
           >

@@ -14,7 +14,7 @@ import SiteFooter from "@/components/home/SiteFooter";
 // Archived original homepage — the black-and-gold cinematic showcase that used
 // to live at `/`. Kept here after the Black + Lime editorial homepage was
 // promoted to the root route, so the previous direction stays reachable.
-export default function SpotlightCinematicHome() {
+export default function GetstakedCinematicHome() {
   return (
     <AppShell hideFooter heroUnderNav>
       <ScrollReveal />

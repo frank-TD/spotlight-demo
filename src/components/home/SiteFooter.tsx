@@ -20,7 +20,7 @@ export default function SiteFooter({ oversized = false }: { oversized?: boolean 
     <footer className="border-t border-outline-variant/30 overflow-hidden">
       <div className="max-w-[1280px] mx-auto px-6 md:px-12 py-9 flex flex-col md:flex-row items-center justify-between gap-6">
         <Link href="/" className="font-headline font-extrabold tracking-tight text-[22px] text-primary">
-          Spotlight
+          Getstaked
         </Link>
         <nav className="flex flex-wrap items-center justify-center gap-x-7 gap-y-3">
           {links.map((l) => (
@@ -47,7 +47,7 @@ export default function SiteFooter({ oversized = false }: { oversized?: boolean 
             className="block text-center font-label leading-[0.74] tracking-tight text-[19vw] text-transparent"
             style={{ WebkitTextStroke: "1px rgba(244,240,232,0.16)" }}
           >
-            Spotlight
+            Getstaked
           </span>
         </div>
       )}

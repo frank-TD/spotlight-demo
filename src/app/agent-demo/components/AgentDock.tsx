@@ -27,7 +27,7 @@ export default function AgentDock() {
         <t.Icon className="relative w-4 h-4" />
       </span>
       <span className="text-left">
-        <span className="block font-label text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">Spotlight Agent</span>
+        <span className="block font-label text-[10px] uppercase tracking-[0.18em] text-on-surface-variant">Getstaked Agent</span>
         <span className="block font-body text-sm font-semibold leading-tight" style={{ color: t.c }}>
           {dock.label}
         </span>

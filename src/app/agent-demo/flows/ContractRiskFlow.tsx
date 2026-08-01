@@ -102,7 +102,7 @@ export default function ContractRiskFlow() {
             <Meta label="Terms flagged" value={`${openRisks.length} open · ${CONTRACT_RISKS.length - openRisks.length} fixed`} />
           </dl>
           <p className="mt-4 pt-4 border-t border-outline-variant/30 font-body text-[13px] text-on-surface-variant/80 leading-snug">
-            Standard Spotlight escrow agreement. The Agent flagged the clauses below as undefined or below platform norms.
+            Standard Getstaked escrow agreement. The Agent flagged the clauses below as undefined or below platform norms.
           </p>
         </div>
       </div>

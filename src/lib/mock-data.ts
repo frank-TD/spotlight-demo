@@ -365,7 +365,7 @@ export const VIDEO_CLIP_BY_ID: Record<string, VideoClip> = Object.fromEntries(
 
 // ── Featured projects (homepage "In the Spotlight" curation) ─────────────────
 // Curated slate shown on the marketing homepage. Titles stay untranslated
-// (film brand names); loglines/meta live in i18n keyed by `copyKey`. Spotlight
+// (film brand names); loglines/meta live in i18n keyed by `copyKey`. Getstaked
 // is a commissioning marketplace — a backer funds a creator to make the film —
 // so projects move through: open (seeking a backer) → production (commissioned,
 // being made) → released. There is no crowdfunding goal/backer-count/countdown.
@@ -691,7 +691,7 @@ export const ORDER_ACTIVE = {
     {
       id: "m3",
       senderId: "system",
-      senderName: "Spotlight",
+      senderName: "Getstaked",
       senderRole: "System",
       text: "Stage 1 (Deposit) has been paid. Project officially started.",
       ts: "2026-05-14 16:05",
@@ -708,7 +708,7 @@ export const ORDER_ACTIVE = {
     {
       id: "m5",
       senderId: "system",
-      senderName: "Spotlight",
+      senderName: "Getstaked",
       senderRole: "System",
       text: "Aria has submitted deliverables for Stage 2 (Moodboard). Please review and accept or request changes.",
       ts: "2026-05-16 14:25",
@@ -725,7 +725,7 @@ export const ORDER_ACTIVE = {
     {
       id: "m7",
       senderId: "system",
-      senderName: "Spotlight",
+      senderName: "Getstaked",
       senderRole: "System",
       text: "Stage 2 (Moodboard) approved. ¥1,050 released to Aria Song. Stage 3 (Draft Cut) is now active.",
       ts: "2026-05-17 10:12",
@@ -742,7 +742,7 @@ export const ORDER_ACTIVE = {
     {
       id: "m9",
       senderId: "system",
-      senderName: "Spotlight",
+      senderName: "Getstaked",
       senderRole: "System",
       text: "Aria has submitted deliverables for Stage 3 (Draft Cut). You have 7 days to review before auto-acceptance.",
       ts: "2026-05-17 19:44",

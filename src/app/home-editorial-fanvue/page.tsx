@@ -6,7 +6,7 @@ import EditorialHome from "../home-editorial/EditorialHome";
 // Reuses EditorialHome with the "fanvue" theme — no markup is duplicated.
 
 export const metadata: Metadata = {
-  title: "Spotlight — Editorial (Fanvue Green)",
+  title: "Getstaked — Editorial (Fanvue Green)",
   robots: { index: false, follow: false },
 };
 

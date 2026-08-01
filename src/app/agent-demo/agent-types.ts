@@ -1,4 +1,4 @@
-// Shared types for the Spotlight Agent demo (frontend-only mockup).
+// Shared types for the Getstaked Agent demo (frontend-only mockup).
 
 export type Flow = "brief" | "match" | "contract" | "project";
 
