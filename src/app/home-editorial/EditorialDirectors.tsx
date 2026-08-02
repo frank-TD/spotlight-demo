@@ -1,16 +1,18 @@
 import Link from "next/link";
 import styles from "./editorial.module.css";
 
-// Featured Directors — a sage-green interlude of tilted director cards that
-// pop up one by one as the section scrolls into view (the row carries the
-// scroll-reveal class; per-card stagger rides transition-delay vars).
+// Featured Directors — a sage-green interlude where the director cards sit
+// scattered along an arc (mixed sizes and tilts, a hairline circle tracing
+// the curve behind them) and pop up one by one, bottom-up, as the section
+// scrolls into view. Desktop places each card absolutely from per-card vars;
+// under 900px the field collapses back to a wrapping row.
 
 const DIRECTORS = [
-  { name: "Noa Vance", role: "Drama · Berlin", img: "/posters/stay-for-tonight.webp", tilt: "-7deg", lift: "18px" },
-  { name: "Aria Song", role: "Romance · Seoul", img: "/posters/past-lives.jpg", tilt: "-3deg", lift: "0px" },
-  { name: "Marco Reyes", role: "Series · Chicago", img: "/posters/the-bear.jpg", tilt: "0deg", lift: "-14px" },
-  { name: "Yuki Tanaka", role: "Drama · Montana", img: "/posters/die-my-love.jpg", tilt: "3deg", lift: "0px" },
-  { name: "Sofia Okonkwo", role: "Shorts · Wenzhou", img: "/posters/fish-bone.jpg", tilt: "7deg", lift: "18px" },
+  { name: "Noa Vance", role: "Drama · Berlin", img: "/posters/stay-for-tonight.webp", x: "1%", y: "12px", tilt: "-10deg", w: "148px" },
+  { name: "Aria Song", role: "Romance · Seoul", img: "/posters/past-lives.jpg", x: "20%", y: "104px", tilt: "-5deg", w: "172px" },
+  { name: "Marco Reyes", role: "Series · Chicago", img: "/posters/the-bear.jpg", x: "41.5%", y: "168px", tilt: "0deg", w: "200px" },
+  { name: "Yuki Tanaka", role: "Drama · Montana", img: "/posters/die-my-love.jpg", x: "63%", y: "104px", tilt: "5deg", w: "172px" },
+  { name: "Sofia Okonkwo", role: "Shorts · Wenzhou", img: "/posters/fish-bone.jpg", x: "82%", y: "12px", tilt: "10deg", w: "148px" },
 ];
 
 export default function EditorialDirectors() {
@@ -25,7 +27,8 @@ export default function EditorialDirectors() {
           </p>
         </div>
 
-        <div className={`${styles.dirRow} scroll-reveal`}>
+        <div className={`${styles.dirField} scroll-reveal`}>
+          <span className={styles.dirArcLine} aria-hidden="true" />
           {DIRECTORS.map((d, i) => (
             <Link
               key={d.name}
@@ -35,9 +38,11 @@ export default function EditorialDirectors() {
               style={
                 {
                   backgroundImage: `url(${d.img})`,
+                  "--dx": d.x,
+                  "--dy": d.y,
                   "--tilt": d.tilt,
-                  "--lift": d.lift,
-                  transitionDelay: `${i * 0.12}s`,
+                  "--w": d.w,
+                  transitionDelay: `${i * 0.13}s`,
                 } as React.CSSProperties
               }
             >
