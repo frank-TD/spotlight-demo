@@ -17,7 +17,7 @@ import {
   Zap,
 } from "lucide-react";
 import { toast } from "sonner";
-import { assetImg, frameImg, fmtShotNo, nowTs, proId, PRO_COSTS } from "./pro-mock";
+import { assetImg, frameImg, fmtShotNo, mockScript, nowTs, proId, PRO_COSTS } from "./pro-mock";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import {
   useStore,
@@ -90,8 +90,10 @@ export default function FilmPipeline({
 }) {
   const {
     proAssets,
+    proFragments,
     addProAsset,
     updateProProject,
+    deleteProjectCut,
     addProFragments,
     setProTimeline,
     spendProCredits,
@@ -102,6 +104,9 @@ export default function FilmPipeline({
   const stage: ProFilmStage = project.stage ?? "script";
   const scenes = project.scenes ?? [];
   const refs = project.assetRefs ?? [];
+  // An earlier cut exists (re-entered from the premiere): it stays reachable
+  // and intact until a re-shoot commits over it.
+  const hasCut = proFragments.some((f) => f.projectId === project.id);
 
   const setScenes = (next: ProScene[]) => updateProProject(project.id, { scenes: next });
   const setRefs = (next: ProAssetRef[]) => updateProProject(project.id, { assetRefs: next });
@@ -111,6 +116,11 @@ export default function FilmPipeline({
     (ref.assetId && proAssets.find((a) => a.id === ref.assetId)) || null;
   const boundCount = refs.filter((r) => assetOf(r)).length;
   const allBound = refs.length > 0 && boundCount === refs.length;
+
+  /* ── step ① back target: brief editor (re-parse charges again) ── */
+  const [editingBrief, setEditingBrief] = useState(false);
+  const [briefText, setBriefText] = useState(project.brief ?? "");
+  const [reparseConfirm, setReparseConfirm] = useState(false);
 
   /* ── step ② generator / picker state ── */
   const [genFor, setGenFor] = useState<string | null>(null);
@@ -137,6 +147,29 @@ export default function FilmPipeline({
       return false;
     }
     return true;
+  };
+
+  /* ── brief re-parse (destructive: rebuilds scenes + manifest) ── */
+  const reparse = () => {
+    if (!gate()) return;
+    if (!briefText.trim()) {
+      toast.error("The brief is empty — give it something to parse");
+      return;
+    }
+    if (!spendProCredits(PRO_COSTS.script)) {
+      toast.error("Not enough credits (mock balance)");
+      return;
+    }
+    const { scenes: nextScenes, assetRefs } = mockScript(briefText, scenes.length || 5);
+    updateProProject(project.id, {
+      brief: briefText,
+      scenes: nextScenes,
+      assetRefs,
+      stage: "script",
+    });
+    setReparseConfirm(false);
+    setEditingBrief(false);
+    toast.success(`Re-parsed — ${nextScenes.length} scenes, ${assetRefs.length} roles to cast`);
   };
 
   /* ── step ① actions ── */
@@ -224,6 +257,9 @@ export default function FilmPipeline({
 
   /* ── step ③ run ── */
   const commitRun = (shots: FilmShot[], level: "directed" | "framed") => {
+    // Overwrite semantics: a re-shoot replaces the previous cut (fragments
+    // + editor timeline). No-op on a first run.
+    deleteProjectCut(project.id);
     const now = nowTs();
     const frags = shots.map((s, i) => ({
       id: proId("frag"),
@@ -359,6 +395,15 @@ export default function FilmPipeline({
         </div>
         {/* Stepper */}
         <div className="ml-auto flex items-center gap-1.5">
+          {hasCut && !run && (
+            <button
+              type="button"
+              onClick={() => gotoStage("premiere")}
+              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-secondary/45 font-label text-[10px] uppercase tracking-wider text-secondary hover:bg-secondary/10 transition-colors mr-1"
+            >
+              Premiere ↗
+            </button>
+          )}
           {STEPS.map((s, i) => {
             const idx = STEPS.findIndex((x) => x.id === stage);
             const done = i < idx;
@@ -399,8 +444,50 @@ export default function FilmPipeline({
         </div>
       </div>
 
+      {/* ── ① back target: brief editor ── */}
+      {stage === "script" && editingBrief && (
+        <div className="animate-fade-up max-w-2xl">
+          <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-2">
+            Original brief
+          </p>
+          <textarea
+            value={briefText}
+            onChange={(e) => setBriefText(e.target.value)}
+            rows={7}
+            aria-label="film brief"
+            className="w-full rounded-2xl border border-outline-variant/40 bg-surface-container-lowest/70 p-4 font-body text-sm text-on-surface leading-relaxed resize-none focus:outline-none focus:border-primary/50"
+          />
+          <p className="font-body text-[12px] text-on-surface-variant mt-2">
+            Re-parsing rebuilds the scene cards and the asset manifest — scene edits and existing
+            bindings are replaced.
+          </p>
+          <div className="flex items-center gap-3 mt-4">
+            <button
+              type="button"
+              onClick={() => {
+                setBriefText(project.brief ?? "");
+                setEditingBrief(false);
+              }}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-outline-variant/50 font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
+            >
+              <ArrowLeft className="w-3 h-3" /> Back · Script
+            </button>
+            <button
+              type="button"
+              onClick={() => setReparseConfirm(true)}
+              className="ml-auto inline-flex items-center gap-2 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-6 py-3 rounded-full hover:opacity-90 active:scale-95 transition-all"
+            >
+              <RefreshCw className="w-3.5 h-3.5" /> Re-parse script
+              <span className="inline-flex items-center gap-0.5 opacity-80">
+                <Zap className="w-3 h-3" fill="currentColor" /> {PRO_COSTS.script}
+              </span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* ── ① Script ── */}
-      {stage === "script" && (
+      {stage === "script" && !editingBrief && (
         <div className="animate-fade-up">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {scenes.map((sc) => (
@@ -470,7 +557,17 @@ export default function FilmPipeline({
               <span className="font-label text-[10px] uppercase tracking-wider">Add scene</span>
             </button>
           </div>
-          <div className="flex items-center gap-3 mt-5">
+          <div className="flex items-center gap-3 mt-5 flex-wrap">
+            <button
+              type="button"
+              onClick={() => {
+                setBriefText(project.brief ?? "");
+                setEditingBrief(true);
+              }}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-outline-variant/50 font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
+            >
+              <ArrowLeft className="w-3 h-3" /> Back · Brief
+            </button>
             <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
               {scenes.length} scenes · {refs.length} assets to cast
             </p>
@@ -625,7 +722,14 @@ export default function FilmPipeline({
             );
           })}
 
-          <div className="flex items-center gap-3 mt-2">
+          <div className="flex items-center gap-3 mt-2 flex-wrap">
+            <button
+              type="button"
+              onClick={() => gotoStage("script")}
+              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-outline-variant/50 font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
+            >
+              <ArrowLeft className="w-3 h-3" /> Back · Script
+            </button>
             <p className="font-body text-[12px] text-on-surface-variant">
               {allBound
                 ? "Full cast locked — ready to roll."
@@ -665,17 +769,25 @@ export default function FilmPipeline({
                   </div>
                 ))}
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => gotoStage("assets")}
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-outline-variant/50 font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
+                >
+                  <ArrowLeft className="w-3 h-3" /> Back · Cast &amp; Assets
+                </button>
                 <p className="font-body text-[12px] text-on-surface-variant">
                   {scenes.length} scenes · framing ⚡{scenes.length * PRO_COSTS.frame} now, directing
                   ⚡{scenes.length * PRO_COSTS.video} as it runs.
+                  {hasCut && " Finishing replaces the current cut."}
                 </p>
                 <button
                   type="button"
                   onClick={startProduction}
                   className="ml-auto inline-flex items-center gap-2 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-6 py-3 rounded-full hover:opacity-90 active:scale-95 transition-all"
                 >
-                  <Clapperboard className="w-3.5 h-3.5" /> Roll cameras
+                  <Clapperboard className="w-3.5 h-3.5" /> {hasCut ? "Re-shoot" : "Roll cameras"}
                 </button>
               </div>
             </>
@@ -735,6 +847,36 @@ export default function FilmPipeline({
           )}
         </div>
       )}
+
+      {/* Re-parse confirmation — the one immediately destructive back-action */}
+      <Dialog open={reparseConfirm} onOpenChange={setReparseConfirm}>
+        <DialogContent className="sm:max-w-sm p-6" showCloseButton>
+          <DialogTitle className="font-headline text-lg text-on-surface">
+            Re-parse the script?
+          </DialogTitle>
+          <p className="font-body text-sm text-on-surface-variant mt-1">
+            This rebuilds all scene cards and the asset manifest from the new brief. Your scene
+            edits and current bindings are replaced (saved library assets stay). Costs ⚡
+            {PRO_COSTS.script}.
+          </p>
+          <div className="flex items-center justify-end gap-2.5 mt-4">
+            <button
+              type="button"
+              onClick={() => setReparseConfirm(false)}
+              className="px-4 py-2 rounded-full border border-outline-variant/50 font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:text-on-surface transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={reparse}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-primary text-on-primary font-label text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
+            >
+              <RefreshCw className="w-3 h-3" /> Re-parse
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Library picker dialog (step ②) */}
       <Dialog open={Boolean(pickerFor)} onOpenChange={(o) => !o && setPickerFor(null)}>

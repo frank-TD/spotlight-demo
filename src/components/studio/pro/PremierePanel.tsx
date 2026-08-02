@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import {
+  ArrowLeft,
   Check,
   ChevronDown,
   Clapperboard,
@@ -28,7 +29,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useStore, type ProExport } from "@/lib/store";
+import { useStore, type ProExport, type ProWorkflow } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 /* ── Premiere — the project page ─────────────────────────────────────────
@@ -41,15 +42,19 @@ import { cn } from "@/lib/utils";
 export default function PremierePanel({
   onNewVideo,
   onGoEditor,
+  onRevise,
 }: {
   onNewVideo: () => void;
   onGoEditor: () => void;
+  // Reopen the flow's intake form pre-filled to overwrite-regenerate.
+  onRevise: (wf: ProWorkflow, projectId: string, brief: string) => void;
 }) {
   const {
     proProjects,
     currentProProjectId,
     setCurrentProProject,
     renameProProject,
+    updateProProject,
     deleteProProject,
     proFragments,
     proTimelines,
@@ -226,6 +231,26 @@ export default function PremierePanel({
     <div className="max-w-[980px] mx-auto">
       {/* Project row */}
       <div className="flex items-center gap-2 flex-wrap mb-4">
+        {/* Back into the making-of: staged film projects re-enter the
+            pipeline at casting (bindings intact — the cut is only replaced
+            when a re-shoot finishes); everything else reopens its intake
+            form pre-filled for an overwrite re-generate. */}
+        <button
+          type="button"
+          onClick={() => {
+            if (project.workflow === "film" && project.scenes?.length) {
+              updateProProject(project.id, { stage: "assets" });
+            } else {
+              onRevise(project.workflow ?? "film", project.id, project.brief ?? "");
+            }
+          }}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-outline-variant/50 font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
+        >
+          <ArrowLeft className="w-3 h-3" />
+          {project.workflow === "film" && project.scenes?.length
+            ? "Back · Production"
+            : "Back · Edit brief"}
+        </button>
         {renaming ? (
           <form
             onSubmit={(e) => {

@@ -210,6 +210,9 @@ export interface ProProject {
   stage?: ProFilmStage;
   scenes?: ProScene[];
   assetRefs?: ProAssetRef[];
+  // The intake brief that produced this project — kept so every flow's
+  // back-navigation can reopen the form (or brief editor) pre-filled.
+  brief?: string;
 }
 
 export type ProFilmStage = "script" | "assets" | "film" | "premiere";
@@ -419,8 +422,11 @@ interface AppState {
   renameProProject: (id: string, title: string) => void;
   updateProProject: (
     id: string,
-    patch: Partial<Pick<ProProject, "stage" | "scenes" | "assetRefs">>
+    patch: Partial<Pick<ProProject, "stage" | "scenes" | "assetRefs" | "brief">>
   ) => void;
+  // Overwrite semantics for re-shoots / re-generates: drop a project's
+  // fragments and timeline so the next run's commit replaces the cut.
+  deleteProjectCut: (projectId: string) => void;
   deleteProProject: (id: string) => void;
   setCurrentProProject: (id: string | null) => void;
   proFragments: ProFragment[];
@@ -878,6 +884,15 @@ export const useStore = create<AppState>()(
         set((s) => ({
           proProjects: s.proProjects.map((p) => (p.id === id ? { ...p, ...patch } : p)),
         })),
+      deleteProjectCut: (projectId) =>
+        set((s) => {
+          const timelines = { ...s.proTimelines };
+          delete timelines[projectId];
+          return {
+            proFragments: s.proFragments.filter((f) => f.projectId !== projectId),
+            proTimelines: timelines,
+          };
+        }),
       deleteProProject: (id) =>
         set((s) => {
           const projects = s.proProjects.filter((p) => p.id !== id);
