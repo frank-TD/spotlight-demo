@@ -42,6 +42,7 @@ import {
   splitScript,
   writeSession,
   SK,
+  mockScript,
 } from "./pro-mock";
 import {
   DropdownMenu,
@@ -56,14 +57,15 @@ import { cn } from "@/lib/utils";
 
 /* ── Workflow quick-start intake ─────────────────────────────────────────
    The OpenArt-style split panel (marketing hero left, minimal form right),
-   one configuration per video type. Submitting generates the WHOLE video in
-   place: the form morphs into a pipeline progress screen (parse → frame →
-   direct → assemble, storyboard tiles lighting up live) and lands on the
-   project's premiere page with the cut assembled. The CTA charges the ⚡15
-   parse up front; later stages deduct as they run and stop safely — a run
-   that dies mid-way still commits whatever finished (the premiere page
-   offers to resume it). Form drafts park in sessionStorage across the
-   signup-gate round-trip. */
+   one configuration per video type. For UGC / Ad / MV, submitting generates
+   the WHOLE video in place: the form morphs into a pipeline progress screen
+   (parse → frame → direct → assemble, storyboard tiles lighting up live)
+   and lands on the project's premiere page with the cut assembled. Micro
+   Film instead parses into the staged FilmPipeline (script → cast every
+   asset → production). The CTA charges the ⚡15 parse up front; later
+   stages deduct as they run and stop safely — a run that dies mid-way
+   still commits whatever finished (the premiere page offers to resume it).
+   Form drafts park in sessionStorage across the signup-gate round-trip. */
 
 const INTAKE: Record<
   ProWorkflow,
@@ -194,6 +196,7 @@ export default function WorkflowIntake({
     openSignupGate,
     spendProCredits,
     newProProject,
+    updateProProject,
     addProFragments,
     setProTimeline,
     proAssets,
@@ -358,6 +361,23 @@ export default function WorkflowIntake({
       return;
     }
     setRunBoth({ stage: "parse", sim: [], done: 0, total: 1 });
+    /* Micro Film takes the staged pipeline: parse lands on the script step
+       (scenes + asset manifest); assets are cast before any camera rolls.
+       The other workflows keep directing the whole cut in one run. */
+    if (workflow === "film") {
+      later(1600, () => {
+        const clean = script.trim().replace(/\s+/g, " ");
+        const first = clean.split(/(?<=[。！？!?.])/)[0] ?? clean;
+        const title = (first || cfg.label).slice(0, TITLE_MAX_LEN).trim() || cfg.label;
+        const { scenes, assetRefs } = mockScript(script, parseInt(maxShots, 10) || 5);
+        const projectId = newProProject(title, style, workflow, undefined, fmt);
+        updateProProject(projectId, { stage: "script", scenes, assetRefs });
+        clearSession(SK.intake);
+        toast.success(`Script parsed — ${scenes.length} scenes, ${assetRefs.length} roles to cast`);
+        onCreated(projectId);
+      });
+      return;
+    }
     later(1600, () => {
       const cap = Math.min(parseInt(maxShots, 10) || cfg.defaultShots, MAX_SHOTS_CAP);
       const sim: GenShot[] = splitScript(script, cap).map((d) => ({ ...d, id: proId("gen") }));

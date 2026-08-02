@@ -20,6 +20,7 @@ import { toast } from "sonner";
 import AgentPanel, { type AgentBoot } from "./AgentPanel";
 import WorkflowIntake, { type IntakeDraft } from "./WorkflowIntake";
 import PremierePanel from "./PremierePanel";
+import FilmPipeline from "./FilmPipeline";
 import { clearSession, readSession, workflowOf, WORKFLOWS, WORKFLOW_ORDER, SK } from "./pro-mock";
 import {
   DropdownMenu,
@@ -220,8 +221,13 @@ export default function ShotsBoard({
     );
   }
 
-  /* Project open → premiere page (player + export + editor handoff). */
+  /* Project open. Micro Film projects mid-pipeline resume their staged
+     script → assets → film flow; everything else (and legacy film
+     projects, which carry no stage) lands on the premiere page. */
   if (project) {
+    if (project.workflow === "film" && project.stage && project.stage !== "premiere") {
+      return <FilmPipeline project={project} onBack={() => setCurrentProProject(null)} />;
+    }
     return <PremierePanel onNewVideo={() => setCurrentProProject(null)} onGoEditor={onGoEditor} />;
   }
 

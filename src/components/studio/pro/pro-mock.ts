@@ -292,6 +292,118 @@ export function splitScript(
 
 export const fmtShotNo = (n: number) => `Shot ${String(n).padStart(2, "0")}`;
 
+/* ── Micro Film script parsing (mock) ────────────────────────────────────
+   Turns the intake brief into the staged pipeline's working set: 4–6 scene
+   cards plus the asset manifest (cast / location / prop refs) the script
+   calls for. Deterministic per input so re-parses feel stable. */
+
+const SCENE_ARCS = [
+  "Cold Open",
+  "Inciting Spark",
+  "The Turn",
+  "Confrontation",
+  "Fallout",
+  "Final Frame",
+];
+const CAST_BANK = ["Lin", "Theo", "Mara", "Juno", "Kai", "Vera"];
+const CAST_TRAIT = [
+  "quietly furious lead",
+  "charming rival with a secret",
+  "loyal friend in too deep",
+  "stranger who knows everything",
+];
+const LOCATION_BANK = [
+  ["Rooftop at Midnight", "rain-slick rooftop, neon bleeding off the skyline"],
+  ["Back-Kitchen", "steam, clattering pans, one flickering tube light"],
+  ["Neon Alley", "wet asphalt, vending-machine glow, distant sirens"],
+  ["Night Bus", "empty seats, sodium lights strobing past the windows"],
+];
+const PROP_BANK = [
+  ["The Unsent Letter", "creased envelope, ink smudged by rain"],
+  ["Cracked Phone", "spiderwebbed screen still glowing with one message"],
+  ["Taped-Up Racket", "held together by tape and stubbornness"],
+];
+
+const hashStr = (s: string) => {
+  let h = 0;
+  for (const ch of s) h = (h * 31 + ch.charCodeAt(0)) % 2147483647;
+  return h;
+};
+
+export function mockScript(
+  script: string,
+  sceneBias?: number
+): { scenes: ProSceneDraft[]; assetRefs: ProAssetRefDraft[] } {
+  const h = hashStr(script);
+  const castCount = 2;
+  const locCount = 2;
+  const cast = Array.from({ length: castCount }, (_, i) => ({
+    key: `cast-${i}`,
+    kind: "character" as ProAssetKind,
+    name: CAST_BANK[(h + i * 7) % CAST_BANK.length],
+    desc: CAST_TRAIT[(h + i * 3) % CAST_TRAIT.length],
+  }));
+  const locs = Array.from({ length: locCount }, (_, i) => {
+    const [name, desc] = LOCATION_BANK[(h + i * 5) % LOCATION_BANK.length];
+    return { key: `scene-${i}`, kind: "scene" as ProAssetKind, name, desc };
+  });
+  const [propName, propDesc] = PROP_BANK[h % PROP_BANK.length];
+  const prop = { key: "prop-0", kind: "prop" as ProAssetKind, name: propName, desc: propDesc };
+  const assetRefs = [...cast, ...locs, prop];
+
+  const target = Math.min(6, Math.max(4, sceneBias || 5));
+  const beats = splitScript(script, target);
+  const count = Math.min(6, Math.max(4, beats.length));
+  // When the brief yields fewer beats than scenes, later scenes draw varied
+  // filler instead of repeating the last chunk verbatim.
+  const fillSummaries = [
+    "The camera creeps closer; neither of them will say it first.",
+    "Rain starts mid-sentence — nobody moves to leave.",
+    "One long take: the truth arrives in the reflection, not the face.",
+    "A door left ajar. Footsteps that stop just short of it.",
+  ];
+  const fillBeats = [
+    "You knew. The whole time, you knew.",
+    "Say it again — slower this time.",
+    "Don't. If you finish that sentence, we're done.",
+    "…say it. Say it like you mean it.",
+  ];
+  const scenes = Array.from({ length: count }, (_, i) => {
+    const beat = beats[i];
+    const loc = locs[i % locs.length];
+    const refKeys = [
+      cast[i % cast.length].key,
+      ...(i > 0 ? [cast[(i + 1) % cast.length].key] : []),
+      loc.key,
+      ...(i === count - 2 || i === 1 ? [prop.key] : []),
+    ];
+    return {
+      id: `sc-${i}`,
+      heading: `S${i + 1} · ${SCENE_ARCS[i % SCENE_ARCS.length]} — ${loc.name}`,
+      summary: beat?.summary ?? fillSummaries[(h + i) % fillSummaries.length],
+      beat: beat?.dialogue ?? fillBeats[(h + i) % fillBeats.length],
+      refKeys,
+    };
+  });
+  return { scenes, assetRefs };
+}
+
+// Structural mirrors of the store types (kept local to avoid an import cycle).
+interface ProSceneDraft {
+  id: string;
+  heading: string;
+  summary: string;
+  beat: string;
+  refKeys: string[];
+}
+interface ProAssetRefDraft {
+  key: string;
+  kind: ProAssetKind;
+  name: string;
+  desc: string;
+  assetId?: string;
+}
+
 // "83s" → "01:23.00" — transport clock formatting for the editor shell.
 export function fmtClock(totalSec: number): string {
   const m = Math.floor(totalSec / 60);
