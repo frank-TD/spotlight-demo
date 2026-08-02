@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import {
   SquarePen,
   FolderPlus,
@@ -66,7 +67,6 @@ export default function HistoryRail({
   onRenameGroup,
   onDeleteGroup,
   onToggleGroup,
-  proShortcut,
 }: {
   sessions: StudioSession[];
   groups: StudioGroup[];
@@ -85,9 +85,6 @@ export default function HistoryRail({
   onRenameGroup: (id: string, name: string) => void;
   onDeleteGroup: (id: string) => void;
   onToggleGroup: (id: string) => void;
-  /* Bridge to NexGC Pro: shows the Pro project count and jumps to Pro mode,
-     so the two project systems stay visible to each other. */
-  proShortcut?: { count: number; onOpen: () => void } | null;
 }) {
   const t = useT();
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -220,28 +217,15 @@ export default function HistoryRail({
         </button>
       </div>
 
-      {proShortcut && proShortcut.count > 0 && (
-        <button
-          type="button"
-          onClick={() => proShortcut.onOpen()}
-          className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl border border-primary/35 bg-primary-container/15 hover:bg-primary-container/30 text-left transition-colors"
-        >
-          <span className="shrink-0 inline-flex px-1.5 py-0.5 rounded font-label font-bold text-[9px] uppercase tracking-widest bg-primary text-on-primary">
-            Pro
-          </span>
-          <span className="flex-1 min-w-0">
-            <span className="block font-body text-sm text-on-surface truncate">
-              {proShortcut.count} short drama {proShortcut.count === 1 ? "project" : "projects"}
-            </span>
-            <span className="block font-label text-[9px] uppercase tracking-widest text-on-surface-variant/80 mt-0.5">
-              Open NexGC Pro →
-            </span>
-          </span>
-        </button>
-      )}
 
       <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant px-2 pt-2">
         {t.aigc.sessionsTitle}
+        <Link
+          href="/assets?tab=generations"
+          className="float-right normal-case tracking-normal font-body text-[11px] text-on-surface-variant hover:text-primary transition-colors"
+        >
+          All in My Assets →
+        </Link>
       </p>
 
       <div className="flex-1 overflow-y-auto space-y-3 -mr-1 pr-1">

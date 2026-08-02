@@ -16,22 +16,10 @@ import {
   Check,
   X,
   FileIcon,
-  Languages,
-  Video,
-  Ban,
-  Film,
   Workflow,
 } from "lucide-react";
 import BrandGlyph from "./BrandGlyph";
 import type { PromptReference } from "./ReferenceUploadDialog";
-import {
-  SuperstarGlyph,
-  SUPERSTAR_GEN_MODES,
-  SUPERSTAR_PROMPT_PLACEHOLDER,
-  superstarSummary,
-  type SuperstarGenMode,
-  type SuperstarSettings,
-} from "./SuperstarProvider";
 import type { StudioMode, StudioAssetSettings } from "@/lib/store";
 import type { StudioVoice } from "@/lib/studio-mock";
 import { useT } from "@/hooks/useT";
@@ -54,10 +42,8 @@ const MODE_META: { id: StudioMode; icon: typeof ImageIcon }[] = [
   { id: "music", icon: Music2 },
 ];
 
-export type StudioProvider = "native" | "superstar";
-
-/* The Model / Provider dropdown's native group. Nano Banana 2 maps onto the
-   real image model; the two Getstaked entries are display-level mocks. */
+/* The Model dropdown's native group. Nano Banana 2 maps onto the real image
+   model; the two Getstaked entries are display-level mocks. */
 const NATIVE_ENTRIES: { id: string; label: string }[] = [
   { id: "nano-banana-2", label: "Nano Banana 2" },
   { id: "spotlight-image", label: "Getstaked Image Model" },
@@ -66,8 +52,7 @@ const NATIVE_ENTRIES: { id: string; label: string }[] = [
 
 const COMING_SOON = ["Runway", "Kling", "Luma"];
 
-/* Outline mark for Getstaked-native mock entries (the filled lime square is
-   reserved for the Superstar provider). */
+/* Outline mark for Getstaked-native mock entries. */
 function NativeGlyph() {
   return (
     <span
@@ -78,6 +63,11 @@ function NativeGlyph() {
     </span>
   );
 }
+
+/* ── Quick Tools prompt dock ─────────────────────────────────────────────
+   Single-shot generation dock (image / video / voiceover / music). The
+   full script-to-film pipeline lives in NexGC — the model menu carries a
+   handover card back to it. */
 
 export default function PromptDock({
   mode,
@@ -94,15 +84,9 @@ export default function PromptDock({
   onOpenReferences,
   references,
   onRemoveReference,
-  provider,
-  onSelectProvider,
+  onSelectModel,
   nativeDisplay,
-  superstarGenMode,
-  onSuperstarGenModeChange,
-  superstarSettings,
-  onOpenSuperstarParams,
-  onSuperstarHelper,
-  onOpenPro,
+  onOpenNexgc,
 }: {
   mode: StudioMode;
   onModeChange: (m: StudioMode) => void;
@@ -118,28 +102,19 @@ export default function PromptDock({
   onOpenReferences: () => void;
   references: PromptReference[];
   onRemoveReference: (id: string) => void;
-  provider: StudioProvider;
-  onSelectProvider: (p: StudioProvider, nativeEntry?: { id: string; label: string }) => void;
+  onSelectModel: (entry: { id: string; label: string }) => void;
   nativeDisplay: { id: string; label: string } | null;
-  superstarGenMode: SuperstarGenMode;
-  onSuperstarGenModeChange: (m: SuperstarGenMode) => void;
-  superstarSettings: SuperstarSettings;
-  onOpenSuperstarParams: () => void;
-  onSuperstarHelper: (label: string) => void;
-  // Opens NexGC Pro — the short-drama production workspace that absorbed
-  // the old Superstar Agent provider entry.
-  onOpenPro: () => void;
+  // Hands the user back to the NexGC create workspace.
+  onOpenNexgc: () => void;
 }) {
   const t = useT();
   const [expanded, setExpanded] = useState(true);
   const taRef = useRef<HTMLTextAreaElement>(null);
 
-  const isSuperstar = provider === "superstar";
   const model = MODELS_BY_MODE[mode].find((m) => m.id === modelId) ?? MODELS_BY_MODE[mode][0];
 
-  const placeholder = isSuperstar
-    ? SUPERSTAR_PROMPT_PLACEHOLDER
-    : mode === "image"
+  const placeholder =
+    mode === "image"
       ? t.aigc.promptImage
       : mode === "video"
         ? t.aigc.promptVideo
@@ -147,10 +122,9 @@ export default function PromptDock({
           ? t.aigc.promptVoiceover
           : t.aigc.promptMusic;
 
-  // The settings summary chip text varies by mode (and by provider).
-  const summary = isSuperstar
-    ? superstarSummary(superstarSettings)
-    : mode === "image"
+  // The settings summary chip text varies by mode.
+  const summary =
+    mode === "image"
       ? `${settings.aspect ?? "16:9"} / ${settings.quality ?? "2K"} / ${settings.count ?? 1}`
       : mode === "video"
         ? `${settings.aspect ?? "16:9"} / ${settings.duration ?? "5 sec"} / ${settings.resolution ?? "1080p"}`
@@ -159,14 +133,6 @@ export default function PromptDock({
           : `${settings.genre ?? "Cinematic"} / ${settings.mood ?? "Uplifting"} / ${settings.duration ?? "30 sec"}`;
 
   const ModeIcon = MODE_META.find((m) => m.id === mode)!.icon;
-
-  // Reference affordances in Superstar mode follow the generation mode.
-  const superstarRefs =
-    superstarGenMode === "i2i" || superstarGenMode === "i2v"
-      ? { caption: null, image: "+ Add image reference", video: null }
-      : superstarGenMode === "t2v"
-        ? { caption: "Reference optional", image: "+ Image Reference", video: "+ Video Reference" }
-        : { caption: null, image: null, video: null };
 
   return (
     <div className="pointer-events-auto w-full max-w-[860px] mx-auto">
@@ -190,76 +156,17 @@ export default function PromptDock({
 
         {expanded && (
           <>
-            {/* Superstar provider mode: status line + generation-mode tabs */}
-            {isSuperstar && (
-              <>
-                <div className="flex items-center gap-2 px-4 pb-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" aria-hidden="true" />
-                  <span className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
-                    External Provider · Superstar API · Mock mode
-                  </span>
-                </div>
-                <div className="flex items-center gap-1.5 px-4 pb-2 flex-wrap">
-                  {SUPERSTAR_GEN_MODES.map((gm) => (
-                    <button
-                      type="button"
-                      key={gm.id}
-                      onClick={() => onSuperstarGenModeChange(gm.id)}
-                      className={cn(
-                        "px-3 py-1.5 rounded-full border font-label text-[10px] uppercase tracking-wider transition-colors",
-                        gm.id === superstarGenMode
-                          ? "border-primary/60 text-primary bg-primary-container/30"
-                          : "border-outline-variant/40 text-on-surface-variant hover:border-primary/40 hover:text-on-surface"
-                      )}
-                    >
-                      {gm.label}
-                    </button>
-                  ))}
-                </div>
-              </>
-            )}
-
             {/* Reference / add row */}
             <div className="flex items-center gap-2 px-4 pb-1 flex-wrap">
-              {isSuperstar ? (
-                <>
-                  {superstarRefs.caption && (
-                    <span className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/70">
-                      {superstarRefs.caption}
-                    </span>
-                  )}
-                  {superstarRefs.image && (
-                    <button
-                      type="button"
-                      onClick={onOpenReferences}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-outline-variant/35 font-label text-[10px] uppercase tracking-wider text-on-surface-variant/75 hover:border-primary/40 hover:text-on-surface transition-colors"
-                    >
-                      <ImagePlus className="w-3 h-3" />
-                      {superstarRefs.image}
-                    </button>
-                  )}
-                  {superstarRefs.video && (
-                    <button
-                      type="button"
-                      onClick={onOpenReferences}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-outline-variant/35 font-label text-[10px] uppercase tracking-wider text-on-surface-variant/75 hover:border-primary/40 hover:text-on-surface transition-colors"
-                    >
-                      <Film className="w-3 h-3" />
-                      {superstarRefs.video}
-                    </button>
-                  )}
-                </>
-              ) : (
-                <button
-                  type="button"
-                  onClick={onOpenReferences}
-                  className="w-8 h-8 rounded-full border border-outline-variant/50 flex items-center justify-center text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
-                  aria-label="add reference"
-                >
-                  <Plus className="w-4 h-4" />
-                </button>
-              )}
-              {!isSuperstar && (mode === "image" || mode === "video") && (
+              <button
+                type="button"
+                onClick={onOpenReferences}
+                className="w-8 h-8 rounded-full border border-outline-variant/50 flex items-center justify-center text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
+                aria-label="add reference"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+              {(mode === "image" || mode === "video") && (
                 <button
                   type="button"
                   onClick={onOpenReferences}
@@ -276,7 +183,7 @@ export default function PromptDock({
                     : t.aigc.imageReference}
                 </button>
               )}
-              {!isSuperstar && mode === "voiceover" && (
+              {mode === "voiceover" && (
                 <button
                   type="button"
                   onClick={onOpenVoiceCatalog}
@@ -335,74 +242,40 @@ export default function PromptDock({
               />
               <Sparkles className="w-4 h-4 text-primary/50 mt-2 shrink-0" />
             </div>
-
-            {/* Superstar prompt helpers (mock) */}
-            {isSuperstar && (
-              <div className="flex items-center gap-1.5 px-4 pb-2 flex-wrap">
-                {(
-                  [
-                    { label: "Enhance prompt", icon: Sparkles },
-                    { label: "Translate to English", icon: Languages },
-                    { label: "Add camera motion", icon: Video },
-                    { label: "Negative prompt", icon: Ban },
-                  ] as const
-                ).map(({ label, icon: Icon }) => (
-                  <button
-                    type="button"
-                    key={label}
-                    onClick={() => onSuperstarHelper(label)}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-outline-variant/35 font-label text-[10px] uppercase tracking-wider text-on-surface-variant/85 hover:border-primary/40 hover:text-primary transition-colors"
-                  >
-                    <Icon className="w-3 h-3" />
-                    {label}
-                  </button>
-                ))}
-              </div>
-            )}
           </>
         )}
 
         {/* Summary bar */}
         <div className="flex items-center gap-2 px-3 py-2.5 border-t border-outline-variant/20 flex-wrap">
-          {/* Mode selector (native providers only — Superstar has its own tabs) */}
-          {!isSuperstar && (
-            <DropdownMenu>
-              <DropdownMenuTrigger className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors font-label text-label-md uppercase tracking-wider text-on-surface">
-                <ModeIcon className="w-3.5 h-3.5" />
-                {t.aigc.modes[mode]}
-                <ChevronUp className="w-3 h-3 opacity-60" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" side="top" className="min-w-[160px]">
-                {MODE_META.map((m) => {
-                  const Icon = m.icon;
-                  return (
-                    <DropdownMenuItem
-                      key={m.id}
-                      onClick={() => onModeChange(m.id)}
-                      className={cn("gap-2.5 cursor-pointer py-2.5", m.id === mode && "text-primary")}
-                    >
-                      <Icon className="w-4 h-4" />
-                      <span className="flex-1">{t.aigc.modes[m.id]}</span>
-                      {m.id === mode && <Check className="w-3.5 h-3.5" />}
-                    </DropdownMenuItem>
-                  );
-                })}
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+          {/* Mode selector */}
+          <DropdownMenu>
+            <DropdownMenuTrigger className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full bg-surface-container hover:bg-surface-container-high transition-colors font-label text-label-md uppercase tracking-wider text-on-surface">
+              <ModeIcon className="w-3.5 h-3.5" />
+              {t.aigc.modes[mode]}
+              <ChevronUp className="w-3 h-3 opacity-60" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" side="top" className="min-w-[160px]">
+              {MODE_META.map((m) => {
+                const Icon = m.icon;
+                return (
+                  <DropdownMenuItem
+                    key={m.id}
+                    onClick={() => onModeChange(m.id)}
+                    className={cn("gap-2.5 cursor-pointer py-2.5", m.id === mode && "text-primary")}
+                  >
+                    <Icon className="w-4 h-4" />
+                    <span className="flex-1">{t.aigc.modes[m.id]}</span>
+                    {m.id === mode && <Check className="w-3.5 h-3.5" />}
+                  </DropdownMenuItem>
+                );
+              })}
+            </DropdownMenuContent>
+          </DropdownMenu>
 
-          {/* Model / Provider dropdown */}
+          {/* Model dropdown */}
           <DropdownMenu>
             <DropdownMenuTrigger className="inline-flex items-center gap-2 px-3 py-2 rounded-full hover:bg-surface-container transition-colors">
-              {isSuperstar ? (
-                <>
-                  <SuperstarGlyph size="sm" />
-                  <span className="font-label text-label-md text-on-surface">Superstar</span>
-                  <span className="font-label text-[9px] uppercase tracking-widest border border-primary/40 text-primary px-1.5 py-0.5 rounded">
-                    External · Token pending
-                  </span>
-                </>
-              ) : nativeDisplay && !MODELS_BY_MODE[mode].some((m) => m.id === nativeDisplay.id) ? (
+              {nativeDisplay && !MODELS_BY_MODE[mode].some((m) => m.id === nativeDisplay.id) ? (
                 <>
                   <NativeGlyph />
                   <span className="font-label text-label-md text-on-surface">
@@ -424,11 +297,11 @@ export default function PromptDock({
                 </DropdownMenuLabel>
                 {NATIVE_ENTRIES.map((entry) => {
                   const realModel = MODELS_BY_MODE[mode].find((m) => m.id === entry.id);
-                  const active = !isSuperstar && (nativeDisplay?.id ?? modelId) === entry.id;
+                  const active = (nativeDisplay?.id ?? modelId) === entry.id;
                   return (
                     <DropdownMenuItem
                       key={entry.id}
-                      onClick={() => onSelectProvider("native", entry)}
+                      onClick={() => onSelectModel(entry)}
                       className={cn("gap-2.5 cursor-pointer py-2.5", active && "text-primary")}
                     >
                       {realModel ? <BrandGlyph brand={realModel.brand} size="sm" /> : <NativeGlyph />}
@@ -442,49 +315,11 @@ export default function PromptDock({
               <DropdownMenuSeparator />
               <DropdownMenuGroup>
                 <DropdownMenuLabel className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
-                  External Providers
-                </DropdownMenuLabel>
-                {/* Superstar gets a small highlighted card, not a plain row. */}
-                <DropdownMenuItem
-                  onClick={() => onSelectProvider("superstar")}
-                  className="p-0 cursor-pointer focus:bg-transparent data-highlighted:bg-transparent"
-                >
-                  <div
-                    className={cn(
-                      "m-1 w-full rounded-xl border p-3 transition-colors",
-                      isSuperstar
-                        ? "border-primary/60 bg-primary-container/40"
-                        : "border-primary/30 bg-primary-container/15 hover:bg-primary-container/30"
-                    )}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <SuperstarGlyph size="md" />
-                      <div className="flex-1 min-w-0">
-                        <p className="font-label text-label-md text-on-surface flex items-center gap-2">
-                          Superstar Generate
-                          {isSuperstar && <Check className="w-3.5 h-3.5 text-primary" />}
-                        </p>
-                        <p className="font-body text-[11px] text-on-surface-variant mt-0.5">
-                          Image / Video generation API
-                        </p>
-                      </div>
-                    </div>
-                    <p className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant/85 mt-2">
-                      External Provider · Beta · Token pending
-                    </p>
-                  </div>
-                </DropdownMenuItem>
-              </DropdownMenuGroup>
-
-              <DropdownMenuSeparator />
-              <DropdownMenuGroup>
-                <DropdownMenuLabel className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
                   Production Workspace
                 </DropdownMenuLabel>
-                {/* The old Superstar Agent provider moved into NexGC Pro —
-                    this entry hands users over to the Pro workspace. */}
+                {/* Full script → assets → film runs live in NexGC. */}
                 <DropdownMenuItem
-                  onClick={onOpenPro}
+                  onClick={onOpenNexgc}
                   className="p-0 cursor-pointer focus:bg-transparent data-highlighted:bg-transparent"
                 >
                   <div className="m-1 w-full rounded-xl border border-primary/30 bg-primary-container/15 hover:bg-primary-container/30 p-3 transition-colors">
@@ -493,19 +328,14 @@ export default function PromptDock({
                         <Workflow className="w-4 h-4" />
                       </span>
                       <div className="flex-1 min-w-0">
-                        <p className="font-label text-label-md text-on-surface flex items-center gap-2">
-                          NexGC Pro
-                          <span className="font-label text-[8px] uppercase tracking-widest border border-primary/50 text-primary px-1 py-px rounded">
-                            New
-                          </span>
-                        </p>
+                        <p className="font-label text-label-md text-on-surface">NexGC Studio</p>
                         <p className="font-body text-[11px] text-on-surface-variant mt-0.5">
-                          Short drama production — shots, assets, editor
+                          Full videos from one brief — script, shots, cut
                         </p>
                       </div>
                     </div>
                     <p className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant/85 mt-2">
-                      Superstar Agent moved here · Script → Shots → Timeline
+                      Powered by Superstar
                     </p>
                   </div>
                 </DropdownMenuItem>
@@ -531,10 +361,10 @@ export default function PromptDock({
 
           <span className="w-px h-5 bg-outline-variant/40 hidden sm:block" />
 
-          {/* Settings summary (native → model picker; Superstar → mock params) */}
+          {/* Settings summary */}
           <button
             type="button"
-            onClick={isSuperstar ? onOpenSuperstarParams : onOpenModelPicker}
+            onClick={onOpenModelPicker}
             className="inline-flex items-center gap-1.5 px-3 py-2 rounded-full hover:bg-surface-container transition-colors font-label text-label-md text-on-surface-variant"
           >
             <SlidersHorizontal className="w-3.5 h-3.5" />
@@ -543,25 +373,16 @@ export default function PromptDock({
           </button>
 
           {/* Generate */}
-          <div className="ml-auto flex flex-col items-end gap-1">
+          <div className="ml-auto">
             <button
               type="button"
               onClick={onGenerate}
               disabled={generating}
               className="inline-flex items-center gap-2 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-6 py-3 rounded-full hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSuperstar
-                ? "Generate with Superstar"
-                : generating
-                  ? t.aigc.generating
-                  : t.aigc.generate}
+              {generating ? t.aigc.generating : t.aigc.generate}
               <Send className="w-3.5 h-3.5" />
             </button>
-            {isSuperstar && (
-              <span className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant/70 pr-1">
-                Mock mode · API token pending
-              </span>
-            )}
           </div>
         </div>
       </div>

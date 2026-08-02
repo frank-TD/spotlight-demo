@@ -22,29 +22,31 @@ const coachDismissed = () => {
   }
 };
 
-/* ── NexGC Pro workspace ────────────────────────────────────────────────
-   A left icon rail switches between Create (workflows generate the whole
-   video), the three asset libraries and the Editor. Lives behind the
-   Basic | Pro toggle in StudioWorkspace; everything inside is mock. */
+/* ── NexGC workspace ────────────────────────────────────────────────────
+   THE workspace: a left icon rail switches between Create (workflows
+   generate the whole video), one combined asset library and the Editor.
+   Everything inside is mock. */
 
-export type ProSection = "shots" | "character" | "scene" | "prop" | "editor";
+export type ProSection = "shots" | "assets" | "editor";
 
 const RAIL: { id: ProSection; icon: typeof Video; label: string }[] = [
   { id: "shots", icon: Video, label: "Create" },
-  { id: "character", icon: UsersRound, label: "Cast" },
-  { id: "scene", icon: Mountain, label: "Scenes" },
-  { id: "prop", icon: Box, label: "Props" },
+  { id: "assets", icon: Box, label: "Assets" },
   { id: "editor", icon: Clapperboard, label: "Editor" },
 ];
 
-const SECTIONS: ProSection[] = ["shots", "character", "scene", "prop", "editor"];
+const SECTIONS: ProSection[] = ["shots", "assets", "editor"];
+// Cast / Scenes / Props used to be separate rail sections.
+const LEGACY_ASSET_SECTIONS = ["character", "scene", "prop"];
 
-export default function ProWorkspace() {
+export default function ProWorkspace({ onOpenTools }: { onOpenTools: () => void }) {
   // Restore the last section across the signup-gate round-trip / reloads.
   const [section, setSection] = useState<ProSection>(() => {
-    const saved = readSession<ProSection>(SK.section);
-    return saved && SECTIONS.includes(saved) ? saved : "shots";
+    const saved = readSession<string>(SK.section);
+    if (saved && LEGACY_ASSET_SECTIONS.includes(saved)) return "assets";
+    return saved && SECTIONS.includes(saved as ProSection) ? (saved as ProSection) : "shots";
   });
+  const [assetKind, setAssetKind] = useState<ProAssetKind>("character");
   const proCredits = useStore((s) => s.proCredits);
   const [showCoach, setShowCoach] = useState(() => !coachDismissed());
   const [creditsOpen, setCreditsOpen] = useState(false);
@@ -67,13 +69,13 @@ export default function ProWorkspace() {
     <div className="flex gap-4 items-start">
       {/* Icon rail */}
       <nav
-        aria-label="NexGC Pro sections"
+        aria-label="NexGC sections"
         className="sticky top-24 shrink-0 w-[64px] rounded-2xl border border-outline-variant/40 bg-surface-container-lowest/60 py-3 flex flex-col items-center gap-1"
       >
         {RAIL.map(({ id, icon: Icon, label }, i) => (
           <span key={id} className="contents">
             {/* Hairline between the creative sections and the editor */}
-            {i === 4 && <span className="w-7 h-px bg-outline-variant/40 my-1.5" aria-hidden="true" />}
+            {i === 2 && <span className="w-7 h-px bg-outline-variant/40 my-1.5" aria-hidden="true" />}
             <button
               type="button"
               onClick={() => changeSection(id)}
@@ -96,12 +98,12 @@ export default function ProWorkspace() {
       <div className="flex-1 min-w-0">
         {/* Slim workspace header */}
         <div className="flex items-center gap-2.5 flex-wrap mb-4">
-          <h2 className="font-headline text-xl text-on-surface leading-none">NexGC Pro</h2>
+          <h2 className="font-headline text-xl text-on-surface leading-none">NexGC Studio</h2>
           <span className="font-label text-[9px] uppercase tracking-widest border border-secondary/40 text-secondary px-1.5 py-0.5 rounded">
-            Short Drama Production
+            Powered by Superstar
           </span>
           <span className="font-label text-[9px] uppercase tracking-widest border border-outline-variant/50 text-on-surface-variant px-1.5 py-0.5 rounded">
-            Superstar Inside · Mock mode
+            Mock mode
           </span>
           <button
             type="button"
@@ -133,9 +135,44 @@ export default function ProWorkspace() {
           </div>
         )}
 
-        {section === "shots" && <ShotsBoard onGoEditor={() => changeSection("editor")} />}
-        {(section === "character" || section === "scene" || section === "prop") && (
-          <AssetLibrary key={section} kind={section as ProAssetKind} />
+        {section === "shots" && (
+          <ShotsBoard onGoEditor={() => changeSection("editor")} onOpenTools={onOpenTools} />
+        )}
+        {section === "assets" && (
+          <div>
+            {/* Kind switcher — one library, three shelves. My Assets holds
+                the same data globally. */}
+            <div className="flex items-center gap-2 mb-4 flex-wrap">
+              {(
+                [
+                  { kind: "character", icon: UsersRound, label: "Cast" },
+                  { kind: "scene", icon: Mountain, label: "Scenes" },
+                  { kind: "prop", icon: Box, label: "Props" },
+                ] as const
+              ).map(({ kind, icon: Icon, label }) => (
+                <button
+                  key={kind}
+                  type="button"
+                  onClick={() => setAssetKind(kind)}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border font-label text-[10px] uppercase tracking-wider transition-colors",
+                    assetKind === kind
+                      ? "bg-primary text-on-primary border-primary"
+                      : "border-outline-variant/50 text-on-surface-variant hover:border-primary/50 hover:text-primary"
+                  )}
+                >
+                  <Icon className="w-3 h-3" /> {label}
+                </button>
+              ))}
+              <a
+                href="/assets?tab=cast"
+                className="ml-auto font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors"
+              >
+                View in My Assets →
+              </a>
+            </div>
+            <AssetLibrary key={assetKind} kind={assetKind} />
+          </div>
         )}
         {section === "editor" && <EditorPanel onGoShots={() => changeSection("shots")} />}
       </div>
@@ -146,7 +183,7 @@ export default function ProWorkspace() {
           <DialogTitle className="sr-only">Credits</DialogTitle>
           <div className="text-center">
             <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
-              NexGC Pro balance
+              NexGC balance
             </p>
             <p className="font-headline text-4xl text-primary mt-1 inline-flex items-center gap-2">
               <Zap className="w-6 h-6" fill="currentColor" />

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import {
   ArrowRight,
   Clapperboard,
+  Mic,
   ImagePlus,
   Megaphone,
   Music2,
@@ -133,7 +134,13 @@ const TRENDING: Record<ProWorkflow, { featured: ProTemplate; items: ProTemplate[
    video in one run. Opening a project lands on its premiere page — there
    is no shot board anymore. */
 
-export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
+export default function ShotsBoard({
+  onGoEditor,
+  onOpenTools,
+}: {
+  onGoEditor: () => void;
+  onOpenTools: () => void;
+}) {
   const { proProjects, currentProProjectId, setCurrentProProject, proFragments, proAssets } =
     useStore();
 
@@ -399,6 +406,35 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
           );
         })}
       </div>
+
+      {/* ── Quick Tools — the old Basic studio, one click away ── */}
+      <button
+        type="button"
+        onClick={onOpenTools}
+        className="mt-3 w-full flex items-center gap-3 rounded-2xl border border-outline-variant/40 bg-surface-container-low/60 hover:border-primary/50 px-4 py-3 text-left transition-colors group"
+      >
+        <span className="flex items-center gap-1.5 shrink-0">
+          {[ImagePlus, Clapperboard, Mic, Music2].map((Icon, i) => (
+            <span
+              key={i}
+              className="w-7 h-7 rounded-lg border border-outline-variant/40 bg-surface-container flex items-center justify-center text-on-surface-variant group-hover:text-primary transition-colors"
+            >
+              <Icon className="w-3.5 h-3.5" />
+            </span>
+          ))}
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="font-label text-[11px] uppercase tracking-wider text-on-surface">
+            Quick Tools
+          </span>
+          <span className="block font-body text-[10.5px] text-on-surface-variant mt-0.5 leading-snug">
+            Single-shot image, video, voiceover and music generation — no pipeline, just one prompt.
+          </span>
+        </span>
+        <span className="shrink-0 font-label text-[10px] uppercase tracking-wider text-on-surface-variant group-hover:text-primary transition-colors">
+          Open →
+        </span>
+      </button>
 
       {/* ── Director Projects ── */}
       {proProjects.length > 0 && (
