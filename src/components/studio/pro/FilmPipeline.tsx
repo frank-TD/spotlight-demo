@@ -109,7 +109,6 @@ export default function FilmPipeline({
   const hasCut = proFragments.some((f) => f.projectId === project.id);
 
   const setScenes = (next: ProScene[]) => updateProProject(project.id, { scenes: next });
-  const setRefs = (next: ProAssetRef[]) => updateProProject(project.id, { assetRefs: next });
   const gotoStage = (s: ProFilmStage) => updateProProject(project.id, { stage: s });
 
   const assetOf = (ref: ProAssetRef): ProAsset | null =>
@@ -122,11 +121,10 @@ export default function FilmPipeline({
   const [briefText, setBriefText] = useState(project.brief ?? "");
   const [reparseConfirm, setReparseConfirm] = useState(false);
 
-  /* ── step ② generator / picker state ── */
-  const [genFor, setGenFor] = useState<string | null>(null);
-  const [genProgress, setGenProgress] = useState(0);
-  const [candidates, setCandidates] = useState<string[] | null>(null);
-  const [pickerFor, setPickerFor] = useState<ProAssetRef | null>(null);
+  /* ── step ② auto-cast state ── */
+  const [castingKey, setCastingKey] = useState<string | null>(null);
+  const [castBlocked, setCastBlocked] = useState(false);
+  const castRunning = useRef(false);
 
   /* ── step ③ run state ── */
   const [run, setRun] = useState<FilmRun | null>(null);
@@ -211,48 +209,86 @@ export default function FilmPipeline({
     ]);
   };
 
-  /* ── step ② actions ── */
-  const bindRef = (key: string, assetId?: string) =>
-    setRefs(refs.map((r) => (r.key === key ? { ...r, assetId } : r)));
-
-  const generateLook = (ref: ProAssetRef) => {
-    if (!gate()) return;
-    if (genFor) return;
-    if (!spendProCredits(PRO_COSTS.asset)) {
-      toast.error("Not enough credits (mock balance)");
-      return;
-    }
-    setGenFor(ref.key);
-    setGenProgress(8);
-    const iv = setInterval(() => setGenProgress((p) => (p >= 95 ? 95 : p + 9)), 150);
-    timers.current.push(iv as unknown as ReturnType<typeof setTimeout>);
-    later(1600, () => {
-      clearInterval(iv);
-      setGenProgress(100);
-      setCandidates([0, 1, 2, 3].map((i) => assetImg(ref.kind, `${ref.key}-${nowTs()}-${i}`)));
+  /* ── step ② actions: auto-cast + per-card regenerate ──
+     Timer chains bind against the freshest store state (the captured
+     `refs` snapshot would drop earlier binds in the same batch). */
+  const bindFresh = (key: string, assetId: string) => {
+    const st = useStore.getState();
+    const proj = st.proProjects.find((p) => p.id === project.id);
+    if (!proj?.assetRefs) return;
+    st.updateProProject(project.id, {
+      assetRefs: proj.assetRefs.map((r) =>
+        r.key === key ? { ...r, assetId, source: "generated" } : r
+      ),
     });
   };
 
-  const pickCandidate = (ref: ProAssetRef, url: string) => {
+  const castLook = (ref: ProAssetRef) => {
     const asset: ProAsset = {
       id: proId("asset"),
       kind: ref.kind,
       name: ref.name,
       desc: ref.desc,
-      imageUrl: url,
+      imageUrl: assetImg(ref.kind, `${ref.key}-${nowTs()}`),
       createdAt: nowTs(),
     };
     addProAsset(asset);
-    bindRef(ref.key, asset.id);
-    setGenFor(null);
-    setCandidates(null);
-    toast.success(`${ref.name} cast — saved to your library`);
+    bindFresh(ref.key, asset.id);
   };
 
-  const pickExisting = (ref: ProAssetRef, asset: ProAsset) => {
-    bindRef(ref.key, asset.id);
-    setPickerFor(null);
-    toast.success(`${asset.name} bound from your library`);
+  const runAutoCast = () => {
+    if (castRunning.current) return;
+    const st = useStore.getState();
+    const proj = st.proProjects.find((p) => p.id === project.id);
+    const queue = (proj?.assetRefs ?? []).filter(
+      (r) => !(r.assetId && st.proAssets.some((a) => a.id === r.assetId))
+    );
+    if (queue.length === 0) return;
+    if (!st.spendProCredits(queue.length * PRO_COSTS.asset)) {
+      setCastBlocked(true);
+      return;
+    }
+    setCastBlocked(false);
+    castRunning.current = true;
+    const step = (i: number) => {
+      if (i >= queue.length) {
+        castRunning.current = false;
+        setCastingKey(null);
+        toast.success(`Cast complete — ${queue.length} looks generated`);
+        return;
+      }
+      setCastingKey(queue[i].key);
+      later(900, () => {
+        castLook(queue[i]);
+        step(i + 1);
+      });
+    };
+    step(0);
+  };
+
+  /* Entering ② casts everything the form didn't provide, in one charged
+     batch — no per-card generate clicks. Timer-scheduled so the effect
+     never sets state synchronously. */
+  useEffect(() => {
+    if (stage !== "assets") return undefined;
+    const tm = setTimeout(runAutoCast, 500);
+    return () => clearTimeout(tm);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [stage]);
+
+  const regenerate = (ref: ProAssetRef) => {
+    if (!gate()) return;
+    if (castRunning.current || castingKey) return;
+    if (!spendProCredits(PRO_COSTS.asset)) {
+      toast.error("Not enough credits (mock balance)");
+      return;
+    }
+    setCastingKey(ref.key);
+    later(900, () => {
+      castLook(ref);
+      setCastingKey(null);
+      toast.success(`${ref.name} — new look generated`);
+    });
   };
 
   /* ── step ③ run ── */
@@ -576,7 +612,14 @@ export default function FilmPipeline({
               onClick={() => gotoStage("assets")}
               className="ml-auto inline-flex items-center gap-2 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-6 py-3 rounded-full hover:opacity-90 active:scale-95 transition-all"
             >
-              Lock script — cast the assets <UsersRound className="w-3.5 h-3.5" />
+              Lock script — {boundCount === refs.length ? "review the cast" : "auto-cast"}
+              {boundCount < refs.length && (
+                <span className="inline-flex items-center gap-0.5 opacity-80">
+                  <Zap className="w-3 h-3" fill="currentColor" />
+                  {(refs.length - boundCount) * PRO_COSTS.asset}
+                </span>
+              )}
+              <UsersRound className="w-3.5 h-3.5" />
             </button>
           </div>
         </div>
@@ -585,12 +628,30 @@ export default function FilmPipeline({
       {/* ── ② Cast & Assets ── */}
       {stage === "assets" && (
         <div className="animate-fade-up">
-          <div className="flex items-center gap-2.5 rounded-2xl border border-primary/30 bg-primary-container/15 px-4 py-2.5 mb-5">
-            <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" />
+          <div className="flex items-center gap-2.5 rounded-2xl border border-primary/30 bg-primary-container/15 px-4 py-2.5 mb-5 flex-wrap">
+            {castingKey ? (
+              <Loader2 className="w-3.5 h-3.5 text-primary animate-spin shrink-0" />
+            ) : (
+              <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" />
+            )}
             <p className="font-body text-[12.5px] text-on-surface-variant">
-              Every role, location and prop the script calls for needs a look before the cameras
-              roll — generate one, or bind something from your library.
+              {castingKey
+                ? "Auto-casting — every look the form didn't provide is being generated…"
+                : castBlocked
+                  ? "Not enough credits to auto-cast the remaining looks."
+                  : allBound
+                    ? "Cast locked. References from your form are bound as-is; regenerate any look you want re-rolled."
+                    : "Looks from your form show as references; the rest auto-generate here."}
             </p>
+            {castBlocked && !castingKey && (
+              <button
+                type="button"
+                onClick={runAutoCast}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary text-on-primary font-label text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
+              >
+                <Zap className="w-2.5 h-2.5" fill="currentColor" /> Retry auto-cast
+              </button>
+            )}
             <span className="ml-auto shrink-0 font-label text-[10px] uppercase tracking-widest text-primary">
               {boundCount}/{refs.length} cast
             </span>
@@ -609,7 +670,7 @@ export default function FilmPipeline({
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                   {group.map((ref) => {
                     const bound = assetOf(ref);
-                    const isGen = genFor === ref.key;
+                    const isCasting = castingKey === ref.key;
                     return (
                       <div
                         key={ref.key}
@@ -621,7 +682,7 @@ export default function FilmPipeline({
                         )}
                       >
                         <div className="flex items-start gap-3">
-                          {bound ? (
+                          {bound && !isCasting ? (
                             <Image
                               src={bound.imageUrl}
                               alt={ref.name}
@@ -629,6 +690,11 @@ export default function FilmPipeline({
                               height={56}
                               className="w-14 h-14 rounded-xl object-cover shrink-0"
                             />
+                          ) : isCasting ? (
+                            <span className="relative w-14 h-14 rounded-xl overflow-hidden bg-surface-container shrink-0">
+                              <span className="shimmer-overlay absolute inset-0" />
+                              <Loader2 className="absolute inset-0 m-auto w-4 h-4 text-primary animate-spin" />
+                            </span>
                           ) : (
                             <span className="w-14 h-14 rounded-xl border border-dashed border-outline-variant/50 flex items-center justify-center text-on-surface-variant shrink-0">
                               <GroupIcon className="w-5 h-5" />
@@ -637,7 +703,9 @@ export default function FilmPipeline({
                           <div className="flex-1 min-w-0">
                             <p className="font-body text-sm text-on-surface flex items-center gap-1.5">
                               {ref.name}
-                              {bound && <Check className="w-3.5 h-3.5 text-primary shrink-0" />}
+                              {bound && !isCasting && (
+                                <Check className="w-3.5 h-3.5 text-primary shrink-0" />
+                              )}
                             </p>
                             <p className="font-body text-[11.5px] text-on-surface-variant leading-snug mt-0.5 line-clamp-2">
                               {ref.desc}
@@ -645,73 +713,41 @@ export default function FilmPipeline({
                           </div>
                         </div>
 
-                        {/* Generator: progress → 4 candidates inline */}
-                        {isGen && (
-                          <div className="mt-3">
-                            {!candidates ? (
-                              <div className="flex items-center gap-2.5">
-                                <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
-                                <div className="flex-1 h-1 rounded-full bg-surface-container overflow-hidden">
-                                  <div
-                                    className="h-full bg-primary transition-all duration-200"
-                                    style={{ width: `${genProgress}%` }}
-                                  />
-                                </div>
-                              </div>
-                            ) : (
-                              <div className="grid grid-cols-4 gap-1.5">
-                                {candidates.map((url) => (
-                                  <button
-                                    key={url}
-                                    type="button"
-                                    onClick={() => pickCandidate(ref, url)}
-                                    className="relative rounded-lg overflow-hidden border border-outline-variant/40 hover:border-primary transition-colors aspect-square"
-                                  >
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                                    <img
-                                      src={url}
-                                      alt="candidate"
-                                      className="w-full h-full object-cover"
-                                    />
-                                  </button>
-                                ))}
-                              </div>
-                            )}
-                          </div>
-                        )}
-
-                        {/* Actions */}
+                        {/* One action per card: regenerate. Reference-bound
+                            looks are labeled so the origin stays visible. */}
                         <div className="flex items-center gap-2 mt-3">
-                          {bound ? (
+                          {bound && (
+                            <span
+                              className={cn(
+                                "font-label text-[8px] uppercase tracking-widest border px-1.5 py-0.5 rounded-full",
+                                ref.source === "reference"
+                                  ? "border-secondary/50 text-secondary"
+                                  : "border-outline-variant/50 text-on-surface-variant/85"
+                              )}
+                            >
+                              {ref.source === "reference" ? "Reference" : "Generated"}
+                            </span>
+                          )}
+                          {isCasting ? (
+                            <span className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant/80">
+                              Casting…
+                            </span>
+                          ) : bound ? (
                             <button
                               type="button"
-                              onClick={() => bindRef(ref.key, undefined)}
-                              className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors"
+                              onClick={() => regenerate(ref)}
+                              className="ml-auto inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-outline-variant/50 font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
                             >
-                              Change look
+                              <RefreshCw className="w-3 h-3" /> Regenerate
+                              <span className="inline-flex items-center gap-0.5 opacity-80">
+                                <Zap className="w-2.5 h-2.5" fill="currentColor" />
+                                {PRO_COSTS.asset}
+                              </span>
                             </button>
                           ) : (
-                            <>
-                              <button
-                                type="button"
-                                onClick={() => generateLook(ref)}
-                                disabled={Boolean(genFor)}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-on-primary font-label text-[10px] uppercase tracking-wider hover:opacity-90 transition-all disabled:opacity-50"
-                              >
-                                <Sparkles className="w-3 h-3" /> Generate look
-                                <span className="inline-flex items-center gap-0.5 opacity-80">
-                                  <Zap className="w-2.5 h-2.5" fill="currentColor" />
-                                  {PRO_COSTS.asset}
-                                </span>
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => setPickerFor(ref)}
-                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-outline-variant/50 font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
-                              >
-                                From library
-                              </button>
-                            </>
+                            <span className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant/60">
+                              Queued for auto-cast
+                            </span>
                           )}
                         </div>
                       </div>
@@ -878,49 +914,6 @@ export default function FilmPipeline({
         </DialogContent>
       </Dialog>
 
-      {/* Library picker dialog (step ②) */}
-      <Dialog open={Boolean(pickerFor)} onOpenChange={(o) => !o && setPickerFor(null)}>
-        <DialogContent className="sm:max-w-lg p-6" showCloseButton>
-          <DialogTitle className="font-headline text-lg text-on-surface">
-            Bind “{pickerFor?.name}” from your library
-          </DialogTitle>
-          {pickerFor &&
-            (() => {
-              const pool = proAssets.filter((a) => a.kind === pickerFor.kind);
-              if (pool.length === 0) {
-                return (
-                  <p className="font-body text-sm text-on-surface-variant mt-2">
-                    Nothing saved for this type yet — generate a look instead; it lands in your
-                    library for the next film.
-                  </p>
-                );
-              }
-              return (
-                <div className="grid grid-cols-3 gap-2.5 mt-3 max-h-[320px] overflow-y-auto">
-                  {pool.map((a) => (
-                    <button
-                      key={a.id}
-                      type="button"
-                      onClick={() => pickExisting(pickerFor, a)}
-                      className="rounded-xl overflow-hidden border border-outline-variant/40 hover:border-primary transition-colors text-left"
-                    >
-                      <Image
-                        src={a.imageUrl}
-                        alt={a.name}
-                        width={200}
-                        height={200}
-                        className="w-full aspect-square object-cover"
-                      />
-                      <span className="block px-2 py-1.5 font-body text-[11px] text-on-surface truncate">
-                        {a.name}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              );
-            })()}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }

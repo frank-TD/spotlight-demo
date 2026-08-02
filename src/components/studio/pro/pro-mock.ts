@@ -330,26 +330,56 @@ const hashStr = (s: string) => {
   return h;
 };
 
+// An asset the intake form provided up front: a library pick / upload
+// (carries assetId → the ref arrives pre-bound) or a described new
+// character (auto-cast generates its look in step ②).
+export interface ProvidedAsset {
+  name: string;
+  desc: string;
+  assetId?: string;
+}
+
 export function mockScript(
   script: string,
-  sceneBias?: number
+  sceneBias?: number,
+  provided?: Partial<Record<ProAssetKind, ProvidedAsset[]>>
 ): { scenes: ProSceneDraft[]; assetRefs: ProAssetRefDraft[] } {
   const h = hashStr(script);
-  const castCount = 2;
-  const locCount = 2;
-  const cast = Array.from({ length: castCount }, (_, i) => ({
-    key: `cast-${i}`,
-    kind: "character" as ProAssetKind,
+  // Provided entries lead; the banks only fill up to each kind's minimum
+  // so the script always has someone to shoot.
+  const build = (
+    kind: ProAssetKind,
+    min: number,
+    fill: (i: number) => { name: string; desc: string }
+  ): ProAssetRefDraft[] => {
+    const given = (provided?.[kind] ?? []).map((p, i) => ({
+      key: `${kind}-${i}`,
+      kind,
+      name: p.name,
+      desc: p.desc,
+      assetId: p.assetId,
+      source: p.assetId ? ("reference" as const) : undefined,
+    }));
+    const extra = Array.from({ length: Math.max(0, min - given.length) }, (_, i) => ({
+      key: `${kind}-${given.length + i}`,
+      kind,
+      ...fill(i),
+    }));
+    return [...given, ...extra];
+  };
+  const cast = build("character", 2, (i) => ({
     name: CAST_BANK[(h + i * 7) % CAST_BANK.length],
     desc: CAST_TRAIT[(h + i * 3) % CAST_TRAIT.length],
   }));
-  const locs = Array.from({ length: locCount }, (_, i) => {
+  const locs = build("scene", 2, (i) => {
     const [name, desc] = LOCATION_BANK[(h + i * 5) % LOCATION_BANK.length];
-    return { key: `scene-${i}`, kind: "scene" as ProAssetKind, name, desc };
+    return { name, desc };
   });
-  const [propName, propDesc] = PROP_BANK[h % PROP_BANK.length];
-  const prop = { key: "prop-0", kind: "prop" as ProAssetKind, name: propName, desc: propDesc };
-  const assetRefs = [...cast, ...locs, prop];
+  const props = build("prop", 1, () => {
+    const [name, desc] = PROP_BANK[h % PROP_BANK.length];
+    return { name, desc };
+  });
+  const assetRefs = [...cast, ...locs, ...props];
 
   const target = Math.min(6, Math.max(4, sceneBias || 5));
   const beats = splitScript(script, target);
@@ -375,7 +405,7 @@ export function mockScript(
       cast[i % cast.length].key,
       ...(i > 0 ? [cast[(i + 1) % cast.length].key] : []),
       loc.key,
-      ...(i === count - 2 || i === 1 ? [prop.key] : []),
+      ...(i === count - 2 || i === 1 ? [props[i % props.length].key] : []),
     ];
     return {
       id: `sc-${i}`,
@@ -402,6 +432,7 @@ interface ProAssetRefDraft {
   name: string;
   desc: string;
   assetId?: string;
+  source?: "reference" | "generated";
 }
 
 // "83s" → "01:23.00" — transport clock formatting for the editor shell.

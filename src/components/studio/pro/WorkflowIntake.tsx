@@ -13,6 +13,10 @@ import {
   Upload,
   UsersRound,
   Pencil,
+  Plus,
+  Mountain,
+  Box,
+  Trash2,
   Pause,
   VolumeX,
   RefreshCcw,
@@ -43,6 +47,7 @@ import {
   writeSession,
   SK,
   mockScript,
+  type ProvidedAsset,
 } from "./pro-mock";
 import {
   DropdownMenu,
@@ -52,7 +57,13 @@ import {
   DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useStore, type ProFragment, type ProWorkflow } from "@/lib/store";
+import {
+  useStore,
+  type ProAsset,
+  type ProAssetKind,
+  type ProFragment,
+  type ProWorkflow,
+} from "@/lib/store";
 import { cn } from "@/lib/utils";
 
 /* ── Workflow quick-start intake ─────────────────────────────────────────
@@ -146,6 +157,17 @@ const INTAKE: Record<
   },
 };
 
+// A cast/scene/prop the film form provides up front: a library pick, a
+// preset, or a (mock) uploaded reference. All become pre-bound refs at parse.
+export interface FilmFormRef {
+  id: string;
+  kind: ProAssetKind;
+  name: string;
+  desc: string;
+  img: string;
+  src: "library" | "preset" | "upload";
+}
+
 // Session-parked form state, restored after the signup-gate round-trip.
 export interface IntakeDraft {
   open: boolean;
@@ -161,6 +183,8 @@ export interface IntakeDraft {
   charDesc?: string;
   adTagline?: string;
   fmt?: string;
+  formRefs?: FilmFormRef[];
+  newChars?: { name: string; desc: string; id?: string }[];
 }
 
 // One shot moving through the in-form pipeline.
@@ -203,6 +227,7 @@ export default function WorkflowIntake({
     newProProject,
     updateProProject,
     renameProProject,
+    addProAsset,
     deleteProjectCut,
     addProFragments,
     setProTimeline,
@@ -235,6 +260,38 @@ export default function WorkflowIntake({
   const [charDesc, setCharDesc] = useState(saved?.charDesc ?? "");
   const [adTagline, setAdTagline] = useState(saved?.adTagline ?? "");
   const [fmt, setFmt] = useState<string>(saved?.fmt ?? cfg.aspect);
+  /* Film only — multi-select casting + reference entries. Everything the
+     form provides arrives at step ② pre-bound; the rest auto-casts. */
+  const [formRefs, setFormRefs] = useState<FilmFormRef[]>(saved?.formRefs ?? []);
+  const [newChars, setNewChars] = useState<{ name: string; desc: string; id?: string }[]>(
+    saved?.newChars ?? []
+  );
+  const uploadKindRef = useRef<ProAssetKind>("scene");
+  const fileRef = useRef<HTMLInputElement>(null);
+  const toggleFormRef = (entry: FilmFormRef) =>
+    setFormRefs((prev) =>
+      prev.some((r) => r.id === entry.id)
+        ? prev.filter((r) => r.id !== entry.id)
+        : [...prev, entry]
+    );
+  const onUploadFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    const kind = uploadKindRef.current;
+    const name = f.name.replace(/\.[^.]+$/, "").slice(0, 24) || "Reference";
+    setFormRefs((prev) => [
+      ...prev,
+      {
+        id: `upload-${nowTs()}`,
+        kind,
+        name,
+        desc: `Uploaded reference · ${f.name}`,
+        img: assetImg(kind, `up-${f.name}-${f.size}`),
+        src: "upload",
+      },
+    ]);
+    e.target.value = "";
+  };
   // The in-form generation run (null = still on the form). Timer chains read
   // the ref mirror so they never see stale state.
   const [run, setRun] = useState<RunState | null>(null);
@@ -260,7 +317,7 @@ export default function WorkflowIntake({
 
   // Park the draft on every change; an empty form clears the parking spot.
   useEffect(() => {
-    if (script || charName || charDesc || adTagline) {
+    if (script || charName || charDesc || adTagline || formRefs.length > 0 || newChars.length > 0) {
       writeSession(SK.intake, {
         open: true,
         workflow,
@@ -275,12 +332,14 @@ export default function WorkflowIntake({
         charDesc,
         adTagline,
         fmt,
+        formRefs,
+        newChars,
       } satisfies IntakeDraft);
     } else {
       clearSession(SK.intake);
     }
   }, [workflow, style, maxShots, script, track, songPicked, productPicked,
-      charMode, charName, charDesc, adTagline, fmt]);
+      charMode, charName, charDesc, adTagline, fmt, formRefs, newChars]);
 
   const closeKeepingDraft = () => {
     // Explicit close: keep the text but stop auto-reopening the form.
@@ -393,7 +452,39 @@ export default function WorkflowIntake({
         const clean = script.trim().replace(/\s+/g, " ");
         const first = clean.split(/(?<=[。！？!?.])/)[0] ?? clean;
         const title = (first || cfg.label).slice(0, TITLE_MAX_LEN).trim() || cfg.label;
-        const { scenes, assetRefs } = mockScript(script, parseInt(maxShots, 10) || 5);
+        /* Everything the form provided arrives at step ② pre-bound: library
+           picks bind directly; presets and uploads become library assets
+           first. Described new characters stay unbound for auto-cast. */
+        const provided: Record<ProAssetKind, ProvidedAsset[]> = {
+          character: [],
+          scene: [],
+          prop: [],
+        };
+        formRefs.forEach((fr) => {
+          let assetId = fr.id;
+          if (fr.src !== "library") {
+            const asset: ProAsset = {
+              id: proId("asset"),
+              kind: fr.kind,
+              name: fr.name,
+              desc: fr.desc,
+              imageUrl: fr.img,
+              createdAt: nowTs(),
+            };
+            addProAsset(asset);
+            assetId = asset.id;
+          }
+          provided[fr.kind].push({ name: fr.name, desc: fr.desc, assetId });
+        });
+        newChars.forEach((c) => {
+          if (c.name.trim()) {
+            provided.character.push({
+              name: c.name.trim(),
+              desc: c.desc.trim() || "As described on the intake form.",
+            });
+          }
+        });
+        const { scenes, assetRefs } = mockScript(script, parseInt(maxShots, 10) || 5, provided);
         let projectId: string;
         if (revising) {
           // The old cut stays until a re-shoot commits over it.
@@ -619,7 +710,173 @@ export default function WorkflowIntake({
               </div>
 
               {/* Character section */}
-              {iv.character && (
+              {/* Film: multi-select casting + reference entries. Everything
+                  picked here skips generation in step ② and shows as a
+                  bound reference. */}
+              {workflow === "film" && (
+                <div>
+                  <SectionLabel icon={UsersRound} label="Cast & references" optional />
+                  <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={onUploadFile}
+                    aria-label="upload reference"
+                  />
+                  {(
+                    [
+                      { kind: "character", label: "Cast — pick any number", icon: UsersRound },
+                      { kind: "scene", label: "Scenes", icon: Mountain },
+                      { kind: "prop", label: "Props", icon: Box },
+                    ] as const
+                  ).map(({ kind, label, icon: RowIcon }) => {
+                    const pool: FilmFormRef[] = [
+                      ...proAssets
+                        .filter((a) => a.kind === kind)
+                        .slice(0, 8)
+                        .map((a) => ({
+                          id: a.id,
+                          kind,
+                          name: a.name,
+                          desc: a.desc,
+                          img: a.imageUrl,
+                          src: "library" as const,
+                        })),
+                      ...PRESETS[kind].slice(0, 5).map((p) => ({
+                        id: `preset-${p.seed}`,
+                        kind,
+                        name: p.name,
+                        desc: p.desc,
+                        img: assetImg(kind, p.seed),
+                        src: "preset" as const,
+                      })),
+                    ];
+                    const uploads = formRefs.filter((r) => r.kind === kind && r.src === "upload");
+                    return (
+                      <div key={kind} className="mt-3">
+                        <div className="flex items-center gap-1.5 mb-1.5">
+                          <RowIcon className="w-3 h-3 text-on-surface-variant" />
+                          <span className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant">
+                            {label}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              uploadKindRef.current = kind;
+                              fileRef.current?.click();
+                            }}
+                            className="ml-auto inline-flex items-center gap-1 font-label text-[9px] uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors"
+                          >
+                            <Upload className="w-2.5 h-2.5" /> Upload reference
+                          </button>
+                        </div>
+                        <div className="flex gap-2 overflow-x-auto pb-1">
+                          {[...uploads, ...pool].map((entry) => {
+                            const active = formRefs.some((r) => r.id === entry.id);
+                            return (
+                              <button
+                                key={entry.id}
+                                type="button"
+                                onClick={() => toggleFormRef(entry)}
+                                title={entry.name}
+                                className={cn(
+                                  "shrink-0 w-[76px] rounded-xl border overflow-hidden text-left transition-colors",
+                                  active
+                                    ? "border-primary bg-primary-container/20"
+                                    : "border-outline-variant/40 hover:border-primary/50"
+                                )}
+                              >
+                                <span className="relative block aspect-square bg-surface-container">
+                                  <Image
+                                    src={entry.img}
+                                    alt={entry.name}
+                                    width={76}
+                                    height={76}
+                                    className="w-full h-full object-cover"
+                                  />
+                                  {active && (
+                                    <span className="absolute top-1 right-1 w-4 h-4 rounded-full bg-primary text-on-primary flex items-center justify-center">
+                                      <Check className="w-2.5 h-2.5" />
+                                    </span>
+                                  )}
+                                  {entry.src === "upload" && (
+                                    <span className="absolute bottom-1 left-1 font-label text-[7px] uppercase tracking-widest bg-surface/80 backdrop-blur px-1 py-px rounded">
+                                      Ref
+                                    </span>
+                                  )}
+                                </span>
+                                <span className="block px-1.5 py-1 font-body text-[10px] text-on-surface truncate">
+                                  {entry.name}
+                                </span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                        {/* Add-new rows live under the Cast shelf only */}
+                        {kind === "character" && (
+                          <div className="mt-1.5 space-y-1.5">
+                            {newChars.map((c, i) => (
+                              <div key={c.id ?? `nc-${i}`} className="flex items-center gap-1.5">
+                                <input
+                                  value={c.name}
+                                  onChange={(e) =>
+                                    setNewChars((prev) =>
+                                      prev.map((x, j) =>
+                                        j === i ? { ...x, name: e.target.value.slice(0, 24) } : x
+                                      )
+                                    )
+                                  }
+                                  placeholder="Name"
+                                  aria-label="new character name"
+                                  className="w-[110px] bg-surface-container border border-outline-variant/40 rounded-lg px-2.5 py-1.5 font-body text-xs text-on-surface focus:outline-none focus:border-primary/50"
+                                />
+                                <input
+                                  value={c.desc}
+                                  onChange={(e) =>
+                                    setNewChars((prev) =>
+                                      prev.map((x, j) =>
+                                        j === i ? { ...x, desc: e.target.value.slice(0, 90) } : x
+                                      )
+                                    )
+                                  }
+                                  placeholder="Look & personality — auto-cast generates it"
+                                  aria-label="new character description"
+                                  className="flex-1 min-w-0 bg-surface-container border border-outline-variant/40 rounded-lg px-2.5 py-1.5 font-body text-xs text-on-surface focus:outline-none focus:border-primary/50"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setNewChars((prev) => prev.filter((_, j) => j !== i))
+                                  }
+                                  aria-label="remove character"
+                                  className="w-7 h-7 shrink-0 rounded-full border border-outline-variant/45 flex items-center justify-center text-on-surface-variant hover:border-error/60 hover:text-error transition-colors"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              </div>
+                            ))}
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setNewChars((prev) => [
+                                  ...prev,
+                                  { name: "", desc: "", id: `nc-${nowTs()}-${prev.length}` },
+                                ])
+                              }
+                              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-dashed border-outline-variant/50 font-label text-[9px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
+                            >
+                              <Plus className="w-3 h-3" /> New character
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+              {workflow !== "film" && iv.character && (
                 <div>
                   <SectionLabel icon={UsersRound} label={iv.character} optional />
                   <div className="mt-2 grid grid-cols-[1fr_auto_1fr] items-center gap-2">
