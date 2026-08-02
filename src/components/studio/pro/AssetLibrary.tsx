@@ -38,13 +38,7 @@ interface DetailTarget {
   mineId?: string;
 }
 
-export default function AssetLibrary({
-  kind,
-  onUseInShot,
-}: {
-  kind: ProAssetKind;
-  onUseInShot?: (name: string) => void;
-}) {
+export default function AssetLibrary({ kind }: { kind: ProAssetKind }) {
   const {
     proAssets,
     addProAsset,
@@ -415,15 +409,11 @@ export default function AssetLibrary({
                     type="button"
                     onClick={() => {
                       setDetail(null);
-                      if (onUseInShot) {
-                        onUseInShot(detail.name);
-                      } else {
-                        toast.info(`Mention @${detail.name} in a shot prompt to use it`);
-                      }
+                      toast.info(`Mention @${detail.name} in a brief — the agent casts them into the video`);
                     }}
                     className="inline-flex items-center gap-1.5 bg-primary text-on-primary font-label text-[10px] uppercase tracking-wider px-4 py-2 rounded-full hover:opacity-90 transition-all"
                   >
-                    Use in Shots
+                    Use in a video
                   </button>
                   {detail.mineId && (
                     <button

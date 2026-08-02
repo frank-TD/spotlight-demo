@@ -245,11 +245,9 @@ export function clearSession(key: string) {
 
 export const SK = {
   section: "pro.section",
-  stepper: "pro.stepper.draft",
-  composerOpen: "pro.composer.open",
-  composerDraft: (fragId: string) => `pro.composer.${fragId}`,
+  agentDraft: "pro.agent.draft",
+  intake: "pro.intake.draft",
   assetGen: (kind: string) => `pro.assetgen.${kind}`,
-  mention: "pro.mention.pending",
 } as const;
 
 // Derive an asset name from the generation prompt: first two words, cleaned

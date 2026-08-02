@@ -491,14 +491,14 @@ export default function EditorPanel({ onGoShots }: { onGoShots: () => void }) {
         <Clapperboard className="w-7 h-7 text-on-surface-variant mx-auto" />
         <p className="font-headline text-xl text-on-surface mt-4">No project yet</p>
         <p className="font-body text-sm text-on-surface-variant mt-1.5">
-          Create shots first — the editor assembles a project&apos;s directed shots.
+          Generate a video first — the editor fine-tunes a project&apos;s assembled cut.
         </p>
         <button
           type="button"
           onClick={onGoShots}
           className="mt-5 inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-primary/45 text-primary font-label text-[10px] uppercase tracking-wider hover:bg-primary-container/25 transition-colors"
         >
-          <Clapperboard className="w-3 h-3" /> Go to Shots
+          <Clapperboard className="w-3 h-3" /> Go to Create
         </button>
       </div>
     );
@@ -526,7 +526,7 @@ export default function EditorPanel({ onGoShots }: { onGoShots: () => void }) {
                   onClick={onGoShots}
                   className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-primary/45 text-primary font-label text-[10px] uppercase tracking-wider hover:bg-primary-container/25 transition-colors"
                 >
-                  Direct shots first
+                  Generate the video first
                 </button>
               </div>
             ) : (
