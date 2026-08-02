@@ -1,0 +1,784 @@
+"use client";
+import { useEffect, useRef, useState } from "react";
+import Image from "next/image";
+import {
+  ArrowLeft,
+  Box,
+  Check,
+  Clapperboard,
+  FileText,
+  Loader2,
+  Mountain,
+  Plus,
+  RefreshCw,
+  Sparkles,
+  Trash2,
+  UsersRound,
+  Zap,
+} from "lucide-react";
+import { toast } from "sonner";
+import { assetImg, frameImg, fmtShotNo, nowTs, proId, PRO_COSTS } from "./pro-mock";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import {
+  useStore,
+  type ProAsset,
+  type ProAssetKind,
+  type ProAssetRef,
+  type ProFilmStage,
+  type ProFragment,
+  type ProProject,
+  type ProScene,
+} from "@/lib/store";
+import { cn } from "@/lib/utils";
+
+/* ── Micro Film pipeline ─────────────────────────────────────────────────
+   The staged script → assets → film flow (film workflow only — the other
+   workflows still direct the whole cut in one run). Step ① edits the
+   parsed scene cards; step ② binds every cast/location/prop the script
+   calls for (mandatory — this is the Powered-by-Superstar production
+   story); step ③ frames and directs each scene with its bound assets and
+   lands on the premiere page. */
+
+const STEPS: { id: ProFilmStage; n: number; label: string; icon: typeof FileText }[] = [
+  { id: "script", n: 1, label: "Script", icon: FileText },
+  { id: "assets", n: 2, label: "Cast & Assets", icon: UsersRound },
+  { id: "film", n: 3, label: "Production", icon: Clapperboard },
+];
+
+const KIND_META: Record<ProAssetKind, { label: string; icon: typeof UsersRound; chip: string }> = {
+  character: { label: "Cast", icon: UsersRound, chip: "border-primary/45 text-primary" },
+  scene: { label: "Locations", icon: Mountain, chip: "border-secondary/50 text-secondary" },
+  prop: { label: "Props", icon: Box, chip: "border-tertiary/50 text-tertiary" },
+};
+
+// Reroll variations for scene summaries / beats (deterministic-ish per click).
+const REROLL_SUMMARIES = [
+  "The camera creeps closer; neither of them will say it first.",
+  "Rain starts mid-sentence — nobody moves to leave.",
+  "A phone buzzes face-down. Everyone pretends not to hear it.",
+  "One long take: the truth arrives in the reflection, not the face.",
+];
+const REROLL_BEATS = [
+  "You knew. The whole time, you knew.",
+  "Say it again — slower this time.",
+  "I didn't come back for you. I came back for what's mine.",
+  "Don't. If you finish that sentence, we're done.",
+];
+
+interface FilmShot {
+  sceneId: string;
+  heading: string;
+  summary: string;
+  beat: string;
+  refKeys: string[];
+  frameUrl?: string;
+  directed?: boolean;
+}
+interface FilmRun {
+  stage: "frame" | "direct" | "assemble";
+  shots: FilmShot[];
+  done: number;
+  total: number;
+}
+
+export default function FilmPipeline({
+  project,
+  onBack,
+}: {
+  project: ProProject;
+  onBack: () => void;
+}) {
+  const {
+    proAssets,
+    addProAsset,
+    updateProProject,
+    addProFragments,
+    setProTimeline,
+    spendProCredits,
+    isLoggedIn,
+    openSignupGate,
+  } = useStore();
+
+  const stage: ProFilmStage = project.stage ?? "script";
+  const scenes = project.scenes ?? [];
+  const refs = project.assetRefs ?? [];
+
+  const setScenes = (next: ProScene[]) => updateProProject(project.id, { scenes: next });
+  const setRefs = (next: ProAssetRef[]) => updateProProject(project.id, { assetRefs: next });
+  const gotoStage = (s: ProFilmStage) => updateProProject(project.id, { stage: s });
+
+  const assetOf = (ref: ProAssetRef): ProAsset | null =>
+    (ref.assetId && proAssets.find((a) => a.id === ref.assetId)) || null;
+  const boundCount = refs.filter((r) => assetOf(r)).length;
+  const allBound = refs.length > 0 && boundCount === refs.length;
+
+  /* ── step ② generator / picker state ── */
+  const [genFor, setGenFor] = useState<string | null>(null);
+  const [genProgress, setGenProgress] = useState(0);
+  const [candidates, setCandidates] = useState<string[] | null>(null);
+  const [pickerFor, setPickerFor] = useState<ProAssetRef | null>(null);
+
+  /* ── step ③ run state ── */
+  const [run, setRun] = useState<FilmRun | null>(null);
+  const runRef = useRef<FilmRun | null>(null);
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const setRunBoth = (r: FilmRun | null) => {
+    runRef.current = r;
+    setRun(r);
+  };
+  const later = (ms: number, fn: () => void) => {
+    timers.current.push(setTimeout(fn, ms));
+  };
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
+
+  const gate = () => {
+    if (!isLoggedIn) {
+      openSignupGate("/discovery/workspace");
+      return false;
+    }
+    return true;
+  };
+
+  /* ── step ① actions ── */
+  const patchScene = (id: string, patch: Partial<ProScene>) =>
+    setScenes(scenes.map((s) => (s.id === id ? { ...s, ...patch } : s)));
+
+  const rerollScene = (id: string) => {
+    const t = nowTs();
+    patchScene(id, {
+      summary: REROLL_SUMMARIES[t % REROLL_SUMMARIES.length],
+      beat: REROLL_BEATS[t % REROLL_BEATS.length],
+    });
+    toast.success("Scene rewritten");
+  };
+
+  const deleteScene = (id: string) => {
+    if (scenes.length <= 4) {
+      toast.error("A micro film needs at least 4 scenes");
+      return;
+    }
+    setScenes(scenes.filter((s) => s.id !== id));
+  };
+
+  const addScene = () => {
+    if (scenes.length >= 6) {
+      toast.error("Six scenes is the cap — keep it micro");
+      return;
+    }
+    const t = nowTs();
+    setScenes([
+      ...scenes,
+      {
+        id: `sc-${t}`,
+        heading: `S${scenes.length + 1} · New Scene`,
+        summary: REROLL_SUMMARIES[t % REROLL_SUMMARIES.length],
+        beat: REROLL_BEATS[(t + 1) % REROLL_BEATS.length],
+        refKeys: refs.slice(0, 2).map((r) => r.key),
+      },
+    ]);
+  };
+
+  /* ── step ② actions ── */
+  const bindRef = (key: string, assetId?: string) =>
+    setRefs(refs.map((r) => (r.key === key ? { ...r, assetId } : r)));
+
+  const generateLook = (ref: ProAssetRef) => {
+    if (!gate()) return;
+    if (genFor) return;
+    if (!spendProCredits(PRO_COSTS.asset)) {
+      toast.error("Not enough credits (mock balance)");
+      return;
+    }
+    setGenFor(ref.key);
+    setGenProgress(8);
+    const iv = setInterval(() => setGenProgress((p) => (p >= 95 ? 95 : p + 9)), 150);
+    timers.current.push(iv as unknown as ReturnType<typeof setTimeout>);
+    later(1600, () => {
+      clearInterval(iv);
+      setGenProgress(100);
+      setCandidates([0, 1, 2, 3].map((i) => assetImg(ref.kind, `${ref.key}-${nowTs()}-${i}`)));
+    });
+  };
+
+  const pickCandidate = (ref: ProAssetRef, url: string) => {
+    const asset: ProAsset = {
+      id: proId("asset"),
+      kind: ref.kind,
+      name: ref.name,
+      desc: ref.desc,
+      imageUrl: url,
+      createdAt: nowTs(),
+    };
+    addProAsset(asset);
+    bindRef(ref.key, asset.id);
+    setGenFor(null);
+    setCandidates(null);
+    toast.success(`${ref.name} cast — saved to your library`);
+  };
+
+  const pickExisting = (ref: ProAssetRef, asset: ProAsset) => {
+    bindRef(ref.key, asset.id);
+    setPickerFor(null);
+    toast.success(`${asset.name} bound from your library`);
+  };
+
+  /* ── step ③ run ── */
+  const commitRun = (shots: FilmShot[], level: "directed" | "framed") => {
+    const now = nowTs();
+    const frags = shots.map((s, i) => ({
+      id: proId("frag"),
+      projectId: project.id,
+      title: fmtShotNo(i + 1),
+      summary: `${s.heading} — ${s.summary}`,
+      dialogue: s.beat,
+      status: level === "directed" ? "directed" : s.frameUrl ? "framed" : "draft",
+      frames: s.frameUrl ? [s.frameUrl] : [],
+      frameUrl: s.frameUrl,
+      durationSec: 6,
+      createdAt: now + i,
+    })) satisfies ProFragment[];
+    addProFragments(frags);
+    if (level === "directed") {
+      setProTimeline(project.id, {
+        video: frags.map((f) => ({
+          id: proId("clip"),
+          fragmentId: f.id,
+          inSec: 0,
+          outSec: f.durationSec,
+        })),
+        audio: [],
+      });
+    }
+    updateProProject(project.id, { stage: "premiere" });
+    toast.success(
+      level === "directed"
+        ? `Premiere ready — ${frags.length} scenes, cut assembled`
+        : "Credits ran out mid-run — progress saved on the project page"
+    );
+  };
+
+  const directStep = (shots: FilmShot[], idx: number) => {
+    if (idx >= shots.length) {
+      setRunBoth({ stage: "assemble", shots, done: 0, total: 1 });
+      later(800, () => commitRun(shots, "directed"));
+      return;
+    }
+    later(800, () => {
+      shots[idx] = { ...shots[idx], directed: true };
+      setRunBoth({ stage: "direct", shots: [...shots], done: idx + 1, total: shots.length });
+      directStep(shots, idx + 1);
+    });
+  };
+
+  const frameStep = (shots: FilmShot[], idx: number) => {
+    if (idx >= shots.length) {
+      if (!spendProCredits(shots.length * PRO_COSTS.video)) {
+        commitRun(shots, "framed");
+        return;
+      }
+      setRunBoth({ stage: "direct", shots, done: 0, total: shots.length });
+      directStep(shots, 0);
+      return;
+    }
+    later(700, () => {
+      shots[idx] = { ...shots[idx], frameUrl: frameImg(`film-${shots[idx].sceneId}-${nowTs()}`) };
+      setRunBoth({ stage: "frame", shots: [...shots], done: idx + 1, total: shots.length });
+      frameStep(shots, idx + 1);
+    });
+  };
+
+  const startProduction = () => {
+    if (!gate()) return;
+    if (!spendProCredits(scenes.length * PRO_COSTS.frame)) {
+      toast.error("Not enough credits (mock balance)");
+      return;
+    }
+    const shots: FilmShot[] = scenes.map((s) => ({
+      sceneId: s.id,
+      heading: s.heading,
+      summary: s.summary,
+      beat: s.beat,
+      refKeys: s.refKeys,
+    }));
+    setRunBoth({ stage: "frame", shots, done: 0, total: shots.length });
+    frameStep(shots, 0);
+  };
+
+  /* Mini avatar row for the assets a scene/shot uses. */
+  const RefAvatars = ({ keys, size = 22 }: { keys: string[]; size?: number }) => (
+    <span className="inline-flex items-center -space-x-1.5">
+      {keys
+        .map((k) => refs.find((r) => r.key === k))
+        .filter((r): r is ProAssetRef => Boolean(r))
+        .map((r) => {
+          const a = assetOf(r);
+          const Icon = KIND_META[r.kind].icon;
+          return a ? (
+            <Image
+              key={r.key}
+              src={a.imageUrl}
+              alt={r.name}
+              width={size}
+              height={size}
+              title={r.name}
+              className="rounded-full object-cover border border-surface"
+              style={{ width: size, height: size }}
+            />
+          ) : (
+            <span
+              key={r.key}
+              title={r.name}
+              className="rounded-full border border-outline-variant/50 bg-surface-container flex items-center justify-center text-on-surface-variant"
+              style={{ width: size, height: size }}
+            >
+              <Icon style={{ width: size * 0.5, height: size * 0.5 }} />
+            </span>
+          );
+        })}
+    </span>
+  );
+
+  return (
+    <div>
+      {/* Header: back + title + stepper */}
+      <div className="flex items-center gap-3 flex-wrap mb-5">
+        <button
+          type="button"
+          onClick={onBack}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-outline-variant/50 font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
+        >
+          <ArrowLeft className="w-3 h-3" /> Projects
+        </button>
+        <div className="min-w-0">
+          <h3 className="font-headline text-lg text-on-surface truncate leading-tight">
+            {project.title}
+          </h3>
+          <p className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant/80">
+            Micro Film · Powered by Superstar
+          </p>
+        </div>
+        {/* Stepper */}
+        <div className="ml-auto flex items-center gap-1.5">
+          {STEPS.map((s, i) => {
+            const idx = STEPS.findIndex((x) => x.id === stage);
+            const done = i < idx;
+            const current = s.id === stage;
+            // Backwards only, and never once the cameras are rolling.
+            const clickable = done && !run;
+            const Icon = s.icon;
+            return (
+              <span key={s.id} className="flex items-center gap-1.5">
+                {i > 0 && <span className="w-4 h-px bg-outline-variant/50" aria-hidden="true" />}
+                <button
+                  type="button"
+                  disabled={!clickable}
+                  onClick={() => clickable && gotoStage(s.id)}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 pl-1.5 pr-3 py-1.5 rounded-full border font-label text-[10px] uppercase tracking-wider transition-colors",
+                    current
+                      ? "border-primary bg-primary text-on-primary"
+                      : done
+                        ? "border-primary/45 text-primary hover:bg-primary-container/25"
+                        : "border-outline-variant/40 text-on-surface-variant/70",
+                    !clickable && !current && "cursor-default"
+                  )}
+                >
+                  <span
+                    className={cn(
+                      "w-5 h-5 rounded-full flex items-center justify-center",
+                      current ? "bg-on-primary/15" : "bg-surface-container"
+                    )}
+                  >
+                    {done ? <Check className="w-3 h-3" /> : <Icon className="w-3 h-3" />}
+                  </span>
+                  {s.n}. {s.label}
+                </button>
+              </span>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── ① Script ── */}
+      {stage === "script" && (
+        <div className="animate-fade-up">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {scenes.map((sc) => (
+              <div
+                key={sc.id}
+                className="rounded-2xl border border-outline-variant/40 bg-surface-container-lowest/70 p-4"
+              >
+                <div className="flex items-center gap-2">
+                  <input
+                    value={sc.heading}
+                    onChange={(e) => patchScene(sc.id, { heading: e.target.value })}
+                    aria-label="scene heading"
+                    className="flex-1 min-w-0 bg-transparent border-none focus:outline-none focus:ring-0 font-label text-[11px] uppercase tracking-wider text-primary"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => rerollScene(sc.id)}
+                    title="Rewrite this scene"
+                    className="w-7 h-7 rounded-full border border-outline-variant/45 flex items-center justify-center text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
+                  >
+                    <RefreshCw className="w-3 h-3" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => deleteScene(sc.id)}
+                    title="Delete scene"
+                    className="w-7 h-7 rounded-full border border-outline-variant/45 flex items-center justify-center text-on-surface-variant hover:border-error/60 hover:text-error transition-colors"
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </button>
+                </div>
+                <textarea
+                  value={sc.summary}
+                  onChange={(e) => patchScene(sc.id, { summary: e.target.value })}
+                  rows={2}
+                  aria-label="scene summary"
+                  className="mt-2 w-full bg-transparent border-none resize-none focus:outline-none focus:ring-0 font-body text-sm text-on-surface leading-snug"
+                />
+                <p className="font-body text-[12px] italic text-on-surface-variant border-l-2 border-primary/40 pl-2.5 mt-1">
+                  “{sc.beat}”
+                </p>
+                <div className="flex items-center gap-1.5 flex-wrap mt-3">
+                  {sc.refKeys
+                    .map((k) => refs.find((r) => r.key === k))
+                    .filter((r): r is ProAssetRef => Boolean(r))
+                    .map((r) => (
+                      <span
+                        key={r.key}
+                        className={cn(
+                          "font-label text-[8px] uppercase tracking-widest border px-1.5 py-0.5 rounded-full",
+                          KIND_META[r.kind].chip
+                        )}
+                      >
+                        {r.name}
+                      </span>
+                    ))}
+                </div>
+              </div>
+            ))}
+            {/* Add scene */}
+            <button
+              type="button"
+              onClick={addScene}
+              className="rounded-2xl border border-dashed border-outline-variant/50 min-h-[120px] flex flex-col items-center justify-center gap-1.5 text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              <span className="font-label text-[10px] uppercase tracking-wider">Add scene</span>
+            </button>
+          </div>
+          <div className="flex items-center gap-3 mt-5">
+            <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
+              {scenes.length} scenes · {refs.length} assets to cast
+            </p>
+            <button
+              type="button"
+              onClick={() => gotoStage("assets")}
+              className="ml-auto inline-flex items-center gap-2 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-6 py-3 rounded-full hover:opacity-90 active:scale-95 transition-all"
+            >
+              Lock script — cast the assets <UsersRound className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── ② Cast & Assets ── */}
+      {stage === "assets" && (
+        <div className="animate-fade-up">
+          <div className="flex items-center gap-2.5 rounded-2xl border border-primary/30 bg-primary-container/15 px-4 py-2.5 mb-5">
+            <Sparkles className="w-3.5 h-3.5 text-primary shrink-0" />
+            <p className="font-body text-[12.5px] text-on-surface-variant">
+              Every role, location and prop the script calls for needs a look before the cameras
+              roll — generate one, or bind something from your library.
+            </p>
+            <span className="ml-auto shrink-0 font-label text-[10px] uppercase tracking-widest text-primary">
+              {boundCount}/{refs.length} cast
+            </span>
+          </div>
+
+          {(["character", "scene", "prop"] as ProAssetKind[]).map((kind) => {
+            const group = refs.filter((r) => r.kind === kind);
+            if (group.length === 0) return null;
+            const Meta = KIND_META[kind];
+            const GroupIcon = Meta.icon;
+            return (
+              <div key={kind} className="mb-6">
+                <p className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant mb-2.5 flex items-center gap-1.5">
+                  <GroupIcon className="w-3.5 h-3.5" /> {Meta.label}
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {group.map((ref) => {
+                    const bound = assetOf(ref);
+                    const isGen = genFor === ref.key;
+                    return (
+                      <div
+                        key={ref.key}
+                        className={cn(
+                          "rounded-2xl border p-4",
+                          bound
+                            ? "border-primary/40 bg-primary-container/10"
+                            : "border-outline-variant/40 bg-surface-container-lowest/70"
+                        )}
+                      >
+                        <div className="flex items-start gap-3">
+                          {bound ? (
+                            <Image
+                              src={bound.imageUrl}
+                              alt={ref.name}
+                              width={56}
+                              height={56}
+                              className="w-14 h-14 rounded-xl object-cover shrink-0"
+                            />
+                          ) : (
+                            <span className="w-14 h-14 rounded-xl border border-dashed border-outline-variant/50 flex items-center justify-center text-on-surface-variant shrink-0">
+                              <GroupIcon className="w-5 h-5" />
+                            </span>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-body text-sm text-on-surface flex items-center gap-1.5">
+                              {ref.name}
+                              {bound && <Check className="w-3.5 h-3.5 text-primary shrink-0" />}
+                            </p>
+                            <p className="font-body text-[11.5px] text-on-surface-variant leading-snug mt-0.5 line-clamp-2">
+                              {ref.desc}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Generator: progress → 4 candidates inline */}
+                        {isGen && (
+                          <div className="mt-3">
+                            {!candidates ? (
+                              <div className="flex items-center gap-2.5">
+                                <Loader2 className="w-3.5 h-3.5 text-primary animate-spin" />
+                                <div className="flex-1 h-1 rounded-full bg-surface-container overflow-hidden">
+                                  <div
+                                    className="h-full bg-primary transition-all duration-200"
+                                    style={{ width: `${genProgress}%` }}
+                                  />
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="grid grid-cols-4 gap-1.5">
+                                {candidates.map((url) => (
+                                  <button
+                                    key={url}
+                                    type="button"
+                                    onClick={() => pickCandidate(ref, url)}
+                                    className="relative rounded-lg overflow-hidden border border-outline-variant/40 hover:border-primary transition-colors aspect-square"
+                                  >
+                                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                                    <img
+                                      src={url}
+                                      alt="candidate"
+                                      className="w-full h-full object-cover"
+                                    />
+                                  </button>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-2 mt-3">
+                          {bound ? (
+                            <button
+                              type="button"
+                              onClick={() => bindRef(ref.key, undefined)}
+                              className="font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:text-primary transition-colors"
+                            >
+                              Change look
+                            </button>
+                          ) : (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => generateLook(ref)}
+                                disabled={Boolean(genFor)}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-primary text-on-primary font-label text-[10px] uppercase tracking-wider hover:opacity-90 transition-all disabled:opacity-50"
+                              >
+                                <Sparkles className="w-3 h-3" /> Generate look
+                                <span className="inline-flex items-center gap-0.5 opacity-80">
+                                  <Zap className="w-2.5 h-2.5" fill="currentColor" />
+                                  {PRO_COSTS.asset}
+                                </span>
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => setPickerFor(ref)}
+                                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-outline-variant/50 font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
+                              >
+                                From library
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            );
+          })}
+
+          <div className="flex items-center gap-3 mt-2">
+            <p className="font-body text-[12px] text-on-surface-variant">
+              {allBound
+                ? "Full cast locked — ready to roll."
+                : `${refs.length - boundCount} still uncast — production stays locked until every look is bound.`}
+            </p>
+            <button
+              type="button"
+              disabled={!allBound}
+              onClick={() => gotoStage("film")}
+              className="ml-auto inline-flex items-center gap-2 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-6 py-3 rounded-full hover:opacity-90 active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Start production <Clapperboard className="w-3.5 h-3.5" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ── ③ Production ── */}
+      {stage === "film" && (
+        <div className="animate-fade-up">
+          {!run ? (
+            <>
+              {/* Production plan — one row per scene with its bound looks */}
+              <div className="rounded-2xl border border-outline-variant/40 bg-surface-container-lowest/70 divide-y divide-outline-variant/25 mb-5">
+                {scenes.map((sc, i) => (
+                  <div key={sc.id} className="flex items-center gap-3 px-4 py-3">
+                    <span className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant/75 w-14 shrink-0">
+                      {fmtShotNo(i + 1)}
+                    </span>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-body text-sm text-on-surface truncate">{sc.heading}</p>
+                      <p className="font-body text-[11.5px] text-on-surface-variant truncate">
+                        {sc.summary}
+                      </p>
+                    </div>
+                    <RefAvatars keys={sc.refKeys} />
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center gap-3">
+                <p className="font-body text-[12px] text-on-surface-variant">
+                  {scenes.length} scenes · framing ⚡{scenes.length * PRO_COSTS.frame} now, directing
+                  ⚡{scenes.length * PRO_COSTS.video} as it runs.
+                </p>
+                <button
+                  type="button"
+                  onClick={startProduction}
+                  className="ml-auto inline-flex items-center gap-2 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-6 py-3 rounded-full hover:opacity-90 active:scale-95 transition-all"
+                >
+                  <Clapperboard className="w-3.5 h-3.5" /> Roll cameras
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              {/* Run banner */}
+              <div className="flex items-center gap-3 rounded-2xl border border-primary/30 bg-primary-container/15 px-4 py-3 mb-5">
+                <Loader2 className="w-4 h-4 text-primary animate-spin shrink-0" />
+                <p className="font-body text-sm text-on-surface flex-1">
+                  {run.stage === "frame"
+                    ? `Framing scenes with your cast — ${run.done}/${run.total}`
+                    : run.stage === "direct"
+                      ? `Directing — ${run.done}/${run.total}`
+                      : "Assembling the cut…"}
+                </p>
+                <span className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant/85">
+                  Powered by Superstar
+                </span>
+              </div>
+              {/* Storyboard tiles */}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {run.shots.map((s, i) => (
+                  <div
+                    key={s.sceneId}
+                    className="rounded-2xl border border-outline-variant/40 bg-surface-container-lowest/70 overflow-hidden"
+                  >
+                    <div className="relative aspect-video bg-surface-container">
+                      {s.frameUrl ? (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={s.frameUrl}
+                          alt={s.heading}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <span className="shimmer-overlay absolute inset-0" />
+                      )}
+                      {s.directed && (
+                        <span className="absolute top-2 right-2 w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center">
+                          <Check className="w-3 h-3" />
+                        </span>
+                      )}
+                      <span className="absolute bottom-2 left-2">
+                        <RefAvatars keys={s.refKeys} size={18} />
+                      </span>
+                    </div>
+                    <div className="px-3 py-2.5">
+                      <p className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant/80">
+                        {fmtShotNo(i + 1)}
+                      </p>
+                      <p className="font-body text-[12px] text-on-surface truncate">{s.heading}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Library picker dialog (step ②) */}
+      <Dialog open={Boolean(pickerFor)} onOpenChange={(o) => !o && setPickerFor(null)}>
+        <DialogContent className="sm:max-w-lg p-6" showCloseButton>
+          <DialogTitle className="font-headline text-lg text-on-surface">
+            Bind “{pickerFor?.name}” from your library
+          </DialogTitle>
+          {pickerFor &&
+            (() => {
+              const pool = proAssets.filter((a) => a.kind === pickerFor.kind);
+              if (pool.length === 0) {
+                return (
+                  <p className="font-body text-sm text-on-surface-variant mt-2">
+                    Nothing saved for this type yet — generate a look instead; it lands in your
+                    library for the next film.
+                  </p>
+                );
+              }
+              return (
+                <div className="grid grid-cols-3 gap-2.5 mt-3 max-h-[320px] overflow-y-auto">
+                  {pool.map((a) => (
+                    <button
+                      key={a.id}
+                      type="button"
+                      onClick={() => pickExisting(pickerFor, a)}
+                      className="rounded-xl overflow-hidden border border-outline-variant/40 hover:border-primary transition-colors text-left"
+                    >
+                      <Image
+                        src={a.imageUrl}
+                        alt={a.name}
+                        width={200}
+                        height={200}
+                        className="w-full aspect-square object-cover"
+                      />
+                      <span className="block px-2 py-1.5 font-body text-[11px] text-on-surface truncate">
+                        {a.name}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              );
+            })()}
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
