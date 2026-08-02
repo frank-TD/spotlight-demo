@@ -1,14 +1,84 @@
 "use client";
 import { useState } from "react";
-import { Upload, Download, Star, ExternalLink, Film, Send, Eye, Trash2 } from "lucide-react";
+import {
+  Upload,
+  Download,
+  Star,
+  ExternalLink,
+  Film,
+  Send,
+  Eye,
+  Trash2,
+  ImageIcon,
+  Clapperboard,
+  Mic,
+  Music2,
+  UsersRound,
+  Mountain,
+  Box,
+  Wand2,
+} from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { toast } from "sonner";
-import { useStore, DistStatus } from "@/lib/store";
+import { useStore, DistStatus, type ProAssetKind, type StudioMode } from "@/lib/store";
 import AppShell from "@/components/layout/AppShell";
 import { MY_ASSETS_CREATED, MY_ASSETS_PURCHASED } from "@/lib/mock-data";
 import { cn } from "@/lib/utils";
 import { useT } from "@/hooks/useT";
+
+/* The asset hub's tab set: everything the studio produces lands here —
+   final cuts, the NexGC cast/scenes/props libraries and Quick Tools
+   single-shot generations — next to purchases. ?tab= deep-links from the
+   studio's "view" toasts land on the right shelf. */
+type HubTab = "created" | "cast" | "scenes" | "props" | "generations" | "purchased";
+const HUB_TABS: { id: HubTab; label: string }[] = [
+  { id: "created", label: "Final Cuts" },
+  { id: "cast", label: "Cast" },
+  { id: "scenes", label: "Scenes" },
+  { id: "props", label: "Props" },
+  { id: "generations", label: "Generations" },
+  { id: "purchased", label: "Purchased" },
+];
+const KIND_BY_TAB: Partial<Record<HubTab, ProAssetKind>> = {
+  cast: "character",
+  scenes: "scene",
+  props: "prop",
+};
+const MODE_ICON: Record<StudioMode, typeof ImageIcon> = {
+  image: ImageIcon,
+  video: Clapperboard,
+  voiceover: Mic,
+  music: Music2,
+};
+
+function EmptyShelf({
+  icon: Icon,
+  title,
+  sub,
+  ctaHref,
+  ctaLabel,
+}: {
+  icon: typeof ImageIcon;
+  title: string;
+  sub: string;
+  ctaHref: string;
+  ctaLabel: string;
+}) {
+  return (
+    <div className="rounded-3xl border border-outline-variant/40 bg-surface-container-lowest/60 px-6 py-16 text-center">
+      <Icon className="w-7 h-7 text-on-surface-variant mx-auto" />
+      <p className="font-headline text-xl text-on-surface mt-4">{title}</p>
+      <p className="font-body text-sm text-on-surface-variant mt-1.5 max-w-md mx-auto">{sub}</p>
+      <Link
+        href={ctaHref}
+        className="mt-5 inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-primary/45 text-primary font-label text-[10px] uppercase tracking-wider hover:bg-primary-container/25 transition-colors"
+      >
+        {ctaLabel} →
+      </Link>
+    </div>
+  );
+}
 
 const STATUS_COLOR: Record<DistStatus, string> = {
   metadata: "bg-secondary-container text-on-secondary-container",
@@ -22,9 +92,20 @@ const STATUS_COLOR: Record<DistStatus, string> = {
 };
 
 export default function AssetsPage() {
-  const [tab, setTab] = useState<"created" | "purchased">("created");
-  const { distributionByAsset, proExports } = useStore();
+  const [tab, setTab] = useState<HubTab>(() => {
+    if (typeof window === "undefined") return "created";
+    const q = new URLSearchParams(window.location.search).get("tab");
+    if (q === "final") return "created";
+    return HUB_TABS.some((x) => x.id === q) ? (q as HubTab) : "created";
+  });
+  const { distributionByAsset, proExports, proAssets, studioSessions } = useStore();
   const t = useT();
+
+  const kindAssets = (kind: ProAssetKind) => proAssets.filter((a) => a.kind === kind);
+  // Quick Tools output, flattened across sessions, newest first.
+  const generations = studioSessions
+    .flatMap((s) => s.assets.map((a) => ({ ...a, sessionTitle: s.title })))
+    .sort((a, b) => b.createdAt - a.createdAt);
 
   // NexGC Pro final cuts surface at the top of the created tab, shaped like
   // the mock assets so the card + distribution flow treat them identically.
@@ -105,26 +186,132 @@ export default function AssetsPage() {
 
         {/* Tabs */}
         <div
-          className="animate-fade-up flex border-b border-outline-variant/30 mb-8 gap-2"
+          className="animate-fade-up flex border-b border-outline-variant/30 mb-8 gap-1 overflow-x-auto"
           style={{ animationDelay: "100ms" }}
         >
-          {(["created", "purchased"] as const).map((tabKey) => (
-            <button
-              key={tabKey}
-              onClick={() => setTab(tabKey)}
-              className={cn(
-                "px-4 py-3 font-label text-label-md uppercase tracking-wider transition-colors border-b-2 -mb-px",
-                tab === tabKey
-                  ? "border-primary text-primary"
-                  : "border-transparent text-on-surface-variant hover:text-on-surface"
-              )}
-            >
-              {tabKey === "created"
-                ? t.assets.myCreations(createdAssets.length)
-                : t.assets.purchased(MY_ASSETS_PURCHASED.length)}
-            </button>
-          ))}
+          {HUB_TABS.map(({ id, label }) => {
+            const count =
+              id === "created"
+                ? createdAssets.length
+                : id === "purchased"
+                  ? MY_ASSETS_PURCHASED.length
+                  : id === "generations"
+                    ? generations.length
+                    : kindAssets(KIND_BY_TAB[id]!).length;
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setTab(id)}
+                className={cn(
+                  "px-4 py-3 font-label text-label-md uppercase tracking-wider transition-colors border-b-2 -mb-px whitespace-nowrap",
+                  tab === id
+                    ? "border-primary text-primary"
+                    : "border-transparent text-on-surface-variant hover:text-on-surface"
+                )}
+              >
+                {label} ({count})
+              </button>
+            );
+          })}
         </div>
+
+        {/* NexGC libraries: cast / scenes / props */}
+        {(tab === "cast" || tab === "scenes" || tab === "props") &&
+          (() => {
+            const kind = KIND_BY_TAB[tab]!;
+            const list = kindAssets(kind);
+            if (list.length === 0) {
+              return (
+                <EmptyShelf
+                  icon={tab === "cast" ? UsersRound : tab === "scenes" ? Mountain : Box}
+                  title={`No ${tab} saved yet`}
+                  sub="Generate looks in NexGC Studio — everything you save lands here."
+                  ctaHref="/discovery/workspace"
+                  ctaLabel="Open NexGC Studio"
+                />
+              );
+            }
+            return (
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+                {list.map((a, i) => (
+                  <div
+                    key={a.id}
+                    className="animate-fade-up bg-surface-container-lowest border border-outline-variant/30 rounded-2xl overflow-hidden"
+                    style={{ animationDelay: `${120 + i * 60}ms` }}
+                  >
+                    <div className={cn("relative overflow-hidden", kind === "scene" ? "aspect-video" : "aspect-[3/4]")}>
+                      <Image
+                        src={a.imageUrl}
+                        alt={a.name}
+                        width={480}
+                        height={640}
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    <div className="px-3.5 py-3">
+                      <p className="font-body text-sm text-on-surface truncate">{a.name}</p>
+                      <p className="font-body text-[11px] text-on-surface-variant/85 truncate mt-0.5">
+                        {a.desc}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            );
+          })()}
+
+        {/* Quick Tools generations */}
+        {tab === "generations" &&
+          (generations.length === 0 ? (
+            <EmptyShelf
+              icon={Wand2}
+              title="No generations yet"
+              sub="Quick Tools output (image · video · voiceover · music) collects here, session by session."
+              ctaHref="/discovery/workspace?mode=basic"
+              ctaLabel="Open Quick Tools"
+            />
+          ) : (
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+              {generations.map((g, i) => {
+                const Icon = MODE_ICON[g.mode];
+                return (
+                  <div
+                    key={g.id}
+                    className="animate-fade-up bg-surface-container-lowest border border-outline-variant/30 rounded-2xl overflow-hidden"
+                    style={{ animationDelay: `${120 + i * 50}ms` }}
+                  >
+                    <div className="relative aspect-video bg-surface-container overflow-hidden">
+                      {g.imageUrl ? (
+                        <Image
+                          src={g.imageUrl}
+                          alt={g.prompt}
+                          width={480}
+                          height={270}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="absolute inset-0 flex items-center justify-center text-on-surface-variant">
+                          <Icon className="w-6 h-6" />
+                        </div>
+                      )}
+                      <span className="absolute top-2 left-2 inline-flex items-center gap-1 font-label text-[8px] uppercase tracking-widest bg-surface/70 backdrop-blur text-on-surface px-1.5 py-0.5 rounded-full">
+                        <Icon className="w-2.5 h-2.5" /> {g.mode}
+                      </span>
+                    </div>
+                    <div className="px-3.5 py-3">
+                      <p className="font-body text-xs text-on-surface line-clamp-2 leading-snug">
+                        {g.prompt || g.sessionTitle}
+                      </p>
+                      <p className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant/70 mt-1.5">
+                        {g.modelName} · {new Date(g.createdAt).toLocaleDateString()}
+                      </p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ))}
 
         {tab === "created" && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

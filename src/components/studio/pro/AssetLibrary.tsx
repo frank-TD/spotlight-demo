@@ -135,7 +135,12 @@ export default function AssetLibrary({ kind }: { kind: ProAssetKind }) {
         createdAt: nowTs(),
       };
       addProAsset(asset);
-      toast.success(`Saved to My ${KIND_PLURAL[kind]}`);
+      toast.success(`Saved to My ${KIND_PLURAL[kind]}`, {
+        action: {
+          label: "View in My Assets",
+          onClick: () => window.location.assign(`/assets?tab=${kind === "character" ? "cast" : kind === "scene" ? "scenes" : "props"}`),
+        },
+      });
       setTab("my");
       setPrompt("");
       setRefs(0);
@@ -558,7 +563,12 @@ export function InlineAssetGen({ kind }: { kind: ProAssetKind }) {
     setCandidates(null);
     setPrompt("");
     setSavedName(name);
-    toast.success(`${name} saved to My ${KIND_PLURAL[kind]}`);
+    toast.success(`${name} saved to My ${KIND_PLURAL[kind]}`, {
+      action: {
+        label: "View in My Assets",
+        onClick: () => window.location.assign(`/assets?tab=${kind === "character" ? "cast" : kind === "scene" ? "scenes" : "props"}`),
+      },
+    });
   };
 
   return (

@@ -1,20 +1,14 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
+import { ArrowLeft } from "lucide-react";
 import HistoryRail from "./HistoryRail";
 import VisualsCanvas from "./VisualsCanvas";
-import PromptDock, { type StudioProvider } from "./PromptDock";
+import PromptDock from "./PromptDock";
 import ModelPickerDialog from "./ModelPickerDialog";
 import VoiceCatalogDialog from "./VoiceCatalogDialog";
 import ReferenceUploadDialog, { type PromptReference } from "./ReferenceUploadDialog";
 import AssetLightbox from "./AssetLightbox";
-import {
-  SuperstarParamsDialog,
-  SUPERSTAR_DEFAULT_SETTINGS,
-  type SuperstarGenMode,
-  type SuperstarSettings,
-  type SuperstarTask,
-} from "./SuperstarProvider";
 import ProWorkspace from "./pro/ProWorkspace";
 import { MODELS_BY_MODE, DEFAULT_MODEL_BY_MODE, VOICES, type StudioVoice } from "@/lib/studio-mock";
 import { useT } from "@/hooks/useT";
@@ -67,9 +61,6 @@ export default function StudioWorkspace() {
     hasHydrated,
     isLoggedIn,
     openSignupGate,
-    studioProMode,
-    setStudioProMode,
-    proProjects,
   } = useStore();
 
   const [mode, setMode] = useState<StudioMode>("image");
@@ -87,34 +78,33 @@ export default function StudioWorkspace() {
     useState<Record<StudioMode, StudioAssetSettings>>(DEFAULT_SETTINGS);
   const [voice, setVoice] = useState<StudioVoice>(VOICES[0]);
 
-  // Superstar external-provider mock: pure UI state, no persistence, no API.
-  const [provider, setProvider] = useState<StudioProvider>("native");
   const [nativeDisplay, setNativeDisplay] = useState<{ id: string; label: string } | null>(null);
-  const [superstarGenMode, setSuperstarGenMode] = useState<SuperstarGenMode>("t2v");
-  const [superstarSettings, setSuperstarSettings] =
-    useState<SuperstarSettings>(SUPERSTAR_DEFAULT_SETTINGS);
-  const [superstarParamsOpen, setSuperstarParamsOpen] = useState(false);
-  const [superstarTasks, setSuperstarTasks] = useState<SuperstarTask[]>([]);
-  const superstarTaskSeq = useRef(0);
-  const superstarTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+
+  /* Quick Tools takeover: NexGC is the workspace; the single-shot studio
+     opens on demand (tools card on the Create home, or ?mode=basic deep
+     links). Initializer covers hard loads; the effect's scheduled open
+     covers soft navigations, where the URL commits after first render. */
+  const [toolsOpen, setToolsOpen] = useState(() => {
+    if (typeof window === "undefined") return false;
+    return new URLSearchParams(window.location.search).get("mode") === "basic";
+  });
+  useEffect(() => {
+    let tm: ReturnType<typeof setTimeout> | undefined;
+    if (new URLSearchParams(window.location.search).get("mode") === "basic") {
+      tm = setTimeout(() => setToolsOpen(true), 0);
+    }
+    return () => {
+      if (tm) clearTimeout(tm);
+    };
+  }, []);
 
   const progressTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const doneTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Deep links: /discovery/workspace?mode=pro|basic picks the workspace mode
-  // (used by the homepage / how-it-works CTAs). One-shot read — zustand is an
-  // external store, so syncing it from an effect is the sanctioned direction.
-  useEffect(() => {
-    const mode = new URLSearchParams(window.location.search).get("mode");
-    if (mode === "pro") setStudioProMode(true);
-    else if (mode === "basic") setStudioProMode(false);
-  }, [setStudioProMode]);
 
   useEffect(
     () => () => {
       if (progressTimer.current) clearInterval(progressTimer.current);
       if (doneTimer.current) clearTimeout(doneTimer.current);
-      superstarTimers.current.forEach(clearTimeout);
     },
     []
   );
@@ -230,59 +220,14 @@ export default function StudioWorkspace() {
     return base;
   };
 
-  /* ── Superstar external-provider mock flow ─────────────────────────────
-     No API is wired yet (token pending), so Generate only spawns a mock task
-     card that walks queued → generating → completed on timers. */
-  const spawnSuperstarTask = (taskPrompt: string, genMode: SuperstarGenMode) => {
-    superstarTaskSeq.current += 1;
-    const id = `mock-superstar-task-${String(superstarTaskSeq.current).padStart(3, "0")}`;
-    const task: SuperstarTask = {
-      id,
-      status: "queued",
-      mode: genMode,
-      prompt: taskPrompt,
-      settings: { ...superstarSettings },
-      createdAt: Date.now(),
-    };
-    setSuperstarTasks((prev) => [...prev, task]);
-    const advance = (status: SuperstarTask["status"], delay: number) =>
-      superstarTimers.current.push(
-        setTimeout(
-          () => setSuperstarTasks((prev) => prev.map((x) => (x.id === id ? { ...x, status } : x))),
-          delay
-        )
-      );
-    advance("generating", 2000);
-    advance("completed", 5000);
-  };
-
-  const onRegenerateTask = (task: SuperstarTask) => {
-    if (!isLoggedIn) {
-      openSignupGate("/discovery/workspace");
-      return;
-    }
-    spawnSuperstarTask(task.prompt, task.mode);
-  };
-
-  const onTaskMockAction = (action: string) => {
-    toast.info(`${action} — mock mode, available after API integration`);
-  };
-
-  const onSuperstarHelper = (label: string) => {
-    toast.info(`${label} — mock mode · API token pending`);
-  };
-
-  const onSelectProvider = (p: StudioProvider, entry?: { id: string; label: string }) => {
-    setProvider(p);
-    if (p === "native" && entry) {
-      const isRealModel = MODELS_BY_MODE[mode].some((m) => m.id === entry.id);
-      if (isRealModel) {
-        setModelByMode((m) => ({ ...m, [mode]: entry.id }));
-        setNativeDisplay(null);
-      } else {
-        // Display-level mock entry (Getstaked Image / Video Model).
-        setNativeDisplay(entry);
-      }
+  const onSelectModel = (entry: { id: string; label: string }) => {
+    const isRealModel = MODELS_BY_MODE[mode].some((m) => m.id === entry.id);
+    if (isRealModel) {
+      setModelByMode((m) => ({ ...m, [mode]: entry.id }));
+      setNativeDisplay(null);
+    } else {
+      // Display-level mock entry (Getstaked Image / Video Model).
+      setNativeDisplay(entry);
     }
   };
 
@@ -291,16 +236,6 @@ export default function StudioWorkspace() {
     // them to the signup gate and bring them back here after they authenticate.
     if (!isLoggedIn) {
       openSignupGate("/discovery/workspace");
-      return;
-    }
-    if (provider === "superstar") {
-      if (!prompt.trim()) {
-        toast.error(t.aigc.emptyPromptToast);
-        return;
-      }
-      spawnSuperstarTask(prompt.trim(), superstarGenMode);
-      setPrompt("");
-      clearReferences();
       return;
     }
     if (studioGenerating) return;
@@ -416,51 +351,29 @@ export default function StudioWorkspace() {
     <div
       className={cn(
         "max-w-[1500px] mx-auto px-4 md:px-6 pt-5",
-        studioProMode ? "pb-16" : "pb-52"
+        toolsOpen ? "pb-52" : "pb-16"
       )}
     >
-      {/* Basic | Pro mode toggle */}
-      <div className="flex justify-center mb-5 animate-fade-up">
-        <div className="inline-flex items-center rounded-full border border-outline-variant/40 bg-surface-container-low p-1">
-          {(
-            [
-              { pro: false, label: "Basic" },
-              { pro: true, label: "Pro" },
-            ] as const
-          ).map((m) => (
-            <button
-              key={m.label}
-              type="button"
-              onClick={() => setStudioProMode(m.pro)}
-              className={cn(
-                "inline-flex items-center gap-1.5 px-6 py-1.5 rounded-full font-label text-[11px] uppercase tracking-wider transition-colors",
-                studioProMode === m.pro
-                  ? "bg-primary text-on-primary"
-                  : "text-on-surface-variant hover:text-on-surface"
-              )}
-            >
-              {m.label}
-              {m.pro && (
-                <span
-                  className={cn(
-                    "font-label text-[8px] uppercase tracking-widest border px-1 py-px rounded",
-                    studioProMode ? "border-on-primary/40" : "border-primary/50 text-primary"
-                  )}
-                >
-                  New
-                </span>
-              )}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {studioProMode ? (
+      {!toolsOpen ? (
         <div className="animate-fade-up">
-          <ProWorkspace />
+          <ProWorkspace onOpenTools={() => setToolsOpen(true)} />
         </div>
       ) : (
         <>
+      {/* Quick Tools header — the takeover's way back to NexGC */}
+      <div className="flex items-center gap-2.5 flex-wrap mb-4 animate-fade-up">
+        <button
+          type="button"
+          onClick={() => setToolsOpen(false)}
+          className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-outline-variant/50 font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
+        >
+          <ArrowLeft className="w-3 h-3" /> Back to NexGC
+        </button>
+        <h2 className="font-headline text-xl text-on-surface leading-none">Quick Tools</h2>
+        <span className="font-label text-[9px] uppercase tracking-widest border border-outline-variant/50 text-on-surface-variant px-1.5 py-0.5 rounded">
+          Single-shot image · video · voiceover · music
+        </span>
+      </div>
       <div className="flex gap-5">
         <div className="animate-fade-up" style={{ animationDelay: "60ms" }}>
           <HistoryRail
@@ -477,7 +390,6 @@ export default function StudioWorkspace() {
             onRenameGroup={renameStudioGroup}
             onDeleteGroup={deleteStudioGroup}
             onToggleGroup={toggleStudioGroupCollapsed}
-            proShortcut={{ count: proProjects.length, onOpen: () => setStudioProMode(true) }}
           />
         </div>
 
@@ -489,9 +401,6 @@ export default function StudioWorkspace() {
               generating={studioGenerating}
               progress={progress}
               onOpenAsset={setLightboxAsset}
-              superstarTasks={provider === "superstar" ? superstarTasks : []}
-              onRegenerateTask={onRegenerateTask}
-              onTaskMockAction={onTaskMockAction}
             />
           </div>
         </main>
@@ -510,22 +419,16 @@ export default function StudioWorkspace() {
           voice={mode === "voiceover" ? voice : undefined}
           prompt={prompt}
           onPromptChange={setPrompt}
-          generating={provider === "native" ? studioGenerating : false}
+          generating={studioGenerating}
           onGenerate={onGenerate}
           onOpenModelPicker={() => setModelPickerOpen(true)}
           onOpenVoiceCatalog={() => setVoiceCatalogOpen(true)}
           onOpenReferences={() => setReferencesOpen(true)}
           references={references}
           onRemoveReference={removeReference}
-          provider={provider}
-          onSelectProvider={onSelectProvider}
+          onSelectModel={onSelectModel}
           nativeDisplay={nativeDisplay}
-          superstarGenMode={superstarGenMode}
-          onSuperstarGenModeChange={setSuperstarGenMode}
-          superstarSettings={superstarSettings}
-          onOpenSuperstarParams={() => setSuperstarParamsOpen(true)}
-          onSuperstarHelper={onSuperstarHelper}
-          onOpenPro={() => setStudioProMode(true)}
+          onOpenNexgc={() => setToolsOpen(false)}
         />
       </div>
 
@@ -536,12 +439,6 @@ export default function StudioWorkspace() {
         modelId={modelId}
         settings={settings}
         onConfirm={onConfirmModel}
-      />
-      <SuperstarParamsDialog
-        open={superstarParamsOpen}
-        onOpenChange={setSuperstarParamsOpen}
-        settings={superstarSettings}
-        onConfirm={setSuperstarSettings}
       />
       <VoiceCatalogDialog
         open={voiceCatalogOpen}
