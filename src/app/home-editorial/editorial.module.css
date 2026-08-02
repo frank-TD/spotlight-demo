@@ -308,15 +308,40 @@
 .heroNav {
   position: relative;
   z-index: 5;
-  padding-top: 30px;
+  padding-top: 16px;
   text-shadow: 0 1px 10px rgba(0, 0, 0, 0.55);
 }
+/* Frosted capsule: the marketing nav matches the app shell's floating pill. */
 .heroNavInner {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
+  padding: 10px 24px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background: rgba(10, 31, 27, 0.42);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.35);
 }
+/* NexGC dropdown trigger, dressed as a hero link. */
+.heroNexgc {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(244, 240, 232, 0.95);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: color 0.2s;
+}
+.heroNexgc:hover { color: var(--orange); }
 .heroBrand {
   display: inline-flex;
   align-items: center;

@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Clapperboard,
   ImagePlus,
@@ -64,14 +64,36 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
 
   const project = proProjects.find((p) => p.id === currentProProjectId) ?? null;
 
-  /* Restore-on-mount, resolved inside initializers (render-safe): a parked
-     quick-start form or agent chat interrupted by the signup gate reopens
-     in place (form wins). */
+  /* Restore-on-mount, resolved inside initializers (render-safe): a nav
+     deep-link (?flow=ugc|ad|mv|film) opens that workflow's form directly;
+     otherwise a parked form or agent chat interrupted by the signup gate
+     reopens in place (form wins). */
   const [intakeWf, setIntakeWf] = useState<ProWorkflow | null>(() => {
+    if (typeof window !== "undefined") {
+      const flow = new URLSearchParams(window.location.search).get("flow");
+      if (flow && WORKFLOW_ORDER.includes(flow as ProWorkflow)) return flow as ProWorkflow;
+    }
     const d = readSession<IntakeDraft>(SK.intake);
     if (d?.open && (d.script || d.charName || d.charDesc || d.adTagline)) return d.workflow ?? "film";
     return null;
   });
+  // The deep link is one-shot. Soft navigations commit the URL after the
+  // first render, so the initializer above can miss it — this effect catches
+  // that case (scheduled open, never a sync setState) and then strips the
+  // param so closing the form doesn't re-open it.
+  useEffect(() => {
+    const url = new URL(window.location.href);
+    const flow = url.searchParams.get("flow");
+    let t: ReturnType<typeof setTimeout> | undefined;
+    if (flow && WORKFLOW_ORDER.includes(flow as ProWorkflow)) {
+      t = setTimeout(() => setIntakeWf((cur) => cur ?? (flow as ProWorkflow)), 0);
+      url.searchParams.delete("flow");
+      window.history.replaceState(null, "", url.toString());
+    }
+    return () => {
+      if (t) clearTimeout(t);
+    };
+  }, []);
   const [agentBoot, setAgentBoot] = useState<AgentBoot | null>(() => {
     if (readSession<IntakeDraft>(SK.intake)?.open) return null; // form wins
     const d = readSession<{ open?: boolean; msgs?: unknown[]; mode?: "guided" | "auto"; workflow?: ProWorkflow }>(

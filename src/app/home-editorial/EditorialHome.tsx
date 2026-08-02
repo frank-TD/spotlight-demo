@@ -10,6 +10,7 @@ import { DrawLine, FaqAccordion } from "./motion";
 import styles from "./editorial.module.css";
 import StatCountUp from "@/components/home/StatCountUp";
 import ScrollReveal from "@/components/home/ScrollReveal";
+import { NexgcMenu } from "@/components/layout/TopNav";
 
 // The editorial homepage body, shared by every colour variant. The whole
 // palette is scoped under `.root` and the accent is driven by two CSS vars
@@ -78,6 +79,7 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
               </Link>
               <nav className={styles.heroLinks}>
                 <Link href="/market">Marketplace</Link>
+                <NexgcMenu active={false} label="NexGC" triggerClassName={styles.heroNexgc} />
                 <Link href="/how-it-works">How it works</Link>
               </nav>
               <Link href="/login" className={styles.heroSignIn}>
