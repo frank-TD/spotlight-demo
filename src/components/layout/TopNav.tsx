@@ -9,6 +9,7 @@ import {
   ChevronDown,
   User,
   FolderOpen,
+  Box,
   LogOut,
   Check,
   Menu,
@@ -114,9 +115,10 @@ export default function TopNav() {
     { label: t.nav.marketplace, href: "/market", match: (p: string) => p.startsWith("/market") },
     { label: "How it works", href: "/how-it-works", match: (p: string) => p.startsWith("/how-it-works") },
   ];
+  // My Projects renders as a dropdown (projects + asset library) — see
+  // MyProjectsMenu below — so USER_NAV holds only the plain links.
   const USER_NAV: NavItem[] = [
     { label: t.nav.marketplace, href: "/market", match: (p: string) => p.startsWith("/market") },
-    { label: t.nav.myProjects, href: "/projects", match: (p: string) => p.startsWith("/projects") },
     { label: t.nav.messages, href: "/messages", match: (p: string) => p.startsWith("/messages") },
   ];
   const NAV_ITEMS = isLoggedIn ? USER_NAV : GUEST_NAV;
@@ -178,6 +180,13 @@ export default function TopNav() {
             <nav aria-label="Primary" className="hidden md:flex items-center gap-5 lg:gap-7">
               {navLink(NAV_ITEMS[0])}
               <NexgcMenu active={studioActive} label={t.nav.studio} />
+              {isLoggedIn && (
+                <MyProjectsMenu
+                  active={pathname.startsWith("/projects") || pathname.startsWith("/assets")}
+                  label={t.nav.myProjects}
+                  assetsLabel={t.nav.assets}
+                />
+              )}
               {NAV_ITEMS.slice(1).map(navLink)}
               <Link
                 href="/previews"
@@ -307,6 +316,12 @@ export default function TopNav() {
                       className="gap-2 cursor-pointer"
                     >
                       <FolderOpen className="w-4 h-4" /> {t.nav.myProjects}
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onClick={() => router.push("/assets")}
+                      className="gap-2 cursor-pointer"
+                    >
+                      <Box className="w-4 h-4" /> {t.nav.assets}
                     </DropdownMenuItem>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem
@@ -528,6 +543,69 @@ export default function TopNav() {
    can fill the form and only hit the signup gate on submit. Exported so the
    editorial homepage's hero nav can mount the same menu with its own
    trigger dressing (triggerClassName). */
+/* My Projects tab: a two-row dropdown — the projects page and the global
+   asset library — so finished work is one click from anywhere. */
+function MyProjectsMenu({
+  active,
+  label,
+  assetsLabel,
+}: {
+  active: boolean;
+  label: string;
+  assetsLabel: string;
+}) {
+  const router = useRouter();
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        aria-current={active ? "page" : undefined}
+        className={cn(
+          "inline-flex items-center gap-1 font-label text-label-md uppercase tracking-widest transition-colors duration-300 whitespace-nowrap focus:outline-none",
+          active
+            ? "text-primary relative after:content-[''] after:absolute after:-bottom-2 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-primary after:rounded-full"
+            : "text-on-surface-variant hover:text-on-surface"
+        )}
+      >
+        {label}
+        <ChevronDown className="w-3 h-3 opacity-60" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-[250px] p-1.5">
+        {/* Base UI requires Label to live inside a Group */}
+        <DropdownMenuGroup>
+          <DropdownMenuItem
+            onClick={() => router.push("/projects")}
+            className="cursor-pointer rounded-xl px-2 py-2 gap-2.5"
+          >
+            <span className="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center shrink-0">
+              <FolderOpen className="w-4 h-4 text-on-surface-variant" />
+            </span>
+            <span className="min-w-0">
+              <span className="block font-label text-label-md text-on-surface">{label}</span>
+              <span className="block font-body text-[11px] text-on-surface-variant truncate">
+                Orders, collabs & film projects
+              </span>
+            </span>
+          </DropdownMenuItem>
+          <DropdownMenuItem
+            onClick={() => router.push("/assets")}
+            className="cursor-pointer rounded-xl px-2 py-2 gap-2.5"
+          >
+            <span className="w-8 h-8 rounded-lg bg-surface-container flex items-center justify-center shrink-0">
+              <Box className="w-4 h-4 text-on-surface-variant" />
+            </span>
+            <span className="min-w-0">
+              <span className="block font-label text-label-md text-on-surface">{assetsLabel}</span>
+              <span className="block font-body text-[11px] text-on-surface-variant truncate">
+                Final cuts · cast · generations · purchases
+              </span>
+            </span>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
+
 export function NexgcMenu({
   active,
   label,
