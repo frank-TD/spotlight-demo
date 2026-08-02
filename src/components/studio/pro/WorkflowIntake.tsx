@@ -35,6 +35,7 @@ import {
   assetImg,
   clearSession,
   fmtShotNo,
+  frameImg,
   nowTs,
   proId,
   readSession,
@@ -55,11 +56,14 @@ import { cn } from "@/lib/utils";
 
 /* ── Workflow quick-start intake ─────────────────────────────────────────
    The OpenArt-style split panel (marketing hero left, minimal form right),
-   one configuration per video type. Single screen: submitting runs the
-   parse right on the form and drops the drafted shots straight onto the
-   board — the follow-up work (frame, direct, assemble) lives on the board
-   and in the editor. Drafts park in sessionStorage across the signup-gate
-   round-trip, same as the composer and the agent chat. */
+   one configuration per video type. Submitting generates the WHOLE video in
+   place: the form morphs into a pipeline progress screen (parse → frame →
+   direct → assemble, storyboard tiles lighting up live) and lands on the
+   project's premiere page with the cut assembled. The CTA charges the ⚡15
+   parse up front; later stages deduct as they run and stop safely — a run
+   that dies mid-way still commits whatever finished (the premiere page
+   offers to resume it). Form drafts park in sessionStorage across the
+   signup-gate round-trip. */
 
 const INTAKE: Record<
   ProWorkflow,
@@ -157,6 +161,22 @@ export interface IntakeDraft {
   fmt?: string;
 }
 
+// One shot moving through the in-form pipeline.
+interface GenShot {
+  id: string;
+  summary: string;
+  dialogue?: string;
+  frameUrl?: string;
+  directed?: boolean;
+}
+type RunStage = "parse" | "frame" | "direct" | "assemble";
+interface RunState {
+  stage: RunStage;
+  sim: GenShot[];
+  done: number;
+  total: number;
+}
+
 export default function WorkflowIntake({
   workflow,
   initialScript,
@@ -169,8 +189,15 @@ export default function WorkflowIntake({
   onClose: () => void;
   onCreated: (projectId: string) => void;
 }) {
-  const { isLoggedIn, openSignupGate, spendProCredits, newProProject, addProFragments, proAssets } =
-    useStore();
+  const {
+    isLoggedIn,
+    openSignupGate,
+    spendProCredits,
+    newProProject,
+    addProFragments,
+    setProTimeline,
+    proAssets,
+  } = useStore();
 
   const cfg = WORKFLOWS[workflow];
   const iv = INTAKE[workflow];
@@ -190,12 +217,20 @@ export default function WorkflowIntake({
   const [charDesc, setCharDesc] = useState(saved?.charDesc ?? "");
   const [adTagline, setAdTagline] = useState(saved?.adTagline ?? "");
   const [fmt, setFmt] = useState<string>(saved?.fmt ?? cfg.aspect);
-  const [parsing, setParsing] = useState(false);
-  const parseTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  // The in-form generation run (null = still on the form). Timer chains read
+  // the ref mirror so they never see stale state.
+  const [run, setRun] = useState<RunState | null>(null);
+  const runRef = useRef<RunState | null>(null);
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const setRunBoth = (r: RunState | null) => {
+    runRef.current = r;
+    setRun(r);
+  };
+  const later = (ms: number, fn: () => void) => {
+    timers.current.push(setTimeout(fn, ms));
+  };
 
-  useEffect(() => () => {
-    if (parseTimer.current) clearTimeout(parseTimer.current);
-  }, []);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   // One-time restore notice (toast only — no state changes in effects).
   useEffect(() => {
@@ -236,7 +271,79 @@ export default function WorkflowIntake({
     onClose();
   };
 
-  // Parse on the form, then create the board directly — no interim steps.
+  /* Commit whatever the run produced. "directed" also assembles the
+     timeline; lower levels land on the premiere page's resume card. */
+  const commitRun = (sim: GenShot[], level: "directed" | "framed" | "draft") => {
+    const clean = script.trim().replace(/\s+/g, " ");
+    const first = clean.split(/(?<=[。！？!?.])/)[0] ?? clean;
+    const title = (first || cfg.label).slice(0, TITLE_MAX_LEN).trim() || cfg.label;
+    const projectId = newProProject(
+      title,
+      style,
+      workflow,
+      cfg.hasTrack ? track : undefined,
+      workflow === "film" ? fmt : cfg.aspect
+    );
+    const now = nowTs();
+    const frags = sim.map((s, i) => ({
+      id: proId("frag"),
+      projectId,
+      title: fmtShotNo(i + 1),
+      summary: s.summary,
+      dialogue: s.dialogue,
+      status: level === "directed" ? "directed" : s.frameUrl ? "framed" : "draft",
+      frames: s.frameUrl ? [s.frameUrl] : [],
+      frameUrl: s.frameUrl,
+      durationSec: cfg.shotSec,
+      createdAt: now + i,
+    })) satisfies ProFragment[];
+    addProFragments(frags);
+    if (level === "directed") {
+      setProTimeline(projectId, {
+        video: frags.map((f) => ({ id: proId("clip"), fragmentId: f.id, inSec: 0, outSec: f.durationSec })),
+        audio: [],
+      });
+    }
+    clearSession(SK.intake);
+    toast.success(
+      level === "directed"
+        ? `Premiere ready — ${frags.length} shots, cut assembled`
+        : "Credits ran out mid-run — progress saved, resume from the project page"
+    );
+    onCreated(projectId);
+  };
+
+  const directStep = (sim: GenShot[], idx: number) => {
+    if (idx >= sim.length) {
+      setRunBoth({ stage: "assemble", sim, done: 0, total: 1 });
+      later(800, () => commitRun(sim, "directed"));
+      return;
+    }
+    later(800, () => {
+      sim[idx] = { ...sim[idx], directed: true };
+      setRunBoth({ stage: "direct", sim: [...sim], done: idx + 1, total: sim.length });
+      directStep(sim, idx + 1);
+    });
+  };
+
+  const frameStep = (sim: GenShot[], idx: number) => {
+    if (idx >= sim.length) {
+      if (!spendProCredits(sim.length * PRO_COSTS.video)) {
+        commitRun(sim, "framed");
+        return;
+      }
+      setRunBoth({ stage: "direct", sim, done: 0, total: sim.length });
+      directStep(sim, 0);
+      return;
+    }
+    later(700, () => {
+      sim[idx] = { ...sim[idx], frameUrl: frameImg(`gen-${sim[idx].id}-${nowTs()}`) };
+      setRunBoth({ stage: "frame", sim: [...sim], done: idx + 1, total: sim.length });
+      frameStep(sim, idx + 1);
+    });
+  };
+
+  // The CTA charges the parse; every later stage deducts as it runs.
   const submit = () => {
     if (!isLoggedIn) {
       openSignupGate("/discovery/workspace");
@@ -250,43 +357,22 @@ export default function WorkflowIntake({
       toast.error("Not enough credits (mock balance)");
       return;
     }
-    setParsing(true);
-    parseTimer.current = setTimeout(() => {
+    setRunBoth({ stage: "parse", sim: [], done: 0, total: 1 });
+    later(1600, () => {
       const cap = Math.min(parseInt(maxShots, 10) || cfg.defaultShots, MAX_SHOTS_CAP);
-      const drafts = splitScript(script, cap);
-      if (drafts.length === 0) {
-        setParsing(false);
+      const sim: GenShot[] = splitScript(script, cap).map((d) => ({ ...d, id: proId("gen") }));
+      if (sim.length === 0) {
+        setRunBoth(null);
         toast.error("Nothing to split — give the script a little more to work with");
         return;
       }
-      const clean = script.trim().replace(/\s+/g, " ");
-      const first = clean.split(/(?<=[。！？!?.])/)[0] ?? clean;
-      const title = (first || cfg.label).slice(0, TITLE_MAX_LEN).trim() || cfg.label;
-      const projectId = newProProject(
-        title,
-        style,
-        workflow,
-        cfg.hasTrack ? track : undefined,
-        workflow === "film" ? fmt : cfg.aspect
-      );
-      const now = nowTs();
-      addProFragments(
-        drafts.map((d, i) => ({
-          id: proId("frag"),
-          projectId,
-          title: fmtShotNo(i + 1),
-          summary: d.summary,
-          dialogue: d.dialogue,
-          status: "draft",
-          frames: [],
-          durationSec: cfg.shotSec,
-          createdAt: now + i,
-        })) satisfies ProFragment[]
-      );
-      clearSession(SK.intake);
-      toast.success(`${drafts.length} shots on the board — frame them when ready`);
-      onCreated(projectId);
-    }, 1800);
+      if (!spendProCredits(sim.length * PRO_COSTS.frame)) {
+        commitRun(sim, "draft");
+        return;
+      }
+      setRunBoth({ stage: "frame", sim, done: 0, total: sim.length });
+      frameStep(sim, 0);
+    });
   };
 
   const uploadPicked = workflow === "mv" ? songPicked : productPicked;
@@ -312,15 +398,13 @@ export default function WorkflowIntake({
           Quick Start · {cfg.label} · {aspectShown}
         </span>
         <span className="ml-auto inline-flex items-center gap-1 font-label text-[9px] uppercase tracking-widest text-on-surface-variant/70">
-          <Sparkles className="w-3 h-3" /> Parse & board in one step
+          <Sparkles className="w-3 h-3" /> Full video in one run
         </span>
       </div>
 
       <div className="px-4 md:px-6 py-6">
-        {parsing ? (
-          <div className="max-w-2xl mx-auto">
-            <ParsingState />
-          </div>
+        {run ? (
+          <GenerationScreen run={run} label={cfg.label} accent={iv.accent} />
         ) : (
           <div className="max-w-[1020px] mx-auto grid lg:grid-cols-[1.08fr_1fr] rounded-2xl overflow-hidden border border-outline-variant/30">
             {/* ── Left: showcase hero ── */}
@@ -624,6 +708,9 @@ export default function WorkflowIntake({
                     <Zap className="w-3 h-3" fill="currentColor" /> {PRO_COSTS.script}
                   </span>
                 </button>
+                <p className="font-label text-[8px] uppercase tracking-widest text-on-surface-variant/60 text-center mt-2">
+                  Generates the full video in one run — later stages deduct as they go
+                </p>
               </div>
             </div>
           </div>
@@ -633,30 +720,128 @@ export default function WorkflowIntake({
   );
 }
 
-/* Fake parse: a mini pipeline echoing the old Superstar production board. */
-function ParsingState() {
+/* The form's second act: the whole pipeline runs here, storyboard tiles
+   lighting up as each shot is framed and directed. */
+const STAGES: { key: RunStage; label: string }[] = [
+  { key: "parse", label: "Parse script" },
+  { key: "frame", label: "Frame shots" },
+  { key: "direct", label: "Direct shots" },
+  { key: "assemble", label: "Assemble cut" },
+];
+
+function GenerationScreen({ run, label, accent }: { run: RunState; label: string; accent: string }) {
+  const activeIdx = STAGES.findIndex((s) => s.key === run.stage);
   return (
-    <div className="py-12 text-center">
-      <Loader2 className="w-6 h-6 text-primary animate-spin mx-auto" />
-      <p className="font-headline text-xl text-on-surface mt-4">Superstar agent is parsing…</p>
-      <div className="inline-flex items-center gap-2 mt-4 flex-wrap justify-center">
-        {["Script intake", "Beat detection", "Shot split", "Board build"].map((s, i) => (
+    <div className="max-w-3xl mx-auto py-4">
+      <div className="text-center">
+        <Loader2 className="w-6 h-6 text-primary animate-spin mx-auto" />
+        <p className="font-headline text-2xl text-on-surface mt-4">
+          Directing your{" "}
           <span
-            key={s}
+            style={{
+              background: `linear-gradient(90deg, ${accent}, #7ff7e2)`,
+              WebkitBackgroundClip: "text",
+              backgroundClip: "text",
+              color: "transparent",
+            }}
+          >
+            {label.toLowerCase()}
+          </span>
+          …
+        </p>
+        <p className="font-body text-xs text-on-surface-variant mt-1.5">
+          Sit back — the full video generates in one run. Don&apos;t close this tab (mock).
+        </p>
+      </div>
+
+      {/* Stage rail */}
+      <div className="flex items-center justify-center gap-2 mt-6 flex-wrap">
+        {STAGES.map((s, i) => (
+          <span
+            key={s.key}
             className={cn(
-              "inline-flex items-center gap-1.5 font-label text-[9px] uppercase tracking-widest border px-2 py-1 rounded-full",
-              i === 0
+              "inline-flex items-center gap-1.5 font-label text-[9px] uppercase tracking-widest border px-2.5 py-1 rounded-full",
+              i < activeIdx
                 ? "border-primary/50 text-primary"
-                : "border-outline-variant/50 text-on-surface-variant"
+                : i === activeIdx
+                  ? "border-amber-400/60 text-amber-300"
+                  : "border-outline-variant/40 text-on-surface-variant/60"
             )}
           >
-            {i === 0 ? <Check className="w-2.5 h-2.5" /> : <Loader2 className="w-2.5 h-2.5 animate-spin" />}
-            {s}
+            {i < activeIdx ? (
+              <Check className="w-2.5 h-2.5" />
+            ) : i === activeIdx ? (
+              <Loader2 className="w-2.5 h-2.5 animate-spin" />
+            ) : (
+              <span className="w-2.5 h-2.5 rounded-full border border-current" />
+            )}
+            {s.label}
+            {i === activeIdx && run.total > 1 && (
+              <span className="opacity-80">
+                {run.done}/{run.total}
+              </span>
+            )}
           </span>
         ))}
       </div>
-      <p className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant/70 mt-4">
-        Mock mode · API token pending
+
+      {/* Live storyboard */}
+      {run.sim.length === 0 ? (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 mt-6" aria-hidden="true">
+          {[0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="rounded-xl border border-outline-variant/30 bg-surface-container-low aspect-video shimmer-overlay"
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-2.5 mt-6">
+          {run.sim.map((s, i) => {
+            const isCurrent =
+              (run.stage === "frame" || run.stage === "direct") && i === Math.min(run.done, run.sim.length - 1);
+            return (
+              <div
+                key={s.id}
+                className={cn(
+                  "relative rounded-xl border overflow-hidden aspect-video bg-surface-container-low",
+                  isCurrent ? "border-amber-400/70" : "border-outline-variant/30"
+                )}
+                style={
+                  s.frameUrl
+                    ? { backgroundImage: `url(${s.frameUrl})`, backgroundSize: "cover", backgroundPosition: "center" }
+                    : undefined
+                }
+              >
+                {!s.frameUrl && (
+                  <span className="absolute inset-0 flex items-center justify-center">
+                    <span
+                      className="font-headline text-2xl text-transparent"
+                      style={{ WebkitTextStroke: "1px rgba(244,240,232,0.28)" }}
+                    >
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                  </span>
+                )}
+                {s.directed && (
+                  <span className="absolute top-1.5 right-1.5 w-5 h-5 rounded-full bg-primary text-on-primary flex items-center justify-center">
+                    <Check className="w-3 h-3" />
+                  </span>
+                )}
+                <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-2 pt-5 pb-1.5">
+                  <span className="block font-body text-[10px] text-white/90 leading-snug truncate">
+                    {s.summary}
+                  </span>
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <p className="font-label text-[8px] uppercase tracking-widest text-on-surface-variant/60 text-center mt-5">
+        ⚡{PRO_COSTS.script} parse paid · framing ⚡{PRO_COSTS.frame}/shot · directing ⚡{PRO_COSTS.video}/shot
+        deduct as they run · stops safely if the balance runs dry
       </p>
     </div>
   );

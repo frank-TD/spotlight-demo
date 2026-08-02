@@ -299,7 +299,7 @@ export default function AgentPanel({
           ...c.msgs.map((m) =>
             m.id === progressId ? { ...m, progress: { label: "Parsed", done: 1, total: 1 } } : m
           ),
-          agentMsg(`${sim.length} shots drafted. Approve the storyboard and I'll put them on the board.`, {
+          agentMsg(`${sim.length} shots drafted. Approve the storyboard and I'll generate the full video.`, {
             board: sim,
           }),
         ],
@@ -321,44 +321,27 @@ export default function AgentPanel({
     );
   };
 
-  const lastBoard = () => {
+  const lastBoardMsg = () => {
     const c = chatRef.current;
     for (let i = c.msgs.length - 1; i >= 0; i -= 1) {
-      const b = c.msgs[i].board;
-      if (b) return b;
+      if (c.msgs[i].board) return c.msgs[i];
     }
-    return [];
+    return null;
   };
 
-  const commitBoard = () => {
+  // Storyboard approved → run the rest of the pipeline right in this thread
+  // (frame → direct → assemble) and land on the premiere page.
+  const generateFromBoard = () => {
+    const m = lastBoardMsg();
+    if (!m?.board?.length) return;
+    if (!isLoggedIn) {
+      openSignupGate("/discovery/workspace");
+      return;
+    }
+    const sim = m.board.map((s) => ({ ...s }));
     const c = chatRef.current;
-    const cfg = WORKFLOWS[c.workflow];
-    const sim = lastBoard();
-    if (sim.length === 0) return;
-    const pid = newProProject(
-      titleFrom(c.prompt, cfg.label),
-      c.style ?? cfg.styles[0],
-      c.workflow,
-      cfg.hasTrack ? MV_TRACKS[0] : undefined,
-      c.aspect ?? cfg.aspect
-    );
-    const now = nowTs();
-    addProFragments(
-      sim.map((s, i) => ({
-        id: proId("frag"),
-        projectId: pid,
-        title: fmtShotNo(i + 1),
-        summary: s.summary,
-        dialogue: s.dialogue,
-        status: "draft",
-        frames: [],
-        durationSec: cfg.shotSec,
-        createdAt: now + i,
-      })) satisfies ProFragment[]
-    );
-    clearSession(SK.agentDraft);
-    toast.success(`${sim.length} shots created — frame them from the board`);
-    onProjectCreated(pid);
+    commit({ ...c, phase: "auto", msgs: [...c.msgs, userMsg("Generate the video")] });
+    later(400, () => autoFrame(sim, m.id, 0));
   };
 
   /* ── Just-make-it pipeline (commits everything at the end) ── */
@@ -449,7 +432,7 @@ export default function AgentPanel({
 
   const autoFrame = (sim: SimShot[], boardId: string, idx: number) => {
     if (idx === 0 && !spendProCredits(sim.length * PRO_COSTS.frame)) {
-      autoAbort("framing");
+      autoCommit(sim, "draft");
       return;
     }
     if (idx >= sim.length) {
@@ -465,13 +448,14 @@ export default function AgentPanel({
 
   const autoDirect = (sim: SimShot[], boardId: string, idx: number) => {
     if (idx === 0 && !spendProCredits(sim.length * PRO_COSTS.video)) {
-      // Frames exist but videos don't — commit what we have as framed drafts.
-      autoCommit(sim, false);
+      // Frames exist but videos don't — commit what finished; the premiere
+      // page offers to resume.
+      autoCommit(sim, "framed");
       return;
     }
     if (idx >= sim.length) {
       patchMsg(boardId, { text: `All ${sim.length} shots directed. Assembling…` });
-      later(800, () => autoCommit(sim, true));
+      later(800, () => autoCommit(sim, "directed"));
       return;
     }
     later(800, () => {
@@ -481,7 +465,7 @@ export default function AgentPanel({
     });
   };
 
-  const autoCommit = (sim: SimShot[], directed: boolean) => {
+  const autoCommit = (sim: SimShot[], level: "directed" | "framed" | "draft") => {
     const c = chatRef.current;
     const cfg = WORKFLOWS[c.workflow];
     const pid = newProProject(
@@ -498,14 +482,14 @@ export default function AgentPanel({
       title: fmtShotNo(i + 1),
       summary: s.summary,
       dialogue: s.dialogue,
-      status: directed ? "directed" : s.frameUrl ? "framed" : "draft",
+      status: level === "directed" ? "directed" : s.frameUrl ? "framed" : "draft",
       frames: s.frameUrl ? [s.frameUrl] : [],
       frameUrl: s.frameUrl,
       durationSec: cfg.shotSec,
       createdAt: now + i,
     }));
     addProFragments(frags);
-    if (directed) {
+    if (level === "directed") {
       setProTimeline(pid, {
         video: frags.map((f) => ({ id: proId("clip"), fragmentId: f.id, inSec: 0, outSec: f.durationSec })),
         audio: [],
@@ -513,9 +497,9 @@ export default function AgentPanel({
     }
     clearSession(SK.agentDraft);
     toast.success(
-      directed
-        ? "One-shot run complete — the assembled cut is on the board and the timeline"
-        : "Run stopped early — framed shots saved to the board"
+      level === "directed"
+        ? "Premiere ready — roll it from the project page"
+        : "Credits ran out mid-run — progress saved, resume from the project page"
     );
     onProjectCreated(pid);
   };
@@ -643,13 +627,21 @@ export default function AgentPanel({
           { id: "restart", label: "Start over" },
         ];
         break;
-      case "board":
+      case "board": {
+        // Derived from state (not the ref) — render must stay pure.
+        const boardCount = [...chat.msgs].reverse().find((m) => m.board)?.board?.length ?? 0;
         chips = [
-          { id: "create", label: "Create the board", primary: true },
+          {
+            id: "create",
+            label: "Generate the video",
+            cost: boardCount * (PRO_COSTS.frame + PRO_COSTS.video),
+            primary: true,
+          },
           { id: "resplit", label: "Split differently" },
           { id: "restart", label: "Start over" },
         ];
         break;
+      }
       default:
         break;
     }
@@ -675,7 +667,7 @@ export default function AgentPanel({
         startParse();
         return;
       case "create":
-        commitBoard();
+        generateFromBoard();
         return;
       case "resplit":
         resplit();

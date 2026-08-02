@@ -247,10 +247,7 @@ export const SK = {
   section: "pro.section",
   agentDraft: "pro.agent.draft",
   intake: "pro.intake.draft",
-  composerOpen: "pro.composer.open",
-  composerDraft: (fragId: string) => `pro.composer.${fragId}`,
   assetGen: (kind: string) => `pro.assetgen.${kind}`,
-  mention: "pro.mention.pending",
 } as const;
 
 // Derive an asset name from the generation prompt: first two words, cleaned

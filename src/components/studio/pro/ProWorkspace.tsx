@@ -23,14 +23,14 @@ const coachDismissed = () => {
 };
 
 /* ── NexGC Pro workspace ────────────────────────────────────────────────
-   Artlist-style production workspace: a left icon rail switches between the
-   Shots board, the three asset libraries and the Editor. Lives behind the
+   A left icon rail switches between Create (workflows generate the whole
+   video), the three asset libraries and the Editor. Lives behind the
    Basic | Pro toggle in StudioWorkspace; everything inside is mock. */
 
 export type ProSection = "shots" | "character" | "scene" | "prop" | "editor";
 
 const RAIL: { id: ProSection; icon: typeof Video; label: string }[] = [
-  { id: "shots", icon: Video, label: "Shots" },
+  { id: "shots", icon: Video, label: "Create" },
   { id: "character", icon: UsersRound, label: "Cast" },
   { id: "scene", icon: Mountain, label: "Scenes" },
   { id: "prop", icon: Box, label: "Props" },
@@ -61,13 +61,6 @@ export default function ProWorkspace() {
   const changeSection = (s: ProSection) => {
     setSection(s);
     writeSession(SK.section, s);
-  };
-
-  // "Use in Shots" from an asset library: park the mention and hand over to
-  // the Shots board, which opens a composer that consumes it.
-  const useInShot = (name: string) => {
-    writeSession(SK.mention, name);
-    changeSection("shots");
   };
 
   return (
@@ -126,9 +119,9 @@ export default function ProWorkspace() {
             <span className="font-label text-[9px] uppercase tracking-widest bg-primary text-on-primary px-1.5 py-0.5 rounded shrink-0">
               New here?
             </span>
-            <CoachStep n={1} icon={FileText} text="Script to Shots splits a full episode into drafts" />
-            <CoachStep n={2} icon={Video} text="Frame & Direct each shot into a clip" />
-            <CoachStep n={3} icon={Scissors} text="Assemble and export on the Editor timeline" />
+            <CoachStep n={1} icon={FileText} text="Pick a workflow and drop in your script or brief" />
+            <CoachStep n={2} icon={Video} text="One run parses, frames, directs and assembles the cut" />
+            <CoachStep n={3} icon={Scissors} text="Watch the premiere, fine-tune in the Editor, export" />
             <button
               type="button"
               onClick={dismissCoach}
@@ -140,9 +133,9 @@ export default function ProWorkspace() {
           </div>
         )}
 
-        {section === "shots" && <ShotsBoard />}
+        {section === "shots" && <ShotsBoard onGoEditor={() => changeSection("editor")} />}
         {(section === "character" || section === "scene" || section === "prop") && (
-          <AssetLibrary key={section} kind={section as ProAssetKind} onUseInShot={useInShot} />
+          <AssetLibrary key={section} kind={section as ProAssetKind} />
         )}
         {section === "editor" && <EditorPanel onGoShots={() => changeSection("shots")} />}
       </div>
