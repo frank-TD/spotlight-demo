@@ -45,6 +45,9 @@ export default function ProjectsPage() {
           style={{ animationDelay: "0ms" }}
         >
           <div className="space-y-2">
+            <p className="font-label text-[10px] uppercase tracking-[0.28em] text-tertiary mb-2.5">
+              Your Slate
+            </p>
             <h1 className="font-headline text-headline-lg text-on-surface">{t.projects.title}</h1>
             <p className="text-on-surface-variant font-body opacity-80">
               {activeRole === "backer" ? t.projects.backerDesc : t.projects.creatorDesc}

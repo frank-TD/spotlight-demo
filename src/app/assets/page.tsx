@@ -85,6 +85,9 @@ export default function AssetsPage() {
           style={{ animationDelay: "0ms" }}
         >
           <div>
+            <p className="font-label text-[10px] uppercase tracking-[0.28em] text-tertiary mb-2.5">
+              The Archive
+            </p>
             <h1 className="font-headline text-headline-lg text-on-surface">{t.assets.title}</h1>
             <p className="text-on-surface-variant mt-2 font-body opacity-80">
               {t.assets.subtitle}

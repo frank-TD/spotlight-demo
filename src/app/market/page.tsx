@@ -221,6 +221,10 @@ export default function MarketPage() {
         <header className="flex flex-col gap-7 mb-12">
           <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
             <div className="max-w-2xl">
+              {/* Editorial eyebrow — the homepage's uppercase micro-label voice. */}
+              <p className="animate-fade-up font-label text-[10px] uppercase tracking-[0.28em] text-tertiary mb-2.5">
+                The Open Slate
+              </p>
               <h1 className="animate-fade-up font-headline text-5xl md:text-6xl font-extrabold uppercase tracking-tight text-on-surface leading-[1.02]">
                 {t.market.title}
               </h1>

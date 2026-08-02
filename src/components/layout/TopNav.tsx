@@ -107,8 +107,6 @@ export default function TopNav() {
     label: string;
     href: string;
     match: (p: string) => boolean;
-    // Flags a freshly shipped surface with a small dot (e.g. NexGC Pro).
-    isNew?: boolean;
   };
   // NexGC renders as a dropdown (see NexgcMenu below) right after Marketplace
   // in BOTH auth states, so these arrays hold only the plain links around it.
@@ -152,12 +150,6 @@ export default function TopNav() {
         )}
       >
         {item.label}
-        {item.isNew && (
-          <span
-            className="ml-1 inline-block w-1.5 h-1.5 rounded-full bg-primary align-super"
-            aria-label="new"
-          />
-        )}
       </Link>
     );
   };
@@ -413,9 +405,8 @@ export default function TopNav() {
               );
             })}
             {/* NexGC flow group */}
-            <div className="pt-2 pb-1 px-4 flex items-center gap-1.5 font-label text-[10px] uppercase tracking-widest text-on-surface-variant/70">
+            <div className="pt-2 pb-1 px-4 font-label text-[10px] uppercase tracking-widest text-on-surface-variant/70">
               {t.nav.studio}
-              <span className="w-1.5 h-1.5 rounded-full bg-primary" aria-label="new" />
             </div>
             {WORKFLOW_ORDER.map((wf) => {
               const Icon = FLOW_ICON[wf];
@@ -562,7 +553,6 @@ export function NexgcMenu({
         }
       >
         {label}
-        <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary align-super" aria-label="new" />
         <ChevronDown className="w-3 h-3 opacity-60" />
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-[280px] p-1.5">

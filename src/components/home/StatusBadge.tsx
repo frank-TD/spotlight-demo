@@ -16,13 +16,15 @@ export default function StatusBadge({
   overlay?: boolean;
 }) {
   const t = useT();
+  // Homepage accent semantics: flame = open money moments ("back this"),
+  // sage = quietly in the works, mint = live product you can stream.
   const config: Record<FeaturedStatus, { label: string; text: string; border: string; dot: string }> =
     {
       open: {
         label: t.homeV2.statusOpen,
-        text: "text-on-primary-container",
-        border: "border-primary/45",
-        dot: "bg-primary",
+        text: "text-tertiary",
+        border: "border-tertiary/50",
+        dot: "bg-tertiary",
       },
       production: {
         label: t.homeV2.statusProduction,
@@ -32,9 +34,9 @@ export default function StatusBadge({
       },
       released: {
         label: t.homeV2.statusReleased,
-        text: "text-tertiary",
-        border: "border-tertiary/40",
-        dot: "bg-tertiary",
+        text: "text-primary",
+        border: "border-primary/45",
+        dot: "bg-primary",
       },
     };
   const { label, text, border, dot } = config[status];
@@ -45,7 +47,7 @@ export default function StatusBadge({
         small ? "text-[12px] tracking-[0.18em] px-2.5 py-1" : "text-[12px] tracking-[0.2em] px-3.5 py-1.5",
         text,
         border,
-        overlay ? "bg-surface/85" : "bg-primary/10"
+        overlay ? "bg-surface/85" : "bg-surface-container/60"
       )}
     >
       <span className={cn("w-1.5 h-1.5 rounded-full", dot)} />

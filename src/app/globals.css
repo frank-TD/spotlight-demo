@@ -27,24 +27,27 @@
 
   /* Secondary = cool slate blue (Creator / Wren accent, "I'M A CREATOR" chip,
      Sci-Fi category). */
-  --md-secondary: #a8c4e5;
-  --md-on-secondary: #06120f;
-  --md-secondary-container: #1c2a3a;
-  --md-on-secondary-container: #a8c4e5;
-  --md-secondary-fixed: #2c3a4a;
-  --md-secondary-fixed-dim: #1c2a3a;
-  --md-on-secondary-fixed: #c5d6e8;
-  --md-on-secondary-fixed-variant: #c5d6e8;
+  /* Sage green-grey (the homepage directors stage) — secondary accents no
+     longer borrow mint or drift blue. */
+  --md-secondary: #a9c4b1;
+  --md-on-secondary: #0c1f17;
+  --md-secondary-container: #1d3529;
+  --md-on-secondary-container: #c6dbcd;
+  --md-secondary-fixed: #2b4536;
+  --md-secondary-fixed-dim: #1d3529;
+  --md-on-secondary-fixed: #d3e4d9;
+  --md-on-secondary-fixed-variant: #d3e4d9;
 
   /* Tertiary = muted moss (Documentary chip, supporting accent). */
-  --md-tertiary: #ff8a5c;
+  /* Flame sharpened toward the mockup's #ff5c1c (was a soft salmon). */
+  --md-tertiary: #ff6b33;
   --md-on-tertiary: #2b0d02;
-  --md-tertiary-container: #43190a;
-  --md-on-tertiary-container: #ffc7ad;
-  --md-tertiary-fixed: #54200c;
-  --md-tertiary-fixed-dim: #43190a;
-  --md-on-tertiary-fixed: #ffb494;
-  --md-on-tertiary-fixed-variant: #ffb494;
+  --md-tertiary-container: #471a06;
+  --md-on-tertiary-container: #ffbfa0;
+  --md-tertiary-fixed: #551f08;
+  --md-tertiary-fixed-dim: #471a06;
+  --md-on-tertiary-fixed: #ffb08a;
+  --md-on-tertiary-fixed-variant: #ffb08a;
 
   /* Dark surface scale — graduated near-black to slightly lifted greys for
      stacked card layers (banner > section > card > raised card). */
@@ -60,8 +63,9 @@
   --md-surface-container-highest: #1c4137;
   --md-surface-variant: #17382f;
   --md-surface-tint: #7ff7e2;
-  --md-on-surface: #ffffff;
-  --md-on-surface-variant: #9fb5ae;
+  /* Cream text on pine — the homepage's paper tone, not clinical white. */
+  --md-on-surface: #f4f0e8;
+  --md-on-surface-variant: #c7c2b4;
   --md-inverse-surface: #eef6f2;
   --md-inverse-on-surface: #12211d;
 

@@ -97,7 +97,7 @@ export default function ProWorkspace() {
         {/* Slim workspace header */}
         <div className="flex items-center gap-2.5 flex-wrap mb-4">
           <h2 className="font-headline text-xl text-on-surface leading-none">NexGC Pro</h2>
-          <span className="font-label text-[9px] uppercase tracking-widest border border-primary/40 text-primary px-1.5 py-0.5 rounded">
+          <span className="font-label text-[9px] uppercase tracking-widest border border-secondary/40 text-secondary px-1.5 py-0.5 rounded">
             Short Drama Production
           </span>
           <span className="font-label text-[9px] uppercase tracking-widest border border-outline-variant/50 text-on-surface-variant px-1.5 py-0.5 rounded">
@@ -162,7 +162,7 @@ export default function ProWorkspace() {
           <button
             type="button"
             onClick={() => toast.info("Top up — mock mode, billing arrives with the real API")}
-            className="mt-4 w-full bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-5 py-2.5 rounded-full hover:opacity-90 active:scale-95 transition-all"
+            className="mt-4 w-full bg-tertiary text-on-tertiary font-label text-label-md uppercase tracking-wider px-5 py-2.5 rounded-full hover:opacity-90 active:scale-95 transition-all"
           >
             Top up (mock)
           </button>
