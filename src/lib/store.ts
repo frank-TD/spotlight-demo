@@ -204,6 +204,35 @@ export interface ProProject {
   // Music Video only: the (mock) track driving the visuals.
   trackTitle?: string;
   createdAt: number;
+  /* Micro Film runs the staged script → assets → film pipeline; the other
+     workflows (and legacy film projects, where stage is absent) go straight
+     to the premiere page. */
+  stage?: ProFilmStage;
+  scenes?: ProScene[];
+  assetRefs?: ProAssetRef[];
+}
+
+export type ProFilmStage = "script" | "assets" | "film" | "premiere";
+
+// One scene of the parsed script (Micro Film pipeline step ①).
+export interface ProScene {
+  id: string;
+  heading: string;
+  summary: string;
+  // The key dialogue / action beat the scene hangs on.
+  beat: string;
+  // Keys into ProProject.assetRefs — who and what appears in this scene.
+  refKeys: string[];
+}
+
+// An asset the script calls for; binding (assetId) happens in step ② and is
+// mandatory before production starts.
+export interface ProAssetRef {
+  key: string;
+  kind: ProAssetKind;
+  name: string;
+  desc: string;
+  assetId?: string;
 }
 
 // One shot (分镜) of an episode. Framing generates candidate frames; picking
@@ -388,6 +417,10 @@ interface AppState {
     aspect?: string
   ) => string;
   renameProProject: (id: string, title: string) => void;
+  updateProProject: (
+    id: string,
+    patch: Partial<Pick<ProProject, "stage" | "scenes" | "assetRefs">>
+  ) => void;
   deleteProProject: (id: string) => void;
   setCurrentProProject: (id: string | null) => void;
   proFragments: ProFragment[];
@@ -840,6 +873,10 @@ export const useStore = create<AppState>()(
       renameProProject: (id, title) =>
         set((s) => ({
           proProjects: s.proProjects.map((p) => (p.id === id ? { ...p, title } : p)),
+        })),
+      updateProProject: (id, patch) =>
+        set((s) => ({
+          proProjects: s.proProjects.map((p) => (p.id === id ? { ...p, ...patch } : p)),
         })),
       deleteProProject: (id) =>
         set((s) => {
