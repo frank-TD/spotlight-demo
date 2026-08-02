@@ -1507,21 +1507,21 @@
   margin-top: 10px;
 }
 .directorsSub { margin-top: 12px; color: rgba(244, 247, 245, 0.72); font-size: 14px; font-weight: 600; }
-/* The cards scatter along an arc: absolute positions from per-card vars,
-   sizes growing toward the centre, a hairline circle tracing the curve. */
+/* The cards run down a vertical arc: absolute positions from per-card vars,
+   sizes growing toward the apex, a hairline circle tracing the crescent. */
 .dirField {
   position: relative;
   z-index: 2;
-  height: clamp(340px, 34vw, 430px);
+  height: 1020px;
   margin-top: 48px;
 }
 .dirArcLine {
   position: absolute;
-  left: 50%;
-  top: -330%;
-  width: 165%;
+  left: -18%;
+  top: 50%;
+  width: 90%;
   aspect-ratio: 1;
-  transform: translateX(-50%);
+  transform: translateY(-50%);
   border-radius: 50%;
   border: 1px solid rgba(244, 240, 232, 0.22);
   pointer-events: none;
