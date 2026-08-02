@@ -236,6 +236,9 @@ export interface ProAssetRef {
   name: string;
   desc: string;
   assetId?: string;
+  // Where the bound look came from: a reference picked/uploaded on the
+  // intake form, or the auto-cast generator. Drives the step-② badges.
+  source?: "reference" | "generated";
 }
 
 // One shot (分镜) of an episode. Framing generates candidate frames; picking
