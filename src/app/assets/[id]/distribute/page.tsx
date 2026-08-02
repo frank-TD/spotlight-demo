@@ -586,7 +586,7 @@ function MetadataStep({
         </button>
         <button
           onClick={onNext}
-          className="flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider px-5 py-2.5 bg-primary text-on-primary rounded-lg hover:opacity-90"
+          className="flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider px-5 py-2.5 bg-tertiary text-on-tertiary rounded-lg hover:opacity-90"
         >
           {t.distribute.next} <ArrowRight className="w-4 h-4" />
         </button>
@@ -673,7 +673,7 @@ function PlatformsStep({
         </button>
         <button
           onClick={onNext}
-          className="flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider px-5 py-2.5 bg-primary text-on-primary rounded-lg hover:opacity-90"
+          className="flex items-center gap-1.5 font-label text-label-md uppercase tracking-wider px-5 py-2.5 bg-tertiary text-on-tertiary rounded-lg hover:opacity-90"
         >
           {t.distribute.next} <ArrowRight className="w-4 h-4" />
         </button>

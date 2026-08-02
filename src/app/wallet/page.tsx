@@ -80,6 +80,9 @@ export default function WalletPage() {
   return (
     <AppShell>
       <div className="max-w-4xl mx-auto px-6 md:px-12 pt-10 pb-16">
+        <p className="animate-fade-up font-label text-[10px] uppercase tracking-[0.28em] text-tertiary mb-2.5">
+          Your Vault
+        </p>
         <h1 className="animate-fade-up font-headline text-headline-lg text-on-surface mb-10">{t.wallet.title}</h1>
 
         {/* Balance cards */}
