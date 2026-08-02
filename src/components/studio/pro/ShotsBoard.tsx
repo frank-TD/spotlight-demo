@@ -6,6 +6,7 @@ import {
   ChevronDown,
   Check,
   Plus,
+  Sparkles,
   Pencil,
   Copy,
   Trash2,
@@ -24,6 +25,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import AgentPanel, { type AgentBoot } from "./AgentPanel";
+import WorkflowIntake, { type IntakeDraft } from "./WorkflowIntake";
 import ShotComposer from "./ShotComposer";
 import {
   clearSession,
@@ -86,7 +88,7 @@ const STATUS_META: Record<ProFragmentStatus, { label: string; cls: string }> = {
   directed: { label: "Directed", cls: "border-primary/50 text-primary bg-primary-container/30" },
 };
 
-export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
+export default function ShotsBoard() {
   const {
     proProjects,
     currentProProjectId,
@@ -109,12 +111,20 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
   const project = proProjects.find((p) => p.id === currentProProjectId) ?? null;
   const fragments = project ? proFragments.filter((f) => f.projectId === project.id) : [];
 
-  /* Restore-on-mount, resolved inside initializers (render-safe): an agent
-     chat interrupted by the signup gate reopens in place; a pending @mention
-     or a previously open composer reopens the composer. */
-  // Draft-mode agent chat (null = closed). A parked draft thread reopens with
+  /* Restore-on-mount, resolved inside initializers (render-safe): a parked
+     quick-start form or agent chat interrupted by the signup gate reopens in
+     place (form wins); a pending @mention or a previously open composer
+     reopens the composer. */
+  // Which workflow's quick-start form is open (null = closed).
+  const [intakeWf, setIntakeWf] = useState<ProWorkflow | null>(() => {
+    const d = readSession<IntakeDraft>(SK.intake);
+    if (d?.open && (d.script || d.charName || d.charDesc || d.adTagline)) return d.workflow ?? "film";
+    return null;
+  });
+  // Freeform agent chat (null = closed). A parked draft thread reopens with
   // its own mode + workflow; the panel itself restores the messages.
   const [agentBoot, setAgentBoot] = useState<AgentBoot | null>(() => {
+    if (readSession<IntakeDraft>(SK.intake)?.open) return null; // form wins
     const d = readSession<{ open?: boolean; msgs?: unknown[]; mode?: "guided" | "auto"; workflow?: ProWorkflow }>(
       SK.agentDraft
     );
@@ -123,9 +133,10 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
     }
     return null;
   });
-  // Text typed into the Create-screen vibe bar, seeded into the agent chat.
+  // Text typed into the Create-screen vibe bar, seeded into either entry.
   const [vibeText, setVibeText] = useState("");
   const [composerId, setComposerId] = useState<string | null>(() => {
+    if (readSession<IntakeDraft>(SK.intake)?.open) return null; // form wins
     const lastOpen = readSession<string>(SK.composerOpen);
     if (readSession<string>(SK.mention) && fragments.length > 0) {
       const target =
@@ -221,7 +232,7 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
     }
   };
 
-  // Composer and the draft-mode agent chat take over the whole section area.
+  // Composer, quick-start form and agent chat take over the whole section area.
   if (composerId) {
     // Keyed so prev/next navigation remounts with the target's own draft.
     return (
@@ -233,19 +244,30 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
       />
     );
   }
+  if (intakeWf) {
+    return (
+      <WorkflowIntake
+        key={intakeWf}
+        workflow={intakeWf}
+        initialScript={vibeText || undefined}
+        onClose={() => setIntakeWf(null)}
+        onCreated={(id) => {
+          setIntakeWf(null);
+          setCurrentProProject(id);
+        }}
+      />
+    );
+  }
   if (!project && agentBoot) {
     return (
       <div className="pt-2 pb-4">
         <AgentPanel
           key="draft"
-          projectId={null}
           boot={agentBoot}
-          dock={false}
           onProjectCreated={(id) => {
             setAgentBoot(null);
             setCurrentProProject(id);
           }}
-          onGoEditor={onGoEditor}
           onClose={() => setAgentBoot(null)}
         />
       </div>
@@ -392,7 +414,7 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
               <button
                 key={wf}
                 type="button"
-                onClick={() => startAgent("guided", wf, vibeText)}
+                onClick={() => setIntakeWf(wf)}
                 className="group shrink-0 w-[240px] text-left rounded-2xl border border-outline-variant/40 overflow-hidden hover:border-primary/50 transition-colors bg-surface-container-low flex items-stretch"
               >
                 <span
@@ -520,19 +542,8 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
     );
   }
 
-  /* Project view — the agent thread docks left of the board (chat-first),
-     and every store patch it makes shows up live in the grid beside it. */
   return (
-    <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(300px,360px)_minmax(0,1fr)] lg:items-start">
-      <AgentPanel
-        key={project.id}
-        projectId={project.id}
-        boot={null}
-        dock
-        onProjectCreated={setCurrentProProject}
-        onGoEditor={onGoEditor}
-      />
-      <div className="min-w-0">
+    <div>
       {/* Project row */}
       <div className="flex items-center gap-2 flex-wrap mb-4">
         {renaming ? (
@@ -650,6 +661,13 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
           )}
           <button
             type="button"
+            onClick={() => setIntakeWf(project.workflow ?? "film")}
+            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-primary/45 text-primary font-label text-[10px] uppercase tracking-wider hover:bg-primary-container/25 transition-colors"
+          >
+            <Sparkles className="w-3 h-3" /> Script to Shots
+          </button>
+          <button
+            type="button"
             onClick={onNewShot}
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-primary text-on-primary font-label text-[10px] uppercase tracking-wider hover:opacity-90 active:scale-95 transition-all"
           >
@@ -664,12 +682,11 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
           <Clapperboard className="w-7 h-7 text-on-surface-variant mx-auto" />
           <p className="font-headline text-xl text-on-surface mt-4">Nothing here yet</p>
           <p className="font-body text-sm text-on-surface-variant mt-1.5">
-            Create a shot to start editing — or paste the script to the agent and let it draft the
-            whole episode.
+            Create a shot to start editing — or run Script to Shots to draft the whole episode.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {fragments.map((f, i) => (
             <FragmentCard
               key={f.id}
@@ -693,7 +710,6 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
           </button>
         </div>
       )}
-      </div>
     </div>
   );
 }

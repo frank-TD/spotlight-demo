@@ -246,7 +246,7 @@ export function clearSession(key: string) {
 export const SK = {
   section: "pro.section",
   agentDraft: "pro.agent.draft",
-  agentChat: (projectId: string) => `pro.agent.${projectId}`,
+  intake: "pro.intake.draft",
   composerOpen: "pro.composer.open",
   composerDraft: (fragId: string) => `pro.composer.${fragId}`,
   assetGen: (kind: string) => `pro.assetgen.${kind}`,

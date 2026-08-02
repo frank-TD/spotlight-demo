@@ -140,9 +140,7 @@ export default function ProWorkspace() {
           </div>
         )}
 
-        {section === "shots" && (
-          <ShotsBoard onGoEditor={() => changeSection("editor")} />
-        )}
+        {section === "shots" && <ShotsBoard />}
         {(section === "character" || section === "scene" || section === "prop") && (
           <AssetLibrary key={section} kind={section as ProAssetKind} onUseInShot={useInShot} />
         )}
