@@ -9,6 +9,7 @@ import {
   FileText,
   Loader2,
   Mountain,
+  Play,
   Plus,
   RefreshCw,
   Sparkles,
@@ -75,7 +76,7 @@ interface FilmShot {
   directed?: boolean;
 }
 interface FilmRun {
-  stage: "frame" | "direct" | "assemble";
+  stage: "frame" | "direct";
   shots: FilmShot[];
   done: number;
   total: number;
@@ -292,9 +293,11 @@ export default function FilmPipeline({
   };
 
   /* ── step ③ run ── */
+  /* Directed shots commit WITHOUT a timeline: fragments-without-cut is the
+     review state (survives navigation/reload) where every take can be
+     previewed and re-shot. Assembling is a separate, explicit confirm. The
+     old cut is only replaced here — the moment the new takes land. */
   const commitRun = (shots: FilmShot[], level: "directed" | "framed") => {
-    // Overwrite semantics: a re-shoot replaces the previous cut (fragments
-    // + editor timeline). No-op on a first run.
     deleteProjectCut(project.id);
     const now = nowTs();
     const frags = shots.map((s, i) => ({
@@ -310,9 +313,55 @@ export default function FilmPipeline({
       createdAt: now + i,
     })) satisfies ProFragment[];
     addProFragments(frags);
+    setRunBoth(null);
     if (level === "directed") {
+      toast.success(`${frags.length} takes ready — preview each shot, then assemble`);
+    } else {
+      updateProProject(project.id, { stage: "premiere" });
+      toast.success("Credits ran out mid-run — progress saved on the project page");
+    }
+  };
+
+  /* Review-state helpers (fragments committed, no timeline yet). */
+  const projectFrags = proFragments
+    .filter((f) => f.projectId === project.id)
+    .sort((a, b) => a.createdAt - b.createdAt);
+  const inReview =
+    stage === "film" &&
+    !run &&
+    projectFrags.length > 0 &&
+    projectFrags.every((f) => f.status === "directed") &&
+    !useStore.getState().proTimelines[project.id];
+
+  const [regenShotId, setRegenShotId] = useState<string | null>(null);
+  const [previewShotId, setPreviewShotId] = useState<string | null>(null);
+  const [assembling, setAssembling] = useState(false);
+  const previewFrag = previewShotId
+    ? (projectFrags.find((f) => f.id === previewShotId) ?? null)
+    : null;
+
+  const regenerateShot = (fragId: string) => {
+    if (!gate()) return;
+    if (regenShotId || assembling) return;
+    if (!spendProCredits(PRO_COSTS.frame + PRO_COSTS.video)) {
+      toast.error("Not enough credits (mock balance)");
+      return;
+    }
+    setRegenShotId(fragId);
+    later(1400, () => {
+      const url = frameImg(`retake-${fragId}-${nowTs()}`);
+      useStore.getState().updateProFragment(fragId, { frameUrl: url, frames: [url] });
+      setRegenShotId(null);
+      toast.success("Shot re-taken — preview the new take");
+    });
+  };
+
+  const assembleCut = () => {
+    if (assembling || regenShotId) return;
+    setAssembling(true);
+    later(900, () => {
       setProTimeline(project.id, {
-        video: frags.map((f) => ({
+        video: projectFrags.map((f) => ({
           id: proId("clip"),
           fragmentId: f.id,
           inSec: 0,
@@ -320,19 +369,15 @@ export default function FilmPipeline({
         })),
         audio: [],
       });
-    }
-    updateProProject(project.id, { stage: "premiere" });
-    toast.success(
-      level === "directed"
-        ? `Premiere ready — ${frags.length} scenes, cut assembled`
-        : "Credits ran out mid-run — progress saved on the project page"
-    );
+      setAssembling(false);
+      updateProProject(project.id, { stage: "premiere" });
+      toast.success(`Premiere ready — ${projectFrags.length} shots, cut assembled`);
+    });
   };
 
   const directStep = (shots: FilmShot[], idx: number) => {
     if (idx >= shots.length) {
-      setRunBoth({ stage: "assemble", shots, done: 0, total: 1 });
-      later(800, () => commitRun(shots, "directed"));
+      later(600, () => commitRun(shots, "directed"));
       return;
     }
     later(800, () => {
@@ -431,7 +476,7 @@ export default function FilmPipeline({
         </div>
         {/* Stepper */}
         <div className="ml-auto flex items-center gap-1.5">
-          {hasCut && !run && (
+          {hasCut && !run && !inReview && (
             <button
               type="button"
               onClick={() => gotoStage("premiere")}
@@ -786,7 +831,7 @@ export default function FilmPipeline({
       {/* ── ③ Production ── */}
       {stage === "film" && (
         <div className="animate-fade-up">
-          {!run ? (
+          {run || inReview ? null : (
             <>
               {/* Production plan — one row per scene with its bound looks */}
               <div className="rounded-2xl border border-outline-variant/40 bg-surface-container-lowest/70 divide-y divide-outline-variant/25 mb-5">
@@ -827,7 +872,8 @@ export default function FilmPipeline({
                 </button>
               </div>
             </>
-          ) : (
+          )}
+          {run && (
             <>
               {/* Run banner */}
               <div className="flex items-center gap-3 rounded-2xl border border-primary/30 bg-primary-container/15 px-4 py-3 mb-5">
@@ -835,9 +881,7 @@ export default function FilmPipeline({
                 <p className="font-body text-sm text-on-surface flex-1">
                   {run.stage === "frame"
                     ? `Framing scenes with your cast — ${run.done}/${run.total}`
-                    : run.stage === "direct"
-                      ? `Directing — ${run.done}/${run.total}`
-                      : "Assembling the cut…"}
+                    : `Directing — ${run.done}/${run.total}`}
                 </p>
                 <span className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant/85">
                   Powered by Superstar
@@ -881,8 +925,190 @@ export default function FilmPipeline({
               </div>
             </>
           )}
+          {inReview && (
+            <>
+              {/* Take review — every shot previews and re-takes before the
+                  cut is assembled. */}
+              <div className="flex items-center gap-3 rounded-2xl border border-primary/30 bg-primary-container/15 px-4 py-3 mb-5 flex-wrap">
+                {assembling ? (
+                  <Loader2 className="w-4 h-4 text-primary animate-spin shrink-0" />
+                ) : (
+                  <Clapperboard className="w-4 h-4 text-primary shrink-0" />
+                )}
+                <p className="font-body text-sm text-on-surface flex-1">
+                  {assembling
+                    ? "Assembling the cut…"
+                    : `All ${projectFrags.length} takes directed — preview each shot, re-take any, then assemble.`}
+                </p>
+                <span className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant/85">
+                  Powered by Superstar
+                </span>
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {projectFrags.map((f, i) => (
+                  <div
+                    key={f.id}
+                    className="rounded-2xl border border-outline-variant/40 bg-surface-container-lowest/70 overflow-hidden"
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setPreviewShotId(f.id)}
+                      className="relative block w-full aspect-video bg-surface-container group"
+                      aria-label={`preview ${f.title}`}
+                    >
+                      {regenShotId === f.id ? (
+                        <span className="shimmer-overlay absolute inset-0" />
+                      ) : (
+                        <>
+                          {f.frameUrl && (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img
+                              src={f.frameUrl}
+                              alt={f.title}
+                              className="w-full h-full object-cover"
+                            />
+                          )}
+                          <span className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/35 transition-colors">
+                            <span className="w-9 h-9 rounded-full bg-surface/80 backdrop-blur text-on-surface flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                              <Play className="w-4 h-4 ml-0.5" />
+                            </span>
+                          </span>
+                        </>
+                      )}
+                      {scenes[i] && (
+                        <span className="absolute bottom-2 left-2">
+                          <RefAvatars keys={scenes[i].refKeys} size={18} />
+                        </span>
+                      )}
+                    </button>
+                    <div className="px-3 py-2.5">
+                      <div className="flex items-center gap-2">
+                        <p className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant/80">
+                          {f.title}
+                        </p>
+                        <span className="ml-auto font-label text-[9px] uppercase tracking-widest text-on-surface-variant/60">
+                          {f.durationSec}s
+                        </span>
+                      </div>
+                      <p className="font-body text-[12px] text-on-surface truncate mt-0.5">
+                        {f.summary}
+                      </p>
+                      <div className="flex items-center gap-2 mt-2">
+                        <button
+                          type="button"
+                          onClick={() => setPreviewShotId(f.id)}
+                          className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-outline-variant/50 font-label text-[9px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
+                        >
+                          <Play className="w-2.5 h-2.5" /> Preview
+                        </button>
+                        <button
+                          type="button"
+                          disabled={Boolean(regenShotId) || assembling}
+                          onClick={() => regenerateShot(f.id)}
+                          className="ml-auto inline-flex items-center gap-1 px-2.5 py-1 rounded-full border border-outline-variant/50 font-label text-[9px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors disabled:opacity-45"
+                        >
+                          <RefreshCw className="w-2.5 h-2.5" /> Re-take
+                          <span className="inline-flex items-center gap-0.5 opacity-80">
+                            <Zap className="w-2 h-2" fill="currentColor" />
+                            {PRO_COSTS.frame + PRO_COSTS.video}
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <div className="flex items-center gap-3 mt-5 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => gotoStage("assets")}
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-full border border-outline-variant/50 font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
+                >
+                  <ArrowLeft className="w-3 h-3" /> Back · Cast &amp; Assets
+                </button>
+                <p className="font-body text-[12px] text-on-surface-variant">
+                  Takes stay put until you assemble — nothing ships without your confirm.
+                </p>
+                <button
+                  type="button"
+                  disabled={assembling || Boolean(regenShotId)}
+                  onClick={assembleCut}
+                  className="ml-auto inline-flex items-center gap-2 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-6 py-3 rounded-full hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
+                >
+                  {assembling ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" /> Assembling…
+                    </>
+                  ) : (
+                    <>
+                      <Check className="w-3.5 h-3.5" /> Confirm &amp; assemble the cut
+                    </>
+                  )}
+                </button>
+              </div>
+            </>
+          )}
         </div>
       )}
+
+      {/* Shot preview dialog (review state) */}
+      <Dialog open={Boolean(previewFrag)} onOpenChange={(o) => !o && setPreviewShotId(null)}>
+        <DialogContent className="sm:max-w-xl p-0 overflow-hidden" showCloseButton>
+          <DialogTitle className="sr-only">Shot preview</DialogTitle>
+          {previewFrag && (
+            <div>
+              <div className="relative aspect-video bg-surface-container">
+                {regenShotId === previewFrag.id ? (
+                  <span className="shimmer-overlay absolute inset-0" />
+                ) : (
+                  previewFrag.frameUrl && (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={previewFrag.frameUrl}
+                      alt={previewFrag.title}
+                      className="w-full h-full object-cover"
+                    />
+                  )
+                )}
+                <span className="absolute top-2.5 left-2.5 font-label text-[9px] uppercase tracking-widest bg-surface/80 backdrop-blur px-2 py-0.5 rounded-full text-on-surface">
+                  {previewFrag.title} · {previewFrag.durationSec}s
+                </span>
+              </div>
+              <div className="p-5">
+                <p className="font-body text-sm text-on-surface leading-snug">
+                  {previewFrag.summary}
+                </p>
+                {previewFrag.dialogue && (
+                  <p className="font-body text-[12.5px] italic text-on-surface-variant border-l-2 border-primary/40 pl-2.5 mt-2">
+                    “{previewFrag.dialogue}”
+                  </p>
+                )}
+                <div className="flex items-center gap-2.5 mt-4">
+                  <button
+                    type="button"
+                    disabled={Boolean(regenShotId) || assembling}
+                    onClick={() => regenerateShot(previewFrag.id)}
+                    className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-outline-variant/50 font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors disabled:opacity-45"
+                  >
+                    <RefreshCw className="w-3 h-3" /> Re-take this shot
+                    <span className="inline-flex items-center gap-0.5 opacity-80">
+                      <Zap className="w-2.5 h-2.5" fill="currentColor" />
+                      {PRO_COSTS.frame + PRO_COSTS.video}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setPreviewShotId(null)}
+                    className="ml-auto px-4 py-2 rounded-full bg-primary text-on-primary font-label text-[10px] uppercase tracking-wider hover:opacity-90 transition-all"
+                  >
+                    Done
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Re-parse confirmation — the one immediately destructive back-action */}
       <Dialog open={reparseConfirm} onOpenChange={setReparseConfirm}>
