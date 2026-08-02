@@ -1,12 +1,16 @@
 "use client";
 import { useEffect, useState } from "react";
 import {
+  ArrowRight,
   Clapperboard,
   ImagePlus,
   Megaphone,
   Music2,
+  Package,
+  Pause,
   Plus,
   Smartphone,
+  TrendingUp,
   UsersRound,
   Wand2,
   Zap,
@@ -15,7 +19,7 @@ import { toast } from "sonner";
 import AgentPanel, { type AgentBoot } from "./AgentPanel";
 import WorkflowIntake, { type IntakeDraft } from "./WorkflowIntake";
 import PremierePanel from "./PremierePanel";
-import { readSession, workflowOf, WORKFLOWS, WORKFLOW_ORDER, SK } from "./pro-mock";
+import { clearSession, readSession, workflowOf, WORKFLOWS, WORKFLOW_ORDER, SK } from "./pro-mock";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -34,21 +38,92 @@ const WF_ICON: Record<ProWorkflow, typeof Smartphone> = {
   mv: Music2,
   film: Clapperboard,
 };
-/* Viral-template inspirations (local poster art; prompts prefill the vibe box). */
-const INSPIRATIONS = [
-  { title: "Rain-soaked rooftop revenge", img: "/posters/crimson-mirage.jpg", prompt: "A rain-soaked rooftop revenge micro drama — neon reflections, betrayal at midnight, 9:16." },
-  { title: "Golden-hour perfume spot", img: "/posters/golden-core.jpg", prompt: "A 15s golden-hour perfume ad — macro product shots, silk and light, a whispered tagline." },
-  { title: "Synthwave night drive", img: "/posters/aurora-crystal.jpg", prompt: "A synthwave night-drive music video — chrome, violet skyline, looping highway lights." },
-  { title: "The printer is sentient", img: "/posters/exit-8.jpg", prompt: "A deadpan office comedy short where the printer becomes sentient and starts negotiating." },
-  { title: "Lantern festival romance", img: "/posters/love-tears-us-apart.jpg", prompt: "A lantern festival romance micro film — paper light, missed trains, one shared umbrella." },
-  { title: "Backstage in 22 minutes", img: "/posters/marty-supreme.jpg", prompt: "A backstage sports drama short — 22 minutes before the final, one taped-up racket." },
-] as const;
-
 const WF_TINT: Record<ProWorkflow, string> = {
   ugc: "linear-gradient(150deg, #16181c 20%, rgba(127,247,226,0.18) 100%)",
   ad: "linear-gradient(150deg, #16181c 20%, rgba(255,184,64,0.16) 100%)",
   mv: "linear-gradient(150deg, #16181c 20%, rgba(150,120,255,0.18) 100%)",
   film: "linear-gradient(150deg, #101014 10%, rgba(127,247,226,0.30) 100%)",
+};
+const WF_ACCENT: Record<ProWorkflow, string> = {
+  ugc: "#7ff7e2",
+  ad: "#ffb840",
+  mv: "#b08bff",
+  film: "#5adfc8",
+};
+
+/* ── Trending this week ──────────────────────────────────────────────────
+   Viral templates split per workflow: each shelf leads with a featured
+   card on the left and a 2×2 rack of smaller ones. Film / MV wear local
+   poster art; UGC / Ad wear accent-tinted mock frames (phone / product) so
+   the type reads at a glance. Clicking any card opens that flow's intake
+   form with the template prompt pre-filled. */
+
+interface ProTemplate {
+  title: string;
+  prompt: string;
+  img?: string; // local poster art
+  mock?: "phone" | "product"; // gradient mock frame when no poster fits
+  stat: string; // decorative trend counter
+}
+
+const TRENDING: Record<ProWorkflow, { featured: ProTemplate; items: ProTemplate[] }> = {
+  ugc: {
+    featured: {
+      title: "POV: your skincare shelf talks back",
+      prompt:
+        "A POV UGC clip where my skincare shelf talks back to me every morning — deadpan product banter, creator-style handheld, 9:16.",
+      mock: "phone",
+      stat: "2.1M remakes",
+    },
+    items: [
+      { title: "3 hooks that stop the scroll", prompt: "A UGC ad opening with three rapid-fire hooks to camera, then a 10s product demo with bold captions.", mock: "phone", stat: "890K" },
+      { title: "Unboxing, but cinematic", prompt: "A cinematic unboxing UGC clip — macro tape cut, slow reveal, honest first reaction to camera.", mock: "phone", stat: "612K" },
+      { title: "Street interview: one question", prompt: "A street-interview UGC clip asking strangers one question, jump cuts, bold subtitles.", mock: "phone", stat: "540K" },
+      { title: "Day in the life, 30 seconds", prompt: "A 30-second day-in-the-life UGC vlog with quick match cuts and a soft voiceover.", mock: "phone", stat: "475K" },
+    ],
+  },
+  ad: {
+    featured: {
+      title: "Golden-hour perfume spot",
+      prompt: "A 15s golden-hour perfume ad — macro bottle in silk light, one lifestyle beat, a whispered tagline on the end card.",
+      mock: "product",
+      stat: "1.4M views",
+    },
+    items: [
+      { title: "Glow serum in 15 seconds", prompt: "A 15s glow serum spot: droplet macro, one lifestyle beat, tagline end card — Glow, bottled.", mock: "product", stat: "760K" },
+      { title: "Sneaker drop end card", prompt: "A sneaker drop ad — studio spins, street b-roll, bold price end card with the release date.", mock: "product", stat: "705K" },
+      { title: "Coffee pour, macro mood", prompt: "A specialty coffee ad built on macro pours and steam, warm wood tones, a quiet logo close.", mock: "product", stat: "632K" },
+      { title: "Phone case drop test", prompt: "A playful phone-case ad: slow-motion drop tests, confetti burst, a grinning CTA end card.", mock: "product", stat: "588K" },
+    ],
+  },
+  mv: {
+    featured: {
+      title: "Synthwave night drive",
+      prompt: "A synthwave night-drive music video — chrome, violet skyline, looping highway lights synced to the beat.",
+      img: "/posters/aurora-crystal.jpg",
+      stat: "3.2M plays",
+    },
+    items: [
+      { title: "Neon rain run", prompt: "A high-energy music video chase through neon rain, whip pans landing on every downbeat.", img: "/posters/neon-rain.jpg", stat: "1.1M" },
+      { title: "Lantern festival slow dance", prompt: "A slow-burn romance music video at a lantern festival — paper light, missed glances, one shared umbrella.", img: "/posters/paper-lanterns.jpg", stat: "980K" },
+      { title: "Two lives, one chorus", prompt: "A split-screen music video following two lives that converge on the final chorus.", img: "/posters/past-lives.jpg", stat: "864K" },
+      { title: "Slow-burn breakup ballad", prompt: "A breakup ballad music video — empty apartment, golden dust, memories replayed in reverse.", img: "/posters/love-tears-us-apart.jpg", stat: "790K" },
+    ],
+  },
+  film: {
+    featured: {
+      title: "Rain-soaked rooftop revenge",
+      prompt: "A rain-soaked rooftop revenge micro drama — neon reflections, betrayal at midnight, 9:16.",
+      img: "/posters/crimson-mirage.jpg",
+      stat: "4.6M remakes",
+    },
+    items: [
+      { title: "The printer is sentient", prompt: "A deadpan office comedy short where the printer becomes sentient and starts negotiating.", img: "/posters/exit-8.jpg", stat: "1.3M" },
+      { title: "Backstage in 22 minutes", prompt: "A backstage sports drama short — 22 minutes before the final, one taped-up racket.", img: "/posters/marty-supreme.jpg", stat: "1.0M" },
+      { title: "Two sisters, one tide", prompt: "Two sisters gut the day's catch in a steaming back-kitchen while old wounds rise with the tide.", img: "/posters/fish-bone.jpg", stat: "876K" },
+      { title: "The stranger in 4B", prompt: "A paranoid thriller short — the new neighbour in 4B knows everyone's name already.", img: "/posters/who-are-you.jpg", stat: "742K" },
+    ],
+  },
 };
 
 /* ── Create screen ───────────────────────────────────────────────────────
@@ -149,6 +224,13 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
       return;
     }
     setAgentBoot({ mode, workflow: wf, seed: seed?.trim() || undefined });
+  };
+  // Trending card → that flow's intake form with the template prompt seeded.
+  // A parked form draft must not shadow the template, so clear it first.
+  const openTemplate = (wf: ProWorkflow, prompt: string) => {
+    clearSession(SK.intake);
+    setVibeText(prompt);
+    setIntakeWf(wf);
   };
   const coverOf = (pid: string) =>
     proFragments.find((f) => f.projectId === pid && (f.frameUrl || f.frames[0]))?.frameUrl;
@@ -364,40 +446,154 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
         </>
       )}
 
-      {/* ── Inspirations · Viral Templates ── */}
-      <div className="flex items-baseline justify-between mt-10 mb-3">
-        <p className="font-headline text-lg text-on-surface">Inspirations</p>
+      {/* ── Trending this week ── */}
+      <div className="flex items-baseline justify-between mt-12 mb-1">
+        <p className="font-headline text-2xl text-on-surface inline-flex items-center gap-2">
+          <TrendingUp className="w-4 h-4 text-tertiary" />
+          Trending this week
+        </p>
         <span className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant/70">
-          Viral templates · recreate with your cast
+          Remake any template with your cast
         </span>
       </div>
-      <div className="flex gap-3 overflow-x-auto pb-2">
-        {INSPIRATIONS.map((t) => (
-          <button
-            key={t.title}
-            type="button"
-            onClick={() => {
-              setVibeText(t.prompt);
-              toast.success("Template loaded — press Guide me to direct it");
-            }}
-            aria-label={`Use template ${t.title}`}
-            className="group relative shrink-0 w-[148px] rounded-xl overflow-hidden border border-outline-variant/40 hover:border-primary/60 transition-colors"
-          >
-            <span
-              className="block aspect-[2/3]"
-              style={{ backgroundImage: `url(${t.img})`, backgroundSize: "cover", backgroundPosition: "center" }}
-            />
-            <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent pt-8 pb-2 px-2.5">
-              <span className="block font-body text-[11.5px] text-white leading-snug">{t.title}</span>
-            </span>
-            <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30">
-              <span className="px-3 py-1.5 rounded-full bg-primary text-on-primary font-label text-[9px] uppercase tracking-wider">
-                Remake
-              </span>
-            </span>
-          </button>
-        ))}
-      </div>
+      {WORKFLOW_ORDER.map((wf) => (
+        <TrendingShelf key={wf} wf={wf} onOpen={openTemplate} />
+      ))}
     </div>
+  );
+}
+
+/* One flow's trending shelf: featured card left, 2×2 rack right. */
+function TrendingShelf({
+  wf,
+  onOpen,
+}: {
+  wf: ProWorkflow;
+  onOpen: (wf: ProWorkflow, prompt: string) => void;
+}) {
+  const cfg = WORKFLOWS[wf];
+  const data = TRENDING[wf];
+  const Icon = WF_ICON[wf];
+  return (
+    <section className="mt-7" aria-label={`${cfg.label} templates`}>
+      <div className="flex items-center gap-2 mb-3">
+        <Icon className="w-3.5 h-3.5" style={{ color: WF_ACCENT[wf] }} />
+        <span className="font-label text-[11px] uppercase tracking-wider text-on-surface">{cfg.label}</span>
+        <span className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant/60 hidden sm:inline">
+          · {cfg.tagline}
+        </span>
+      </div>
+      <div className="grid lg:grid-cols-[1.2fr_1fr] gap-3 items-stretch">
+        <TemplateCard t={data.featured} wf={wf} featured onOpen={onOpen} />
+        <div className="grid grid-cols-2 gap-3">
+          {data.items.map((t) => (
+            <TemplateCard key={t.title} t={t} wf={wf} onOpen={onOpen} />
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function TemplateCard({
+  t,
+  wf,
+  featured = false,
+  onOpen,
+}: {
+  t: ProTemplate;
+  wf: ProWorkflow;
+  featured?: boolean;
+  onOpen: (wf: ProWorkflow, prompt: string) => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onOpen(wf, t.prompt)}
+      aria-label={`Use template ${t.title}`}
+      className={cn(
+        "group relative rounded-2xl overflow-hidden border border-outline-variant/40 hover:border-primary/60 transition-colors text-left bg-surface-container-low",
+        featured ? "min-h-[300px] lg:min-h-0" : "aspect-[16/10]"
+      )}
+    >
+      {t.img ? (
+        <span
+          className="absolute inset-0"
+          style={{ backgroundImage: `url(${t.img})`, backgroundSize: "cover", backgroundPosition: "center" }}
+        />
+      ) : (
+        <MockFrame wf={wf} kind={t.mock ?? "phone"} featured={featured} />
+      )}
+      {/* Caption */}
+      <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 via-black/40 to-transparent pt-10 pb-3 px-3.5">
+        <span className="inline-flex items-center gap-1 font-label text-[8px] uppercase tracking-widest text-tertiary mb-1">
+          <TrendingUp className="w-2.5 h-2.5" /> {t.stat}
+        </span>
+        <span
+          className={cn(
+            "block text-white leading-snug",
+            featured ? "font-headline text-xl" : "font-body text-[12px]"
+          )}
+        >
+          {t.title}
+        </span>
+        {featured && (
+          <span className="block font-body text-[11.5px] text-white/65 mt-1 line-clamp-2 max-w-[420px]">
+            {t.prompt}
+          </span>
+        )}
+      </span>
+      {/* Hover action */}
+      <span className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-black/30">
+        <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-primary text-on-primary font-label text-[9px] uppercase tracking-wider">
+          Remake <ArrowRight className="w-3 h-3" />
+        </span>
+      </span>
+    </button>
+  );
+}
+
+/* Placeholder art for flows without poster material: an accent-tinted stage
+   with a device mock — vertical phone for UGC, product card for Ad. */
+function MockFrame({ wf, kind, featured }: { wf: ProWorkflow; kind: "phone" | "product"; featured: boolean }) {
+  const accent = WF_ACCENT[wf];
+  return (
+    <span className="absolute inset-0 flex items-center justify-center" style={{ background: WF_TINT[wf] }}>
+      <span
+        aria-hidden="true"
+        className="absolute inset-0"
+        style={{ background: `radial-gradient(90% 70% at 50% 0%, ${accent}1f 0%, transparent 60%)` }}
+      />
+      {kind === "phone" ? (
+        <span
+          className={cn(
+            "relative rounded-[18px] border border-white/20 flex flex-col overflow-hidden shadow-[0_14px_40px_rgba(0,0,0,0.5)]",
+            featured ? "w-[120px] h-[212px]" : "w-[64px] h-[114px]"
+          )}
+          style={{ background: `linear-gradient(165deg, #1a1b20 15%, ${accent}33 100%)` }}
+        >
+          <span className="flex-1 flex items-center justify-center">
+            <Smartphone className={cn("text-white/75", featured ? "w-7 h-7" : "w-4 h-4")} />
+          </span>
+          <span className="flex items-center gap-1 px-2 pb-1.5">
+            <Pause className={cn("text-white/85 shrink-0", featured ? "w-2.5 h-2.5" : "w-1.5 h-1.5")} fill="currentColor" />
+            <span className="flex-1 h-[2px] rounded-full bg-white/25 overflow-hidden">
+              <span className="block h-full w-2/3 rounded-full bg-white/85" />
+            </span>
+          </span>
+        </span>
+      ) : (
+        <span
+          className={cn(
+            "relative rounded-2xl border border-white/20 flex flex-col items-center justify-center gap-2 shadow-[0_14px_40px_rgba(0,0,0,0.5)]",
+            featured ? "w-[150px] h-[150px]" : "w-[76px] h-[76px]"
+          )}
+          style={{ background: `linear-gradient(160deg, #1a1b20 20%, ${accent}3d 100%)` }}
+        >
+          <Package className={cn("text-white/80", featured ? "w-8 h-8" : "w-4 h-4")} />
+          <span className={cn("rounded-full bg-white/30", featured ? "w-14 h-1" : "w-7 h-0.5")} />
+        </span>
+      )}
+    </span>
   );
 }
