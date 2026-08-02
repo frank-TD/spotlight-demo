@@ -86,7 +86,8 @@ export default function WalletPage() {
         <div className="animate-fade-up grid grid-cols-1 md:grid-cols-2 gap-6 mb-10" style={{ animationDelay: "120ms" }}>
           {activeRole === "backer" ? (
             <>
-              <div className="bg-primary text-on-primary rounded-2xl p-8">
+              {/* Spend-side money wears the homepage flame; earnings stay mint. */}
+              <div className="bg-tertiary text-on-tertiary rounded-2xl p-8">
                 <p className="font-label text-label-md uppercase tracking-widest opacity-70 mb-2">
                   {t.wallet.diamondBalance}
                 </p>
@@ -104,7 +105,7 @@ export default function WalletPage() {
                     setAmount(3000);
                     setRechargeOpen(true);
                   }}
-                  className="mt-6 inline-flex items-center gap-1.5 bg-primary-container text-on-primary-container font-label text-label-md uppercase tracking-wider px-4 py-2 rounded-lg hover:brightness-110 transition-all"
+                  className="mt-6 inline-flex items-center gap-1.5 bg-tertiary-container text-on-tertiary-container font-label text-label-md uppercase tracking-wider px-4 py-2 rounded-lg hover:brightness-110 transition-all"
                 >
                   <Plus className="w-3.5 h-3.5" /> {t.wallet.recharge}
                 </button>
@@ -337,7 +338,7 @@ export default function WalletPage() {
             <button
               onClick={handleRecharge}
               disabled={processing}
-              className="font-label text-label-md uppercase tracking-wider px-4 py-2 bg-primary text-on-primary rounded-lg hover:opacity-90 transition-opacity disabled:opacity-60"
+              className="font-label text-label-md uppercase tracking-wider px-4 py-2 bg-tertiary text-on-tertiary rounded-lg hover:opacity-90 transition-opacity disabled:opacity-60"
             >
               {processing ? t.wallet.processing : t.wallet.pay(amount)}
             </button>

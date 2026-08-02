@@ -15,19 +15,41 @@ import {
   X,
   LayoutGrid,
   Workflow,
+  Smartphone,
+  Megaphone,
+  Music2,
+  Clapperboard,
+  ArrowRight,
 } from "lucide-react";
-import { useStore } from "@/lib/store";
+import { useStore, type ProWorkflow } from "@/lib/store";
+import { WORKFLOWS, WORKFLOW_ORDER } from "@/components/studio/pro/pro-mock";
 import { useT } from "@/hooks/useT";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
+  DropdownMenuGroup,
   DropdownMenuItem,
+  DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
 import { Locale } from "@/lib/i18n";
+
+/* NexGC flow dropdown: icon + accent per workflow (rich menu, both navs). */
+const FLOW_ICON: Record<ProWorkflow, typeof Smartphone> = {
+  ugc: Smartphone,
+  ad: Megaphone,
+  mv: Music2,
+  film: Clapperboard,
+};
+const FLOW_ACCENT: Record<ProWorkflow, string> = {
+  ugc: "#7ff7e2",
+  ad: "#ffb840",
+  mv: "#b08bff",
+  film: "#5adfc8",
+};
 
 const LOCALES: { value: Locale; label: string; short: string }[] = [
   { value: "en", label: "English", short: "EN" },
@@ -88,23 +110,19 @@ export default function TopNav() {
     // Flags a freshly shipped surface with a small dot (e.g. NexGC Pro).
     isNew?: boolean;
   };
+  // NexGC renders as a dropdown (see NexgcMenu below) right after Marketplace
+  // in BOTH auth states, so these arrays hold only the plain links around it.
   const GUEST_NAV: NavItem[] = [
     { label: t.nav.marketplace, href: "/market", match: (p: string) => p.startsWith("/market") },
     { label: "How it works", href: "/how-it-works", match: (p: string) => p.startsWith("/how-it-works") },
   ];
   const USER_NAV: NavItem[] = [
     { label: t.nav.marketplace, href: "/market", match: (p: string) => p.startsWith("/market") },
-    {
-      label: t.nav.studio,
-      href: "/discovery/workspace",
-      match: (p: string) => p.startsWith("/discovery/workspace"),
-      // NexGC Pro just shipped — a small dot flags the new workspace.
-      isNew: true,
-    },
     { label: t.nav.myProjects, href: "/projects", match: (p: string) => p.startsWith("/projects") },
     { label: t.nav.messages, href: "/messages", match: (p: string) => p.startsWith("/messages") },
   ];
   const NAV_ITEMS = isLoggedIn ? USER_NAV : GUEST_NAV;
+  const studioActive = pathname.startsWith("/discovery/workspace");
 
   // Temporary entry to the homepage style-draft gallery. Kept visually distinct
   // from the primary tabs (outlined pill) so it reads as an internal preview
@@ -119,51 +137,56 @@ export default function TopNav() {
     router.push("/login");
   };
 
+  const navLink = (item: NavItem) => {
+    const active = item.match(pathname);
+    return (
+      <Link
+        key={item.href}
+        href={item.href}
+        aria-current={active ? "page" : undefined}
+        className={cn(
+          "font-label text-label-md uppercase tracking-widest transition-colors duration-300 whitespace-nowrap",
+          active
+            ? "text-primary relative after:content-[''] after:absolute after:-bottom-2 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-primary after:rounded-full"
+            : "text-on-surface-variant hover:text-on-surface"
+        )}
+      >
+        {item.label}
+        {item.isNew && (
+          <span
+            className="ml-1 inline-block w-1.5 h-1.5 rounded-full bg-primary align-super"
+            aria-label="new"
+          />
+        )}
+      </Link>
+    );
+  };
+
   return (
     <>
-      {/* Permanently frosted: the homepage hero reel runs underneath, and a
-          transparent bar washed out against bright frames. */}
-      <header className="fixed top-0 left-0 right-0 h-[80px] z-50 border-b bg-surface/60 backdrop-blur-[30px] border-outline-variant/10 shadow-[0_4px_30px_rgba(0,0,0,0.06)]">
-        <div className="flex justify-between items-center px-4 md:px-12 w-full max-w-[1280px] mx-auto h-full">
+      {/* Floating glass capsule: the bar detaches from the edges and blurs
+          whatever scrolls beneath it (homepage reel, market grids, studio). */}
+      <header className="fixed top-0 left-0 right-0 z-50 px-3 md:px-6 pt-3">
+        <div className="flex justify-between items-center h-[58px] px-4 md:px-7 w-full max-w-[1240px] mx-auto rounded-full border border-outline-variant/25 bg-surface/55 backdrop-blur-[26px] shadow-[0_16px_48px_rgba(0,0,0,0.35)]">
           <div className="flex items-center gap-8">
             <Link
               href="/"
-              className="inline-flex items-center gap-2 font-headline text-[26px] md:text-[30px] text-primary font-extrabold tracking-tight leading-none whitespace-nowrap"
+              className="inline-flex items-center gap-2 font-headline text-[24px] md:text-[26px] text-primary font-extrabold tracking-tight leading-none whitespace-nowrap"
             >
               {/* Getstaked play-mark */}
-              <svg viewBox="0 0 100 100" aria-hidden="true" className="w-6 h-6 md:w-7 md:h-7 fill-current">
+              <svg viewBox="0 0 100 100" aria-hidden="true" className="w-6 h-6 fill-current">
                 <rect x="4" y="4" width="92" height="92" rx="24" />
                 <path d="M40 30 74 50 40 70Z" className="fill-surface" />
               </svg>
               Getstaked
             </Link>
             {/* Tabs stay visible for anonymous visitors too — the homepage must
-              always offer a way into the rest of the product. */}
-            <nav aria-label="Primary" className="hidden md:flex gap-5 lg:gap-7">
-              {NAV_ITEMS.map((item) => {
-                const active = item.match(pathname);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    aria-current={active ? "page" : undefined}
-                    className={cn(
-                      "font-label text-label-md uppercase tracking-widest transition-colors duration-300 whitespace-nowrap",
-                      active
-                        ? "text-primary relative after:content-[''] after:absolute after:-bottom-2 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-primary after:rounded-full"
-                        : "text-on-surface-variant hover:text-on-surface"
-                    )}
-                  >
-                    {item.label}
-                    {item.isNew && (
-                      <span
-                        className="ml-1 inline-block w-1.5 h-1.5 rounded-full bg-primary align-super"
-                        aria-label="new"
-                      />
-                    )}
-                  </Link>
-                );
-              })}
+              always offer a way into the rest of the product. NexGC expands
+              into the four flow entries in both auth states. */}
+            <nav aria-label="Primary" className="hidden md:flex items-center gap-5 lg:gap-7">
+              {navLink(NAV_ITEMS[0])}
+              <NexgcMenu active={studioActive} label={t.nav.studio} />
+              {NAV_ITEMS.slice(1).map(navLink)}
               <Link
                 href="/previews"
                 aria-current={previewsActive ? "page" : undefined}
@@ -389,6 +412,45 @@ export default function TopNav() {
                 </Link>
               );
             })}
+            {/* NexGC flow group */}
+            <div className="pt-2 pb-1 px-4 flex items-center gap-1.5 font-label text-[10px] uppercase tracking-widest text-on-surface-variant/70">
+              {t.nav.studio}
+              <span className="w-1.5 h-1.5 rounded-full bg-primary" aria-label="new" />
+            </div>
+            {WORKFLOW_ORDER.map((wf) => {
+              const Icon = FLOW_ICON[wf];
+              return (
+                <Link
+                  key={wf}
+                  href={`/discovery/workspace?mode=pro&flow=${wf}`}
+                  onClick={() => setMobileOpen(false)}
+                  className="flex items-center gap-3 px-4 py-2.5 rounded-lg text-on-surface-variant hover:bg-surface-container hover:text-on-surface transition-colors"
+                >
+                  <span
+                    className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border border-outline-variant/30"
+                    style={{ color: FLOW_ACCENT[wf] }}
+                  >
+                    <Icon className="w-3.5 h-3.5" />
+                  </span>
+                  <span className="font-label text-label-md uppercase tracking-widest">
+                    {WORKFLOWS[wf].label}
+                  </span>
+                </Link>
+              );
+            })}
+            <Link
+              href="/discovery/workspace?mode=pro"
+              onClick={() => setMobileOpen(false)}
+              aria-current={studioActive ? "page" : undefined}
+              className={cn(
+                "flex items-center gap-3 px-4 py-2.5 rounded-lg font-label text-label-md uppercase tracking-widest transition-colors",
+                studioActive
+                  ? "bg-primary-container text-primary"
+                  : "text-primary hover:bg-surface-container"
+              )}
+            >
+              <ArrowRight className="w-4 h-4" /> Open NexGC Studio
+            </Link>
             <Link
               href="/previews"
               onClick={() => setMobileOpen(false)}
@@ -466,5 +528,86 @@ export default function TopNav() {
         </aside>
       </div>
     </>
+  );
+}
+
+/* Rich NexGC dropdown for the desktop capsule: one row per workflow (icon,
+   name, tagline) deep-linking straight into that flow's intake form, plus a
+   studio master entry. Shown to guests and signed-in users alike — guests
+   can fill the form and only hit the signup gate on submit. Exported so the
+   editorial homepage's hero nav can mount the same menu with its own
+   trigger dressing (triggerClassName). */
+export function NexgcMenu({
+  active,
+  label,
+  triggerClassName,
+}: {
+  active: boolean;
+  label: string;
+  triggerClassName?: string;
+}) {
+  const router = useRouter();
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        aria-current={active ? "page" : undefined}
+        className={
+          triggerClassName ??
+          cn(
+            "inline-flex items-center gap-1 font-label text-label-md uppercase tracking-widest transition-colors duration-300 whitespace-nowrap focus:outline-none",
+            active
+              ? "text-primary relative after:content-[''] after:absolute after:-bottom-2 after:left-1/2 after:-translate-x-1/2 after:w-1 after:h-1 after:bg-primary after:rounded-full"
+              : "text-on-surface-variant hover:text-on-surface"
+          )
+        }
+      >
+        {label}
+        <span className="inline-block w-1.5 h-1.5 rounded-full bg-primary align-super" aria-label="new" />
+        <ChevronDown className="w-3 h-3 opacity-60" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="start" className="w-[280px] p-1.5">
+        {/* Base UI requires Label to live inside a Group */}
+        <DropdownMenuGroup>
+          <DropdownMenuLabel className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
+            Make a video
+          </DropdownMenuLabel>
+          {WORKFLOW_ORDER.map((wf) => {
+            const cfg = WORKFLOWS[wf];
+            const Icon = FLOW_ICON[wf];
+            return (
+              <DropdownMenuItem
+                key={wf}
+                onClick={() => router.push(`/discovery/workspace?mode=pro&flow=${wf}`)}
+                className="cursor-pointer rounded-xl px-2 py-2"
+              >
+                <span className="flex items-start gap-2.5 min-w-0">
+                  <span
+                    className="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 border border-outline-variant/30 bg-surface-container"
+                    style={{ color: FLOW_ACCENT[wf] }}
+                  >
+                    <Icon className="w-4 h-4" />
+                  </span>
+                  <span className="min-w-0">
+                    <span className="block font-label text-[11px] uppercase tracking-wider text-on-surface leading-tight">
+                      {cfg.label}
+                    </span>
+                    <span className="block font-body text-[11px] text-on-surface-variant mt-0.5 leading-snug">
+                      {cfg.tagline}
+                    </span>
+                  </span>
+                </span>
+              </DropdownMenuItem>
+            );
+          })}
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem
+          onClick={() => router.push("/discovery/workspace?mode=pro")}
+          className="cursor-pointer rounded-xl px-2 py-2 gap-2 font-label text-[11px] uppercase tracking-wider text-primary focus:text-primary"
+        >
+          <ArrowRight className="w-3.5 h-3.5" /> Open NexGC Studio
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

@@ -269,7 +269,7 @@ export default function OrderDetailPage({ params }: { params: Promise<{ id: stri
                             payDeposit(SESSION_ID);
                             toast.success(t.flow.toastDeposit);
                           }}
-                          className="flex items-center gap-1.5 bg-primary text-on-primary font-label text-label-md uppercase tracking-wider px-4 py-2 rounded-lg hover:opacity-90"
+                          className="flex items-center gap-1.5 bg-tertiary text-on-tertiary font-label text-label-md uppercase tracking-wider px-4 py-2 rounded-lg hover:opacity-90"
                         >
                           <Check className="w-3.5 h-3.5" /> {t.flow.payDeposit(stage.amountFiat)}
                         </button>
