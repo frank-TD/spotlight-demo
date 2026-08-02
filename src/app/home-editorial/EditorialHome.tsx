@@ -23,25 +23,51 @@ const mont = Montserrat({ subsets: ["latin"], weight: ["400", "500", "600", "700
 
 const bg = (name: string) => ({ backgroundImage: `url(/posters/${name}.jpg)` });
 
+// Questions carry a flame-highlighted keyword, as in the mockup.
 const FAQ_ITEMS = [
   {
-    q: "Is this like Fiverr or Upwork?",
+    id: "marketplace",
+    q: (
+      <>
+        Is this like <span className={styles.faqHot}>Fiverr or Upwork?</span>
+      </>
+    ),
     a: "No. Getstaked is a content commissioning platform, not a task marketplace. You commission full productions — brief to broadcast-ready — with IP protection and AI-managed delivery. Think executive producer, not task manager.",
   },
   {
-    q: "What does a Patron do?",
+    id: "patron",
+    q: (
+      <>
+        What does a <span className={styles.faqHot}>Patron</span> do?
+      </>
+    ),
     a: "You fund and direct content. Post your creative brief, set your budget, and own the final work. Marlow, your AI agent, handles negotiation, scoping, and brief production. You review and approve.",
   },
   {
-    q: "How do Marlow and Wren work?",
+    id: "agents",
+    q: (
+      <>
+        How do <span className={styles.faqHot}>Marlow and Wren</span> work?
+      </>
+    ),
     a: "Marlow is your AI Patron agent. Wren represents the Creator. They negotiate deal terms, scope deliverables, agree pricing, and produce a binding brief — automatically. You review and sign off. No awkward back-and-forth.",
   },
   {
-    q: "How does escrow work?",
+    id: "escrow",
+    q: (
+      <>
+        How does <span className={styles.faqHot}>escrow</span> work?
+      </>
+    ),
     a: "Your full project budget is locked in escrow at signing. Creators receive payment at each approved milestone. Final IP transfers to you only when you approve delivery and release the final payment.",
   },
   {
-    q: "Who backs Getstaked?",
+    id: "backers",
+    q: (
+      <>
+        Who backs <span className={styles.faqHot}>Getstaked?</span>
+      </>
+    ),
     a: "Getstaked is backed by one of Asia's most respected independent film production groups, with over 20 years of production experience across Hong Kong, Taiwan, and Southeast Asia.",
   },
 ];
@@ -116,6 +142,10 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
             </div>
           </div>
         </div>
+        {/* Mockup's parting line at the hero's foot */}
+        <p className={`${styles.heroTicker} animate-fade-up`} style={{ animationDelay: "760ms" }}>
+          Don&apos;t send me away
+        </p>
       </section>
 
       {/* ── Trust band (数据条) ───────────────────────────────────────────── */}
@@ -156,13 +186,10 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
         </div>
       </section>
 
-      {/* ── In the Spotlight (creator works) ─────────────────────────────── */}
+      {/* ── TOP Of The Week — plain mid-weight header, straight off the
+             mockup (no eyebrow, no outline watermark) ─────────────────────── */}
       <section className={`${styles.sec} ${styles.gridStage}`}>
-        <span className={`${styles.outlineTitle} ${styles.spotlightWatermark}`} aria-hidden="true">
-          Getstaked
-        </span>
         <div className={styles.wrap}>
-          <span className={`${styles.eyebrow} scroll-reveal`}>In the Spotlight</span>
           <h2 className={`${styles.towTitle} scroll-reveal`}>TOP Of The Week</h2>
           <EditorialGetstaked />
         </div>
@@ -171,14 +198,8 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
       {/* ── Featured Directors (sage interlude) ──────────────────────────── */}
       <EditorialDirectors />
 
-      {/* ── Create · Fund · Distribute (paper) ───────────────────────────── */}
+      {/* ── Create · Fund · Distribute ───────────────────────────────────── */}
       <section className={styles.steps}>
-        <span
-          className={`${styles.outlineTitle} ${styles.outlineDark} ${styles.spotlightWatermark}`}
-          aria-hidden="true"
-        >
-          Pipeline
-        </span>
         <div className={styles.wrap}>
           <div className={styles.hiwGrid}>
             <div className="scroll-reveal">
@@ -230,8 +251,8 @@ export default function EditorialHome({ theme = "orange" }: { theme?: "orange" |
         </div>
       </section>
 
-      {/* ── Agents ───────────────────────────────────────────────────────── */}
-      <section className={`${styles.sec} ${styles.gridStage}`}>
+      {/* ── Agents — the mockup stages this one dark, phone glowing ──────── */}
+      <section className={`${styles.sec} ${styles.agentsDark}`}>
         <div className={`${styles.wrap} ${styles.agentsStage}`}>
           <div className="scroll-reveal">
             <span className={styles.eyebrow}>Your AI Agents</span>

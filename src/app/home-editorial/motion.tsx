@@ -70,15 +70,20 @@ export function DrawLine() {
 }
 
 // Accordion FAQ — one row open at a time, with a rotating + and a smooth
-// 0fr→1fr height transition (no measuring).
-export function FaqAccordion({ items }: { items: { q: string; a: string }[] }) {
+// 0fr→1fr height transition (no measuring). Questions may carry markup
+// (highlighted keywords), so rows key off a stable id.
+export function FaqAccordion({
+  items,
+}: {
+  items: { id: string; q: React.ReactNode; a: string }[];
+}) {
   const [open, setOpen] = useState(0);
   return (
     <div className={styles.faqList}>
       {items.map((item, i) => {
         const isOpen = open === i;
         return (
-          <div key={item.q} className={styles.faqRow}>
+          <div key={item.id} className={styles.faqRow}>
             <button
               type="button"
               className={styles.faqQ}
