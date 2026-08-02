@@ -182,12 +182,17 @@ interface RunState {
 export default function WorkflowIntake({
   workflow,
   initialScript,
+  reviseProjectId,
   onClose,
   onCreated,
 }: {
   workflow: ProWorkflow;
   // Text handed over from the Create-screen vibe bar.
   initialScript?: string;
+  /* Back-from-premiere revise mode: the run commits into this existing
+     project instead of creating one, replacing its cut. Closing the form
+     without running keeps the old cut untouched. */
+  reviseProjectId?: string;
   onClose: () => void;
   onCreated: (projectId: string) => void;
 }) {
@@ -197,10 +202,16 @@ export default function WorkflowIntake({
     spendProCredits,
     newProProject,
     updateProProject,
+    renameProProject,
+    deleteProjectCut,
     addProFragments,
     setProTimeline,
     proAssets,
+    proProjects,
   } = useStore();
+  const revising = reviseProjectId
+    ? (proProjects.find((p) => p.id === reviseProjectId) ?? null)
+    : null;
 
   const cfg = WORKFLOWS[workflow];
   const iv = INTAKE[workflow];
@@ -211,7 +222,11 @@ export default function WorkflowIntake({
   const [saved] = useState(() => readSession<IntakeDraft>(SK.intake));
   const [style, setStyle] = useState<string>(saved?.style ?? cfg.styles[0]);
   const [maxShots, setMaxShots] = useState(saved?.maxShots ?? "");
-  const [script, setScript] = useState(saved?.script ?? initialScript ?? "");
+  // Revise mode leads with the project's original brief; a parked draft
+  // only wins for fresh intakes.
+  const [script, setScript] = useState(
+    reviseProjectId ? (initialScript ?? "") : (saved?.script ?? initialScript ?? "")
+  );
   const [track, setTrack] = useState<string>(saved?.track ?? MV_TRACKS[0]);
   const [songPicked, setSongPicked] = useState(saved?.songPicked ?? false);
   const [productPicked, setProductPicked] = useState(saved?.productPicked ?? false);
@@ -280,13 +295,22 @@ export default function WorkflowIntake({
     const clean = script.trim().replace(/\s+/g, " ");
     const first = clean.split(/(?<=[。！？!?.])/)[0] ?? clean;
     const title = (first || cfg.label).slice(0, TITLE_MAX_LEN).trim() || cfg.label;
-    const projectId = newProProject(
-      title,
-      style,
-      workflow,
-      cfg.hasTrack ? track : undefined,
-      workflow === "film" ? fmt : cfg.aspect
-    );
+    let projectId: string;
+    if (revising) {
+      // Overwrite semantics: the fresh run replaces the old cut in place.
+      projectId = revising.id;
+      deleteProjectCut(projectId);
+      renameProProject(projectId, title);
+    } else {
+      projectId = newProProject(
+        title,
+        style,
+        workflow,
+        cfg.hasTrack ? track : undefined,
+        workflow === "film" ? fmt : cfg.aspect
+      );
+    }
+    updateProProject(projectId, { brief: script });
     const now = nowTs();
     const frags = sim.map((s, i) => ({
       id: proId("frag"),
@@ -370,8 +394,15 @@ export default function WorkflowIntake({
         const first = clean.split(/(?<=[。！？!?.])/)[0] ?? clean;
         const title = (first || cfg.label).slice(0, TITLE_MAX_LEN).trim() || cfg.label;
         const { scenes, assetRefs } = mockScript(script, parseInt(maxShots, 10) || 5);
-        const projectId = newProProject(title, style, workflow, undefined, fmt);
-        updateProProject(projectId, { stage: "script", scenes, assetRefs });
+        let projectId: string;
+        if (revising) {
+          // The old cut stays until a re-shoot commits over it.
+          projectId = revising.id;
+          renameProProject(projectId, title);
+        } else {
+          projectId = newProProject(title, style, workflow, undefined, fmt);
+        }
+        updateProProject(projectId, { stage: "script", scenes, assetRefs, brief: script });
         clearSession(SK.intake);
         toast.success(`Script parsed — ${scenes.length} scenes, ${assetRefs.length} roles to cast`);
         onCreated(projectId);
@@ -417,6 +448,11 @@ export default function WorkflowIntake({
         <span className="font-label text-[9px] uppercase tracking-widest text-on-surface-variant">
           Quick Start · {cfg.label} · {aspectShown}
         </span>
+        {revising && (
+          <span className="font-label text-[9px] uppercase tracking-widest border border-tertiary/50 text-tertiary px-1.5 py-0.5 rounded">
+            Revising “{revising.title}” — a finished run replaces its cut
+          </span>
+        )}
         <span className="ml-auto inline-flex items-center gap-1 font-label text-[9px] uppercase tracking-widest text-on-surface-variant/70">
           <Sparkles className="w-3 h-3" /> Full video in one run
         </span>

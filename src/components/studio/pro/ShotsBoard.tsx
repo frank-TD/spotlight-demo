@@ -177,6 +177,11 @@ export default function ShotsBoard({
       if (t) clearTimeout(t);
     };
   }, []);
+  /* Premiere-back revise: which project the intake overwrites on commit. */
+  const [revise, setRevise] = useState<{ wf: ProWorkflow; projectId: string; script: string } | null>(
+    null
+  );
+
   const [agentBoot, setAgentBoot] = useState<AgentBoot | null>(() => {
     if (readSession<IntakeDraft>(SK.intake)?.open) return null; // form wins
     const d = readSession<{ open?: boolean; msgs?: unknown[]; mode?: "guided" | "auto"; workflow?: ProWorkflow }>(
@@ -194,12 +199,17 @@ export default function ShotsBoard({
   if (intakeWf) {
     return (
       <WorkflowIntake
-        key={intakeWf}
+        key={revise ? `revise-${revise.projectId}` : intakeWf}
         workflow={intakeWf}
-        initialScript={vibeText || undefined}
-        onClose={() => setIntakeWf(null)}
+        initialScript={revise ? revise.script : vibeText || undefined}
+        reviseProjectId={revise?.projectId}
+        onClose={() => {
+          setIntakeWf(null);
+          setRevise(null);
+        }}
         onCreated={(id) => {
           setIntakeWf(null);
+          setRevise(null);
           setCurrentProProject(id);
         }}
       />
@@ -228,7 +238,16 @@ export default function ShotsBoard({
     if (project.workflow === "film" && project.stage && project.stage !== "premiere") {
       return <FilmPipeline project={project} onBack={() => setCurrentProProject(null)} />;
     }
-    return <PremierePanel onNewVideo={() => setCurrentProProject(null)} onGoEditor={onGoEditor} />;
+    return (
+      <PremierePanel
+        onNewVideo={() => setCurrentProProject(null)}
+        onGoEditor={onGoEditor}
+        onRevise={(wf, projectId, brief) => {
+          setRevise({ wf, projectId, script: brief });
+          setIntakeWf(wf);
+        }}
+      />
+    );
   }
 
   const startAgent = (mode: AgentBoot["mode"], wf: ProWorkflow, seed?: string) => {
