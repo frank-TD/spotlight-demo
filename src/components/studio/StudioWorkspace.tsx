@@ -98,6 +98,16 @@ export default function StudioWorkspace() {
     };
   }, []);
 
+  /* "Just make it" (and the tools card) land here: with a seed the vibe
+     text arrives pre-filled in video mode, ready to Generate. */
+  const openTools = (seedPrompt?: string) => {
+    if (seedPrompt) {
+      setMode("video");
+      setPrompt(seedPrompt);
+    }
+    setToolsOpen(true);
+  };
+
   const progressTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const doneTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -356,7 +366,7 @@ export default function StudioWorkspace() {
     >
       {!toolsOpen ? (
         <div className="animate-fade-up">
-          <ProWorkspace onOpenTools={() => setToolsOpen(true)} />
+          <ProWorkspace onOpenTools={openTools} />
         </div>
       ) : (
         <>

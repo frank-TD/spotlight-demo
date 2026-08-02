@@ -39,7 +39,11 @@ const SECTIONS: ProSection[] = ["shots", "assets", "editor"];
 // Cast / Scenes / Props used to be separate rail sections.
 const LEGACY_ASSET_SECTIONS = ["character", "scene", "prop"];
 
-export default function ProWorkspace({ onOpenTools }: { onOpenTools: () => void }) {
+export default function ProWorkspace({
+  onOpenTools,
+}: {
+  onOpenTools: (seedPrompt?: string) => void;
+}) {
   // Restore the last section across the signup-gate round-trip / reloads.
   const [section, setSection] = useState<ProSection>(() => {
     const saved = readSession<string>(SK.section);

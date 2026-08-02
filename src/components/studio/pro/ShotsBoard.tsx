@@ -140,7 +140,9 @@ export default function ShotsBoard({
   onOpenTools,
 }: {
   onGoEditor: () => void;
-  onOpenTools: () => void;
+  // Optional seed prompt: "Just make it" hands the vibe text straight to
+  // the Quick Tools single-shot generator.
+  onOpenTools: (seedPrompt?: string) => void;
 }) {
   const { proProjects, currentProProjectId, setCurrentProProject, proFragments, proAssets } =
     useStore();
@@ -348,7 +350,7 @@ export default function ShotsBoard({
           <span className="flex-1" />
           <button
             type="button"
-            onClick={() => startAgent("auto", "film", vibeText)}
+            onClick={() => onOpenTools(vibeText.trim() || undefined)}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-outline-variant/50 font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
           >
             <Zap className="w-3 h-3" /> Just make it
@@ -435,7 +437,7 @@ export default function ShotsBoard({
       {/* ── Quick Tools — the old Basic studio, one click away ── */}
       <button
         type="button"
-        onClick={onOpenTools}
+        onClick={() => onOpenTools()}
         className="mt-3 w-full flex items-center gap-3 rounded-2xl border border-outline-variant/40 bg-surface-container-low/60 hover:border-primary/50 px-4 py-3 text-left transition-colors group"
       >
         <span className="flex items-center gap-1.5 shrink-0">
