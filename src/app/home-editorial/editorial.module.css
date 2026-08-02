@@ -342,6 +342,20 @@
   transition: color 0.2s;
 }
 .heroNexgc:hover { color: var(--orange); }
+/* Parting line at the hero's foot ("Don't send me away"). */
+.heroTicker {
+  position: relative;
+  z-index: 2;
+  margin: clamp(36px, 6vh, 72px) auto 0;
+  text-align: center;
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.34em;
+  color: rgba(244, 240, 232, 0.55);
+}
+/* Flame-highlighted keywords inside FAQ questions. */
+.faqHot { color: var(--flame, #ff5c1c); }
 .heroBrand {
   display: inline-flex;
   align-items: center;
@@ -449,6 +463,11 @@
   margin: 0 auto;
 }
 .stat { display: flex; align-items: center; gap: 22px; text-align: left; }
+/* Mockup staircase: each bar steps further right as the eye walks down. */
+@media (min-width: 760px) {
+  .stat:nth-child(2) { margin-left: clamp(48px, 7vw, 110px); }
+  .stat:nth-child(3) { margin-left: clamp(96px, 14vw, 220px); }
+}
 .stat b {
   display: inline-flex;
   align-items: center;
@@ -747,6 +766,17 @@
 .step h4 { font-size: 24px; font-weight: 800; color: #1c1c1c; text-transform: uppercase; }
 .step p { margin-top: 12px; max-width: 32ch; color: rgba(28, 28, 28, 0.66); font-size: 13px; line-height: 1.6; font-weight: 600; }
 .stepsCtas { display: flex; flex-wrap: wrap; justify-content: center; gap: 14px; margin-top: clamp(40px, 5vh, 64px); }
+/* Mockup seats the buttons under the copy, left-aligned. */
+@media (min-width: 901px) { .stepsCtas { justify-content: flex-start; } }
+/* Agents stage flips dark in the mockup — soft mint aura behind the phone. */
+.agentsDark {
+  position: relative;
+  background:
+    radial-gradient(46% 38% at 50% 48%, rgba(127, 247, 226, 0.09), transparent 70%),
+    var(--ink);
+}
+.agentsDark .agentsTitleXl { color: var(--white, #f4f0e8); }
+.agentsDark .eyebrow { color: rgba(244, 240, 232, 0.85); }
 .stepsLine {
   display: block;
   width: 100%;
@@ -1089,15 +1119,21 @@
   overflow: hidden;
 }
 .joinInner { position: relative; z-index: 2; max-width: 780px; margin: 0 auto; }
+/* The mockup floods the section's lower half with a flame bloom. Centered
+   via left inset, not transform — the breathe animation owns transform. */
 .joinGlow {
   position: absolute;
-  left: 50%;
-  top: -12%;
+  left: -14%;
+  bottom: 0;
   z-index: 0;
-  width: 72%;
-  height: 132%;
-  transform: translateX(-50%);
-  background: radial-gradient(ellipse 46% 42% at 50% 32%, rgba(255, 156, 74, 0.6), transparent 64%);
+  width: 128%;
+  height: 100%;
+  background: radial-gradient(
+    ellipse 54% 52% at 50% 100%,
+    rgba(255, 105, 40, 0.66),
+    rgba(255, 92, 28, 0.22) 56%,
+    transparent 76%
+  );
   mix-blend-mode: screen;
   pointer-events: none;
 }
@@ -1363,11 +1399,11 @@
    `.visible`, children stagger via transition-delay. ═══ */
 
 /* ── S3 · Top of the Week ── */
+/* Plain mid-weight header, straight off the mockup. */
 .towTitle {
-  font-size: clamp(30px, 4.4vw, 56px);
+  font-size: clamp(24px, 2.6vw, 34px);
   font-weight: 800;
   letter-spacing: -0.01em;
-  margin-top: 10px;
 }
 .towMedia {
   position: relative;
@@ -1471,19 +1507,30 @@
   margin-top: 10px;
 }
 .directorsSub { margin-top: 12px; color: rgba(244, 247, 245, 0.72); font-size: 14px; font-weight: 600; }
-.dirRow {
+/* The cards scatter along an arc: absolute positions from per-card vars,
+   sizes growing toward the centre, a hairline circle tracing the curve. */
+.dirField {
   position: relative;
   z-index: 2;
-  display: flex;
-  justify-content: center;
-  align-items: flex-end;
-  gap: clamp(10px, 2vw, 26px);
-  margin-top: 58px;
-  flex-wrap: wrap;
+  height: clamp(340px, 34vw, 430px);
+  margin-top: 48px;
+}
+.dirArcLine {
+  position: absolute;
+  left: 50%;
+  top: -330%;
+  width: 165%;
+  aspect-ratio: 1;
+  transform: translateX(-50%);
+  border-radius: 50%;
+  border: 1px solid rgba(244, 240, 232, 0.22);
+  pointer-events: none;
 }
 .dirCard {
-  position: relative;
-  width: clamp(128px, 13vw, 172px);
+  position: absolute;
+  left: var(--dx, 0%);
+  top: var(--dy, 0px);
+  width: var(--w, 160px);
   aspect-ratio: 3 / 4.3;
   border-radius: 8px;
   overflow: hidden;
@@ -1491,10 +1538,21 @@
   background-position: center top;
   border: 1px solid rgba(255, 255, 255, 0.28);
   box-shadow: 0 24px 50px rgba(10, 25, 21, 0.35);
-  transform: rotate(var(--tilt, 0deg)) translateY(var(--lift, 0px));
+  transform: rotate(var(--tilt, 0deg));
   transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.dirCard:hover { transform: rotate(0deg) translateY(-14px); }
+.dirCard:hover { transform: rotate(0deg) translateY(-12px); z-index: 5; }
+@media (max-width: 900px) {
+  .dirField {
+    height: auto;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+  }
+  .dirArcLine { display: none; }
+  .dirCard { position: static; width: clamp(124px, 26vw, 156px); }
+}
 .dirCard::after {
   content: "";
   position: absolute;
@@ -1512,14 +1570,17 @@
   text-transform: uppercase;
   letter-spacing: 0.12em;
 }
-/* Cards rise one by one once the row is in view. */
-.dirRow :global(.dir-pop) { opacity: 0; transform: translateY(56px) rotate(var(--tilt, 0deg)); }
-.dirRow:global(.visible) :global(.dir-pop) {
+/* Cards rise one by one, bottom-up along the arc, once the field is in view. */
+.dirField :global(.dir-pop) {
+  opacity: 0;
+  transform: translateY(72px) rotate(var(--tilt, 0deg)) scale(0.92);
+}
+.dirField:global(.visible) :global(.dir-pop) {
   opacity: 1;
-  transform: rotate(var(--tilt, 0deg)) translateY(var(--lift, 0px));
+  transform: translateY(0) rotate(var(--tilt, 0deg)) scale(1);
   transition:
     opacity 0.6s ease,
-    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+    transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .directorsCta { position: relative; z-index: 2; display: flex; justify-content: center; margin-top: 52px; }
 
@@ -1528,53 +1589,67 @@
   display: grid;
   grid-template-columns: minmax(280px, 0.9fr) 1.1fr;
   gap: clamp(30px, 5vw, 80px);
-  align-items: center;
+  align-items: start;
   margin-top: 30px;
 }
 @media (max-width: 900px) { .hiwGrid { grid-template-columns: 1fr; } }
 .hiwIntro { font-size: 15px; line-height: 1.6; color: rgba(244, 240, 232, 0.66); max-width: 40ch; margin-top: 16px; }
+/* Mockup cascade: three big neon-glass cards stepping diagonally down the
+   stage (01 top-left → 03 bottom-right), each ringed by a mint→flame
+   gradient border and popping up bottom-first on scroll. */
 .glassStack {
   position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  min-height: 340px;
+  min-height: clamp(430px, 44vw, 560px);
 }
 .glassCard {
   position: absolute;
-  width: clamp(180px, 17vw, 230px);
-  aspect-ratio: 4 / 5.1;
-  border-radius: 18px;
-  padding: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  width: clamp(220px, 22vw, 290px);
+  aspect-ratio: 4 / 4.7;
+  border-radius: 20px;
+  padding: 24px;
+  border: 1.5px solid transparent;
   background:
-    linear-gradient(150deg, rgba(255, 92, 28, 0.34) 0%, rgba(255, 138, 92, 0.12) 38%, rgba(127, 247, 226, 0.14) 78%, rgba(127, 247, 226, 0.3) 100%);
+    linear-gradient(150deg, rgba(255, 92, 28, 0.24) 0%, rgba(18, 22, 24, 0.9) 42%, rgba(127, 247, 226, 0.18) 100%)
+      padding-box,
+    linear-gradient(135deg, #7ff7e2 0%, rgba(127, 247, 226, 0.35) 32%, rgba(255, 92, 28, 0.4) 68%, #ff5c1c 100%)
+      border-box;
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 30px 60px rgba(0, 0, 0, 0.45);
-  transform: translateX(0) rotate(0deg);
+  box-shadow:
+    0 30px 70px rgba(0, 0, 0, 0.5),
+    0 0 48px rgba(255, 92, 28, 0.2),
+    0 0 34px rgba(127, 247, 226, 0.14);
   opacity: 0;
+  transform: translateY(90px) scale(0.94) rotate(var(--gr, 0deg));
   transition:
     transform 0.8s cubic-bezier(0.16, 1, 0.3, 1),
     opacity 0.5s ease;
 }
+.glassCard:nth-child(1) { left: 2%; top: 0; --gr: -6deg; z-index: 1; }
+.glassCard:nth-child(2) { left: 31%; top: 24%; --gr: 2deg; z-index: 2; }
+.glassCard:nth-child(3) { left: 60%; top: 48%; --gr: 7deg; z-index: 3; }
 .glassCard b {
   display: block;
-  font-size: 30px;
+  font-size: 34px;
   font-weight: 800;
   color: rgba(255, 255, 255, 0.92);
 }
-.glassCard h4 { margin-top: 10px; font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #ffffff; }
-.glassCard p { margin-top: 10px; font-size: 12px; line-height: 1.55; font-weight: 600; color: rgba(255, 255, 255, 0.78); }
-/* Stacked shut → fanned open, one by one. */
-.glassStack:global(.visible) .glassCard { opacity: 1; }
-.glassStack:global(.visible) .glassCard:nth-child(1) { transform: translateX(-104%) rotate(-5deg); transition-delay: 0.05s; }
-.glassStack:global(.visible) .glassCard:nth-child(2) { transform: translateX(0) rotate(0deg) translateY(16px); transition-delay: 0.22s; }
-.glassStack:global(.visible) .glassCard:nth-child(3) { transform: translateX(104%) rotate(5deg); transition-delay: 0.4s; }
+.glassCard h4 { margin-top: 12px; font-size: 18px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #ffffff; }
+.glassCard p { margin-top: 12px; font-size: 13px; line-height: 1.6; font-weight: 600; color: rgba(255, 255, 255, 0.8); }
+/* Bottom-up, one by one. */
+.glassStack:global(.visible) .glassCard { opacity: 1; transform: translateY(0) scale(1) rotate(var(--gr, 0deg)); }
+.glassStack:global(.visible) .glassCard:nth-child(1) { transition-delay: 0.05s; }
+.glassStack:global(.visible) .glassCard:nth-child(2) { transition-delay: 0.28s; }
+.glassStack:global(.visible) .glassCard:nth-child(3) { transition-delay: 0.5s; }
 @media (max-width: 900px) {
-  .glassStack { min-height: 300px; }
-  .glassStack:global(.visible) .glassCard:nth-child(1) { transform: translateX(-72%) rotate(-5deg) scale(0.9); }
-  .glassStack:global(.visible) .glassCard:nth-child(3) { transform: translateX(72%) rotate(5deg) scale(0.9); }
+  .glassStack { min-height: 0; display: grid; gap: 14px; }
+  .glassCard,
+  .glassStack:global(.visible) .glassCard {
+    position: static;
+    width: 100%;
+    aspect-ratio: auto;
+    transform: none;
+  }
 }
 
 /* ── S6 · AI Agents Negotiate — phone mock ── */
@@ -1693,5 +1768,5 @@
   .phoneShell,
   .agentChip,
   .agentPoint { opacity: 1 !important; transform: none !important; transition: none !important; }
-  .dirRow :global(.dir-pop) { opacity: 1 !important; transform: rotate(var(--tilt, 0deg)) !important; }
+  .dirField :global(.dir-pop) { opacity: 1 !important; transform: rotate(var(--tilt, 0deg)) !important; }
 }
