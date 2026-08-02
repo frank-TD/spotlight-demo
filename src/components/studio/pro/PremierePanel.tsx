@@ -435,7 +435,7 @@ export default function PremierePanel({
       {exported && (
         <p className="font-body text-xs text-on-surface-variant text-center mt-3">
           “{exported.title}” is in{" "}
-          <Link href="/assets" className="text-primary hover:underline">
+          <Link href="/assets?tab=final" className="text-primary hover:underline">
             My Assets
           </Link>{" "}
           — distribute it from there anytime.
