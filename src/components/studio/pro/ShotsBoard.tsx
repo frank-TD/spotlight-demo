@@ -6,7 +6,6 @@ import {
   ChevronDown,
   Check,
   Plus,
-  Sparkles,
   Pencil,
   Copy,
   Trash2,
@@ -24,7 +23,7 @@ import {
   UsersRound,
 } from "lucide-react";
 import { toast } from "sonner";
-import ScriptStepper, { type StepperDraft } from "./ScriptStepper";
+import AgentPanel, { type AgentBoot } from "./AgentPanel";
 import ShotComposer from "./ShotComposer";
 import {
   clearSession,
@@ -96,6 +95,7 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
     deleteProProject,
     setCurrentProProject,
     proFragments,
+    proAssets,
     addProFragments,
     updateProFragment,
     deleteProFragment,
@@ -109,22 +109,23 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
   const project = proProjects.find((p) => p.id === currentProProjectId) ?? null;
   const fragments = project ? proFragments.filter((f) => f.projectId === project.id) : [];
 
-  /* Restore-on-mount, resolved inside initializers (render-safe): a script
-     draft interrupted by the signup gate reopens the stepper; a pending
-     @mention or a previously open composer reopens the composer. */
-  // Which workflow's wizard is open (null = closed). Restored drafts reopen
-  // with their own workflow.
-  const [stepperWf, setStepperWf] = useState<ProWorkflow | null>(() => {
-    const d = readSession<StepperDraft>(SK.stepper);
-    if (d?.open && (d.title || d.script || (d.drafts?.length ?? 0) > 0)) return d.workflow ?? "film";
+  /* Restore-on-mount, resolved inside initializers (render-safe): an agent
+     chat interrupted by the signup gate reopens in place; a pending @mention
+     or a previously open composer reopens the composer. */
+  // Draft-mode agent chat (null = closed). A parked draft thread reopens with
+  // its own mode + workflow; the panel itself restores the messages.
+  const [agentBoot, setAgentBoot] = useState<AgentBoot | null>(() => {
+    const d = readSession<{ open?: boolean; msgs?: unknown[]; mode?: "guided" | "auto"; workflow?: ProWorkflow }>(
+      SK.agentDraft
+    );
+    if (d?.open && (d.msgs?.length ?? 0) > 1) {
+      return { mode: d.mode ?? "guided", workflow: d.workflow ?? "film" };
+    }
     return null;
   });
-  // Text typed into the Create-screen vibe bar, seeded into the wizard.
+  // Text typed into the Create-screen vibe bar, seeded into the agent chat.
   const [vibeText, setVibeText] = useState("");
-  const [stepperSeed, setStepperSeed] = useState<string | undefined>(undefined);
   const [composerId, setComposerId] = useState<string | null>(() => {
-    const d = readSession<StepperDraft>(SK.stepper);
-    if (d?.open && (d.title || d.script)) return null; // stepper wins
     const lastOpen = readSession<string>(SK.composerOpen);
     if (readSession<string>(SK.mention) && fragments.length > 0) {
       const target =
@@ -220,25 +221,7 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
     }
   };
 
-  // Stepper and composer take over the whole section area.
-  if (stepperWf) {
-    return (
-      <ScriptStepper
-        key={stepperWf}
-        workflow={stepperWf}
-        initialScript={stepperSeed}
-        onClose={() => {
-          setStepperWf(null);
-          setStepperSeed(undefined);
-        }}
-        onGoEditor={() => {
-          setStepperWf(null);
-          setStepperSeed(undefined);
-          onGoEditor();
-        }}
-      />
-    );
-  }
+  // Composer and the draft-mode agent chat take over the whole section area.
   if (composerId) {
     // Keyed so prev/next navigation remounts with the target's own draft.
     return (
@@ -250,14 +233,35 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
       />
     );
   }
+  if (!project && agentBoot) {
+    return (
+      <div className="pt-2 pb-4">
+        <AgentPanel
+          key="draft"
+          projectId={null}
+          boot={agentBoot}
+          dock={false}
+          onProjectCreated={(id) => {
+            setAgentBoot(null);
+            setCurrentProProject(id);
+          }}
+          onGoEditor={onGoEditor}
+          onClose={() => setAgentBoot(null)}
+        />
+      </div>
+    );
+  }
 
   /* Create home — Director-style (OpenArt): a large vibe prompt with
      reference attachments, example chips, quick starts, the project rack
      and viral-template inspirations. */
   if (!project) {
-    const startWizard = (wf: ProWorkflow, seed?: string) => {
-      setStepperSeed(seed && seed.trim() ? seed.trim() : undefined);
-      setStepperWf(wf);
+    const startAgent = (mode: AgentBoot["mode"], wf: ProWorkflow, seed?: string) => {
+      if (mode === "auto" && !(seed && seed.trim())) {
+        toast.error("Describe the video first — one line is enough");
+        return;
+      }
+      setAgentBoot({ mode, workflow: wf, seed: seed?.trim() || undefined });
     };
     const coverOf = (pid: string) =>
       proFragments.find((f) => f.projectId === pid && (f.frameUrl || f.frames[0]))?.frameUrl;
@@ -287,7 +291,7 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                startWizard("film", vibeText);
+                startAgent("guided", "film", vibeText);
               }
             }}
             rows={2}
@@ -308,16 +312,23 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
                   <DropdownMenuLabel className="font-label text-[10px] uppercase tracking-widest text-on-surface-variant">
                     Guide it with a reference
                   </DropdownMenuLabel>
+                  {/* Mock attachments: each drops a token into the brief that
+                      the agent acknowledges in its recap. */}
                   {[
-                    { icon: ImagePlus, label: "Add an image" },
-                    { icon: Music2, label: "Add a track" },
-                    { icon: UsersRound, label: "Mention a character" },
-                  ].map(({ icon: Icon, label }) => (
+                    { icon: ImagePlus, label: "Add an image", token: "[image: reference.png]" },
+                    { icon: Music2, label: "Add a track", token: `♪ ${"Neon night drive · synthwave"}` },
+                    {
+                      icon: UsersRound,
+                      label: "Mention a character",
+                      token: `@${proAssets.find((a) => a.kind === "character")?.name ?? "Theo"}`,
+                    },
+                  ].map(({ icon: Icon, label, token }) => (
                     <DropdownMenuItem
                       key={label}
-                      onClick={() =>
-                        toast.info(`${label} — lands with the agent workspace update`)
-                      }
+                      onClick={() => {
+                        setVibeText((v) => (v ? `${v.trimEnd()} ${token}` : token));
+                        toast.success(`${token} attached to the brief (mock)`);
+                      }}
                       className="gap-2.5 cursor-pointer"
                     >
                       <Icon className="w-3.5 h-3.5" />
@@ -333,14 +344,14 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
             <span className="flex-1" />
             <button
               type="button"
-              onClick={() => toast.info("Just make it — one-shot auto mode arrives with the agent workspace")}
+              onClick={() => startAgent("auto", "film", vibeText)}
               className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full border border-outline-variant/50 font-label text-[10px] uppercase tracking-wider text-on-surface-variant hover:border-primary/50 hover:text-primary transition-colors"
             >
-              Just make it
+              <Zap className="w-3 h-3" /> Just make it
             </button>
             <button
               type="button"
-              onClick={() => startWizard("film", vibeText)}
+              onClick={() => startAgent("guided", "film", vibeText)}
               className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-primary text-on-primary font-label text-[10px] uppercase tracking-wider hover:opacity-90 active:scale-95 transition-all"
             >
               <Wand2 className="w-3 h-3" /> Guide me
@@ -381,7 +392,7 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
               <button
                 key={wf}
                 type="button"
-                onClick={() => startWizard(wf, vibeText)}
+                onClick={() => startAgent("guided", wf, vibeText)}
                 className="group shrink-0 w-[240px] text-left rounded-2xl border border-outline-variant/40 overflow-hidden hover:border-primary/50 transition-colors bg-surface-container-low flex items-stretch"
               >
                 <span
@@ -509,8 +520,19 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
     );
   }
 
+  /* Project view — the agent thread docks left of the board (chat-first),
+     and every store patch it makes shows up live in the grid beside it. */
   return (
-    <div>
+    <div className="flex flex-col gap-4 lg:grid lg:grid-cols-[minmax(300px,360px)_minmax(0,1fr)] lg:items-start">
+      <AgentPanel
+        key={project.id}
+        projectId={project.id}
+        boot={null}
+        dock
+        onProjectCreated={setCurrentProProject}
+        onGoEditor={onGoEditor}
+      />
+      <div className="min-w-0">
       {/* Project row */}
       <div className="flex items-center gap-2 flex-wrap mb-4">
         {renaming ? (
@@ -628,13 +650,6 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
           )}
           <button
             type="button"
-            onClick={() => setStepperWf(project.workflow ?? "film")}
-            className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full border border-primary/45 text-primary font-label text-[10px] uppercase tracking-wider hover:bg-primary-container/25 transition-colors"
-          >
-            <Sparkles className="w-3 h-3" /> Script to Shots
-          </button>
-          <button
-            type="button"
             onClick={onNewShot}
             className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-primary text-on-primary font-label text-[10px] uppercase tracking-wider hover:opacity-90 active:scale-95 transition-all"
           >
@@ -649,11 +664,12 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
           <Clapperboard className="w-7 h-7 text-on-surface-variant mx-auto" />
           <p className="font-headline text-xl text-on-surface mt-4">Nothing here yet</p>
           <p className="font-body text-sm text-on-surface-variant mt-1.5">
-            Create a shot to start editing — or run Script to Shots to draft the whole episode.
+            Create a shot to start editing — or paste the script to the agent and let it draft the
+            whole episode.
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
           {fragments.map((f, i) => (
             <FragmentCard
               key={f.id}
@@ -677,6 +693,7 @@ export default function ShotsBoard({ onGoEditor }: { onGoEditor: () => void }) {
           </button>
         </div>
       )}
+      </div>
     </div>
   );
 }
